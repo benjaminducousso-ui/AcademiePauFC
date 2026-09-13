@@ -1,0 +1,43 @@
+name: Publication automatique (Drive → site)
+ 
+on:
+  schedule:
+    - cron: "23 * * * *"     # toutes les heures, à h+23
+  workflow_dispatch: {}      # bouton « Run workflow » pour forcer
+ 
+permissions:
+  contents: write
+ 
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Récupérer les fichiers publiés sur Drive (via l'Apps Script du club)
+        env:
+          API: https://script.google.com/macros/s/AKfycbw_lyvwhgyF-4i9jM-mNnHTCkdS-q0W92UeU7QGwgmaayAjGTtJCGB1n2K-VlgkKuEGEg/exec
+        run: |
+          set -e
+          changed=0
+          for f in data.json seances-u7.html; do
+            code=$(curl -sS -L -o "/tmp/$f" -w "%{http_code}" "$API?file=$f")
+            if [ "$code" != "200" ] || [ ! -s "/tmp/$f" ] || head -c 10 "/tmp/$f" | grep -q '^{"error"'; then
+              echo "· $f : rien à publier (HTTP $code)"; continue
+            fi
+            if [ "$f" = "data.json" ]; then
+              python3 -c "import json,sys;d=json.load(open('/tmp/$f'));assert isinstance(d.get('rows'),list) and d.get('fetchedAt'),'data.json invalide'" || { echo "· data.json invalide, ignoré"; continue; }
+            fi
+            if ! cmp -s "/tmp/$f" "$f"; then cp "/tmp/$f" "$f"; changed=1; echo "· $f mis à jour"; else echo "· $f inchangé"; fi
+          done
+          echo "changed=$changed" >> "$GITHUB_ENV"
+ 
+      - name: Commit & push si changement
+        if: env.changed == '1'
+        run: |
+          git config user.name "Publication Pau FC"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Publication automatique du $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
+ 
