@@ -1,0 +1,823 @@
+<title>Séances U7 Pau FC</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  --navy:#0B2A4A; --navy-2:#123B66; --yellow:#F2C200; --yellow-ink:#7A5E00;
+  --bg:#F3F5F9; --surface:#FFFFFF; --surface-2:#E9EEF6; --line:#D5DDE8;
+  --ink:#14213D; --muted:#5B6B82; --faint:#8A97AB;
+  --pitch:#3E8E57; --pitch-2:#4A9C63; --pitch-line:rgba(255,255,255,.85);
+  --blue-team:#1E56C9; --red-team:#D64545; --gk:#8E44AD;
+  --ok:#2E8B57; --warn:#C77700; --wa:#25D366; --wa-ink:#0B3D22;
+  --shadow:0 1px 2px rgba(11,42,74,.06),0 6px 20px rgba(11,42,74,.08);
+  --r:10px;
+  --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#0B2A4A; --navy-2:#173F6B; --bg:#0E1726; --surface:#162236; --surface-2:#1D2C45; --line:#2B3C57;
+    --ink:#E8EDF5; --muted:#A5B2C6; --faint:#7C8AA1; --yellow-ink:#F2C200;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#0B2A4A; --navy-2:#173F6B; --bg:#0E1726; --surface:#162236; --surface-2:#1D2C45; --line:#2B3C57;
+  --ink:#E8EDF5; --muted:#A5B2C6; --faint:#7C8AA1; --yellow-ink:#F2C200;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);margin:0;line-height:1.05;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:clamp(30px,5vw,44px);font-weight:800;text-transform:uppercase}
+h2{font-size:clamp(24px,3.4vw,32px);font-weight:700;text-transform:uppercase}
+h3{font-size:22px;font-weight:700}
+h4{font-size:18px;font-weight:700}
+p{margin:0}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:13px;font-weight:700;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- header ---------- */
+.top{background:var(--navy);color:#fff;padding-block:18px 0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:18px}
+.brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.crest{width:46px;height:52px;flex:none}
+.brand .eyebrow{color:var(--yellow)}
+.brand p.sub{color:#C9D6E8;max-width:62ch;margin-top:4px}
+.tabs{display:flex;gap:4px;margin-top:18px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:transparent;color:#C9D6E8;border:0;border-bottom:3px solid transparent;padding:10px 14px;font-family:var(--display);font-size:17px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;white-space:nowrap;border-radius:6px 6px 0 0}
+.tab:hover{color:#fff;background:rgba(255,255,255,.06)}
+.tab[aria-selected="true"]{color:var(--yellow);border-bottom-color:var(--yellow)}
+.view{display:none;padding-block:24px 56px}
+.view.active{display:block}
+
+/* ---------- periods strip ---------- */
+.periods{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.period{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 12px 14px;position:relative;display:flex;flex-direction:column;gap:6px;min-width:0}
+.period .idx{font-family:var(--display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.period h3{font-size:19px;text-transform:uppercase}
+.period .dates{font-size:13px;color:var(--muted)}
+.period .fil{font-size:14px}
+.period .badge{align-self:flex-start;background:var(--surface-2);color:var(--ink);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600}
+.period.current{border-color:var(--yellow);box-shadow:inset 0 0 0 2px var(--yellow)}
+.period.current .idx{color:var(--yellow-ink)}
+.period.current .idx::after{content:" · en cours"}
+.period .hol{position:absolute;right:10px;top:10px;font-size:11px;color:var(--faint)}
+@media (max-width:900px){.periods{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.periods{grid-template-columns:1fr}}
+
+.grid2{display:grid;grid-template-columns:1.2fr .8fr;gap:22px;margin-top:22px}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.card h3{margin-bottom:8px}
+.card ul{margin:8px 0 0;padding-left:18px}
+.card li{margin:4px 0}
+.seance-type{display:grid;gap:6px;margin-top:10px}
+.st-row{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:baseline;padding:8px 10px;border-radius:8px;background:var(--surface-2)}
+.st-row b{font-family:var(--display);font-size:17px}
+.st-row .t{font-family:var(--display);font-size:18px;color:var(--navy-2);font-weight:800}
+:root[data-theme="dark"] .st-row .t{color:var(--yellow)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-row .t{color:var(--yellow)}}
+.facets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.facet{background:var(--surface-2);border-radius:8px;padding:10px}
+.facet b{display:block;font-family:var(--display);font-size:17px;text-transform:uppercase}
+.facet span{font-size:13px;color:var(--muted)}
+@media (max-width:640px){.facets{grid-template-columns:repeat(2,1fr)}}
+.note{font-size:14px;color:var(--muted)}
+.callout{border-left:4px solid var(--yellow);background:var(--surface);padding:12px 14px;border-radius:0 var(--r) var(--r) 0;margin-top:14px;font-size:15px}
+
+/* ---------- sessions view ---------- */
+.sess-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+@media (max-width:900px){.sess-layout{grid-template-columns:1fr}}
+.sess-list{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
+@media (max-width:900px){.sess-list{position:static;flex-direction:row;overflow-x:auto;padding-bottom:6px}}
+.sess-item{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;color:var(--ink);min-width:0}
+@media (max-width:900px){.sess-item{min-width:240px}}
+.sess-item:hover{border-color:var(--navy-2)}
+.sess-item[aria-current="true"]{border-color:var(--yellow);box-shadow:inset 0 0 0 2px var(--yellow)}
+.sess-item .d{font-family:var(--display);line-height:1;text-align:center}
+.sess-item .d b{display:block;font-size:22px}
+.sess-item .d span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.sess-item .ttl{font-weight:600;font-size:15px;line-height:1.2;overflow:hidden;text-overflow:ellipsis}
+.sess-item .sub{font-size:12px;color:var(--muted)}
+.chip{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.chip.sam{background:#FFF3BF;color:#7A5E00}
+.chip.mer{background:var(--surface-2);color:var(--muted)}
+.chip.plateau{background:var(--yellow);color:#3B2E00}
+.chip.sent{background:#DCF5E6;color:#1B5E36}
+.chip.opt{background:transparent;border:1px dashed var(--line);color:var(--muted)}
+:root[data-theme="dark"] .chip.sam{background:#4A3B00;color:#F2C200}
+:root[data-theme="dark"] .chip.sent{background:#153D28;color:#7ED9A3}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip.sam{background:#4A3B00;color:#F2C200}:root:not([data-theme="light"]) .chip.sent{background:#153D28;color:#7ED9A3}}
+
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.sheet-head{background:var(--navy);color:#fff;padding:18px 20px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between}
+.sheet-head .eyebrow{color:var(--yellow)}
+.sheet-head h2{color:#fff;margin-top:4px}
+.sheet-head .theme{color:#C9D6E8;margin-top:6px;max-width:60ch}
+.sheet-head .meta{display:flex;gap:8px;flex-wrap:wrap}
+.meta .pill{background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px;font-size:13px;color:#fff}
+.toggle{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 12px;font-weight:600;font-size:14px}
+.toggle[aria-pressed="true"]{background:var(--yellow);color:#3B2E00;border-color:var(--yellow)}
+.objs{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)}
+@media (max-width:640px){.objs{grid-template-columns:1fr}}
+.objs h4{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.objs ul{margin:0;padding-left:18px}
+.timeline{display:flex;height:10px;border-radius:999px;overflow:hidden;margin:14px 20px 0;background:var(--surface-2)}
+.timeline span{display:block}
+.tl-legend{display:flex;gap:12px;flex-wrap:wrap;padding:8px 20px 0;font-size:12px;color:var(--muted)}
+.tl-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.blocks{display:flex;flex-direction:column;gap:0;padding:8px 0 4px}
+.block{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:18px;padding:18px 20px;border-top:1px solid var(--line)}
+.block:first-child{border-top:0}
+@media (max-width:760px){.block{grid-template-columns:1fr}}
+.block .when{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.block .when .t{font-family:var(--display);font-size:26px;font-weight:800;line-height:1;color:var(--navy-2)}
+:root[data-theme="dark"] .block .when .t{color:var(--yellow)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .block .when .t{color:var(--yellow)}}
+.block .kind{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:3px 8px;border-radius:4px;color:#fff}
+.k-accueil{background:#6B7A90}.k-eveil{background:#C77700}.k-atelier{background:#1E56C9}.k-defi{background:#8E44AD}.k-match{background:#2E8B57}.k-calme{background:#6B7A90}
+.block h3{font-size:22px;margin-bottom:6px}
+.block .desc{margin-bottom:8px}
+.block dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0 0;font-size:14px}
+.block dt{color:var(--muted);font-weight:600}
+.block dd{margin:0}
+.block .veiller{margin-top:10px;background:var(--surface-2);border-radius:8px;padding:8px 10px;font-size:14px}
+.block .veiller b{color:var(--yellow-ink)}
+.schema{background:var(--surface-2);border-radius:8px;padding:8px}
+.schema svg{display:block;width:100%;height:auto;max-width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-2px;margin-right:3px}
+.materiel{padding:14px 20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.materiel .mat{background:var(--surface-2);border-radius:6px;padding:4px 10px;font-size:14px}
+.educ{padding:14px 20px;border-top:1px solid var(--line);display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.educ .ico{width:34px;height:34px;border-radius:50%;background:var(--yellow);color:#3B2E00;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:16px}
+.bilan{padding:14px 20px;border-top:1px solid var(--line)}
+.bilan textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:8px;padding:10px;font-family:inherit;font-size:15px;background:var(--surface);color:var(--ink);resize:vertical}
+.bilan label{display:block;font-weight:600;margin-bottom:6px}
+
+/* ---------- send bar ---------- */
+.sendbar{background:var(--surface-2);padding:16px 20px;border-top:1px solid var(--line)}
+.sendbar h4{margin-bottom:10px;display:flex;align-items:center;gap:8px}.sendbar h4 svg{width:20px;height:20px;color:var(--wa)}
+.wa-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:8px;padding:10px 14px;font-weight:700;border:1px solid transparent;text-decoration:none;line-height:1}
+.btn.wa{background:var(--wa);color:#0B3D22}
+.btn.wa:hover{filter:brightness(.95)}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--navy-2)}
+.btn.small{padding:7px 10px;font-size:14px}
+.btn svg{width:18px;height:18px}
+.sent-mark{font-size:13px;color:var(--ok);font-weight:600}
+.preview{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:14px;white-space:pre-wrap;font-family:var(--body);max-height:260px;overflow:auto}
+details.prev summary{cursor:pointer;font-weight:600;color:var(--muted);font-size:14px}
+
+/* ---------- profils ---------- */
+.prof-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:15px}
+.prof-table th{text-align:left;font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;font-size:14px;color:var(--muted);padding:8px 8px;border-bottom:2px solid var(--line)}
+.prof-table td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.prof-table input[type=text]{width:100%;border:1px solid transparent;background:transparent;color:var(--ink);font:inherit;padding:6px 4px;border-radius:6px}
+.prof-table input[type=text]:hover{border-color:var(--line)}
+.stars{display:inline-flex;gap:2px}
+.stars button{background:none;border:0;padding:2px;font-size:20px;line-height:1;color:var(--line)}
+.stars button.on{color:var(--yellow)}
+.stars button:hover{transform:scale(1.15)}
+.tbl-wrap{overflow-x:auto}
+.prof-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.del{background:none;border:0;color:var(--faint);font-size:18px;padding:4px}
+.del:hover{color:var(--red-team)}
+
+/* ---------- réglages ---------- */
+.edu-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.edu-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center}
+@media (max-width:560px){.edu-row{grid-template-columns:1fr auto}.edu-row input:nth-child(2){grid-column:1}}
+.edu-row input{border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;background:var(--surface);color:var(--ink);width:100%}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+@media (max-width:860px){.settings-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.field label{font-weight:600;font-size:14px}
+.field input,.field textarea,.field select{border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;background:var(--surface);color:var(--ink)}
+.source-list{margin:8px 0 0;padding-left:18px;font-size:14px}
+.source-list li{margin:4px 0}
+.source-list a{color:var(--navy-2)}
+:root[data-theme="dark"] .source-list a{color:#9DC1F0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .source-list a{color:#9DC1F0}}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;box-shadow:var(--shadow);z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- images WhatsApp ---------- */
+.imgbar{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn.img{background:var(--navy);color:#fff}
+.btn.img:hover{background:var(--navy-2)}
+.overlay{position:fixed;inset:0;background:rgba(11,42,74,.55);display:none;align-items:flex-start;justify-content:center;padding:20px 12px;overflow:auto;z-index:40}
+.overlay.open{display:flex}
+.modal{background:var(--bg);color:var(--ink);border-radius:12px;max-width:760px;width:100%;padding:16px 16px 20px;box-shadow:var(--shadow)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.modal-head h3{font-size:22px}
+.modal .hint{font-size:14px;color:var(--muted);margin-bottom:12px}
+.gallery{display:flex;flex-direction:column;gap:18px}
+.gitem{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.gitem img{display:block;width:100%;height:auto;border-radius:6px;border:1px solid var(--line)}
+.gitem .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.gitem .acts .note{margin-left:auto}
+.close{background:none;border:0;font-size:28px;line-height:1;color:var(--muted);padding:4px 8px}
+.close:hover{color:var(--ink)}
+.busy{opacity:.6;pointer-events:none}
+.edu #tab-profils,.edu #tab-reglages,.edu .sendbar,.edu .bilan,.edu #plateauToggle{display:none!important}
+.edu .brand p.sub{display:none}
+code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92em}
+@media print{.top,.sess-list,.sendbar,.bilan,.toast{display:none!important}.sheet{box-shadow:none;border:0}.view{display:none}.view.active{display:block}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg class="crest" viewBox="0 0 46 52" aria-hidden="true"><path d="M23 1 44 8v18c0 12-9 21-21 25C11 47 2 38 2 26V8z" fill="#F2C200"/><path d="M23 6 39 11.5V26c0 9.5-7 16.8-16 20-9-3.2-16-10.5-16-20V11.5z" fill="#0B2A4A"/><path d="M23 12 33 16v10c0 6-4.2 10.6-10 13-5.8-2.4-10-7-10-13V16z" fill="#F2C200"/><text x="23" y="30" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="12" fill="#0B2A4A">U7</text></svg>
+      <div>
+        <div class="eyebrow">Pau FC · École de foot · Saison 2026-2027</div>
+        <h1>Séances U7</h1>
+        <p class="sub">Le programme de l'année, les séances prêtes à mener et l'envoi WhatsApp aux éducateurs. Un jeu, une cible, beaucoup de ballon.</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" id="tab-guide" aria-selected="true" aria-controls="view-guide">Guide de l'année</button>
+      <button class="tab" role="tab" id="tab-seances" aria-selected="false" aria-controls="view-seances">Séances · Période 1</button>
+      <button class="tab" role="tab" id="tab-profils" aria-selected="false" aria-controls="view-profils">Profils techniques</button>
+      <button class="tab" role="tab" id="tab-reglages" aria-selected="false" aria-controls="view-reglages">Éducateurs &amp; réglages</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="view active" id="view-guide" role="tabpanel" aria-labelledby="tab-guide"></section>
+  <section class="view" id="view-seances" role="tabpanel" aria-labelledby="tab-seances"></section>
+  <section class="view" id="view-profils" role="tabpanel" aria-labelledby="tab-profils"></section>
+  <section class="view" id="view-reglages" role="tabpanel" aria-labelledby="tab-reglages"></section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div></div>
+<script>
+/* =========================================================
+   DONNÉES — programme U7 Pau FC 2026-2027
+   Source principale : FFF « Guide interactif U6/U7 » (24 thèmes, plateau, PEF)
+   Coordonnées des schémas en mètres : x = longueur, y = largeur
+   ========================================================= */
+const PERIODS = [
+  {n:1, name:"Que le match commence", from:"2026-09-16", to:"2026-10-17", hol:"Toussaint 17 oct → 2 nov",
+   fil:"Découvrir la cible, l'adversaire et son corps", tech:["Thème 1 · Les déménageurs (découverte de la cible)","Thème 2 · Bateau pirate (découverte de l'adversaire)","Thème 3 · La traversée magique (développement moteur)"],
+   pef:"PLAISIR — faire son sac, bien s'équiper, saluer les personnes", plateau:"Rentrée du foot + 0-1 plateau (3 matchs + 1 jeu), interclubs", sessions:"9 séances + 1 fête"},
+  {n:2, name:"C'est complètement foot", from:"2026-11-04", to:"2026-12-19", hol:"Noël 19 déc → 4 janv",
+   fil:"Se déplacer vite, éviter, s'arrêter", tech:["Thème 4 · L'épervier","Thème 5 · La queue du diable","Thème 6 · Le stop-ball","Thème 7 · Le va-et-vient"],
+   pef:"RESPECT — respecter partenaires, adversaires et éducateur", plateau:"Futsal, Festi-foot, 1 plateau", sessions:"≈ 13 séances"},
+  {n:3, name:"Le futsal, c'est génial", from:"2027-01-06", to:"2027-02-13", hol:"Hiver 13 févr → 1er mars",
+   fil:"Viser, défendre, suivre un parcours", tech:["Thème 8 · 1, 2, 3 soleil","Thème 9 · Défendre son château","Thème 10 · Le multi-but","Thème 11 · La locomotive"],
+   pef:"ENGAGEMENT — connaître les règles essentielles du jeu", plateau:"Festi-foot, plateau, futsal (en salle)", sessions:"≈ 11 séances"},
+  {n:4, name:"Retour sur les terrains", from:"2027-03-03", to:"2027-04-10", hol:"Printemps 10 → 26 avr",
+   fil:"Tirer, garder son ballon, se démarquer", tech:["Thème 12 · Abattre les quilles","Thème 13 · Les sorciers","Thème 14 · Le 4 contre 4","Thème 15 · Le magicien","Thèmes 16-20 · Démarque et marque (5 étapes)"],
+   pef:"TOLÉRANCE — s'enrichir de la diversité de l'équipe", plateau:"Festi-foot, 1-2 plateaux", sessions:"≈ 12 séances"},
+  {n:5, name:"Derniers crochets avant l'été", from:"2027-04-28", to:"2027-06-19", hol:"Été à partir du 3 juil",
+   fil:"Trouver son partenaire, réussir des défis", tech:["Thème 21 · Les quatre coins","Thème 22 · Minuit dans la bergerie","Thème 23 · Ballon au capitaine","Thème 24 · La pyramide"],
+   pef:"SOLIDARITÉ — supporter son équipe en respectant les autres", plateau:"Plateaux, interclubs, Journée nationale des débutants", sessions:"≈ 14 séances"}
+];
+
+const SEANCE_TYPE = [
+  ["0-5'","Accueil & rituel","Cri d'équipe, on vérifie le sac (protège-tibias, gourde), chacun prend un ballon."],
+  ["5-15'","Jeu d'éveil","Motricité + ballon (à la main puis au pied), tout le monde bouge, l'éducateur joue avec eux."],
+  ["15-27'","Thème FFF · version 1","Le jeu du guide fédéral tel qu'il est écrit (souvent ballon à la main) : manches de 1 min, on compte les points."],
+  ["27-40'","Thème FFF · version 2","Le même jeu ou un second thème, en variante « ballon au pied » ou avec obstacles."],
+  ["40-56'","Match","Foot à 3 sans gardien (25 × 15 m) ou foot à 4 avec gardien (30 × 20 m), règles du plateau."],
+  ["56-60'","Retour au calme","Un bravo pour chacun, le message éducatif de la période, on range ensemble."]
+];
+
+/* Les 4 compétences du guide U6/U7 = les 4 facettes du profil */
+const FACETS = [
+  {id:"cible", name:"Cible", desc:"Identifie le but à attaquer, cherche à progresser vers lui, tire pour marquer"},
+  {id:"adversaire", name:"Adversaire", desc:"Conduit et change de direction, se reconnaît défenseur, s'oppose à la progression"},
+  {id:"partenaire", name:"Partenaire", desc:"Découvre le partenaire, contrôle et passe le ballon au sol"},
+  {id:"moteur", name:"Motricité", desc:"Coordination, équilibre, déplacements dans un espace délimité, vitesse de réaction"}
+];
+
+const P = (x,y,c,l)=>({x,y,c,l});           // joueur : c = b (bleu) r (rouge) y (jaune) g (gardien) e (éducateur)
+const C = (x,y,k)=>({x,y,k:k||"cup"});      // coupelle (cup) / plot (cone) / cerceau (hoop)
+const B = (x,y)=>({x,y});                   // ballon
+const G = (x,y,o,s)=>({x,y,o:o||"v",s:s||3});// but : o = v (ligne de fond) / h (ligne de côté)
+const A = (p,k)=>({p,k:k||"c"});            // flèche : c conduite, p passe, m course, s tir
+const Z = (x,y,w,h,t,f)=>({x,y,w,h,t,f});   // zone
+
+/* ---------- Bibliothèque : les 3 thèmes FFF de la période 1 et leurs progressions ---------- */
+const GAMES = {
+  accueil:{name:"Accueil & rituel", kind:"accueil", dur:5, desc:"On se salue, cri d'équipe « Pau FC ! », on vérifie protège-tibias et gourde, chacun prend un ballon et joue librement en attendant les copains.", veiller:"Un mot gentil à chaque enfant en arrivant ; celui qui arrive tôt joue déjà avec un ballon. À 5-6 ans, l'enfant doit être rassuré en permanence."},
+  calme:{name:"Retour au calme", kind:"calme", dur:4, desc:"Assis en cercle : un bravo pour chacun (« j'ai vu que… »), le message éducatif du jour, puis on range le matériel ensemble.", veiller:"Nommer une réussite précise par enfant, pas un « bravo » général."},
+
+  /* ---- Éveils ---- */
+  tours:{name:"Les tours de magie", kind:"eveil", dur:10, src:"FFF thème 3 — consignes de la traversée, en éveil",
+    desc:"Chacun avec son ballon, en dispersion. Le grand magicien (l'éducateur) annonce un tour : « lancer le ballon en l'air et taper dans ses mains avant de le rattraper », « lancer, laisser un rebond, rattraper », « faire rouler le ballon avec la semelle autour de soi », « conduire avec l'intérieur, puis l'extérieur du pied ». Chaque tour réussi 3 fois = un point de magicien.",
+    org:"Carré 15 × 15 m, 1 ballon par enfant, l'éducateur au centre qui démontre chaque tour.", mat:["1 ballon par enfant","8 coupelles"],
+    var:"Les enfants inventent un tour et le montrent aux autres. Tour à deux : je lance, mon copain rattrape.",
+    veiller:"Démontrer chaque tour avant de le demander. Sécurité : espace entre les enfants, éviter les contacts.",
+    schema:{f:[15,15], cups:[C(0,0),C(15,0),C(0,15),C(15,15)], players:[P(7.5,7.5,"e"),P(3,3,"b"),P(11,3,"b"),P(3,11,"r"),P(11,11,"r"),P(7.5,12.5,"b"),P(7.5,2.5,"r")],
+      balls:[B(3,1.6),B(11,1.6),B(3.7,11.4),B(11.7,11.4),B(8.2,13),B(7.5,1)], arrows:[A([[3,2.6],[3,1.7]],"m"),A([[11,2.6],[11,1.7]],"m"),A([[3.7,11.4],[5.5,12.5],[6.5,11]],"c")], labels:[{x:7.5,y:14.3,t:"lancer · taper dans les mains · rattraper"}]}},
+
+  express:{name:"Les déménageurs express", kind:"eveil", dur:10, src:"FFF thème 1 — en échauffement",
+    desc:"Version rapide des déménageurs pour se mettre en route : 2 maisons face à face, tous les ballons au centre. Manche de 45 secondes à la main, puis 45 secondes en conduite. On compte, on recommence en changeant le sens.",
+    org:"Terrain 15 × 12 m, 2 maisons (carrés de 3 m), 1 ballon par enfant au centre.", mat:["1 ballon par enfant","8 coupelles"],
+    var:"Ballon porté sur la tête. Ballon roulé avec la main au sol. Conduite pied gauche.",
+    veiller:"Un ballon à la fois. Le ballon s'arrête bien dans la maison.",
+    schema:{f:[15,12], zones:[Z(0,4.5,3,3,"Bleus","#1E56C9"),Z(12,4.5,3,3,"Rouges","#D64545")], balls:[B(6.8,5.4),B(7.6,6.6),B(8.2,5.2),B(7,7.2),B(8.6,6.4)],
+      players:[P(4,3,"b"),P(4,9,"b"),P(11,3,"r"),P(11,9,"r")], arrows:[A([[4,3],[6.8,5.2]],"m"),A([[8.2,5.2],[11.5,6]],"c")]}},
+
+  /* ---- THÈME 1 · LES DÉMÉNAGEURS ---- */
+  dem1:{name:"Les déménageurs · à la main", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 1 · Découverte de la cible",
+    desc:"Au signal de l'éducateur, les joueurs vont récupérer des ballons dans la maison adverse et les ramènent dans leur maison, à la main. À la fin du temps donné (1 minute maximum), les joueurs s'immobilisent et l'éducateur compte le nombre de ballons dans chaque maison. L'équipe qui a ramené le plus de ballons dans sa maison = 1 point.",
+    org:"Terrain 20 × 20 m, 2 maisons (carrés délimités par 8 coupelles), 4 c 4, 8 ballons (4 par maison au départ).", mat:["8 ballons","8 coupelles","10 plots","chasubles 4/4"],
+    var:"Possibilité de rajouter des joueurs par équipe en agrandissant l'espace.",
+    veiller:"Bien compter les points. Les joueurs arrêtent bien le ballon dans leur maison. 1 minute maximum par manche.",
+    schema:{f:[20,20], zones:[Z(0,6,4,8,"Bleus","#1E56C9"),Z(16,6,4,8,"Rouges","#D64545")], cones:[C(0,0,"cone"),C(20,0,"cone"),C(0,20,"cone"),C(20,20,"cone"),C(10,0,"cone"),C(10,20,"cone")],
+      balls:[B(1.2,8),B(2.4,10),B(1.4,12),B(2.6,7.2),B(17.6,8),B(18.8,10),B(17.4,12),B(18.6,13)],
+      players:[P(6,4,"b"),P(6,16,"b"),P(8,10,"b"),P(5,10,"b"),P(14,4,"r"),P(14,16,"r"),P(12,10,"r"),P(15,10,"r"),P(10,-1.6,"e")],
+      arrows:[A([[8,10],[13,9],[17.4,9.5]],"m"),A([[12,10],[7,11],[2.8,10.5]],"m")]}},
+  dem2:{name:"Les déménageurs · en conduite", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 1 · variante « conduite de balle »",
+    desc:"Même jeu, mais le joueur ramène le ballon en conduite de balle (pas de main, pas de frappe). Il doit l'arrêter avec la semelle dans sa maison pour qu'il compte. Manches de 1 minute, l'équipe qui a le plus de ballons = 1 point.",
+    org:"Terrain 20 × 20 m, 2 maisons, 4 c 4, 8 ballons.", mat:["8 ballons","8 coupelles","10 plots","chasubles 4/4"],
+    var:"Pied gauche seulement. Ramener 2 ballons en même temps (1 à la main, 1 au pied) pour les plus à l'aise.",
+    veiller:"Le ballon reste près du pied ; arrêt semelle dans la maison. Compter à haute voix avec les enfants.",
+    schema:{f:[20,20], zones:[Z(0,6,4,8,"Bleus","#1E56C9"),Z(16,6,4,8,"Rouges","#D64545")], cones:[C(0,0,"cone"),C(20,0,"cone"),C(0,20,"cone"),C(20,20,"cone"),C(10,0,"cone"),C(10,20,"cone")],
+      balls:[B(1.2,8),B(2.4,10),B(1.4,12),B(17.6,8),B(18.8,10),B(17.4,12)],
+      players:[P(6,4,"b"),P(9,14,"b"),P(16.4,9.6,"b"),P(5,10,"b"),P(14,4,"r"),P(11,16,"r"),P(3.2,11,"r"),P(15,10,"r"),P(10,-1.6,"e")],
+      arrows:[A([[16.4,9.6],[12,8],[7,9],[3,9.5]],"c"),A([[3.2,11],[8,13],[13,12],[17,11]],"c")]}},
+  dem3:{name:"Les déménageurs · avec obstacles", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 1 · variante « obstacles »",
+    desc:"Des obstacles sont posés entre les maisons (plots à contourner, portes de coupelles à franchir, une rivière à sauter). Les déménageurs ramènent les ballons en conduite en passant obligatoirement par un obstacle. Ballon arrêté dans la maison = il compte.",
+    org:"Terrain 20 × 20 m, 2 maisons, 4 c 4, 6-8 plots et 4 coupelles au centre.", mat:["8 ballons","12 coupelles","10 plots","chasubles 4/4"],
+    var:"Un obstacle imposé par manche (« tous par la porte jaune »). Les déménageurs voleurs : on peut aller chercher un ballon dans n'importe quelle maison, jamais défendre la sienne (variante Pau FC).",
+    veiller:"Petites touches de balle avant l'obstacle, tête levée pour choisir un obstacle libre.",
+    schema:{f:[20,20], zones:[Z(0,6,4,8,"Bleus","#1E56C9"),Z(16,6,4,8,"Rouges","#D64545")], cones:[C(8,4,"cone"),C(12,4,"cone"),C(10,10,"cone"),C(8,16,"cone"),C(12,16,"cone")], cups:[C(9,7),C(11,7),C(9,13),C(11,13)],
+      balls:[B(1.2,8),B(2.4,10),B(17.6,8),B(18.8,10),B(17.4,12)],
+      players:[P(6,7,"b"),P(16.4,11,"b"),P(5,13,"b"),P(7,17,"b"),P(14,7,"r"),P(3.4,9,"r"),P(15,13,"r"),P(13,3,"r"),P(10,-1.6,"e")],
+      arrows:[A([[16.4,11],[12.5,13.2],[10,13.2],[7,12],[3,10.5]],"c"),A([[3.4,9],[6,6],[8,4.2],[10.5,3],[13,5],[17,8]],"c")]}},
+
+  /* ---- THÈME 2 · BATEAU PIRATE ---- */
+  pir1:{name:"Bateau pirate · sans ballon", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 2 · Découverte de l'adversaire",
+    desc:"Au signal de l'éducateur, les pirates (bleus, sans ballon) doivent passer dans une des deux portes (le bateau) situées au milieu du terrain. Les gardes (rouges) doivent les en empêcher en les touchant. Un pirate touché revient à son île et repart. 1 point = passer dans une porte. Après 1 minute, on inverse les rôles.",
+    org:"Terrain 30 × 15 m : île de départ, 2 portes (bateaux) de 3 m matérialisées par des coupelles au milieu, île d'arrivée. 4 c 4.", mat:["8 ballons","12 coupelles","10 plots","2 cerceaux","chasubles 4/4"],
+    var:"Ajouter ou retirer une porte. Utiliser un langage imagé : îles, bateau, pirates, mer.",
+    veiller:"Stimuler et valoriser la réussite. Compter les points. Changer les rôles.",
+    schema:{f:[30,15], zones:[Z(0,0,4,15,"ÎLE","#F2C200"),Z(26,0,4,15,"ÎLE","#F2C200"),Z(14,2,2,4,"","#1E56C9"),Z(14,9,2,4,"","#1E56C9")], cups:[C(14,2),C(14,6),C(16,2),C(16,6),C(14,9),C(14,13),C(16,9),C(16,13)],
+      players:[P(2,3,"b"),P(2,7,"b"),P(2,11,"b"),P(2,13.5,"b"),P(12,4,"r"),P(18,7,"r"),P(12,11,"r"),P(18,12,"r"),P(15,-1.6,"e")],
+      arrows:[A([[2,7],[8,5],[15,4],[22,6],[27,7]],"m"),A([[2,11],[8,12],[15,11],[22,10],[27,11]],"m")], labels:[{x:15,y:7.5,t:"BATEAU"}]}},
+  pir2:{name:"Bateau pirate · ballon à la main", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 2 · variante « ballon à la main »",
+    desc:"Même jeu : chaque pirate transporte un trésor (son ballon) dans les mains. Il doit franchir une porte du bateau sans être touché par un garde. Pirate touché = il revient sur son île avec son trésor et repart. 1 point par trésor passé. Les gardes n'ont pas le droit d'entrer dans les portes.",
+    org:"Terrain 30 × 15 m, 2 portes de 3 m, 4 c 4, 1 ballon par pirate.", mat:["8 ballons","12 coupelles","10 plots","chasubles 4/4"],
+    var:"Ballon porté sur la tête (équilibre). Un seul bateau (1 porte) pour compliquer.",
+    veiller:"Se déplacer pour ne pas se faire toucher : feinter, changer de direction, attendre le bon moment.",
+    schema:{f:[30,15], zones:[Z(0,0,4,15,"ÎLE","#F2C200"),Z(26,0,4,15,"ÎLE","#F2C200"),Z(14,2,2,4,"","#1E56C9"),Z(14,9,2,4,"","#1E56C9")], cups:[C(14,2),C(14,6),C(16,2),C(16,6),C(14,9),C(14,13),C(16,9),C(16,13)],
+      players:[P(2,3,"b"),P(2,7,"b"),P(2,11,"b"),P(2,13.5,"b"),P(12,4,"r"),P(18,7,"r"),P(12,11,"r"),P(18,12,"r")], balls:[B(2,1.6),B(2,5.6),B(2,9.6),B(2,12.1)],
+      arrows:[A([[2,7],[9,9],[15,11],[21,9],[27,8]],"m")], labels:[{x:15,y:7.5,t:"BATEAU"}]}},
+  pir3:{name:"Bateau pirate · ballon au pied", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 2 · variante « ballon au pied »",
+    desc:"Les pirates conduisent leur trésor au pied et doivent franchir une porte du bateau, ballon au pied, sans qu'un garde touche le ballon. Ballon touché ou sorti = retour à l'île. 1 point par passage. Inverser les rôles après chaque manche de 1 minute.",
+    org:"Terrain 30 × 15 m, 2 portes de 3 m, 4 c 4, 1 ballon par pirate.", mat:["8 ballons","12 coupelles","10 plots","chasubles 4/4"],
+    var:"3 portes pour faciliter, 1 porte pour compliquer. Les gardes ne peuvent se déplacer que sur la ligne du bateau.",
+    veiller:"Conduite tête levée pour voir les gardes. Accélérer une fois la porte franchie. Changer les rôles.",
+    schema:{f:[30,15], zones:[Z(0,0,4,15,"ÎLE","#F2C200"),Z(26,0,4,15,"ÎLE","#F2C200"),Z(14,2,2,4,"","#1E56C9"),Z(14,9,2,4,"","#1E56C9")], cups:[C(14,2),C(14,6),C(16,2),C(16,6),C(14,9),C(14,13),C(16,9),C(16,13)],
+      players:[P(2,3,"b"),P(2,7,"b"),P(2,11,"b"),P(2,13.5,"b"),P(12,4,"r"),P(18,7,"r"),P(12,11,"r"),P(18,12,"r")], balls:[B(2.8,3.3),B(2.8,7.3),B(2.8,11.3),B(2.8,13.8)],
+      arrows:[A([[2.8,7.3],[8,9.5],[15,11],[22,9.5],[27,8]],"c"),A([[2.8,3.3],[9,3],[15,4],[21,3],[27,4]],"c")], labels:[{x:15,y:7.5,t:"BATEAU"}]}},
+
+  /* ---- THÈME 3 · LA TRAVERSÉE MAGIQUE ---- */
+  trav1:{name:"La traversée magique", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 3 · Développement moteur",
+    desc:"Au signal du grand magicien (l'éducateur), le petit magicien traverse le terrain en exécutant un tour de magie : lancer le ballon en l'air et taper dans ses mains avant de le rattraper ; conduire le ballon en utilisant différentes surfaces (intérieur, extérieur, semelle). 1 point = traverser le terrain en respectant la consigne. Départ par vagues de 4.",
+    org:"Terrain 15 × 20 m, ligne de départ et ligne d'arrivée matérialisées, 4 c 4 (deux équipes côte à côte), 1 ballon par enfant.", mat:["8 ballons","8 coupelles","10 plots","chasubles 4/4"],
+    var:"Mettre les 2 équipes face à face pour qu'elles s'évitent en exécutant les actions. Inventer d'autres tours de magie.",
+    veiller:"Compter les points et valoriser. Complexifier ou simplifier les consignes selon la réussite. Utiliser un vocabulaire imagé.",
+    schema:{f:[15,20], cups:[C(1,0),C(1,20),C(14,0),C(14,20)], zones:[Z(0,0,1,20,"","#F2C200"),Z(14,0,1,20,"","#F2C200")],
+      players:[P(1.8,3,"b"),P(1.8,7,"b"),P(1.8,11,"r"),P(1.8,15,"r"),P(7.5,-1.6,"e")], balls:[B(1.8,1.6),B(1.8,5.6),B(2.6,11.3),B(2.6,15.3)],
+      arrows:[A([[2.6,11.3],[13,11.3]],"c"),A([[1.8,7],[13,7]],"m")], labels:[{x:7.5,y:18.8,t:"1 tour de magie = 1 traversée"}]}},
+  trav2:{name:"La traversée magique · face à face", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 3 · variante « face à face »",
+    desc:"Les deux équipes partent en même temps de chaque côté et se croisent au milieu en exécutant le tour de magie annoncé : il faut s'éviter sans lâcher son ballon ni percuter un copain. Tours proposés : conduite intérieur du pied, conduite semelle (tout doucement), ballon lancé-rebond-rattrapé en marchant, conduite en zigzag entre les plots.",
+    org:"Terrain 15 × 20 m, 4 bleus d'un côté, 4 rouges de l'autre, 1 ballon par enfant, quelques plots au centre.", mat:["8 ballons","8 coupelles","10 plots","chasubles 4/4"],
+    var:"Les enfants inventent un tour de magie et le nomment. Traversée chronométrée par équipe.",
+    veiller:"Lever la tête pour éviter les autres (prise d'information). Adapter la consigne à la réussite.",
+    schema:{f:[15,20], zones:[Z(0,0,1,20,"","#F2C200"),Z(14,0,1,20,"","#F2C200")], cones:[C(7.5,4,"cone"),C(7.5,10,"cone"),C(7.5,16,"cone")],
+      players:[P(1.8,3,"b"),P(1.8,8,"b"),P(1.8,13,"b"),P(1.8,18,"b"),P(13.2,5,"r"),P(13.2,10,"r"),P(13.2,15,"r"),P(13.2,1.5,"r")], balls:[B(2.6,3.3),B(2.6,8.3),B(2.6,13.3),B(2.6,18.3),B(12.4,5.3),B(12.4,10.3),B(12.4,15.3),B(12.4,1.8)],
+      arrows:[A([[2.6,8.3],[6,7],[9,9],[13,8]],"c"),A([[12.4,10.3],[9,12],[6,10.5],[2,11]],"c")]}},
+  trav3:{name:"La traversée magique · parcours", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 3 · variante « inventer d'autres tours »",
+    desc:"La traversée devient un parcours d'obstacles : sauter la rivière (2 coupelles), passer sous le pont (l'éducateur ou une haie), slalomer entre 3 plots en conduite, poser le ballon dans le cerceau à l'arrivée. Chaque enfant part quand le précédent a franchi la rivière. 1 point par traversée complète.",
+    org:"Couloir 15 × 20 m divisé en 2 couloirs parallèles (bleus / rouges), rivière, 3 plots, 1 cerceau par couloir.", mat:["8 ballons","12 coupelles","10 plots","2 cerceaux","chasubles 4/4"],
+    var:"Relais : l'équipe qui a posé tous ses ballons dans le cerceau en premier gagne la manche. Parcours à l'envers.",
+    veiller:"Coordination : pousser le ballon PUIS sauter. Contrôler la vitesse, pas de course folle.",
+    schema:{f:[15,20], zones:[Z(4,0,1,20,"","#4A90E2"),Z(0,10,15,0.3,"","#ffffff")], cones:[C(7,3,"cone"),C(9,6,"cone"),C(11,3,"cone"),C(7,13,"cone"),C(9,16,"cone"),C(11,13,"cone")], hoops:[C(13.5,5,"hoop"),C(13.5,15,"hoop")],
+      players:[P(1.5,5,"b"),P(0,5,"b"),P(1.5,15,"r"),P(0,15,"r")], balls:[B(2.3,5.3),B(2.3,15.3),B(13.5,5),B(13.5,15)],
+      arrows:[A([[2.3,5.3],[4.5,5],[7,4.5],[9,5.5],[11,4.5],[13,5]],"c")], labels:[{x:4.5,y:-1.2,t:"rivière"},{x:9,y:10,t:"couloir bleu ↑ · couloir rouge ↓"}]}},
+
+  /* ---- Défis et bilans ---- */
+  rallye:{name:"Le rallye des Pyrénées", kind:"defi", dur:30, src:"Bilan de période — 4 stations sur les 4 compétences FFF",
+    desc:"4 stations de 6 min, groupes de 3-4 qui tournent au coup de sifflet. ANIE (cible) : conduite depuis 8 m et tir dans un but de 3 m sans gardien, 5 essais. OSSAU (adversaire) : bateau pirate ballon au pied, 1 garde. BALAÏTOUS (motricité) : traversée magique parcours, chrono. VIGNEMALE (partenaire) : par 2, passes au sol dans une porte de 2 m, record en 1 min. L'éducateur observe et note 1 à 3 étoiles par enfant et par station dans l'onglet Profils.",
+    org:"4 ateliers en carré de 12 × 12 m chacun. 1 éducateur pour 2 stations, une feuille de notation (ou le téléphone).", mat:["10 plots","24 coupelles","1 ballon par enfant","2 cerceaux","chronomètre"],
+    var:"Chaque enfant reçoit un « passeport des sommets » tamponné à chaque station (feuille A5).",
+    veiller:"C'est une FÊTE, pas un examen : on annonce des records personnels, jamais un classement. Observer sans corriger, ou très peu.",
+    schema:{f:[28,28], zones:[Z(0,0,13,13,"ANIE · cible","#1E56C9"),Z(15,0,13,13,"OSSAU · adversaire","#D64545"),Z(0,15,13,13,"BALAÏTOUS · motricité","#F2C200"),Z(15,15,13,13,"VIGNEMALE · partenaire","#2E8B57")],
+      goals:[G(12.5,6.5,"v",3)], cones:[C(19,4,"cone"),C(19,9,"cone"),C(4,20,"cone"),C(7,23,"cone"),C(10,20,"cone")], cups:[C(21.5,20),C(21.5,22),C(19,6),C(19,7)],
+      players:[P(3,6.5,"b"),P(16.5,6.5,"r"),P(23,6.5,"r","G"),P(1.5,21.5,"y"),P(17,21,"b"),P(26,21,"b"),P(14,29.5,"e")],
+      balls:[B(3.8,6.8),B(17.3,6.8),B(2.3,21.8),B(17.8,21.3)], arrows:[A([[3.8,6.8],[8,6.5]],"c"),A([[8,6.5],[12,6.5]],"s"),A([[17.3,6.8],[19,6.5],[22,6.2]],"c"),A([[17.8,21.3],[25.2,21]],"p")]}},
+
+  /* ---- Matchs — lois du jeu du plateau U6/U7 ---- */
+  match3:{name:"Match · foot à 3 sans gardien", kind:"match", dur:16, src:"FFF U6/U7 · lois du jeu du plateau",
+    desc:"3 contre 3 sans gardien sur 25 × 15 m, buts de 4 m. Touche au pied (passe au sol ou conduite, interdit de marquer sur une touche directe), adversaires à 4 m à l'engagement, interdit de marquer sur l'engagement, pas de tacle. Séquences de 4 min, on change d'adversaire. Aucun classement : on compte les buts pour le plaisir.",
+    org:"1 ou 2 terrains de 25 × 15 m selon l'effectif (12 enfants = 4 équipes de 3 sur 2 terrains), ballon T3, parent-ballon ou éducateur qui relance vite.", mat:["4 plots ou 2 buts","12 coupelles","3 ballons T3","chasubles"],
+    var:"Un joker qui joue toujours avec l'équipe qui a le ballon (effectif impair).",
+    veiller:"Laisser jouer, ne pas coacher chaque action. Rappeler UNE consigne du jour. L'éducateur reste dans sa « maison d'accueil » (4 coupelles) au bord du terrain.",
+    schema:{f:[25,15], cups:[C(0,0),C(25,0),C(0,15),C(25,15)], goals:[G(0,7.5,"v",4),G(25,7.5,"v",4)],
+      players:[P(6,7,"b"),P(11,4,"b"),P(11,11,"b"),P(14,7.5,"r"),P(19,4,"r"),P(19,11,"r"),P(12.5,17.6,"e")], balls:[B(6.7,7.4),B(13.1,18)], arrows:[A([[6.7,7.4],[10,6],[13,5.5]],"c")], labels:[{x:12.5,y:-1.2,t:"25 × 15 m · 3c3 sans gardien"}]}},
+  match4:{name:"Match · foot à 4 avec gardien", kind:"match", dur:16, src:"FFF U6/U7 · lois du jeu du plateau",
+    desc:"4 contre 4 avec gardien sur 30 × 20 m, buts de 4 m, surface = zone des 8 m avec relance protégée (l'adversaire recule derrière la ligne des 8 m quand le gardien a le ballon ; relance à la main ou au pied, pas de volée). Touche au pied, adversaires à 4 m à l'engagement, pas de tacle. Le gardien change à chaque but.",
+    org:"Terrain 30 × 20 m, ligne des 8 m tracée en coupelles de chaque côté, ballon T3, 2 ballons de match.", mat:["4 plots ou 2 buts","16 coupelles","3 ballons T3","chasubles"],
+    var:"Position « triangle » à la relance du gardien : un joueur à droite, un à gauche, un devant (fiche FFF « ouverture de jeu »).",
+    veiller:"À la relance : les partenaires s'écartent du gardien et se placent en triangle, orientés vers le but adverse. Encourager, compter les buts des deux côtés.",
+    schema:{f:[30,20], cups:[C(0,0),C(30,0),C(0,20),C(30,20),C(8,0),C(8,20),C(22,0),C(22,20)], zones:[Z(0,0,8,20,"","#ffffff"),Z(22,0,8,20,"","#ffffff")], goals:[G(0,10,"v",4),G(30,10,"v",4)],
+      players:[P(1.5,10,"g","G"),P(28.5,10,"g","G"),P(9,5,"b"),P(9,15,"b"),P(14,10,"b"),P(23,7,"r"),P(23,13,"r"),P(19,10,"r"),P(15,22.6,"e")], balls:[B(1.5,8.4)],
+      arrows:[A([[1.5,8.4],[8.6,5.4]],"p"),A([[14,10],[16,9]],"m")], labels:[{x:4,y:-1.2,t:"zone des 8 m · relance protégée"},{x:15,y:-1.2,t:"30 × 20 m · 4c4 avec gardien"}]}},
+
+  plateaublanc:{name:"Plateau blanc · 3 matchs + 1 jeu", kind:"match", dur:40, src:"FFF U6/U7 · déroulement du plateau",
+    desc:"On répète le format du plateau district : 3 équipes (ou 4), rotation toutes les 10 minutes. Sur le terrain 1 : match foot à 3 sans gardien. Sur le terrain 2 : le jeu de la période (déménageurs en conduite). Chaque équipe joue 3 rencontres et fait 1 fois le jeu. Pause boisson de 5 min après 2 rotations. Protocole fair-play avant (on se salue) et après (haie d'honneur).",
+    org:"Terrain 1 : 25 × 15 m avec 2 buts. Terrain 2 : 20 × 20 m, 2 maisons. 3 équipes de 3-4 (bleus, rouges, jaunes), chasubles.", mat:["4 plots ou 2 buts","24 coupelles","10 plots","8 ballons T3","chasubles 3 couleurs"],
+    var:"Remplacer le jeu par le bateau pirate ou la traversée magique.",
+    veiller:"Tout le monde joue tout le temps : jamais de remplaçant qui attend. Les éducateurs restent dans la maison d'accueil et laissent jouer.",
+    schema:{f:[47,20], cups:[C(0,2.5),C(25,2.5),C(0,17.5),C(25,17.5)], goals:[G(0,10,"v",4),G(25,10,"v",4)], zones:[Z(27,0,4,8,"Maison","#1E56C9"),Z(43,0,4,8,"Maison","#F2C200"),Z(27,0,20,20,"","#ffffff")],
+      players:[P(6,9,"b"),P(11,6,"b"),P(11,14,"b"),P(14,10,"r"),P(19,6,"r"),P(19,14,"r"),P(33,12,"y"),P(37,16,"y"),P(41,12,"y"),P(12.5,-1.8,"e"),P(37,-1.8,"e")],
+      balls:[B(6.7,9.4),B(28,3),B(29.5,5),B(44,3),B(45.5,5.5)], arrows:[A([[6.7,9.4],[10,8],[13,7.5]],"c"),A([[41,12],[44,8.5]],"m")], labels:[{x:12.5,y:0.8,t:"Terrain 1 · match 3c3"},{x:37,y:19,t:"Terrain 2 · jeu de la période"}]}},
+
+  tournoi:{name:"Le tournoi des champions", kind:"match", dur:35, src:"Fête de période",
+    desc:"4 équipes de 3 tirées au sort, chacune choisit un nom de grand club européen. 2 terrains de foot à 3, matchs de 5 min, tout le monde rencontre tout le monde. À la fin : haie d'honneur, photo, goûter apporté par les parents. Pas de classement affiché : chaque équipe reçoit un « titre » (les plus fair-play, les plus solidaires, les plus rapides, les plus joueurs).",
+    org:"2 terrains de 25 × 15 m côte à côte, buts de 4 m, chasubles 4 couleurs, tableau des matchs.", mat:["8 plots","24 coupelles","4 ballons","chasubles 4 couleurs","goûter"],
+    var:"Musique d'entrée des joueurs. Un parent « speaker ».",
+    veiller:"Le plaisir avant tout : on célèbre les buts des deux côtés. Un titre pour chaque équipe.",
+    schema:{f:[52,15], cups:[C(0,0),C(25,0),C(0,15),C(25,15),C(27,0),C(52,0),C(27,15),C(52,15)], goals:[G(0,7.5,"v",4),G(25,7.5,"v",4),G(27,7.5,"v",4),G(52,7.5,"v",4)],
+      players:[P(6,6,"b"),P(11,10,"b"),P(15,5,"b"),P(16,9,"r"),P(20,6,"r"),P(11,4,"r"),P(33,7,"y"),P(38,11,"y"),P(42,5,"y"),P(43,9,"g"),P(47,6,"g"),P(38,4,"g")],
+      balls:[B(6.7,6.4),B(33.7,7.4)], labels:[{x:12.5,y:16.3,t:"Terrain 1"},{x:39.5,y:16.3,t:"Terrain 2"}]}}
+};
+
+/* ---------- Mode plateau (samedi) — déroulement FFF U6/U7 ---------- */
+const PLATEAU = {
+  title:"Plateau U6/U7 — journée district", theme:"Format FFF U6/U7 : protocole fair-play 15', 3 rencontres de 10' + 1 jeu de 10' (40 min discontinu, pause de 5' après 2 rotations), protocole de fin 15'. Foot à 3 sans gardien (25 × 15 m) ou foot à 4 avec gardien (30 × 20 m). Aucun classement.",
+  blocks:[
+    {t:"15'", kind:"accueil", name:"Accueil & protocole fair-play", desc:"Feuille de rencontres pré-remplie, chasubles, vestiaire, gourdes, pharmacie. Les équipes se saluent (tape dans la main), l'éducateur rappelle les 3 règles : on joue, on encourage, on respecte. Installer la maison d'accueil (4 coupelles) où l'éducateur reste pendant les matchs."},
+    {t:"10'", kind:"match", name:"1 · Rencontre", game:"match3"},
+    {t:"10'", kind:"match", name:"2 · Rencontre", game:"match4"},
+    {t:"5'", kind:"calme", name:"Pause boisson", desc:"Après 2 rotations : gourdes, on se regroupe, un mot d'encouragement à chacun."},
+    {t:"10'", kind:"atelier", name:"3 · Jeu en lien avec la programmation", game:"dem2"},
+    {t:"10'", kind:"match", name:"4 · Rencontre", game:"match3"},
+    {t:"15'", kind:"calme", name:"Protocole de fin & goûter", desc:"Haie d'honneur, poignée de main aux adversaires et à l'éducateur, un bravo à chaque enfant, goûter ensemble, rangement."}
+  ],
+  veiller:["Tout le monde joue : tendre vers 100 % de temps de jeu, éviter les suppléants.","Transférer les apprentissages de la semaine, laisser les enfants jouer le plus librement possible.","L'éducateur reste dans la maison d'accueil ; le parent-ballon (chasuble) relance vite sur les sorties.","Touche au pied, relance protégée aux 8 m, pas de tacle, interdit de marquer sur l'engagement."],
+  mat:["Ballons T3 (2 par terrain)","Chasubles 2 couleurs + chasuble parent-ballon","Coupelles pour la maison d'accueil","Feuille de rencontres","Gourdes, goûter, pharmacie","Protège-tibias pour tous"]
+};
+
+/* ---------- Séances de la période 1 ---------- */
+const SESSIONS = [
+  {id:"s01", date:"2026-09-16", title:"Bienvenue à l'école de foot", theme:"Thème 1 · Les déménageurs : je découvre ma maison, la maison adverse et le terrain.",
+   objs:["Découverte de la cible : ramener le ballon dans SA maison","Passer de la main au pied dans le même jeu","Connaître le rituel du groupe"],
+   pef:"PLAISIR — on apprend le cri d'équipe et on se dit bravo.",
+   blocks:[{g:"accueil"},{g:"tours"},{g:"dem1"},{g:"dem2"},{g:"match3"},{g:"calme"}]},
+  {id:"s02", date:"2026-09-19", title:"À l'abordage !", theme:"Thème 2 · Bateau pirate : je découvre l'adversaire et j'apprends à l'éviter.", sat:true,
+   objs:["Découverte de l'adversaire : passer sans se faire toucher","Changer de direction, feinter, attendre le bon moment","Découvrir le foot à 4 avec gardien (format plateau)"],
+   pef:"PLAISIR — je fais mon sac tout seul : protège-tibias, gourde, chaussures.",
+   blocks:[{g:"accueil"},{g:"trav1",dur:10},{g:"pir1"},{g:"pir2"},{g:"match4"},{g:"calme"}]},
+  {id:"s03", date:"2026-09-23", title:"Petits magiciens", theme:"Thème 3 · La traversée magique : mon corps et mon ballon m'obéissent.",
+   objs:["Développement moteur : lancer, rattraper, conduire avec différentes surfaces","S'éviter en se croisant (prise d'information)","Réinvestir le bateau pirate ballon au pied"],
+   pef:"PLAISIR — je dis bonjour à l'éducateur et aux copains en arrivant.",
+   blocks:[{g:"accueil"},{g:"express"},{g:"trav1"},{g:"trav2"},{g:"pir3",dur:12},{g:"calme"}]},
+  {id:"s04", date:"2026-09-26", title:"Déménageurs et obstacles", theme:"Thème 1 · Les déménageurs, version conduite avec obstacles : je choisis mon chemin.", sat:true,
+   objs:["Conduire le ballon en franchissant un obstacle","Arrêter le ballon dans la maison (semelle)","Jouer un match à 3 sans gardien avec les touches au pied"],
+   pef:"PLAISIR — j'encourage le copain, même s'il rate.",
+   blocks:[{g:"accueil"},{g:"tours"},{g:"dem2",dur:12},{g:"dem3"},{g:"match3"},{g:"calme"}]},
+  {id:"s05", date:"2026-09-30", title:"Le trésor des pirates", theme:"Thème 2 · Bateau pirate avec ballon : je protège mon trésor.",
+   objs:["Transporter le ballon (main puis pied) face à un adversaire","Changer de rôle : pirate puis garde","Match à 4 : découvrir la relance protégée du gardien"],
+   pef:"PLAISIR — on range le matériel ensemble à la fin.",
+   blocks:[{g:"accueil"},{g:"express"},{g:"pir2",dur:12},{g:"pir3"},{g:"match4"},{g:"calme"}]},
+  {id:"s06", date:"2026-10-03", title:"Le grand parcours", theme:"Thème 3 · La traversée magique en parcours : rivière, pont, slalom, cerceau.", sat:true,
+   objs:["Enchaîner plusieurs actions motrices avec le ballon","Contrôler sa vitesse, pousser le ballon puis sauter","Relais par équipe : attendre son tour, encourager"],
+   pef:"PLAISIR — je félicite l'équipe qui a gagné la manche, puis on rejoue.",
+   blocks:[{g:"accueil"},{g:"tours"},{g:"trav2",dur:12},{g:"trav3"},{g:"match3"},{g:"calme"}]},
+  {id:"s07", date:"2026-10-07", title:"Les trois thèmes en une séance", theme:"Déménageurs, pirates, magiciens : on réinvestit les 3 jeux de la période, ballon au pied.",
+   objs:["Réinvestir les 3 thèmes en version « ballon au pied »","Compter ses points, annoncer son record","Match à 4 : se placer en triangle à la relance du gardien"],
+   pef:"PLAISIR — je célèbre les buts des copains.",
+   blocks:[{g:"accueil"},{g:"trav1",dur:10},{g:"dem3",dur:12},{g:"pir3",dur:12},{g:"match4"},{g:"calme"}]},
+  {id:"s08", date:"2026-10-10", title:"Le plateau blanc", theme:"Répétition générale du plateau district : protocole, 3 rencontres, 1 jeu, protocole de fin.", sat:true,
+   objs:["Vivre le déroulement complet d'un plateau (rotations, pause, protocole)","Appliquer les lois du jeu : touche au pied, engagement, relance","Jouer 3 rencontres et 1 jeu sans jamais attendre"],
+   pef:"PLAISIR — on serre la main de l'adversaire avant et après, on lui dit « bien joué ».",
+   blocks:[{g:"accueil",dur:8},{g:"tours",dur:8},{g:"plateaublanc"},{g:"calme"}]},
+  {id:"s09", date:"2026-10-14", title:"Le rallye des Pyrénées", theme:"Bilan festif de la période : 4 sommets, 4 compétences FFF, mon profil.",
+   objs:["Réinvestir cible, adversaire, motricité et partenaire sur 4 stations","Établir le profil de chaque enfant (onglet Profils)","Finir la période par un match plaisir"],
+   pef:"PLAISIR — chacun repart avec un record personnel et un bravo.",
+   blocks:[{g:"accueil"},{g:"express",dur:7},{g:"rallye"},{g:"match3",dur:14},{g:"calme"}]},
+  {id:"s10", date:"2026-10-17", title:"La fête de la période 1", theme:"Premier samedi des vacances : mini-tournoi des champions et goûter avec les parents (séance facultative selon présences).", sat:true, optional:true,
+   objs:["Jouer, célébrer, se retrouver","Un titre pour chaque équipe","Remettre à chaque enfant son « passeport des sommets »"],
+   pef:"PLAISIR — merci les parents, merci les éducateurs, bonnes vacances !",
+   blocks:[{g:"accueil",dur:10},{g:"tours",dur:10},{g:"tournoi"},{g:"calme",dur:5}]}
+];
+
+const SOURCES = [
+  {t:"FFF — Guide interactif U6/U7 (fourni) : saison en 5 périodes, 24 thèmes (procédés d'apprentissage), plateau (protocole + 3 matchs + 1 jeu), lois du jeu, PEF, rôle des éducateurs", u:""},
+  {t:"District de la Sarthe — fiches PDF des mêmes jeux U6/U7 (déménageurs, bateau pirate, traversée magique…), utiles pour un visuel supplémentaire", u:"https://sarthe.fff.fr/jeux-dentrainement-u6u7/"},
+  {t:"District du Var — Guide de l'éducateur U6-U7 2025-2026 (lois du jeu)", u:"https://var.fff.fr/wp-content/uploads/sites/66/2025/09/Guide-de-leducateur-U6-U7.pdf"},
+  {t:"Calendrier scolaire 2026-2027 académie de Bordeaux (zone A)", u:"https://www.vacances-scolaires-gouv.com/academie/bordeaux"}
+];
+</script>
+<script>
+/* =========================================================
+   APPLICATION
+   ========================================================= */
+const LS_KEY="paufc-u7-v2";
+let store={};
+try{store=JSON.parse(localStorage.getItem(LS_KEY)||"{}")||{}}catch(e){store={}}
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(store))}catch(e){}}
+function get(k,d){return (k in store)?store[k]:d}
+function set(k,v){store[k]=v;save()}
+
+const JOURS=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+const MOIS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const MOIS_C=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+const D=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const fmtLong=s=>{const d=D(s);return `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`};
+const fmtShort=s=>{const d=D(s);return `${d.getDate()} ${MOIS_C[d.getMonth()]}`};
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=new Date();today.setHours(0,0,0,0);
+const KIND_LABEL={accueil:"Accueil",eveil:"Éveil",atelier:"Atelier",defi:"Défi",match:"Match",calme:"Calme"};
+const KIND_COLOR={accueil:"#6B7A90",eveil:"#C77700",atelier:"#1E56C9",defi:"#8E44AD",match:"#2E8B57",calme:"#6B7A90"};
+
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._h);toast._h=setTimeout(()=>t.classList.remove("show"),2200)}
+
+/* ---------- Schéma SVG ---------- */
+let svgId=0;
+function renderSchema(sc){
+  if(!sc) return "";
+  const [L,W]=sc.f; const S=10, pad=2.6;
+  const X=x=>((x+pad)*S).toFixed(1), Y=y=>((y+pad)*S).toFixed(1), M=m=>(m*S).toFixed(1);
+  const vw=(L+2*pad)*S, vh=(W+2*pad)*S; const id="sv"+(++svgId);
+  let o=`<svg viewBox="0 0 ${vw.toFixed(0)} ${vh.toFixed(0)}" role="img" aria-label="Schéma de l'atelier" xmlns="http://www.w3.org/2000/svg">`;
+  o+=`<defs>`;
+  [["c","#FFFFFF"],["m","#FFFFFF"],["p","#F2C200"],["s","#FF5A5A"]].forEach(([k,c])=>{o+=`<marker id="${id}${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="${c}"/></marker>`});
+  o+=`</defs>`;
+  o+=`<rect x="0" y="0" width="${vw}" height="${vh}" rx="8" fill="#2F6B43"/>`;
+  // pelouse rayée
+  const bands=Math.max(4,Math.round(L/4));
+  for(let i=0;i<bands;i++){const bx=i*L/bands;o+=`<rect x="${X(bx)}" y="${Y(0)}" width="${M(L/bands)}" height="${M(W)}" fill="${i%2?'#4A9C63':'#3E8E57'}"/>`}
+  o+=`<rect x="${X(0)}" y="${Y(0)}" width="${M(L)}" height="${M(W)}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6"/>`;
+  (sc.zones||[]).forEach(z=>{o+=`<rect x="${X(z.x)}" y="${Y(z.y)}" width="${M(z.w)}" height="${M(z.h)}" fill="${z.f||'#fff'}" fill-opacity=".32" stroke="${z.f||'#fff'}" stroke-width="1.4" stroke-dasharray="4 3"/>`;
+    if(z.t) o+=`<text x="${X(z.x+z.w/2)}" y="${Y(z.y+z.h/2)}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.45)" stroke-width="2.5" font-family="Barlow Condensed, Arial Narrow, sans-serif">${esc(z.t)}</text>`});
+  (sc.goals||[]).forEach(g=>{const s=g.s||3;
+    if(g.o==="v"){const gx=g.x<=0?g.x-0.9:g.x; o+=`<rect x="${X(gx)}" y="${Y(g.y-s/2)}" width="${M(0.9)}" height="${M(s)}" fill="#fff" stroke="#14213D" stroke-width="1.2"/>`}
+    else{const gy=g.y<=0?g.y-0.9:g.y; o+=`<rect x="${X(g.x-s/2)}" y="${Y(gy)}" width="${M(s)}" height="${M(0.9)}" fill="#fff" stroke="#14213D" stroke-width="1.2"/>`}});
+  (sc.hoops||[]).forEach(h=>{o+=`<circle cx="${X(h.x)}" cy="${Y(h.y)}" r="${M(1.3)}" fill="none" stroke="#fff" stroke-width="1.8"/>`});
+  (sc.arrows||[]).forEach(a=>{const pts=a.p;let d=`M${X(pts[0].x??pts[0][0])} ${Y(pts[0].y??pts[0][1])}`;
+    if(pts.length===2){d+=` L${X(pts[1][0])} ${Y(pts[1][1])}`}
+    else{for(let i=1;i<pts.length-1;i++){const mx=(pts[i][0]+pts[i+1][0])/2,my=(pts[i][1]+pts[i+1][1])/2;d+=` Q${X(pts[i][0])} ${Y(pts[i][1])} ${X(mx)} ${Y(my)}`}const l=pts[pts.length-1];d+=` T${X(l[0])} ${Y(l[1])}`}
+    const st={c:'stroke="#fff" stroke-width="2.2"',m:'stroke="#fff" stroke-width="1.8" stroke-dasharray="5 4"',p:'stroke="#F2C200" stroke-width="2"',s:'stroke="#FF5A5A" stroke-width="2.8"'}[a.k||"c"];
+    o+=`<path d="${d}" fill="none" ${st} stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${id}${a.k||"c"})"/>`});
+  (sc.cups||[]).forEach(c=>{o+=`<path d="M${X(c.x)} ${(+Y(c.y)-3.6).toFixed(1)} l4.2 6.8 h-8.4z" fill="#FFB020" stroke="#7A4B00" stroke-width=".7"/>`});
+  (sc.cones||[]).forEach(c=>{o+=`<path d="M${X(c.x)} ${(+Y(c.y)-6.5).toFixed(1)} l5.2 10.5 h-10.4z" fill="#FF7A1A" stroke="#7A2E00" stroke-width=".8"/><rect x="${(+X(c.x)-6).toFixed(1)}" y="${(+Y(c.y)+3.2).toFixed(1)}" width="12" height="2" fill="#7A2E00"/>`});
+  (sc.players||[]).forEach(p=>{const col={b:"#1E56C9",r:"#D64545",y:"#F2C200",g:"#8E44AD",e:"#14213D"}[p.c]||"#1E56C9";const tx=p.c==="y"?"#3B2E00":"#fff";
+    o+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${M(0.95)}" fill="${col}" stroke="#fff" stroke-width="1.6"/>`;
+    const lab=p.l||(p.c==="e"?"E":"");if(lab)o+=`<text x="${X(p.x)}" y="${Y(p.y)}" text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="800" fill="${tx}" font-family="Barlow Condensed, Arial Narrow, sans-serif">${esc(lab)}</text>`});
+  (sc.balls||[]).forEach(b=>{o+=`<circle cx="${X(b.x)}" cy="${Y(b.y)}" r="${M(0.5)}" fill="#fff" stroke="#14213D" stroke-width="1.3"/><circle cx="${X(b.x)}" cy="${Y(b.y)}" r="${M(0.2)}" fill="#14213D"/>`});
+  (sc.labels||[]).forEach(t=>{o+=`<text x="${X(t.x)}" y="${Y(t.y)}" text-anchor="middle" dominant-baseline="middle" font-size="9.5" font-weight="700" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.55)" stroke-width="2.5" font-family="Source Sans 3, Arial, sans-serif">${esc(t.t)}</text>`});
+  o+=`</svg>`;return o;
+}
+const LEGEND=`<div class="legend"><span><i style="background:#1E56C9"></i>équipe bleue</span><span><i style="background:#D64545"></i>équipe rouge</span><span><i style="background:#F2C200"></i>équipe jaune</span><span><i style="background:#8E44AD"></i>G = gardien</span><span><i style="background:#14213D"></i>E = éducateur</span><span>▲ coupelle / plot</span><span>○ ballon</span><span>— conduite</span><span>- - course sans ballon</span><span style="color:#B08A00">— passe</span><span style="color:#D64545">— tir</span></div>`;
+
+/* ---------- Helpers séances ---------- */
+function expandBlocks(s){let t=0;return s.blocks.map(b=>{const g=GAMES[b.g];const dur=b.dur||g.dur;const start=t;t+=dur;return {...g,id:b.g,dur,start}})}
+function firstSentence(t){const i=t.indexOf(". ");return i>0&&i<160?t.slice(0,i+1):t}
+function collectMat(blocks){const seen=new Set();const out=[];blocks.forEach(b=>(b.mat||[]).forEach(m=>{const k=m.toLowerCase().replace(/[\d+]/g,"").replace(/\s+/g," ").trim();if(!seen.has(k)){seen.add(k);out.push(m)}}));return out}
+function isPlateau(s){return !!s.sat&&!!get("plateau:"+s.id,false)}
+function educators(){return get("educs",[])}
+function normPhone(p){let d=(p||"").replace(/[^\d+]/g,"");if(d.startsWith("+"))d=d.slice(1);if(d.startsWith("0"))d="33"+d.slice(1);return d}
+const DEFAULT_URL="https://benjaminducousso-ui.github.io/PlanningPauFC/seances-u7.html";
+function settings(){return Object.assign({lieu:"",hMer:"",hSam:"",signature:"",url:DEFAULT_URL},get("settings",{}))}
+function sessionLink(s){const u=(settings().url||"").trim();return u?`${u}${u.includes("?")?"&":"?"}seance=${s.id}`:""}
+
+function waMessage(s){
+  const st=settings();const plateau=isPlateau(s);
+  const dateTxt=cap(fmtLong(s.date));
+  const rdv=(s.sat?st.hSam:st.hMer);
+  let m=`⚽ *PAU FC U7 · ${dateTxt}*\n`;
+  if(plateau){
+    const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
+    m+=`🏟️ *PLATEAU DISTRICT*${info.lieu?` · ${info.lieu}`:""}${info.heure?` · RDV ${info.heure}`:""}\n`;
+    m+=`_${PLATEAU.theme}_\n\n*Déroulé (5 × 10')*\n`;
+    PLATEAU.blocks.forEach((b,i)=>{m+=`${i+1}. ${b.t} ${b.name}\n`});
+    m+=`\n👀 *À veiller*\n`;PLATEAU.veiller.forEach(v=>m+=`• ${v}\n`);
+    m+=`\n🧰 *À prévoir* : ${PLATEAU.mat.join(", ")}\n`;
+  }else{
+    const blocks=expandBlocks(s);
+    m+=`🎯 *${s.title}*\n_${s.theme}_\n`;
+    if(rdv||st.lieu)m+=`📍 ${[rdv?`RDV ${rdv}`:"",st.lieu].filter(Boolean).join(" · ")}\n`;
+    m+=`\n*Objectifs du jour*\n`;s.objs.forEach(o=>m+=`• ${o}\n`);
+    m+=`\n*Déroulé (${blocks.reduce((a,b)=>a+b.dur,0)}')*\n`;
+    const nums=["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣"];
+    blocks.forEach((b,i)=>{m+=`${nums[i]||"•"} *${b.dur}' ${b.name}*`;if(b.kind!=="accueil"&&b.kind!=="calme"&&b.desc)m+=` — ${firstSentence(b.desc)}`;m+=`\n`});
+    const veiller=blocks.filter(b=>["atelier","defi","match","eveil"].includes(b.kind)).map(b=>`• ${b.name} : ${b.veiller}`);
+    m+=`\n👀 *À veiller*\n${veiller.join("\n")}\n`;
+    m+=`\n🧰 *Matériel* : ${collectMat(blocks).join(", ")}\n`;
+    m+=`\n💛 *Message éducatif* : ${s.pef}\n`;
+  }
+  const lk=sessionLink(s);if(lk)m+=`\n📎 *Fiche complète avec les schémas* : ${lk}`;
+  if(st.signature)m+=`\n${st.signature}`;
+  return m;
+}
+
+/* ---------- Vue Guide ---------- */
+function renderGuide(){
+  const v=document.getElementById("view-guide");
+  const cur=PERIODS.find(p=>today>=D(p.from)&&today<=D(p.to))||PERIODS[0];
+  const per=PERIODS.map(p=>`<article class="period ${p===cur?'current':''}">
+    <div class="idx">Période ${p.n}</div><span class="hol">${esc(p.hol)}</span>
+    <h3>« ${esc(p.name)} »</h3>
+    <div class="dates num">${fmtShort(p.from)} → ${fmtShort(p.to)} · ${esc(p.sessions)}</div>
+    <p class="fil"><b>${esc(p.fil)}</b></p>
+    <ul style="margin:2px 0 0;padding-left:16px;font-size:14px">${p.tech.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>
+    <span class="badge">💛 ${esc(p.pef)}</span>
+    <p class="note">Samedis : ${esc(p.plateau)}</p>
+  </article>`).join("");
+  v.innerHTML=`
+  <div class="eyebrow">Le fil de l'année</div>
+  <h2 style="margin-top:4px">5 périodes, un cap : des enfants techniques qui adorent jouer</h2>
+  <p style="max-width:70ch;margin-top:8px;color:var(--muted)">Calendrier bâti sur le guide interactif FFF U6/U7 : 5 périodes, 24 thèmes de jeu répartis dans l'année, un message éducatif du Programme Éducatif Fédéral par période, et les vacances de la zone A (académie de Bordeaux). Les séances sont écrites période par période : la période 1 (thèmes 1 à 3) est prête dans l'onglet suivant.</p>
+  <div class="periods">${per}</div>
+  <div class="grid2">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="card"><h3>La séance type · 1 heure</h3>
+        <p class="note">À 5-6 ans (grande section / CP), l'enfant a horreur de l'immobilité imposée, se fatigue vite et récupère vite : jamais plus de 12-15 min sur une même activité, un ballon par enfant, on démontre avant d'expliquer. Le guide écrit chaque jeu « à la main » d'abord, puis « au pied » en variante : c'est la progression qu'on suit.</p>
+        <div class="seance-type">${SEANCE_TYPE.map(r=>`<div class="st-row"><span class="t num">${r[0]}</span><div><b>${esc(r[1])}</b> — ${esc(r[2])}</div></div>`).join("")}</div>
+        <p class="note" style="margin-top:10px">Avec 8 à 14 enfants et 1-2 éducateurs : un seul groupe pour l'éveil et le match, deux demi-groupes qui permutent sur les ateliers si vous êtes deux.</p>
+      </div>
+      <div class="card"><h3>Le profil technique · 4 facettes</h3>
+        <p class="note">Les 4 compétences du guide U6/U7 (découverte de la cible, de l'adversaire, du partenaire, développement moteur), observées en fin de chaque période avec 1 à 3 étoiles, jamais de classement. Le rallye des Pyrénées de la dernière séance sert de bilan festif ; la grille est dans l'onglet Profils.</p>
+        <div class="facets">${FACETS.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="card"><h3>Ce que le guide fédéral demande</h3>
+        <ul>
+          <li><b>« L'enfant se construit au cœur du jeu »</b> : des jeux avec une histoire (déménageurs, pirates, magiciens), des points qu'on compte, des rôles qu'on inverse, des manches de 1 minute maximum.</li>
+          <li><b>Rassurer en permanence</b> : climat sécurisant, valoriser, positiver ; l'enfant a besoin d'être sollicité et encouragé.</li>
+          <li><b>Le faire bouger</b> : il est en âge d'acquérir équilibre et latéralisation, il a horreur de l'immobilité ; activité fractionnée effort / repos.</li>
+          <li><b>Démontrer, animer, encourager, valoriser</b> : les quatre verbes de la colonne « animation » de chaque fiche FFF.</li>
+          <li><b>Le samedi</b> : plateau = protocole fair-play 15', 3 rencontres de 10' + 1 jeu de 10' (pause après 2 rotations), protocole de fin 15'. Foot à 3 sans gardien (25 × 15 m) ou foot à 4 avec gardien (30 × 20 m). Aucun classement, tout le monde joue.</li>
+        </ul>
+      </div>
+      <div class="card"><h3>Comment utiliser cet outil</h3>
+        <ul>
+          <li>Onglet <b>Éducateurs</b> : saisis une fois leurs prénoms et numéros, le lieu et les horaires.</li>
+          <li>Onglet <b>Séances</b> : choisis la séance, vérifie-la (bilan de la précédente sous la fiche), puis <b>Envoyer sur WhatsApp</b> : le message s'ouvre pré-rempli, tu n'as plus qu'à appuyer sur envoyer. Le message contient le déroulé et le lien vers la fiche du jour avec ses schémas.</li>
+          <li>Le samedi, si le district programme un plateau : active <b>Plateau ce samedi</b> sur la fiche, le message change tout seul.</li>
+          <li>Tout est enregistré sur cet appareil (envois, plateaux, bilans, profils).</li>
+        </ul>
+      </div>
+      <div class="callout">Tout vient du <b>guide interactif FFF U6/U7</b> : périodes, thèmes, consignes, buts, variantes, « veiller à », matériel et lois du jeu du plateau. Les schémas interactifs du PDF ne s'affichant pas, chaque jeu a été redessiné ici à partir de sa fiche (dimensions et effectifs de la FFF). Les progressions « à la main → au pied → avec obstacles » suivent les variantes écrites dans le guide.</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Vue Séances ---------- */
+let currentId=null;
+function defaultSession(){const up=SESSIONS.find(s=>D(s.date)>=today);return (up||SESSIONS[SESSIONS.length-1]).id}
+function renderSessions(){
+  const v=document.getElementById("view-seances");
+  if(!currentId)currentId=defaultSession();
+  const list=SESSIONS.map(s=>{const d=D(s.date);const sent=Object.keys(get("sent:"+s.id,{})).length>0;const pl=isPlateau(s);
+    return `<button class="sess-item" data-id="${s.id}" aria-current="${s.id===currentId}">
+      <span class="d"><b class="num">${d.getDate()}</b><span>${MOIS_C[d.getMonth()]}</span></span>
+      <span><span class="ttl">${esc(s.title)}</span><br><span class="sub">${cap(JOURS[d.getDay()])}${s.optional?" · facultatif":""}</span></span>
+      <span style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">${pl?'<span class="chip plateau">Plateau</span>':`<span class="chip ${s.sat?'sam':'mer'}">${s.sat?'Samedi':'Mercredi'}</span>`}${sent?'<span class="chip sent">Envoyée</span>':''}</span>
+    </button>`}).join("");
+  v.innerHTML=`<div class="sess-layout"><aside class="sess-list" aria-label="Liste des séances">${list}</aside><div id="sheet"></div></div>`;
+  v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{currentId=b.dataset.id;renderSessions();document.getElementById("sheet").scrollIntoView({behavior:"smooth",block:"start"})}));
+  renderSheet();
+}
+function renderSheet(){
+  const s=SESSIONS.find(x=>x.id===currentId);const el=document.getElementById("sheet");
+  const plateau=isPlateau(s);
+  const blocks=plateau?PLATEAU.blocks.map(b=>{const g=b.game?GAMES[b.game]:{};return {...g,name:b.name,kind:b.kind,desc:b.desc||g.desc,dur:parseInt(b.t),t:b.t}}):expandBlocks(s);
+  const total=blocks.reduce((a,b)=>a+b.dur,0);
+  const tl=blocks.map(b=>`<span style="width:${(b.dur/total*100).toFixed(1)}%;background:${KIND_COLOR[b.kind]}" title="${esc(b.name)}"></span>`).join("");
+  const tlLeg=[...new Set(blocks.map(b=>b.kind))].map(k=>`<span><i style="background:${KIND_COLOR[k]}"></i>${KIND_LABEL[k]}</span>`).join("");
+  const blocksHtml=blocks.map(b=>`<article class="block">
+     <div>${b.schema?`<div class="schema">${renderSchema(b.schema)}</div>`:`<div class="schema" style="display:grid;place-items:center;min-height:120px;color:var(--muted);font-size:14px">${b.kind==="accueil"?"🤝 Cercle d'accueil":"🙌 Cercle de fin"}</div>`}</div>
+     <div>
+       <div class="when"><span class="t num">${plateau?b.t:b.dur+"'"}</span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${b.src?`<span class="note" style="font-size:12px">· ${esc(b.src)}</span>`:""}</div>
+       <h3>${esc(b.name)}</h3>
+       <p class="desc">${esc(b.desc||"")}</p>
+       ${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}
+       ${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}
+     </div></article>`).join("");
+  const mat=plateau?PLATEAU.mat:collectMat(blocks);
+  const educs=educators();const sent=get("sent:"+s.id,{});
+  const msg=waMessage(s);const enc=encodeURIComponent(msg);
+  const waBtns=educs.length?educs.map((e,i)=>`<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${normPhone(e.phone)}?text=${enc}" data-edu="${i}">${waIcon()} ${esc(e.name)}${sent[e.name]?` ✓`:""}</a>`).join(""):`<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${enc}" data-edu="-1">${waIcon()} Envoyer sur WhatsApp</a>`;
+  const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
+  el.innerHTML=`<div class="sheet">
+    <div class="sheet-head">
+      <div><div class="eyebrow">Séance ${SESSIONS.indexOf(s)+1} / ${SESSIONS.length} · Période 1 « Que le match commence »${s.optional?" · facultative":""}</div>
+        <h2>${cap(fmtLong(s.date))}${plateau?" · Plateau":""}</h2>
+        <h3 style="color:var(--yellow);margin-top:6px;font-size:24px">${esc(plateau?PLATEAU.title:s.title)}</h3>
+        <p class="theme">${esc(plateau?PLATEAU.theme:s.theme)}</p></div>
+      <div class="meta"><span class="pill num">${total} min</span><span class="pill">8-14 enfants</span>${s.sat?`<button class="toggle" id="plateauToggle" aria-pressed="${plateau}">${plateau?"🏟️ Plateau ce samedi":"Entraînement · passer en plateau"}</button>`:""}</div>
+    </div>
+    ${plateau?`<div class="objs"><div><h4>Infos pratiques du plateau</h4><div class="field"><label for="plLieu">Lieu</label><input id="plLieu" type="text" value="${esc(info.lieu)}" placeholder="Club d'accueil"></div><div class="field"><label for="plHeure">Heure de rendez-vous</label><input id="plHeure" type="text" value="${esc(info.heure)}" placeholder="9h45"></div></div>
+      <div><h4>À veiller</h4><ul>${PLATEAU.veiller.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div></div>`
+    :`<div class="objs"><div><h4>Objectifs du jour</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div>
+      <div><h4>Message éducatif (PEF)</h4><p>${esc(s.pef)}</p><h4 style="margin-top:12px">Consigne unique du match</h4><p>${esc(blocks.find(b=>b.kind==="match")?"Une seule phrase répétée : celle de l'atelier du jour (ex. « lève la tête », « petites touches », « regarde le but »).":"—")}</p></div></div>`}
+    <div class="timeline">${tl}</div><div class="tl-legend">${tlLeg}</div>
+    <div class="blocks"><div style="padding:6px 20px 0">${LEGEND}</div>${blocksHtml}</div>
+    <div class="materiel"><span class="eyebrow" style="margin-right:6px">Matériel</span>${mat.map(m=>`<span class="mat">${esc(m)}</span>`).join("")}</div>
+    ${plateau?"":`<div class="educ"><div class="ico">PEF</div><div><b>Programme Éducatif Fédéral · ${esc(s.pef.split(" — ")[0])}</b><p class="note">${esc(s.pef.split(" — ")[1]||"")} — à dire en 30 secondes au retour au calme, puis on le vit sur la séance suivante.</p></div></div>`}
+    <div class="sendbar"><h4>${waIcon()} Envoyer la séance aux éducateurs</h4>
+      <div class="wa-row">${waBtns}<button class="btn ghost" id="copyMsg">Copier le texte</button><button class="btn ghost small" id="markSent">Marquer envoyée</button>${Object.keys(sent).length?`<span class="sent-mark">Envoyée à ${Object.keys(sent).join(", ")}</span>`:""}</div>
+      <p class="note" style="margin-top:8px">Le message = le déroulé en texte + le lien vers cette fiche avec ses schémas${sessionLink(s)?` : <a href="${esc(sessionLink(s))}" target="_blank" rel="noopener" style="color:inherit">${esc(sessionLink(s))}</a>`:" (adresse à renseigner dans Éducateurs &amp; réglages)"}.</p>
+      ${educs.length?"":`<p class="note">Ajoute tes éducateurs dans l'onglet Éducateurs pour avoir un bouton par personne.</p>`}
+      <details class="prev" style="margin-top:10px"><summary>Aperçu du message WhatsApp</summary><div class="preview">${esc(msg)}</div></details>
+    </div>
+    <div class="bilan"><label for="bilan">Bilan après séance (pour ajuster la suivante)</label><textarea id="bilan" placeholder="Ce qui a marché, ce qu'il faut refaire, un enfant à encourager…">${esc(get("bilan:"+s.id,""))}</textarea></div>
+  </div>`;
+  const tg=document.getElementById("plateauToggle");if(tg)tg.addEventListener("click",()=>{set("plateau:"+s.id,!plateau);renderSessions()});
+  ["plLieu","plHeure"].forEach(id=>{const i=document.getElementById(id);if(i)i.addEventListener("change",()=>{set("plateauInfo:"+s.id,{lieu:document.getElementById("plLieu").value,heure:document.getElementById("plHeure").value});renderSheet()})});
+  document.getElementById("bilan").addEventListener("input",e=>set("bilan:"+s.id,e.target.value));
+  el.querySelectorAll("a.btn.wa").forEach(a=>a.addEventListener("click",()=>{const i=+a.dataset.edu;const name=i>=0?educs[i].name:"WhatsApp";const st=get("sent:"+s.id,{});st[name]=new Date().toISOString();set("sent:"+s.id,st);setTimeout(renderSessions,600)}));
+  document.getElementById("copyMsg").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(msg);toast("Message copié")}catch(e){toast("Copie impossible ici : utilise l'aperçu")}});
+  document.getElementById("markSent").addEventListener("click",()=>{const st=get("sent:"+s.id,{});st["éducateurs"]=new Date().toISOString();set("sent:"+s.id,st);renderSessions()});
+}
+function waIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c1.7.7 2.1.6 2.8.5a2.4 2.4 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c0-.1-.2-.2-.4-.3Z"/></svg>`}
+
+/* ---------- Vue Profils ---------- */
+function renderProfils(){
+  const v=document.getElementById("view-profils");const kids=get("kids",[]);
+  const rows=kids.map((k,i)=>`<tr><td><input type="text" id="kid-${i}" value="${esc(k.name)}" data-i="${i}" aria-label="Prénom"></td>
+    ${FACETS.map(f=>`<td><span class="stars" data-i="${i}" data-f="${f.id}">${[1,2,3].map(n=>`<button class="${(k.stars?.[f.id]||0)>=n?'on':''}" data-n="${n}" aria-label="${n} étoile${n>1?'s':''}">★</button>`).join("")}</span></td>`).join("")}
+    <td><input type="text" id="note-${i}" value="${esc(k.note||"")}" data-i="${i}" placeholder="un mot" aria-label="Remarque"></td>
+    <td><button class="del" data-i="${i}" aria-label="Retirer">×</button></td></tr>`).join("");
+  v.innerHTML=`<div class="eyebrow">Fin de période 1 · Rallye des Pyrénées (mer. 14 oct.)</div><h2 style="margin-top:4px">Profils techniques</h2>
+   <p style="max-width:70ch;margin-top:8px;color:var(--muted)">Les 4 compétences du guide FFF U6/U7. 1 étoile = découvre, 2 = réussit souvent, 3 = réussit et va vite. Ce n'est pas une note : c'est ce qu'on observe pour choisir les variantes de la période 2 (épervier, queue du diable, stop-ball, va-et-vient) et pour dire à chaque enfant ce qu'il a progressé. À remplir en bord de terrain pendant le rallye.</p>
+   <div class="card" style="margin-top:16px">
+     <div class="facets" style="margin-top:0">${FACETS.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div>
+     <div class="tbl-wrap"><table class="prof-table"><thead><tr><th>Enfant</th>${FACETS.map(f=>`<th>${esc(f.name)}</th>`).join("")}<th>Remarque</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="7" class="note" style="padding:14px 8px">Aucun enfant pour l'instant — ajoute les prénoms ci-dessous.</td></tr>`}</tbody></table></div>
+     <div class="prof-actions"><button class="btn ghost" id="addKid">+ Ajouter un enfant</button><button class="btn ghost" id="bulkKids">Coller une liste de prénoms</button><button class="btn ghost" id="copyProf">Copier le bilan (texte)</button></div>
+     <div id="bulkBox" hidden class="field"><label for="bulkArea">Un prénom par ligne</label><textarea id="bulkArea" rows="5"></textarea><button class="btn ghost" id="bulkOk" style="align-self:flex-start">Ajouter</button></div>
+   </div>`;
+  const persist=()=>set("kids",kids);
+  v.querySelectorAll("input[id^=kid-]").forEach(i=>i.addEventListener("change",e=>{kids[+e.target.dataset.i].name=e.target.value;persist()}));
+  v.querySelectorAll("input[id^=note-]").forEach(i=>i.addEventListener("change",e=>{kids[+e.target.dataset.i].note=e.target.value;persist()}));
+  v.querySelectorAll(".stars button").forEach(b=>b.addEventListener("click",()=>{const sp=b.parentElement;const k=kids[+sp.dataset.i];k.stars=k.stars||{};const n=+b.dataset.n;k.stars[sp.dataset.f]=k.stars[sp.dataset.f]===n?0:n;persist();renderProfils()}));
+  v.querySelectorAll(".del").forEach(b=>b.addEventListener("click",()=>{kids.splice(+b.dataset.i,1);persist();renderProfils()}));
+  document.getElementById("addKid").addEventListener("click",()=>{kids.push({name:"",stars:{}});persist();renderProfils();const last=v.querySelector(`#kid-${kids.length-1}`);if(last)last.focus()});
+  document.getElementById("bulkKids").addEventListener("click",()=>{document.getElementById("bulkBox").hidden=false});
+  document.getElementById("bulkOk").addEventListener("click",()=>{document.getElementById("bulkArea").value.split(/\n/).map(x=>x.trim()).filter(Boolean).forEach(n=>kids.push({name:n,stars:{}}));persist();renderProfils()});
+  document.getElementById("copyProf").addEventListener("click",async()=>{const txt="Profils techniques U7 — période 1\n"+kids.map(k=>`${k.name} : ${FACETS.map(f=>`${f.name} ${"★".repeat(k.stars?.[f.id]||0)||"–"}`).join(" · ")}${k.note?` — ${k.note}`:""}`).join("\n");try{await navigator.clipboard.writeText(txt);toast("Bilan copié")}catch(e){toast("Copie impossible ici")}});
+}
+
+/* ---------- Vue Réglages ---------- */
+function renderReglages(){
+  const v=document.getElementById("view-reglages");const ed=educators();const st=settings();
+  const rows=ed.map((e,i)=>`<div class="edu-row"><input type="text" id="edn-${i}" value="${esc(e.name)}" placeholder="Prénom" aria-label="Prénom de l'éducateur"><input type="tel" id="edp-${i}" value="${esc(e.phone)}" placeholder="06 12 34 56 78" aria-label="Numéro WhatsApp"><button class="del" data-i="${i}" aria-label="Retirer">×</button></div>`).join("");
+  v.innerHTML=`<div class="eyebrow">Réglages</div><h2 style="margin-top:4px">Éducateurs &amp; envoi</h2>
+  <div class="settings-grid">
+    <div class="card"><h3>Éducateurs U7</h3><p class="note">Un bouton WhatsApp par personne sur chaque fiche. Les numéros restent sur cet appareil.</p>
+      <div class="edu-list">${rows||'<p class="note">Aucun éducateur saisi.</p>'}</div>
+      <div class="prof-actions"><button class="btn ghost" id="addEdu">+ Ajouter un éducateur</button></div>
+    </div>
+    <div class="card"><h3>Infos dans le message</h3>
+      <div class="field"><label for="setLieu">Lieu d'entraînement</label><input id="setLieu" type="text" value="${esc(st.lieu)}" placeholder="Terrain synthétique n°2"></div>
+      <div class="field"><label for="setHMer">Horaire du mercredi</label><input id="setHMer" type="text" value="${esc(st.hMer)}" placeholder="14h00 - 15h00"></div>
+      <div class="field"><label for="setHSam">Horaire du samedi (entraînement)</label><input id="setHSam" type="text" value="${esc(st.hSam)}" placeholder="10h00 - 11h00"></div>
+      <div class="field"><label for="setSign">Signature</label><input id="setSign" type="text" value="${esc(st.signature)}" placeholder="Benjamin · Pau FC U7"></div>
+      <div class="field"><label for="setUrl">Adresse publique de cette page (mise dans le message)</label><input id="setUrl" type="url" value="${esc(st.url)}" placeholder="https://…/seances-u7.html"><span class="note">Le lien ouvre directement la fiche du jour, en lecture seule (sans boutons d'envoi ni réglages).</span></div>
+      <div class="prof-actions"><button class="btn ghost" id="saveSet">Enregistrer</button></div>
+    </div>
+    <div class="card"><h3>Comment les éducateurs voient la fiche</h3>
+      <p>Le message WhatsApp contient le déroulé en texte et un lien du type <code>…/seances-u7.html?seance=s03</code>. En l'ouvrant, l'éducateur tombe directement sur la fiche du jour avec les schémas, en lecture seule. Pour que le lien marche, cette page doit être publiée sur le site du club (GitHub Pages, comme le calendrier) : déposer le fichier <code>seances-u7.html</code> dans le dépôt PlanningPauFC ; à chaque nouvelle période, remplacer le fichier.</p>
+    </div>
+    <div class="card"><h3>Sources des jeux</h3><ul class="source-list">${SOURCES.map(s=>`<li>${s.u?`<a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>`:esc(s.t)}</li>`).join("")}</ul>
+      <div class="prof-actions"><button class="btn ghost small" id="resetAll">Effacer les données de cet appareil</button></div>
+    </div>
+  </div>`;
+  const persist=()=>set("educs",ed);
+  ed.forEach((e,i)=>{document.getElementById(`edn-${i}`).addEventListener("change",ev=>{e.name=ev.target.value;persist()});document.getElementById(`edp-${i}`).addEventListener("change",ev=>{e.phone=ev.target.value;persist()})});
+  v.querySelectorAll(".del").forEach(b=>b.addEventListener("click",()=>{ed.splice(+b.dataset.i,1);persist();renderReglages()}));
+  document.getElementById("addEdu").addEventListener("click",()=>{ed.push({name:"",phone:""});persist();renderReglages();document.getElementById(`edn-${ed.length-1}`).focus()});
+  document.getElementById("saveSet").addEventListener("click",()=>{set("settings",{lieu:document.getElementById("setLieu").value,hMer:document.getElementById("setHMer").value,hSam:document.getElementById("setHSam").value,signature:document.getElementById("setSign").value,url:document.getElementById("setUrl").value.trim()});toast("Réglages enregistrés")});
+  document.getElementById("resetAll").addEventListener("click",()=>{store={};save();toast("Données effacées");renderAll()});
+}
+
+/* ---------- Onglets ---------- */
+function showTab(id){
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.getAttribute("aria-controls")===id));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
+  if(!EDU_MODE)set("tab",id);
+  if(id==="view-seances")renderSessions();if(id==="view-profils")renderProfils();if(id==="view-reglages")renderReglages();if(id==="view-guide")renderGuide();
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.getAttribute("aria-controls"))));
+const QS=new URLSearchParams(location.search);
+const EDU_MODE=QS.has("seance")&&SESSIONS.some(x=>x.id===QS.get("seance"));
+function renderAll(){renderGuide();if(EDU_MODE){document.documentElement.classList.add("edu");currentId=QS.get("seance");showTab("view-seances")}else showTab(get("tab","view-guide"))}
+renderAll();
+</script>
