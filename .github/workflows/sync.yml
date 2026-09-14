@@ -1,37 +1,61 @@
 name: Publication automatique (Drive → site)
- 
+
 on:
   schedule:
     - cron: "23 * * * *"     # toutes les heures, à h+23
   workflow_dispatch: {}      # bouton « Run workflow » pour forcer
- 
+
 permissions:
   contents: write
- 
+
 jobs:
   publier:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
- 
+
       - name: Récupérer les fichiers publiés sur Drive (via l'Apps Script du club)
         env:
           API: https://script.google.com/macros/s/AKfycbw_lyvwhgyF-4i9jM-mNnHTCkdS-q0W92UeU7QGwgmaayAjGTtJCGB1n2K-VlgkKuEGEg/exec
         run: |
           set -e
           changed=0
-          for f in data.json seances-u7.html; do
-            code=$(curl -sS -L -o "/tmp/$f" -w "%{http_code}" "$API?file=$f")
-            if [ "$code" != "200" ] || [ ! -s "/tmp/$f" ] || head -c 10 "/tmp/$f" | grep -q '^{"error"'; then
-              echo "· $f : rien à publier (HTTP $code)"; continue
+          # Un fichier peut être publié sur Drive :
+          #  - tel quel (ex. data.json), ou
+          #  - compressé : <nom>.b64 (1re ligne = md5 du fichier final, puis gzip+base64),
+          #    éventuellement en morceaux <nom>.b64.1, <nom>.b64.2, … (le md5 est dans le morceau 1).
+          fetch() { curl -sS -L -o "$2" -w "%{http_code}" "$API?file=$1"; }
+          valid() { [ "$1" = "200" ] && [ -s "$2" ] && ! head -c 10 "$2" | grep -q '^{"error"'; }
+          for f in data.json seances-u7.html seances-u8.html seances-u9.html progression.html stages.html; do
+            rm -f /tmp/parts /tmp/p /tmp/out; ok=0
+            code=$(fetch "$f.b64" /tmp/p)
+            if valid "$code" /tmp/p; then cat /tmp/p > /tmp/parts; ok=1
+            else
+              for i in 1 2 3 4 5 6 7 8 9; do
+                code=$(fetch "$f.b64.$i" /tmp/p)
+                if valid "$code" /tmp/p; then cat /tmp/p >> /tmp/parts; ok=1; else break; fi
+              done
+            fi
+            if [ "$ok" = "1" ]; then
+              want=$(head -n1 /tmp/parts | tr -d '\r ')
+              if ! tail -n +2 /tmp/parts | tr -d '\n\r ' | base64 -d 2>/dev/null | gunzip -c > /tmp/out 2>/dev/null; then echo "· $f : archive illisible, ignoré"; continue; fi
+              have=$(md5sum /tmp/out | cut -d' ' -f1)
+              if [ "$want" != "$have" ]; then echo "· $f : empreinte md5 différente ($want ≠ $have), ignoré"; continue; fi
+              mv /tmp/out "/tmp/$f"
+            else
+              code=$(fetch "$f" "/tmp/$f")
+              if ! valid "$code" "/tmp/$f"; then echo "· $f : rien à publier (HTTP $code)"; continue; fi
             fi
             if [ "$f" = "data.json" ]; then
               python3 -c "import json,sys;d=json.load(open('/tmp/$f'));assert isinstance(d.get('rows'),list) and d.get('fetchedAt'),'data.json invalide'" || { echo "· data.json invalide, ignoré"; continue; }
             fi
+            if [ -n "$(echo "$f" | grep '\.html$')" ]; then
+              head -c 200 "/tmp/$f" | grep -qi '<!doctype html>' || { echo "· $f : pas une page HTML complète, ignoré"; continue; }
+            fi
             if ! cmp -s "/tmp/$f" "$f"; then cp "/tmp/$f" "$f"; changed=1; echo "· $f mis à jour"; else echo "· $f inchangé"; fi
           done
           echo "changed=$changed" >> "$GITHUB_ENV"
- 
+
       - name: Commit & push si changement
         if: env.changed == '1'
         run: |
@@ -40,4 +64,3 @@ jobs:
           git add -A
           git commit -m "Publication automatique du $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
- 
