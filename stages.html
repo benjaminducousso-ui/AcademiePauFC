@@ -513,7 +513,7 @@ function pdfFiche(doc,d){const {g,vd,first,stageLine,next}=dipData(d);const PW=2
   doc.setDrawColor(...navy);doc.setLineWidth(.9);doc.rect(F,F,PW-2*F,PH-2*F);
   doc.setDrawColor(...yel);doc.setLineWidth(.35);doc.rect(I,I,PW-2*I,PH-2*I);
   // blason + en-tête
-  doc.addImage(CREST_PNG,"PNG",CX-11,16,22,24.9);
+  doc.addImage(CREST_PNG,"PNG",CX-12,16,24,24);
   doc.setFont("Poppins","bold");doc.setFontSize(8.5);doc.setTextColor(...gray);{const t="PAU FC · ACADÉMIE",cs=1.2;doc.text(t,CX-(doc.getTextWidth(t)+(t.length-1)*cs)/2,47.5,{charSpace:cs})}
   doc.setFontSize(23);doc.setTextColor(...navy);{const t="CARNET DE STAGE",cs=.6;doc.text(t,CX-(doc.getTextWidth(t)+(t.length-1)*cs)/2,57,{charSpace:cs})}
   doc.setFillColor(...yel);doc.rect(CX-15,60.2,30,1,"F");
@@ -641,7 +641,7 @@ function renderSeances(){const v=document.getElementById("view-seances");const g
 function stars(v,attrs){return `<span class="stars" ${attrs}>${[1,2,3].map(n=>`<button class="${(v||0)>=n?'on':''}" data-n="${n}" aria-label="${n} étoile${n>1?'s':''}">★</button>`).join("")}</span>`}
 function renderAppr(){const v=document.getElementById("view-appr");const g=grp();const vd=VACANCES.find(x=>x.id===vac);const list=kids();
   const head=`<tr><th>Enfant</th>${FACETS.map(f=>`<th title="${esc(g.facets[f.id])}">${esc(f.name)}</th>`).join("")}<th>Le mot de l'éducateur</th><th></th></tr>`;
-  const rows=list.map(p=>{const r=rec(p);return `<tr data-p="${esc(p)}"><td class="name">${esc(p)}</td>${FACETS.map(f=>`<td data-l="${esc(f.name)}">${stars(r.f[f.id],`data-f="${f.id}"`)}</td>`).join("")}<td data-l="Mot de l'éducateur"><input class="txt" type="text" data-note value="${esc(r.note)}" placeholder="un mot pour la famille" style="width:200px"></td><td data-l="Carnet"><button class="btn" data-carnet="${esc(p)}" title="Envoyer le carnet numérique aux parents" style="padding:5px 9px">📱 Carnet</button></td></tr>`}).join("");
+  const rows=list.map(p=>{const r=rec(p);return `<tr data-p="${esc(p)}"><td class="name">${esc(p)}</td>${FACETS.map(f=>`<td data-l="${esc(f.name)}">${stars(r.f[f.id],`data-f="${f.id}"`)}</td>`).join("")}<td data-l="Mot de l'éducateur"><input class="txt" type="text" data-note value="${esc(r.note)}" placeholder="un mot pour la famille" style="width:200px"></td><td data-l="Carnet"><button class="btn" data-carnet="${esc(p)}" title="Ouvrir le carnet de cet enfant" style="padding:5px 9px">📄 Carnet</button></td></tr>`}).join("");
   v.innerHTML=`<div class="eyebrow">Stage ${esc(vd.name)} · ${esc(g.name)}</div><h2 style="margin-top:4px">Appréciation : des étoiles et un mot</h2><p class="note" style="margin-top:6px">★ à découvrir · ★★ en progrès · ★★★ acquis pour son âge. Le mot est celui que l'on dira aux parents le ${g.dayNames[1]} à 16h. Tout est enregistré sur cet appareil et partagé avec le RTJ dès qu'il y a du réseau.</p>${vacbar()}
   <div class="facets">${FACETS.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(g.facets[f.id])}</span></div>`).join("")}</div>
   ${list.length?`<div class="tbl-wrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>`:`<div class="callout">Aucun enfant pour l'instant : ajoutez les stagiaires du groupe ${esc(g.name)} ci-dessous (ou collez la liste, un nom par ligne).</div>`}
@@ -651,9 +651,7 @@ function renderAppr(){const v=document.getElementById("view-appr");const g=grp()
   v.querySelector("#who").addEventListener("change",e=>set("who",e.target.value.trim()));
   v.querySelector("#printFiches").addEventListener("click",printFiches);
 
-  v.querySelectorAll("[data-carnet]").forEach(b=>b.addEventListener("click",()=>{const p=b.dataset.carnet;const r=rec(p);const tot=FACETS.reduce((a,f)=>a+(r.f[f.id]||0),0);
-    const msg=[`★ *Stage ${vd.name} · Pau FC* — carnet de ${p}`,`${FACETS.map(f=>`${f.name} : ${"★".repeat(r.f[f.id]||0)||"—"}`).join(" · ")}`,r.note?`« ${r.note} » — ${get("who","")||"l'éducateur"}`:"",``,`➜ Le carnet complet (apprentissages et étoiles) : ${carnetLink(p)}`].filter(x=>x!==undefined).join("\n");
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,"_blank")}));
+  v.querySelectorAll("[data-carnet]").forEach(b=>b.addEventListener("click",()=>printFiches([b.dataset.carnet])));
   const add=()=>{const inp=v.querySelector("#kid");const names=inp.value.split(/\n|;|,/).map(s=>s.trim()).filter(Boolean);if(!names.length)return;const c=catKey();store.kids[c]=store.kids[c]||[];names.forEach(n=>{if(!store.kids[c].includes(n))store.kids[c].push(n)});save();renderAppr();toast(`${names.length} enfant(s) ajouté(s)`)};
   v.querySelector("#addKid").addEventListener("click",add);v.querySelector("#kid").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();add()}});
   v.querySelector("#kid").addEventListener("paste",e=>{const t=(e.clipboardData||window.clipboardData).getData("text");if(t.includes("\n")){e.preventDefault();e.target.value=t;add()}});
@@ -665,27 +663,43 @@ function renderAppr(){const v=document.getElementById("view-appr");const g=grp()
     lines.push("",`➜ Outil Stages : ${location.origin}${location.pathname}?g=${gid}`);window.open(`https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`,"_blank")})}
 function carnetData(p){const g=grp();const vd=VACANCES.find(x=>x.id===vac);const r=rec(p);return {n:p,g:gid,v:vac,f:r.f,m:r.note,e:r.by||get("who","")}}
 function carnetLink(p){return `${location.origin}${location.pathname}?carnet=${b64e(carnetData(p))}`}
-function printFiches(){const list=kids();if(!list.length){toast("Aucun enfant dans la liste");return}
+async function waCarnet(p){/* Partage du carnet aux parents en PDF (pas de texte) : Web Share API si dispo, sinon téléchargement du fichier */
+  toast("Préparation du carnet…");try{await loadJsPDF()}catch(e){toast("Impossible de charger le module PDF (réseau)");return}
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",compress:true});pdfFiche(doc,carnetData(p));
+  const vd=VACANCES.find(x=>x.id===vac);const slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const fname=`carnet-stage-${slug(vd.name)}-${slug(p)}.pdf`;const blob=doc.output("blob");const file=new File([blob],fname,{type:"application/pdf"});
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:`Carnet de stage de ${p}`});return}catch(e){if(e&&e.name==="AbortError")return}}
+  let dl=null;try{if(window.claude&&typeof window.claude.use==="function")dl=await window.claude.use("downloads")}catch(e){dl=null}
+  if(dl){try{await dl.save({filename:fname,data:blob})}catch(e){}}else{try{doc.save(fname)}catch(e){}}
+  toast("Carnet enregistré en PDF : envoie-le aux parents depuis WhatsApp (trombone → Document)")}
+function printFiches(only){const list=Array.isArray(only)?only:kids();if(!list.length){toast("Aucun enfant dans la liste");return}
   const g=grp();const vd=VACANCES.find(x=>x.id===vac);
   document.querySelector("header.top").hidden=true;const m=document.querySelector("main");
-  m.innerHTML=`<div class="printbar"><button class="btn" id="backFiches">← Retour à l'appréciation</button><span class="note">${list.length} carnet(s) · Stage ${esc(vd.name)} · ${esc(g.name)} · une page A4 par enfant, à imprimer sur papier épais</span><span><button class="btn primary" id="doPdf">📄 Télécharger le PDF</button> <button class="btn" id="doPrint">🖨️ Imprimer</button></span></div><div class="dips">${list.map(p=>`<div class="dipwrap">${ficheHtml(carnetData(p))}</div>`).join("")}</div>`;
+  m.innerHTML=`<div class="printbar"><button class="btn" id="backFiches">← Retour à l'appréciation</button><span class="note">${list.length} carnet(s) · Stage ${esc(vd.name)} · ${esc(g.name)} · une page A4 par enfant, à imprimer sur papier épais</span><span>${list.length===1?`<button class="btn wa" id="doWa">📱 Envoyer aux parents (PDF)</button> `:""}<button class="btn primary" id="doPdf">📄 Télécharger le PDF</button> <button class="btn" id="doPrint">🖨️ Imprimer</button></span></div><div class="dips">${list.map(p=>`<div class="dipwrap">${ficheHtml(carnetData(p))}</div>`).join("")}</div>`;
   m.querySelector("#backFiches").addEventListener("click",()=>{document.querySelector("header.top").hidden=false;m.innerHTML=`<section class="view" id="view-stage" role="tabpanel"></section><section class="view" id="view-seances" role="tabpanel"></section><section class="view active" id="view-appr" role="tabpanel"></section>`;render();document.querySelector('.tab[aria-controls="view-appr"]').click()});
-  m.querySelector("#doPrint").addEventListener("click",()=>{try{window.print()}catch(e){toast("Utilise le menu Imprimer du navigateur")}});m.querySelector("#doPdf").addEventListener("click",pdfFiches);
+  m.querySelector("#doPrint").addEventListener("click",()=>{const inFrame=window.top!==window.self;if(inFrame){toast("Dans cet aperçu, l'impression passe par le PDF : télécharge-le puis imprime-le");return}try{setTimeout(()=>window.print(),50)}catch(e){toast("Utilise le menu Imprimer du navigateur")}});m.querySelector("#doPdf").addEventListener("click",()=>pdfFiches(list));const dw=m.querySelector("#doWa");if(dw)dw.addEventListener("click",()=>waCarnet(list[0]));
   fitDips();window.scrollTo(0,0)}
 function fitDips(){document.querySelectorAll(".dipwrap").forEach(w=>{const avail=w.parentElement.clientWidth;const sc=Math.min(1,avail/w.firstElementChild.offsetWidth);w.style.transform=`scale(${sc})`;w.style.height=(w.firstElementChild.offsetHeight*sc)+"px"})}
 window.addEventListener("resize",()=>fitDips());
 /* ---- PDF des fiches (jsPDF) ---- */
 function loadJsPDF(){return new Promise((res,rej)=>{if(window.jspdf)return res();const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";sc.onload=()=>res();sc.onerror=()=>rej(new Error("jspdf"));document.head.appendChild(sc)})}
-async function pdfFiches(){const list=kids();if(!list.length){toast("Aucun enfant dans la liste");return}
+async function pdfFiches(only){const list=Array.isArray(only)?only:kids();if(!list.length){toast("Aucun enfant dans la liste");return}
   toast("Préparation du PDF…");try{await loadJsPDF()}catch(e){toast("Impossible de charger le module PDF (réseau)");return}
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",compress:true});
   list.forEach((p,i)=>{if(i>0)doc.addPage();pdfFiche(doc,carnetData(p))});
-  const g=grp();const vd=VACANCES.find(x=>x.id===vac);const fname=`fiches-${vd.id}-${g.id}.pdf`;
+  const g=grp();const vd=VACANCES.find(x=>x.id===vac);const slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"");const fname=list.length===1?`carnet-stage-${slug(vd.name)}-${slug(list[0])}.pdf`:`carnets-stage-${slug(vd.name)}-${g.id}.pdf`;
   const blob=doc.output("blob");
   let dl=null;try{if(window.claude&&typeof window.claude.use==="function")dl=await window.claude.use("downloads")}catch(e){dl=null}
   if(dl){try{await dl.save({filename:fname,data:blob});toast("PDF enregistré")}catch(e){if(e&&e.code==="declined")toast("Enregistrement annulé");else toast("Utilise la barre d'outils du lecteur PDF ci-dessous")}}
   else{try{doc.save(fname);toast("PDF téléchargé")}catch(e){}}}
-function renderCarnet(){document.querySelector("header.top").hidden=true;const m=document.querySelector("main");m.innerHTML=`<div class="dips"><div class="dipwrap">${ficheHtml(CARNET)}</div></div>`;document.title=`Carnet de ${CARNET.n} · Pau FC`;fitDips()}
+function renderCarnet(){document.querySelector("header.top").hidden=true;const m=document.querySelector("main");
+  m.innerHTML=`<div class="printbar"><span class="note">Carnet de stage de <b>${esc(CARNET.n)}</b> · Pau FC Academy</span><span><button class="btn primary" id="doPdf">📄 Télécharger le PDF</button> <button class="btn" id="doPrint">🖨️ Imprimer</button></span></div><div class="dips"><div class="dipwrap">${ficheHtml(CARNET)}</div></div>`;
+  document.title=`Carnet de ${CARNET.n} · Pau FC`;fitDips();
+  m.querySelector("#doPrint").addEventListener("click",()=>{try{setTimeout(()=>window.print(),50)}catch(e){}});
+  m.querySelector("#doPdf").addEventListener("click",async()=>{toast("Préparation du PDF…");try{await loadJsPDF()}catch(e){toast("Impossible de charger le module PDF (réseau)");return}
+    const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",compress:true});pdfFiche(doc,CARNET);
+    const slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"");const vd=VACANCES.find(x=>x.id===CARNET.v)||VACANCES[0];
+    try{doc.save(`carnet-stage-${slug(vd.name)}-${slug(CARNET.n)}.pdf`);toast("PDF téléchargé")}catch(e){}})}
 function render(){if(!vac||!VACANCES.some(v=>v.id===vac))vac=nextVac().id;renderCats();renderStage();renderSeances();renderAppr()}
 /* onglets */
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===t.getAttribute("aria-controls")));set("tab",t.getAttribute("aria-controls"))}));
