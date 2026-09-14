@@ -1123,33 +1123,35 @@ async function saveOverride(id,data,by){const ts=Date.now();OVR[id]={data,by,ts}
 
 /* ---------- Message WhatsApp ---------- */
 function waMessage(s,detail){
+  /* Symboles typographiques non-emoji uniquement (★ ◆ ✦ ● ✓ ➜) : tout caractère à présentation emoji (⚽ ▶ ✔ 🎯…) arrive en « ? » sur WhatsApp Mac via un lien wa.me.
+     Le lien vers la fiche complète est placé en haut, avant le repli « Lire la suite » de WhatsApp. */
   const st=settings();const plateau=isPlateau(s);
   const dateTxt=cap(fmtLong(s.date));
   const rdv=(s.sat?st.hSam:st.hMer);
-  const lines=[];
-  lines.push(`⚽ *PAU FC ${CAT.code} · ${dateTxt}*`);
+  const lines=[];const lk=sessionLink(s);
+  lines.push(`★ *PAU FC ${CAT.code} · ${dateTxt}*`);
   if(plateau){
     const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
-    lines.push(`🏟️ *PLATEAU DISTRICT*${info.lieu?` · ${info.lieu}`:""}${info.heure?` · RDV ${info.heure}`:""}`);
-    lines.push(`_${PLATEAU.theme}_`,"","*Déroulé*");
+    lines.push(`*PLATEAU DISTRICT*${info.lieu?` · ${info.lieu}`:""}${info.heure?` · RDV ${info.heure}`:""}`);
+    lines.push(`_${PLATEAU.theme}_`);
+    if(lk)lines.push(`➜ Fiche complète : ${lk}`);
+    lines.push("","◆ *Déroulé*");
     PLATEAU.blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.t} ${b.name}`));
-    if(detail){lines.push("","*À veiller*");PLATEAU.veiller.forEach(v=>lines.push(`- ${v}`));lines.push("",`*À prévoir* : ${PLATEAU.mat.join(", ")}`)}
+    lines.push("","✦ *À veiller*");PLATEAU.veiller.forEach(v=>lines.push(`- ${v}`));lines.push("",`● *À prévoir* : ${PLATEAU.mat.join(", ")}`);
   }else{
     const blocks=expandBlocks(s);
-    lines.push(`🎯 *${s.title}*`);if(detail)lines.push(`_${s.theme}_`);
-    if(rdv||st.lieu)lines.push(`📍 ${[rdv?`RDV ${rdv}`:"",st.lieu].filter(Boolean).join(" · ")}`);
-    if(s.mod&&s.mod.by)lines.push(`✏️ Séance ajustée par ${s.mod.by}`);
-    lines.push("",`*Déroulé (${blocks.reduce((a,b)=>a+b.dur,0)}')*`);
-    blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.dur}' *${b.name}*${detail&&b.kind!=="accueil"&&b.kind!=="calme"&&b.desc?` — ${firstSentence(b.desc)}`:""}`));
-    if(detail){
-      lines.push("","*Objectifs du jour*");s.objs.forEach(o=>lines.push(`- ${o}`));
-      lines.push("","*À veiller*");blocks.filter(b=>["atelier","defi","match","eveil"].includes(b.kind)).forEach(b=>lines.push(`- ${b.name} : ${b.veiller}`));
-      lines.push("",`*Matériel* : ${collectMat(blocks).join(", ")}`);
-      lines.push("",`💛 *Message éducatif* : ${s.pef}`);
-    }else lines.push("",`💛 ${s.pef.split(" — ")[0]} : ${s.pef.split(" — ")[1]||""}`);
+    lines.push(`◆ *${s.title}*`);lines.push(`_${s.theme}_`);
+    if(rdv||st.lieu)lines.push(`${[rdv?`RDV ${rdv}`:"",st.lieu].filter(Boolean).join(" · ")}`);
+    if(s.mod&&s.mod.by)lines.push(`Séance ajustée par ${s.mod.by}`);
+    if(lk)lines.push(`➜ Fiche complète (schémas, consignes, matériel) : ${lk}`);
+    lines.push("",`◆ *Déroulé (${blocks.reduce((a,b)=>a+b.dur,0)}')*`);
+    blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.dur}' *${b.name}*${b.kind!=="accueil"&&b.kind!=="calme"&&b.desc?` — ${firstSentence(b.desc)}`:""}`));
+    lines.push("","★ *Objectifs du jour*");s.objs.forEach(o=>lines.push(`- ${o}`));
+    lines.push("","✦ *À veiller*");blocks.filter(b=>["atelier","defi","match","eveil"].includes(b.kind)&&b.veiller).forEach(b=>lines.push(`- ${b.name} : ${b.veiller}`));
+    lines.push("",`● *Matériel* : ${collectMat(blocks).join(", ")}`);
+    lines.push("",`★ *Message éducatif* : ${s.pef}`);
   }
-  const lk=sessionLink(s);if(lk)lines.push("",`📎 *Fiche complète* (schémas, consignes, matériel) : ${lk}`);
-  if(st.signature)lines.push(st.signature);
+  if(st.signature)lines.push("",st.signature);
   return lines.join("\n");
 }
 
@@ -1238,7 +1240,7 @@ function renderSheet(){
      ${b.org||b.var||b.veiller?`<div class="more">${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}</div>`:""}</article>`).join("");
   const mat=plateau?PLATEAU.mat:collectMat(blocks);
   const educs=educators();const sent=get("sent:"+s.id,{});
-  const msg=waMessage(real,false);const enc=encodeURIComponent(msg);
+  const msg=waMessage(real,true);const enc=encodeURIComponent(msg);
   const waBtns=educs.length?educs.map((e,i)=>`<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${normPhone(e.phone)}?text=${enc}" data-edu="${i}">${waIcon()} ${esc(e.name)}${sent[e.name]?` ✓`:""}</a>`).join(""):`<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${enc}" data-edu="-1">${waIcon()} Envoyer sur WhatsApp</a>`;
   const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
   const modChip=real.mod?`<span class="pill" title="${real.mod.ts?new Date(real.mod.ts).toLocaleString("fr-FR"):""}">✏️ Ajustée${real.mod.by?` par ${esc(real.mod.by)}`:""}</span>`:"";

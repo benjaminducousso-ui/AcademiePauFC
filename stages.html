@@ -598,10 +598,14 @@ function slotTime(t){const [h,m]=t.split("h");return +h*60+(+m||0)}
 const fmtTime=m=>`${Math.floor(m/60)}h${String(m%60).padStart(2,"0")}`;
 function planSlots(day){return st().plan[day].map(([t,x,d])=>{if(typeof x==="object"){const s=sessionOf(x.s);const tot=totalOf(s);return {t,s,end:fmtTime(slotTime(t)+tot),tot}}return {t,title:x,desc:d}})}
 function sessionLink(s){return `${location.origin}${location.pathname}?g=${gid}&s=${s.id}`}
-function waMessage(s){const g=grp();const vd=VACANCES.find(x=>x.id===vac);const d=vd[g.days][s.day-1];
-  const lines=[`⚽ *Stage ${vd.name} · ${g.name}* — ${g.dayNames[s.day-1]} ${fmt(d)}`,`🎯 *${s.title}* (${totalOf(s)} min)`,"",`*Déroulé*`];
-  blocksOf(s).forEach((b,i)=>lines.push(`${i+1}. ${b.dur}' *${b.name}*`));
-  lines.push("",`👀 À veiller : ${s.veiller}`,"",`📎 *Fiche complète* (schémas, consignes, matériel) : ${sessionLink(s)}`);return lines.join("\n")}
+function waMessage(s){const g=grp();const vd=VACANCES.find(x=>x.id===vac);const d=vd[g.days][s.day-1];const blocks=blocksOf(s);
+  /* Symboles non-emoji uniquement (★ ◆ ✦ ● ➜) : les caractères à présentation emoji arrivent en « ? » sur WhatsApp Mac ; le lien vers la fiche est en haut, avant le repli « Lire la suite ». */
+  const lines=[`★ *Stage ${vd.name} · ${g.name}* — ${g.dayNames[s.day-1]} ${fmt(d)}`,`◆ *${s.title}* (${totalOf(s)} min)`,`_${s.theme}_`,`➜ Fiche complète (schémas, consignes, matériel) : ${sessionLink(s)}`,"",`◆ *Déroulé*`];
+  blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.dur}' *${b.name}*${b.desc&&b.kind!=="accueil"&&b.kind!=="calme"?` — ${(b.desc.split(/(?<=[.!?])\s/)[0]||"").trim()}`:""}`));
+  lines.push("","★ *Objectifs*");s.objs.forEach(o=>lines.push(`- ${o}`));
+  lines.push("","✦ *À veiller*",`- ${s.veiller}`);blocks.filter(b=>b.veiller).forEach(b=>lines.push(`- ${b.name} : ${b.veiller}`));
+  const mat=collectMat(blocks);if(mat.length)lines.push("",`● *Matériel* : ${mat.join(", ")}`);
+  return lines.join("\n")}
 function renderStage(){const v=document.getElementById("view-stage");const g=grp();const vd=VACANCES.find(x=>x.id===vac);const dates=vd[g.days];const S=st();
   v.innerHTML=`<div class="eyebrow">Stage ${esc(vd.name)} · ${esc(g.name)}</div><h2 style="margin-top:4px">${g.dayNames[0]} ${fmt(dates[0])} et ${g.dayNames[1]} ${fmt(dates[1])}</h2>${vacbar()}
   <div class="kpis"><div class="kpi"><b>2 jours</b><span>8h45 → 16h30 / 17h</span></div><div class="kpi"><b>${S.sessions.length} séances</b><span>de ${S.dur} min</span></div><div class="kpi"><b>${g.places}</b><span>places maxi · ${esc(g.ratio)}</span></div><div class="kpi"><b>${esc(g.ballon)}</b><span>ballon</span></div></div>
@@ -648,7 +652,7 @@ function renderAppr(){const v=document.getElementById("view-appr");const g=grp()
   v.querySelector("#printFiches").addEventListener("click",printFiches);
 
   v.querySelectorAll("[data-carnet]").forEach(b=>b.addEventListener("click",()=>{const p=b.dataset.carnet;const r=rec(p);const tot=FACETS.reduce((a,f)=>a+(r.f[f.id]||0),0);
-    const msg=[`⚽ *Stage ${vd.name} · Pau FC* — carnet de ${p}`,`${FACETS.map(f=>`${f.name} : ${"★".repeat(r.f[f.id]||0)||"—"}`).join(" · ")}`,r.note?`💬 « ${r.note} » — ${get("who","")||"l'éducateur"}`:"",``,`📖 Le carnet complet (apprentissages et étoiles) : ${carnetLink(p)}`].filter(x=>x!==undefined).join("\n");
+    const msg=[`★ *Stage ${vd.name} · Pau FC* — carnet de ${p}`,`${FACETS.map(f=>`${f.name} : ${"★".repeat(r.f[f.id]||0)||"—"}`).join(" · ")}`,r.note?`« ${r.note} » — ${get("who","")||"l'éducateur"}`:"",``,`➜ Le carnet complet (apprentissages et étoiles) : ${carnetLink(p)}`].filter(x=>x!==undefined).join("\n");
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,"_blank")}));
   const add=()=>{const inp=v.querySelector("#kid");const names=inp.value.split(/\n|;|,/).map(s=>s.trim()).filter(Boolean);if(!names.length)return;const c=catKey();store.kids[c]=store.kids[c]||[];names.forEach(n=>{if(!store.kids[c].includes(n))store.kids[c].push(n)});save();renderAppr();toast(`${names.length} enfant(s) ajouté(s)`)};
   v.querySelector("#addKid").addEventListener("click",add);v.querySelector("#kid").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();add()}});
@@ -658,7 +662,7 @@ function renderAppr(){const v=document.getElementById("view-appr");const g=grp()
   v.querySelector("#delKid").addEventListener("click",()=>{const n=prompt("Nom exact de l'enfant à retirer de la liste :");if(!n)return;const c=catKey();store.kids[c]=(store.kids[c]||[]).filter(x=>x!==n);save();renderAppr()});
   v.querySelector("#waBilan").addEventListener("click",()=>{const lines=[`*Stage ${vd.name} · ${g.name}* — bilan appréciation`,`${list.length} enfants · éducateur : ${get("who","")||"—"}`,""];
     list.forEach(p=>{const r=rec(p);const tot=FACETS.reduce((s,f)=>s+(r.f[f.id]||0),0);lines.push(`- ${p} : ${"★".repeat(Math.round(tot/FACETS.length))||"—"}${r.note?` — ${r.note}`:""}`)});
-    lines.push("",`📎 ${location.origin}${location.pathname}?g=${gid}`);window.open(`https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`,"_blank")})}
+    lines.push("",`➜ Outil Stages : ${location.origin}${location.pathname}?g=${gid}`);window.open(`https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`,"_blank")})}
 function carnetData(p){const g=grp();const vd=VACANCES.find(x=>x.id===vac);const r=rec(p);return {n:p,g:gid,v:vac,f:r.f,m:r.note,e:r.by||get("who","")}}
 function carnetLink(p){return `${location.origin}${location.pathname}?carnet=${b64e(carnetData(p))}`}
 function printFiches(){const list=kids();if(!list.length){toast("Aucun enfant dans la liste");return}
