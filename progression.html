@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+</head>
+<body style="margin:0">
+<title>Progression Pau FC</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{--navy:#0B2A4A;--navy-2:#123B66;--yellow:#F2C200;--yellow-ink:#7A5E00;--bg:#F3F5F9;--surface:#FFFFFF;--surface-2:#E9EEF6;--line:#D5DDE8;--ink:#14213D;--muted:#5B6B82;--faint:#8A97AB;--ok:#2E8B57;--warn:#C77700;--bad:#D64545;--shadow:0 1px 2px rgba(11,42,74,.06),0 6px 20px rgba(11,42,74,.08);--r:10px;--display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;--body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--navy-2:#173F6B;--bg:#0E1726;--surface:#162236;--surface-2:#1D2C45;--line:#2B3C57;--ink:#E8EDF5;--muted:#A5B2C6;--faint:#7C8AA1;--yellow-ink:#F2C200}}
+:root[data-theme="dark"]{--navy-2:#173F6B;--bg:#0E1726;--surface:#162236;--surface-2:#1D2C45;--line:#2B3C57;--ink:#E8EDF5;--muted:#A5B2C6;--faint:#7C8AA1;--yellow-ink:#F2C200}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+h1,h2,h3,h4{font-family:var(--display);margin:0;line-height:1.05;text-wrap:balance}h1{font-size:clamp(30px,5vw,44px);font-weight:800;text-transform:uppercase}h2{font-size:clamp(22px,3vw,30px);font-weight:700;text-transform:uppercase}h3{font-size:21px;font-weight:700}h4{font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+p{margin:0}button{font-family:inherit;font-size:inherit;cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:13px;font-weight:700;color:var(--muted)}
+.top{background:var(--navy);color:#fff;padding-block:18px 14px}.wrap{max-width:1180px;margin:0 auto;padding-inline:18px}
+.brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.crest{width:46px;height:52px;flex:none}.brand .eyebrow{color:var(--yellow)}.brand p{color:#C9D6E8;max-width:66ch;margin-top:4px}
+.catbar{display:flex;gap:6px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:thin}
+.cat{flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:999px;padding:8px 14px;font-family:var(--display);font-size:18px;font-weight:700}
+.cat[aria-pressed="true"]{background:var(--yellow);color:#3B2E00;border-color:var(--yellow)}
+.cat small{display:block;font-family:var(--body);font-size:11px;font-weight:600;opacity:.8;letter-spacing:0}
+main{padding-block:20px 60px}
+.perbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin:14px 0 6px}
+.perchip{flex:none;display:flex;flex-direction:column;gap:1px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink);min-width:150px;text-align:left}
+.perchip b{font-family:var(--display);font-size:18px;line-height:1}.perchip span{font-size:13px;font-weight:600}.perchip small{font-size:11px;color:var(--muted)}
+.perchip[aria-pressed="true"]{border-color:var(--yellow);box-shadow:inset 0 0 0 2px var(--yellow)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-top:16px}
+.card h3{margin-bottom:8px}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+.periods{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}@media (max-width:900px){.periods{grid-template-columns:repeat(2,1fr)}}@media (max-width:520px){.periods{grid-template-columns:1fr}}
+.period{background:var(--surface-2);border-radius:8px;padding:10px 12px;font-size:14px}.period b{display:block;font-family:var(--display);font-size:17px;text-transform:uppercase}.period small{color:var(--muted)}.period ul{margin:6px 0 0;padding-left:16px}
+.facets{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:10px}
+.facet{background:var(--surface-2);border-radius:8px;padding:10px}.facet b{display:block;font-family:var(--display);font-size:17px;text-transform:uppercase}.facet span{font-size:13px;color:var(--muted)}
+.note{font-size:14px;color:var(--muted)}
+.callout{border-left:4px solid var(--yellow);background:var(--surface);padding:12px 14px;border-radius:0 var(--r) var(--r) 0;margin-top:14px;font-size:15px}
+.tbl-wrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:15px}th{text-align:left;font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;font-size:13px;color:var(--muted);padding:8px 6px;border-bottom:2px solid var(--line);white-space:nowrap}td{padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+td.name{font-weight:600;white-space:normal;min-width:160px}
+.stars{display:inline-flex;gap:0}.stars button{background:none;border:0;padding:1px 2px;font-size:20px;line-height:1;color:var(--line)}.stars button.on{color:var(--yellow)}
+input.num{width:64px;border:1px solid var(--line);border-radius:6px;padding:5px 6px;font:inherit;background:var(--surface);color:var(--ink);text-align:right}
+input.txt{width:150px;border:1px solid transparent;border-radius:6px;padding:5px 6px;font:inherit;background:transparent;color:var(--ink)}input.txt:hover,input.txt:focus{border-color:var(--line);background:var(--surface)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:8px;padding:9px 13px;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.status{font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted)}.status.ok{background:#DCF5E6;color:#1B5E36}.status.warn{background:#FFF3BF;color:#7A5E00}.status.bad{background:#FBE0E0;color:#8A1F1F}
+.field{display:flex;flex-direction:column;gap:4px}.field label{font-weight:600;font-size:13px}.field input,.field select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--surface);color:var(--ink)}
+.trend{font-family:var(--display);font-size:15px;letter-spacing:.04em}.trend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:2px;background:var(--line);vertical-align:middle}.trend i.l1{background:#F2C200;opacity:.45}.trend i.l2{background:#F2C200;opacity:.75}.trend i.l3{background:#F2C200}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50}.toast.show{opacity:1}
+.tabs{display:flex;gap:4px;margin-top:12px}.tab{background:transparent;color:#C9D6E8;border:0;border-bottom:3px solid transparent;padding:8px 12px;font-family:var(--display);font-size:17px;text-transform:uppercase;font-weight:700}.tab[aria-selected="true"]{color:var(--yellow);border-bottom-color:var(--yellow)}
+.view{display:none}.view.active{display:block}
+.legend{font-size:13px;color:var(--muted);margin-top:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand">
+    <svg class="crest" viewBox="0 0 46 52" aria-hidden="true"><path d="M23 1 44 8v18c0 12-9 21-21 25C11 47 2 38 2 26V8z" fill="#F2C200"/><path d="M23 6 39 11.5V26c0 9.5-7 16.8-16 20-9-3.2-16-10.5-16-20V11.5z" fill="#0B2A4A"/><path d="M23 12 33 16v10c0 6-4.2 10.6-10 13-5.8-2.4-10-7-10-13V16z" fill="#F2C200"/><text x="23" y="30" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="11" fill="#0B2A4A">★</text></svg>
+    <div><div class="eyebrow">Pau FC · Académie · Saison 2026-2027</div><h1>Progression des joueurs</h1><p>Pour chaque catégorie : le fil de l'année selon les guides FFF, et la grille d'appréciation par période — des étoiles, quelques repères mesurés à partir des U10, un mot. Les saisies sont partagées avec le RTJ.</p></div>
+  </div>
+  <div class="catbar" id="catbar" role="group" aria-label="Catégories"></div>
+  <nav class="tabs" role="tablist"><button class="tab" role="tab" id="tab-eval" aria-selected="true" aria-controls="view-eval">Appréciation</button><button class="tab" role="tab" id="tab-prog" aria-selected="false" aria-controls="view-prog">Programme de l'année</button><button class="tab" role="tab" id="tab-bilan" aria-selected="false" aria-controls="view-bilan">Bilan annuel</button></nav>
+</div></header>
+<main class="wrap">
+  <section class="view active" id="view-eval" role="tabpanel"></section>
+  <section class="view" id="view-prog" role="tabpanel"></section>
+  <section class="view" id="view-bilan" role="tabpanel"></section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const ROSTER={"U7": ["MANDIR Waïl", "YATTARA Hassan", "DUCOUSSO Emy"], "U8": ["BEN-HADJ-ALI Naim", "COELHO Mael", "EL ABIDI Samy", "HARIR Naim", "KANTE Mahdy", "QUESNEL Ilyes", "REGAZZONI Tiago", "GIRESSE Alba"], "U9": ["ABRIJI Sultan", "DE SOUSA GONCALVES Adame", "DERAM Tiago", "HALLA Ilyes", "HAMMOUDI Yanis", "HASANI Eris", "LABBEN Iyed", "LAUNAY Tiago", "MANDIR Nahyl", "MONARET Soan", "NETO BOUVIER Enzo", "NUNES Pedro", "ROIG Victor", "SAINZ PANAGIOTIDIS Hector", "TRAORE Djamoe", "ALBERT Adrien", "GUBELJIC AZMI Assia"], "U10": ["BENSAID Adam", "DE SOUSA GONCALVES Ismael", "DUCOUSSO Leo", "ELKHIZZIOUI Souleyman", "HARIR Kais", "MBENGUE Mouhamet", "OURAHOU Amine", "PACTON FLORES Khays", "RODRIGUEZ Luis", "SEBIANE Younes", "SEGONZAC Ilyes", "BAAIZ Neyla", "EL ABIDI Alya", "KHALOUKI Souleymane", "ROIG Leo"], "U11": ["BOURASSIN Axel", "CARSAC Mati", "COURREGES Simon", "DEGERLI LORAN", "DOUCET MARTIN Edgar", "EL AKROUD RAHIL Imran", "EL AMMARI ISSAM", "LAGRENE Michel", "LEVEQUE Louis", "MERAH Ibrahim", "NZOMBO Raphael", "OYENHART SIMON", "PERRIN LAGET Axel", "RAMDANI Mohamed Amir", "RANQUINE MARTIN", "REGAZZONI Leandro", "SITGES Tymeo", "YATTARA Mory", "ZAAIMI Wassim", "FABRE AARON"], "U12": ["ATFI Rayan", "AVERSENQ Malo", "BATCH LUCAS", "BELKADI Adem", "BLANGY Alexandre", "BOUKHALLED Ibrahim", "BURGAUD Nino", "CHIBUZO Timeo", "DUVAL Marius", "HDOUDI RAYAN", "HIDALGO HUGO", "KANTE Issa", "MATEOS Jalil", "MERAH Abdelmadjid", "PEDEHOURCQ Louis", "RASHITI Antik", "SOARES Nelio", "JOULALI Issa Leo", "MASAOUDI Sofiane"], "U13": ["BELLOCQ Martin", "BENCHAT GAILLARD Nahil", "CAZENAVE Iban", "CHARTIER MATTIA", "DREUILLE Emilio", "GASPAR Timeo", "GIRESSE Leandro", "LEGRAND Raphael", "MANSO Aaron", "MARIE Elowan", "MAZURIER Younes", "MINIOU Quentin", "PERE LANNERET Diego", "PERRIN Ethan", "SY Naim", "TOUYAROU Corentin", "ZEROUALI Ali", "DEJARDIN Miquel", "LAGORCE Louis"], "U14": ["ARISCON KENZO", "ATMANI Nael", "BAAIZ Ilyes", "BAZET Oscar", "BERNARD GABRIEL", "BOUCHET Arnaud", "BRAGANCE Elijah", "CAVALLI LISANDRU", "CHARLES Noe", "CHERROU Samy", "COURREGES Mael", "JUSTE MAXIMILIEN", "KABULO ILUNGA David", "LADAGNOUS NOA", "LOUHAUR LANNE Arthur", "MAZURIER Ismael", "NOULE Charlie", "OUATTARA ADAMA", "SILEY Yacoub", "SITGES Lisandro", "SALIK LAMRISS ANWAR", "SAMIH Elyazid", "BOURGE CARLADOUS Simon"], "U15": ["DE MORAIS Leo", "BATISTA Maxence", "BENZARMOUN Sofian", "BRIN Fabio", "FERREIRA ARAUJO Nolan", "GAZAUBE Ilan", "JARDIN Mateo", "LANNEPOUDENS Roman", "MAGOMADOV Daoud", "MANAUT Nolan", "MAUHOURAT Antoine", "MELENDEZ Nathan", "NICOLE Stanislas", "RANQUINE Timeo", "TOUGET Jordan", "TOUYAROU Maxence", "YEHDIH ABDELMATI", "DUVAL Martin", "MARCHEBOIS Hadrien"], "U16": ["ABDALLAH HOULAYDI", "ARRIBE Theo", "ASFI Rayan", "BOURSIER Ewen", "CASTETBIEILH JOANREN Theo", "CHEGRANE THAIS", "DOMECQ Andy", "DOUCET MARTIN Arthur", "DUCROCQ Lucas", "GUILLAUME RUBEN", "HDOUDI Noham", "LOUSTAU Jules", "MAGOMADOV Adam", "MOHAMEDI Mehdi", "NOULE Sacha", "PRADALIER TOM", "RANQUINE NOA", "RODRIGUEZ Esteban", "SANCHEZ Lucien", "SORS TIMOTHÉE", "VALADOUR Tiago", "VIRAMOUTOU VALENTIN", "COMBE TIMÉO", "ROQUES Jim", "SAUVAGE Antoine", "SARGOS ISAIAH"], "U17": ["CAZALET Axel", "LAMAISON Pierre", "CILLARD Antoine", "RIEU Charlie", "KABULO ILUNGA Noé", "GONZALEZ BASTARDO George", "CHERROU Yanis", "SUISSA Ruben", "CARRAZEDO Jyan", "AMAOUCH Nabil", "BAAZIZI YAZID", "BARDY TAING Naethan", "CARRIQUIRIBORDE Theo", "DAUBIAN Mahe", "DJIBA Matheis", "ESSABAR TIAGO", "FIDJEL Noham", "LAHEUGUERE Theo", "MORETTI Leandre", "REYNES CANEVESE Camille", "MANAUT Titouan"], "U18": ["STRAPAZZON Fabio", "OUVRARD Elouan", "DEL PIANTA Milan", "MARTINEZ PEREZ Rafael", "CABALLERO Nohan", "SALVADORI Gabin", "PUCHEU COURTEILLES Lukas", "BAOUSSAR Walid", "BOYER Mathis Ligori", "BRAHIMI Ghanem", "CASSAN Celestin", "DUBERN Luka", "HAMIDI Nawfal", "LABAT GARCIA MORENO Jaime"]};</script>
+<script>
+/* ===== Progression Pau FC — référentiels par groupe de catégories (guides FFF) ===== */
+const API="https://script.google.com/macros/s/AKfycbw_lyvwhgyF-4i9jM-mNnHTCkdS-q0W92UeU7QGwgmaayAjGTtJCGB1n2K-VlgkKuEGEg/exec";
+const PERIODS=[
+  {n:1,name:"Que le match commence",from:"2026-09-14",to:"2026-10-17",pef:"PLAISIR"},
+  {n:2,name:"C'est complètement foot",from:"2026-11-02",to:"2026-12-19",pef:"RESPECT"},
+  {n:3,name:"Le futsal, c'est génial",from:"2027-01-04",to:"2027-02-13",pef:"ENGAGEMENT"},
+  {n:4,name:"Retour sur les terrains",from:"2027-03-01",to:"2027-04-10",pef:"TOLÉRANCE"},
+  {n:5,name:"Derniers crochets avant l'été",from:"2027-04-26",to:"2027-06-19",pef:"SOLIDARITÉ"}
+];
+const CATS=["U7","U8","U9","U10","U11","U12","U13","U14","U15","U16","U17","U18"];
+const GROUP_OF={U7:"u7",U8:"u89",U9:"u89",U10:"u1011",U11:"u1011",U12:"u1213",U13:"u1213",U14:"u1415",U15:"u1415",U16:"u1618",U17:"u1618",U18:"u1618"};
+/* Étoiles : 1 = découvre / 2 = réussit souvent / 3 = réussit vite et en match */
+const GROUPS={
+  u7:{label:"U7 · guide FFF U6/U7",age:"5-6 ans — l'enfant se construit au cœur du jeu : jeux à histoire, manches de 1 min, à la main puis au pied.",
+    facets:[{id:"cible",name:"Cible",desc:"Identifie le but à attaquer, progresse vers lui, tire pour marquer"},{id:"adversaire",name:"Adversaire",desc:"Conduit et change de direction, se reconnaît défenseur, s'oppose"},{id:"partenaire",name:"Partenaire",desc:"Découvre le partenaire, contrôle et passe au sol"},{id:"moteur",name:"Motricité",desc:"Coordination, équilibre, déplacements, vitesse de réaction"}],
+    tests:[],
+    periods:[["Déménageurs · Bateau pirate · Traversée magique"],["Épervier · Queue du diable · Stop-ball · Va-et-vient"],["1-2-3 soleil · Défendre son château · Multi-but · Locomotive"],["Abattre les quilles · Sorciers · 4 contre 4 · Magicien · Démarque et marque"],["Quatre coins · Minuit dans la bergerie · Ballon au capitaine · Pyramide"]],
+    match:"Plateau : foot à 3 sans gardien (25 × 15 m) ou foot à 4 avec gardien (30 × 20 m) — 3 rencontres + 1 jeu."},
+  u89:{label:"U8 · U9 · guide FFF U8/U9",age:"7-8 ans — amoureux des jeux, concentration limitée : 15 min par atelier, un vrai travail technique commence.",
+    facets:[{id:"jeu",name:"Jeu",desc:"Agrandit l'espace, sécurise la possession, se replace sur l'axe ballon-but, reforme le bloc"},{id:"technique",name:"Technique",desc:"Contrôle et enchaîne, conduit des 2 pieds, frappe intérieur, marque, récupère"},{id:"comportement",name:"Comportement",desc:"Concentré, persévérant, confiant, engagé, état d'esprit exemplaire"},{id:"motricite",name:"Motricité",desc:"Vitesse de réaction et gestuelle, coordination, rythmes"}],
+    tests:[{id:"jd",name:"Jonglerie pied droit",unit:"contacts",target:10},{id:"jg",name:"Jonglerie pied gauche",unit:"contacts",target:10},{id:"ja",name:"Jonglerie alternés",unit:"contacts",target:10}],
+    periods:[["Agrandir l'espace : occuper l'espace, exploiter les zones, utiliser les côtés (T1-T3)"],["Sécuriser la possession : rentrées de touche, trouver son partenaire (T4-T5)"],["Prises de balle et passes : rivière aux crocodiles, taureau 4c1 (T6-T7) · futsal"],["Construire depuis la zone des 6 m (T8-T10), défendre l'axe ballon-but (T11)"],["Marquer : 2c1, dribble, se situer entre 2 adversaires (T12-T14)"]],
+    match:"Plateau 5c5 avec gardien (35-40 × 25-30 m), relance protégée aux 8 m — 4 rencontres + 1 jeu."},
+  u1011:{label:"U10 · U11 · guide FFF U10/U11",age:"9-10 ans — âge d'or des apprentissages techniques : répétition, vitesse d'exécution, les 2 pieds, sans regarder le ballon.",
+    facets:[{id:"tactique",name:"Tactique",desc:"Agrandit l'espace, joue vers l'avant entre les lignes, sécurise la possession, change de rythme, réagit à la perte, reforme le bloc"},{id:"technique",name:"Technique",desc:"Contrôle et enchaîne des 2 pieds, frappe intérieur des 2 pieds, conduit sans regarder le ballon, conserve avec son corps, marque en 1c1 face au gardien, enchaîne conduite-feinte-dribble"},{id:"psycho",name:"Psychologique",desc:"État d'esprit exemplaire, concentration, engagement total, confiance, persévérance, détermination"},{id:"athletique",name:"Athlétique",desc:"Vitesse d'exécution, coordination, motricité"}],
+    tests:[{id:"jd",name:"Jonglerie pied droit",unit:"contacts",target:25},{id:"jg",name:"Jonglerie pied gauche",unit:"contacts",target:25},{id:"ja",name:"Jonglerie alternés",unit:"contacts",target:15},{id:"jt",name:"Jonglerie tête",unit:"contacts",target:10},{id:"v20",name:"Vitesse 20 m",unit:"s",lower:true},{id:"slalom",name:"Slalom conduite 20 m (8 plots)",unit:"s",lower:true}],
+    periods:[["Sécuriser la possession, reformer le bloc, jouer vers l'avant entre les lignes, jouer vers l'avant collectivement — étapes 1 à 5 (T1-T8)"],["Récupérer le ballon et transition défensive, sécuriser la possession, agrandir l'espace (T9-T11)"],["Sécuriser la possession, jouer vers l'avant entre les lignes (T12-T13) · futsal"],["Garder le temps d'avance, réaction à la perte, changer de rythme, prise de balle et enchaînements pour déséquilibrer ou finir (T14-T21)"],["Sécuriser la possession, agrandir l'espace de jeu effectif (T22-T24)"]],
+    match:"Challenge U10/U11 : foot à 8 avec gardien, hors-jeu à la ligne des 13 m — 2 matchs + un défi technique par journée."},
+  u1213:{label:"U12 · U13 · guide FFF U12/U13",age:"11-12 ans — début de la puberté pour certains : vitesse d'exécution, jeu aérien, choix sous pression, gainage et étirements.",
+    facets:[{id:"tactique",name:"Tactique",desc:"Agrandit l'espace, joue vers l'avant, sécurise, change de rythme, fixe dans une zone pour jouer dans une autre, réagit à la perte, récupère en bloc, protège son but en déséquilibre"},{id:"technique",name:"Technique",desc:"Contrôle au sol ou aérien des 2 pieds et enchaîne vite, frappe cou-de-pied des 2 pieds, remise-déviation, conduite en regardant autour, volée, bonne distance et bon moment pour marquer"},{id:"psycho",name:"Psychologique",desc:"État d'esprit, concentration, engagement, confiance, persévérance, détermination ; rôle de capitaine"},{id:"athletique",name:"Athlétique",desc:"Vitesse d'exécution, coordination, gainage, étirements"}],
+    tests:[{id:"j50",name:"Jonglerie (D, G, alternés, tête)",unit:"contacts",target:50},{id:"j20m",name:"Jonglerie en déplacement 20 m aller-retour",unit:"réussi 0/1",target:1},{id:"v30",name:"Vitesse 30 m",unit:"s",lower:true},{id:"navette",name:"Navette 5 × 10 m",unit:"s",lower:true},{id:"detente",name:"Détente verticale",unit:"cm"},{id:"slalom",name:"Slalom conduite 20 m",unit:"s",lower:true}],
+    periods:[["Sécuriser la possession, reformer le bloc, jouer vers l'avant entre les lignes, transition défensive, jouer vers l'avant collectivement — étapes 1 à 5 (T1-T9)"],["Sécuriser la possession, agrandir l'espace (T10-T11)"],["Sécuriser la possession, jouer vers l'avant entre les lignes (T12-T13) · futsal"],["Garder le temps d'avance, réaction à la perte, marquer, changer de rythme, prise de balle et enchaînements, défendre l'axe ballon-but (T14-T22)"],["Fixer dans une zone pour jouer dans une autre (T23) · Festival U13"]],
+    match:"Critérium U12/U13 : foot à 8, classement par phase sans montée/descente ; futsal 4-5 journées."},
+  u1415:{label:"U14 · U15 · préformation",age:"13-14 ans — croissance rapide : individualiser, protéger les articulations, développer la vitesse et le jeu à 11. Référentiel proposé à partir des compétences FFF (pas de guide interactif fédéral) — à valider avec le RTJ.",
+    facets:[{id:"tactique",name:"Tactique",desc:"Jeu de position à 11, conservation sous pression, transitions offensive et défensive, animation défensive en bloc, jeu entre les lignes"},{id:"technique",name:"Technique",desc:"Technique sous pression et en vitesse, jeu long des 2 pieds, jeu de tête, finition, duels offensifs et défensifs"},{id:"mental",name:"Mental",desc:"Concentration 90 min, gestion des émotions, leadership, respect de l'arbitre, projet collectif"},{id:"physique",name:"Physique",desc:"Vitesse, endurance, coordination, gainage, souplesse ; prévention (croissance)"}],
+    tests:[{id:"j100",name:"Jonglerie pied fort / pied faible",unit:"contacts",target:100},{id:"v30",name:"Vitesse 30 m",unit:"s",lower:true},{id:"vma",name:"VMA (Vameval ou 30-15)",unit:"km/h"},{id:"detente",name:"Détente verticale",unit:"cm"},{id:"gainage",name:"Gainage planche",unit:"s"},{id:"souplesse",name:"Souplesse (assis-atteindre)",unit:"cm"}],
+    periods:[["Repères collectifs à 11 : occupation, conservation, jeu vers l'avant"],["Transitions : réaction à la perte, contre-attaque, bloc équipe"],["Futsal et technique en vitesse : prises de balle, enchaînements, jeu de tête"],["Animation défensive en bloc, jeu dans les intervalles, finition"],["Compétition : gestion du match, rôles, bilan physique et technique"]],
+    match:"Championnats U14/U15 à 11 (district / ligue) : hors-jeu, mi-temps de 40 min."},
+  u1618:{label:"U16 · U17 · U18 · formation",age:"15-17 ans — vers le football adulte : performance, spécialisation par poste, autonomie, préparation physique structurée. Référentiel proposé — à valider avec le RTJ.",
+    facets:[{id:"tactique",name:"Tactique",desc:"Compréhension du système, animation offensive et défensive par lignes, transitions, coups de pied arrêtés"},{id:"technique",name:"Technique",desc:"Maîtrise sous pression et à haute intensité, jeu long, jeu de tête, finition, spécificités du poste"},{id:"mental",name:"Mental",desc:"Exigence, résilience, leadership, communication, hygiène de vie (sommeil, alimentation)"},{id:"physique",name:"Physique",desc:"Vitesse, endurance, puissance, prévention des blessures, récupération"}],
+    tests:[{id:"v30",name:"Vitesse 30 m",unit:"s",lower:true},{id:"v10",name:"Vitesse 10 m",unit:"s",lower:true},{id:"vma",name:"VMA (30-15 IFT ou Vameval)",unit:"km/h"},{id:"detente",name:"Détente verticale (CMJ)",unit:"cm"},{id:"gainage",name:"Gainage planche",unit:"s"},{id:"j100",name:"Jonglerie pied faible",unit:"contacts",target:100}],
+    periods:[["Bases collectives du système, condition physique de reprise"],["Animation offensive et transitions ; coups de pied arrêtés"],["Bloc défensif, pressing, futsal ou salle par temps froid"],["Finition, duels, rôle par poste ; tests physiques de mi-saison"],["Compétition, gestion des fins de saison, bilan individuel"]],
+    match:"Championnats U16/U17/U18 à 11 (district / ligue / région)."}
+};
+</script>
+<script>
+/* ===== Application ===== */
+const LS="paufc-progression-v1";let store={};try{store=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(store))}catch(e){}};
+const get=(k,d)=>(k in store)?store[k]:d;const set=(k,v)=>{store[k]=v;save()};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=new Date();today.setHours(0,0,0,0);const D=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const MOIS_C=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];const fmtShort=s=>{const d=D(s);return `${d.getDate()} ${MOIS_C[d.getMonth()]}`};
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast._h);toast._h=setTimeout(()=>t.classList.remove("show"),2200)}
+const QS=new URLSearchParams(location.search);
+let cat=QS.get("cat")&&CATS.includes(QS.get("cat"))?QS.get("cat"):get("cat","U7");
+let per=get("per",(PERIODS.find(p=>today<=D(p.to))||PERIODS[4]).n);
+const grp=()=>GROUPS[GROUP_OF[cat]];
+/* --- données d'évaluation : store.evals[key] = {f:{},t:{},note,by,ts} --- */
+store.evals=store.evals||{};store.extra=store.extra||{};store.queue=store.queue||[];
+const key=(c,p,n)=>`${c}|${p}|${n}`;
+function rec(c,p,n){return store.evals[key(c,p,n)]||(store.evals[key(c,p,n)]={f:{},t:{},note:"",by:"",ts:0})}
+function players(c){return [...(ROSTER[c]||[]),...(store.extra[c]||[])]}
+function push(c,p,n){const r=rec(c,p,n);r.ts=Date.now();r.by=get("who","");save();const payload={prog:1,cat:c,player:p,per:n,f:r.f,t:r.t,note:r.note,by:r.by,ts:r.ts};
+  store.queue.push(payload);save();flush()}
+let flushing=false;
+async function flush(){if(flushing||!store.queue.length){setStatus();return}flushing=true;setStatus("sync");
+  while(store.queue.length){const p=store.queue[0];try{const r=await fetch(API,{method:"POST",body:JSON.stringify(p),headers:{"Content-Type":"text/plain;charset=utf-8"}});if(!r.ok)throw new Error(r.status);const j=await r.json().catch(()=>({}));if(j.error)throw new Error(j.error);store.queue.shift();save()}catch(e){flushing=false;setStatus("bad");return}}
+  flushing=false;setStatus("ok")}
+function setStatus(mode){const el=document.getElementById("syncStatus");if(!el)return;
+  if(mode==="sync"){el.className="status";el.textContent="Envoi…"}else if(mode==="bad"||store.queue.length){el.className="status warn";el.textContent=`${store.queue.length} saisie(s) en attente d'envoi — réessai automatique`}else if(mode==="ok"){el.className="status ok";el.textContent="Partagé avec le RTJ"}else{el.className="status ok";el.textContent="À jour"}}
+async function loadRemote(c){try{const r=await fetch(`${API}?prog=${encodeURIComponent(c)}`,{cache:"no-store"});const j=await r.json();if(!Array.isArray(j))return;let n=0;
+  j.forEach(x=>{const k=key(x.cat,x.player,x.per);const loc=store.evals[k];if(!loc||(x.ts||0)>(loc.ts||0)){store.evals[k]={f:x.f||{},t:x.t||{},note:x.note||"",by:x.by||"",ts:x.ts||0};n++}
+    if(x.player&&!players(x.cat).includes(x.player)){store.extra[x.cat]=store.extra[x.cat]||[];store.extra[x.cat].push(x.player)}});
+  if(n){save();render()}}catch(e){}}
+/* --- rendu --- */
+function renderCats(){document.getElementById("catbar").innerHTML=CATS.map(c=>`<button class="cat" data-c="${c}" aria-pressed="${c===cat}">${c}<small>${(ROSTER[c]||[]).length+(store.extra[c]||[]).length} joueurs</small></button>`).join("");
+  document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{cat=b.dataset.c;set("cat",cat);render();loadRemote(cat)}))}
+function perbar(){return `<div class="perbar">${PERIODS.map(p=>`<button class="perchip" data-p="${p.n}" aria-pressed="${p.n===per}"><b>P${p.n}</b><span>${esc(p.name)}</span><small>${fmtShort(p.from)} → ${fmtShort(p.to)}</small></button>`).join("")}</div>`}
+function bindPer(root){root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{per=+b.dataset.p;set("per",per);render()}))}
+function stars(v,attrs){return `<span class="stars" ${attrs}>${[1,2,3].map(n=>`<button class="${(v||0)>=n?'on':''}" data-n="${n}" aria-label="${n} étoile${n>1?'s':''}">★</button>`).join("")}</span>`}
+function renderEval(){const v=document.getElementById("view-eval");const g=grp();const P=PERIODS[per-1];const list=players(cat);
+  const head=`<tr><th>Joueur</th>${g.facets.map(f=>`<th title="${esc(f.desc)}">${esc(f.name)}</th>`).join("")}${g.tests.map(t=>`<th title="${esc(t.name)}">${esc(t.name.length>18?t.name.slice(0,17)+"…":t.name)}<br><small>${esc(t.unit)}${t.target?` · obj. ${t.target}`:""}</small></th>`).join("")}<th>Un mot</th></tr>`;
+  const rows=list.map(p=>{const r=rec(cat,p,per);return `<tr data-p="${esc(p)}"><td class="name">${esc(p)}</td>${g.facets.map(f=>`<td>${stars(r.f[f.id],`data-f="${f.id}"`)}</td>`).join("")}${g.tests.map(t=>`<td><input class="num" type="number" step="0.1" data-t="${t.id}" value="${r.t[t.id]??""}" aria-label="${esc(t.name)}"></td>`).join("")}<td><input class="txt" type="text" data-note value="${esc(r.note)}" placeholder="un mot"></td></tr>`}).join("");
+  v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Appréciation de la période ${per}</h2><p class="note" style="margin-top:6px">${esc(g.age)}</p>${perbar()}
+   <div class="toolbar"><div class="field"><label for="who">Éducateur qui remplit</label><input id="who" type="text" value="${esc(get("who",""))}" placeholder="Prénom"></div><span class="status" id="syncStatus"></span><button class="btn" id="addP">+ Ajouter un joueur</button><button class="btn" id="copyTxt">Copier le bilan (texte)</button></div>
+   <div class="card"><div class="facets">${g.facets.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div>
+   <p class="legend">★ découvre · ★★ réussit souvent · ★★★ réussit vite et en match.${g.tests.length?" Repères mesurés : saisir la valeur du test de la période (objectifs du guide FFF indiqués).":""} Le message éducatif de la période : <b>${P.pef}</b>.</p>
+   <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${rows||'<tr><td colspan="9" class="note">Aucun joueur.</td></tr>'}</tbody></table></div></div>`;
+  bindPer(v);setStatus();
+  document.getElementById("who").addEventListener("change",e=>set("who",e.target.value.trim()));
+  v.querySelectorAll(".stars button").forEach(b=>b.addEventListener("click",()=>{const tr=b.closest("tr"),p=tr.dataset.p,f=b.parentElement.dataset.f;const r=rec(cat,p,per);const n=+b.dataset.n;r.f[f]=r.f[f]===n?0:n;push(cat,p,per);renderEval()}));
+  v.querySelectorAll("input.num").forEach(i=>i.addEventListener("change",()=>{const p=i.closest("tr").dataset.p;const r=rec(cat,p,per);r.t[i.dataset.t]=i.value===""?null:+i.value;push(cat,p,per)}));
+  v.querySelectorAll("input.txt").forEach(i=>i.addEventListener("change",()=>{const p=i.closest("tr").dataset.p;rec(cat,p,per).note=i.value;push(cat,p,per)}));
+  document.getElementById("addP").addEventListener("click",()=>{const n=prompt("NOM Prénom du joueur");if(!n)return;store.extra[cat]=store.extra[cat]||[];store.extra[cat].push(n.trim());save();renderEval();renderCats()});
+  document.getElementById("copyTxt").addEventListener("click",async()=>{const txt=`Pau FC ${cat} — appréciation période ${per} (${P.name})\n`+list.map(p=>{const r=rec(cat,p,per);return `${p} : ${g.facets.map(f=>`${f.name} ${"★".repeat(r.f[f.id]||0)||"–"}`).join(" · ")}${g.tests.filter(t=>r.t[t.id]!=null).map(t=>` · ${t.name} ${r.t[t.id]} ${t.unit}`).join("")}${r.note?` — ${r.note}`:""}`}).join("\n");try{await navigator.clipboard.writeText(txt);toast("Bilan copié")}catch(e){toast("Copie impossible ici")}});
+}
+function renderProg(){const v=document.getElementById("view-prog");const g=grp();
+  v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Le fil de l'année</h2><p class="note" style="margin-top:6px">${esc(g.age)}</p>
+  <div class="periods">${PERIODS.map((p,i)=>`<div class="period"><b>P${p.n} · ${esc(p.name)}</b><small>${fmtShort(p.from)} → ${fmtShort(p.to)} · PEF ${p.pef}</small><ul>${g.periods[i].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`).join("")}</div>
+  <div class="grid2"><div class="card"><h3>Ce qu'on apprécie</h3><div class="facets">${g.facets.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div></div>
+  <div class="card"><h3>Repères mesurés</h3>${g.tests.length?`<ul style="margin:6px 0 0;padding-left:18px">${g.tests.map(t=>`<li><b>${esc(t.name)}</b> — ${esc(t.unit)}${t.target?`, objectif du guide : ${t.target}`:""}${t.lower?" (plus petit = mieux)":""}</li>`).join("")}</ul>`:'<p class="note">Pas de repère chiffré à cet âge : on observe, on n\'évalue pas.</p>'}<p class="note" style="margin-top:10px"><b>Format de compétition</b> · ${esc(g.match)}</p></div></div>
+  <div class="callout">${cat<="U13"||["U10","U11","U12","U13"].includes(cat)?"Programme et compétences tirés du guide interactif FFF de la catégorie (thèmes numérotés T1… = procédés d'apprentissage du guide).":"Au-delà des U13 la FFF ne publie pas de guide interactif : ce référentiel décline ses compétences (tactique, technique, psychologique, athlétique) et les tests physiques d'usage en préformation / formation. À valider et ajuster avec le RTJ."}</div>`}
+function renderBilan(){const v=document.getElementById("view-bilan");const g=grp();const list=players(cat);
+  const rows=list.map(p=>{const cells=PERIODS.map(P=>{const r=store.evals[key(cat,p,P.n)];const vals=r?g.facets.map(f=>r.f[f.id]||0).filter(x=>x>0):[];const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;return `<td><span class="trend" title="P${P.n}">${g.facets.map(f=>`<i class="${r&&r.f[f.id]?'l'+r.f[f.id]:''}"></i>`).join("")}${avg?` ${avg.toFixed(1)}`:""}</span></td>`}).join("");
+    const last=PERIODS.map(P=>store.evals[key(cat,p,P.n)]).filter(Boolean).pop();const tests=last?g.tests.filter(t=>last.t[t.id]!=null).map(t=>`${t.name.split(" ")[0]} ${last.t[t.id]}`).join(" · "):"";
+    return `<tr><td class="name">${esc(p)}</td>${cells}<td class="note">${esc(tests)}${last&&last.note?` — ${esc(last.note)}`:""}</td></tr>`}).join("");
+  v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Bilan annuel</h2><p class="note" style="margin-top:6px">Une case par facette et par période (clair → foncé = 1 → 3 étoiles), la moyenne de la période, les derniers repères mesurés et le dernier mot de l'éducateur.</p>
+  <div class="card"><div class="tbl-wrap"><table><thead><tr><th>Joueur</th>${PERIODS.map(P=>`<th>P${P.n}</th>`).join("")}<th>Repères · mot</th></tr></thead><tbody>${rows}</tbody></table></div></div>`}
+function showTab(id){document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.getAttribute("aria-controls")===id));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id===id));set("tab",id);render()}
+function render(){renderCats();const id=get("tab","view-eval");if(id==="view-eval")renderEval();else if(id==="view-prog")renderProg();else renderBilan()}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.getAttribute("aria-controls"))));
+showTab(get("tab","view-eval"));loadRemote(cat);flush();
+</script>
+
+</body>
+</html>

@@ -1,4 +1,12 @@
-<title>Séances U7 Pau FC</title>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+</head>
+<body style="margin:0">
+<title>Séances U7 Pau FC</title><!--CATTITLE-->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <style>
 :root{
@@ -80,7 +88,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .st-row .t{font-family:var(--display);font-size:18px;color:var(--navy-2);font-weight:800}
 :root[data-theme="dark"] .st-row .t{color:var(--yellow)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-row .t{color:var(--yellow)}}
-.facets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.facets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
 .facet{background:var(--surface-2);border-radius:8px;padding:10px}
 .facet b{display:block;font-family:var(--display);font-size:17px;text-transform:uppercase}
 .facet span{font-size:13px;color:var(--muted)}
@@ -88,6 +96,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .note{font-size:14px;color:var(--muted)}
 .callout{border-left:4px solid var(--yellow);background:var(--surface);padding:12px 14px;border-radius:0 var(--r) var(--r) 0;margin-top:14px;font-size:15px}
 
+.perbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:thin}
+.perchip{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink);min-width:150px;text-align:left}
+.perchip b{font-family:var(--display);font-size:18px;line-height:1}
+.perchip span{font-size:13px;font-weight:600}
+.perchip small{font-size:11px;color:var(--muted)}
+.perchip[aria-pressed="true"]{border-color:var(--yellow);box-shadow:inset 0 0 0 2px var(--yellow)}
+.perchip:hover{border-color:var(--navy-2)}
 /* ---------- sessions view ---------- */
 .sess-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
 @media (max-width:900px){.sess-layout{grid-template-columns:1fr}}
@@ -234,16 +249,16 @@ code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92
 <header class="top">
   <div class="wrap">
     <div class="brand">
-      <svg class="crest" viewBox="0 0 46 52" aria-hidden="true"><path d="M23 1 44 8v18c0 12-9 21-21 25C11 47 2 38 2 26V8z" fill="#F2C200"/><path d="M23 6 39 11.5V26c0 9.5-7 16.8-16 20-9-3.2-16-10.5-16-20V11.5z" fill="#0B2A4A"/><path d="M23 12 33 16v10c0 6-4.2 10.6-10 13-5.8-2.4-10-7-10-13V16z" fill="#F2C200"/><text x="23" y="30" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="12" fill="#0B2A4A">U7</text></svg>
+      <svg class="crest" viewBox="0 0 46 52" aria-hidden="true"><path d="M23 1 44 8v18c0 12-9 21-21 25C11 47 2 38 2 26V8z" fill="#F2C200"/><path d="M23 6 39 11.5V26c0 9.5-7 16.8-16 20-9-3.2-16-10.5-16-20V11.5z" fill="#0B2A4A"/><path d="M23 12 33 16v10c0 6-4.2 10.6-10 13-5.8-2.4-10-7-10-13V16z" fill="#F2C200"/><text x="23" y="30" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="12" fill="#0B2A4A"><!--CATCODE-->U7</text></svg>
       <div>
         <div class="eyebrow">Pau FC · École de foot · Saison 2026-2027</div>
-        <h1>Séances U7</h1>
-        <p class="sub">Le programme de l'année, les séances prêtes à mener et l'envoi WhatsApp aux éducateurs. Un jeu, une cible, beaucoup de ballon.</p>
+        <h1>Séances <!--CATCODE-->U7</h1>
+        <p class="sub"><!--CATSUB-->Le programme de l'année, les séances prêtes à mener et l'envoi WhatsApp aux éducateurs. Un jeu, une cible, beaucoup de ballon.</p>
       </div>
     </div>
     <nav class="tabs" role="tablist" aria-label="Sections">
       <button class="tab" role="tab" id="tab-guide" aria-selected="true" aria-controls="view-guide">Guide de l'année</button>
-      <button class="tab" role="tab" id="tab-seances" aria-selected="false" aria-controls="view-seances">Séances · Période 1</button>
+      <button class="tab" role="tab" id="tab-seances" aria-selected="false" aria-controls="view-seances">Séances</button>
       <button class="tab" role="tab" id="tab-profils" aria-selected="false" aria-controls="view-profils">Profils techniques</button>
       <button class="tab" role="tab" id="tab-reglages" aria-selected="false" aria-controls="view-reglages">Éducateurs &amp; réglages</button>
     </nav>
@@ -257,6 +272,19 @@ code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92
   <section class="view" id="view-reglages" role="tabpanel" aria-labelledby="tab-reglages"></section>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div></div>
+<script>
+const CAT={code:"U7",file:"seances-u7.html",days:[3,6]};
+const GUIDE={
+  intro:"Calendrier bâti sur le guide interactif FFF U6/U7 : 5 périodes, 24 thèmes de jeu répartis dans l'année, un message éducatif du Programme Éducatif Fédéral par période, et les vacances de la zone A (académie de Bordeaux). Les 5 périodes sont écrites : chaque semaine, le mercredi découvre un thème (version du guide puis variante), le samedi le rejoue au pied et joue ; la dernière semaine de chaque période se termine par le rallye-bilan et une fête.",
+  seanceNote:"À 5-6 ans (grande section / CP), l'enfant a horreur de l'immobilité imposée, se fatigue vite et récupère vite : jamais plus de 12-15 min sur une même activité, un ballon par enfant, on démontre avant d'expliquer. Le guide écrit chaque jeu « à la main » d'abord, puis « au pied » en variante : c'est la progression qu'on suit.",
+  groupNote:"Avec 8 à 14 enfants et 1-2 éducateurs : un seul groupe pour l'éveil et le match, deux demi-groupes qui permutent sur les ateliers si vous êtes deux.",
+  profilNote:"Les 4 compétences du guide U6/U7 (découverte de la cible, de l'adversaire, du partenaire, développement moteur), observées en fin de chaque période avec 1 à 3 étoiles, jamais de classement. Le rallye des Pyrénées de la dernière séance sert de bilan festif ; la grille est dans l'onglet Profils.",
+  principles:["<b>« L'enfant se construit au cœur du jeu »</b> : des jeux avec une histoire (déménageurs, pirates, magiciens), des points qu'on compte, des rôles qu'on inverse, des manches de 1 minute maximum.","<b>Rassurer en permanence</b> : climat sécurisant, valoriser, positiver ; l'enfant a besoin d'être sollicité et encouragé.","<b>Le faire bouger</b> : il est en âge d'acquérir équilibre et latéralisation, il a horreur de l'immobilité ; activité fractionnée effort / repos.","<b>Démontrer, animer, encourager, valoriser</b> : les quatre verbes de la colonne « animation » de chaque fiche FFF.","<b>Le samedi</b> : plateau = protocole fair-play 15', 3 rencontres de 10' + 1 jeu de 10' (pause après 2 rotations), protocole de fin 15'. Foot à 3 sans gardien (25 × 15 m) ou foot à 4 avec gardien (30 × 20 m). Aucun classement, tout le monde joue."],
+  callout:"Tout vient du <b>guide interactif FFF U6/U7</b> : périodes, thèmes, consignes, buts, variantes, « veiller à », matériel et lois du jeu du plateau. Les schémas interactifs du PDF ne s'affichant pas, chaque jeu a été redessiné ici à partir de sa fiche (dimensions et effectifs de la FFF). Les progressions « à la main → au pied → avec obstacles » suivent les variantes écrites dans le guide.",
+  starsNote:"Les 4 compétences du guide FFF U6/U7. 1 étoile = découvre, 2 = réussit souvent, 3 = réussit et va vite. Ce n'est pas une note : c'est ce qu'on observe pour choisir les variantes de la période suivante et pour dire à chaque enfant ce qu'il a progressé. À remplir en bord de terrain pendant le rallye.",
+  bilanName:"Rallye des Pyrénées"
+};
+</script>
 <script>
 /* =========================================================
    DONNÉES — programme U7 Pau FC 2026-2027
@@ -524,9 +552,283 @@ const SOURCES = [
 </script>
 <script>
 /* =========================================================
+   PÉRIODES 2 → 5 — thèmes 4 à 24 du guide FFF U6/U7
+   Chaque thème : v1 = le jeu tel qu'écrit dans le guide, v2/v3 = ses variantes FFF
+   ========================================================= */
+Object.assign(GAMES,{
+  /* éveils supplémentaires */
+  chatballon:{name:"Le chat et les souris", kind:"eveil", dur:10, src:"Éveil — reprise du thème 4 en échauffement",
+    desc:"Tout le monde conduit son ballon dans le carré. Un chat (sans ballon, chasuble) essaie de toucher les souris. Souris touchée = elle s'assoit sur son ballon 5 secondes puis repart. On change de chat toutes les 45 secondes.",
+    org:"Carré 20 × 20 m, 1 ballon par enfant, 1 chasuble.", mat:["1 ballon par enfant","8 coupelles","1 chasuble"],
+    var:"2 chats. Ballon à la main pour les plus petits.", veiller:"Regarder où est le chat (tête levée), changer de direction. Rôle du chat à tous.",
+    schema:{f:[20,20], cups:[C(0,0),C(20,0),C(0,20),C(20,20)], players:[P(10,10,"r","C"),P(4,4,"b"),P(15,5,"b"),P(5,15,"b"),P(16,15,"b"),P(10,3,"b")], balls:[B(4.7,4.4),B(15.7,5.4),B(5.7,15.4),B(16.7,15.4),B(10.7,3.4)], arrows:[A([[10,10],[14.5,5.6]],"m"),A([[15.7,5.4],[18,9],[16,13]],"c")]}},
+  reveil:{name:"Le réveil des joueurs", kind:"eveil", dur:10, src:"Éveil motricité",
+    desc:"En dispersion avec un ballon chacun : au signal, on fait ce que dit l'éducateur — « statue » (stop ballon sous le pied), « tunnel » (jambes écartées, ballon passe dessous), « kangourou » (sauter par-dessus le ballon), « ours » (marcher à quatre pattes autour du ballon), « fusée » (conduire vite jusqu'à une ligne).",
+    org:"Carré 15 × 15 m, 1 ballon par enfant.", mat:["1 ballon par enfant","8 coupelles"],
+    var:"Les enfants inventent un animal. Signaux visuels (couleur de coupelle) au lieu de la voix.", veiller:"Démontrer chaque animal. Alterner effort et récupération.",
+    schema:{f:[15,15], cups:[C(0,0),C(15,0),C(0,15),C(15,15)], players:[P(7.5,7.5,"e"),P(3,3,"b"),P(11,4,"b"),P(4,11,"b"),P(12,11,"b")], balls:[B(3,3.9),B(11,4.9),B(4,11.9),B(12,11.9)], labels:[{x:7.5,y:14.2,t:"statue · tunnel · kangourou · fusée"}]}},
+
+  /* ---- PÉRIODE 2 ---- */
+  epervier1:{name:"L'épervier", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 4 · Découverte de l'adversaire",
+    desc:"Au « top » de l'éducateur, les éperviers doivent rejoindre la zone refuge de l'autre côté sans se faire toucher par le chasseur. Dès qu'un épervier est touché, il devient chasseur et se tient par la main avec un autre chasseur (chaîne). Le dernier joueur qui n'a pas été touché marque 1 point.",
+    org:"Terrain 30 × 20 m, zone refuge à chaque bout (3 m), 7 éperviers + 1 chasseur, 8 coupelles.", mat:["8 coupelles","1 chasuble"],
+    var:"Mettre des obstacles dans l'aire de jeu.", veiller:"Démontrer le jeu. Faire identifier les zones à atteindre. Bien compter les points et inverser les rôles. Bien occuper l'espace dès le départ.",
+    schema:{f:[30,20], zones:[Z(0,0,3,20,"REFUGE","#F2C200"),Z(27,0,3,20,"REFUGE","#F2C200")], players:[P(15,10,"r","C"),P(1.5,3,"b"),P(1.5,7,"b"),P(1.5,11,"b"),P(1.5,15,"b"),P(1.5,18,"b")], arrows:[A([[1.5,7],[10,5],[20,6],[28,8]],"m"),A([[1.5,15],[10,17],[20,15],[28,13]],"m")]}},
+  epervier2:{name:"L'épervier · ballon au pied", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 4 · variante « ballon à conduire avec le pied »",
+    desc:"Même jeu : chaque épervier traverse en conduisant son ballon au pied (d'abord à la main pour les plus petits). Le chasseur touche l'épervier ou son ballon. Touché = chasseur, en chaîne avec les autres chasseurs. Le dernier épervier libre marque 1 point.",
+    org:"Terrain 30 × 20 m, 2 zones refuge, 1 ballon par épervier.", mat:["8 coupelles","8 ballons","1 chasuble"],
+    var:"Ballon à la main. Obstacles (plots) à contourner pendant la traversée.", veiller:"Regarder le chasseur avant de partir, changer de direction, accélérer une fois passé.",
+    schema:{f:[30,20], zones:[Z(0,0,3,20,"REFUGE","#F2C200"),Z(27,0,3,20,"REFUGE","#F2C200")], cones:[C(12,6,"cone"),C(18,14,"cone")], players:[P(15,10,"r","C"),P(1.5,3,"b"),P(1.5,7,"b"),P(1.5,11,"b"),P(1.5,15,"b")], balls:[B(2.3,3.3),B(2.3,7.3),B(2.3,11.3),B(2.3,15.3)], arrows:[A([[2.3,7.3],[9,4],[20,4],[28,7]],"c"),A([[2.3,15.3],[10,18],[22,17],[28,14]],"c")]}},
+  queue1:{name:"La queue du diable", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 5 · Découverte de l'adversaire",
+    desc:"2 équipes s'affrontent pour récupérer un maximum de chasubles : chacun porte une chasuble (la queue) dans son dos. Celui qui se fait attraper sa queue va dans la zone prison ; la queue récupérée est posée dans le coffre-fort de l'équipe. Un coéquipier peut faire sortir un prisonnier en lui donnant une chasuble de la réserve. 1 point à l'équipe qui a le plus de chasubles dans son coffre à la fin du temps.",
+    org:"Terrain 20 × 25 m, 2 coffres-forts (cerceaux) et 2 prisons dans les coins, réserve de chasubles chez l'éducateur. 4 c 4.", mat:["8 coupelles","2 cerceaux","chasubles 4/4 + réserve"],
+    var:"Ajouter un ballon à chaque joueur, à la main puis au pied.", veiller:"Compter les points. Plusieurs séries de 1 min maximum. Se déplacer pour ne pas se faire toucher.",
+    schema:{f:[20,25], zones:[Z(0,0,4,4,"Prison","#1E56C9"),Z(16,21,4,4,"Prison","#D64545")], hoops:[C(2,23,"hoop"),C(18,2,"hoop")], players:[P(6,8,"b"),P(9,14,"b"),P(13,6,"b"),P(5,19,"b"),P(11,10,"r"),P(15,15,"r"),P(8,20,"r"),P(14,20,"r"),P(10,-1.6,"e")], arrows:[A([[11,10],[7,8.5]],"m"),A([[9,14],[13,16],[14.5,15.5]],"m")], labels:[{x:2,y:20.8,t:"coffre bleu"},{x:18,y:4.4,t:"coffre rouge"}]}},
+  queue2:{name:"La queue du diable · ballon au pied", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 5 · variante « ballon à chaque joueur »",
+    desc:"Même jeu avec un ballon à conduire au pied pour chacun : il faut attraper une queue SANS perdre son ballon (un ballon sorti = la queue attrapée ne compte pas). Prison, coffre et délivrance identiques. Séries de 1 minute.",
+    org:"Terrain 20 × 25 m, 1 ballon par enfant, 2 coffres, 2 prisons.", mat:["8 coupelles","8 ballons","2 cerceaux","chasubles 4/4 + réserve"],
+    var:"Ballon à la main pour simplifier. Interdit de toucher le ballon des autres.", veiller:"Ballon sous contrôle en permanence. Regarder autour de soi (prise d'information).",
+    schema:{f:[20,25], zones:[Z(0,0,4,4,"Prison","#1E56C9"),Z(16,21,4,4,"Prison","#D64545")], hoops:[C(2,23,"hoop"),C(18,2,"hoop")], players:[P(6,8,"b"),P(9,14,"b"),P(13,6,"b"),P(11,10,"r"),P(15,15,"r"),P(8,20,"r")], balls:[B(6.7,8.4),B(9.7,14.4),B(13.7,6.4),B(11.7,10.4),B(15.7,15.4),B(8.7,20.4)], arrows:[A([[6.7,8.4],[9,10],[10.4,10.2]],"c")]}},
+  stop1:{name:"Le stop-ball", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 6 · Reconnaître le partenaire",
+    desc:"Ballon à la main, chaque équipe doit arrêter le ballon dans la zone adverse (au fond du terrain). Les joueurs ne peuvent pas se déplacer ballon en main : on avance par des passes. Pour récupérer le ballon à l'adversaire, il faut toucher le porteur avec les deux mains. 1 point = ballon arrêté (posé) dans la zone.",
+    org:"Terrain 25 × 15 m, zone d'arrivée de 3 m à chaque bout, 4 c 4, 1 ballon.", mat:["8 coupelles","1 ballon","chasubles 4/4"],
+    var:"Utiliser le ballon au pied (voir version suivante).", veiller:"Démontrer. L'occupation de l'espace : se démarquer pour recevoir. Compter les points.",
+    schema:{f:[25,15], zones:[Z(0,0,3,15,"","#1E56C9"),Z(22,0,3,15,"","#D64545")], players:[P(8,4,"b"),P(11,10,"b"),P(15,6,"b"),P(18,12,"b"),P(10,7,"r"),P(14,11,"r"),P(17,5,"r"),P(20,9,"r")], balls:[B(8,2.4)], arrows:[A([[8,4],[14.5,6.2]],"p"),A([[15,6],[21.5,4]],"p"),A([[18,12],[21,9]],"m")], labels:[{x:23.5,y:-1.2,t:"zone à atteindre"}]}},
+  stop2:{name:"Le stop-ball · au pied", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 6 · variante « ballon au pied »",
+    desc:"Même principe au pied : on progresse en conduite ou en passe au sol, et on marque 1 point en arrêtant le ballon sous la semelle dans la zone adverse. L'adversaire récupère en touchant le ballon. Pas de but, pas de gardien : la cible, c'est la zone.",
+    org:"Terrain 25 × 15 m, zones de 3 m, 4 c 4, 1 ballon.", mat:["8 coupelles","2 ballons","chasubles 4/4"],
+    var:"2 points si une passe précède l'arrêt dans la zone. Zone plus petite (coin) pour compliquer.", veiller:"Arrêt semelle net dans la zone. Lever la tête pour voir le partenaire libre.",
+    schema:{f:[25,15], zones:[Z(0,0,3,15,"","#1E56C9"),Z(22,0,3,15,"","#D64545")], players:[P(8,4,"b"),P(11,10,"b"),P(15,6,"b"),P(10,7,"r"),P(14,11,"r"),P(18,5,"r")], balls:[B(8.7,4.4)], arrows:[A([[8.7,4.4],[13,4],[15.5,5.5]],"c"),A([[15.5,5.5],[22.5,7]],"p")]}},
+  vaetvient1:{name:"Le va-et-vient", kind:"defi", dur:12, src:"FFF U6/U7 · Thème 7 · Développement moteur",
+    desc:"Relais : les joueurs, mains sur le plot de départ, doivent aller récupérer un cerceau au bout du couloir et le poser sur une coupelle de la même couleur, puis revenir taper dans la main du partenaire suivant. La première équipe qui a posé tous ses cerceaux marque 1 point.",
+    org:"3 couloirs de 10 m × 5 m (terrain 10 × 15 m), 3 équipes de 3, 6 cerceaux, 12 coupelles de couleur, 3 plots.", mat:["12 coupelles de 4 couleurs","6 cerceaux","3 plots"],
+    var:"Ballon à la main. Ballon au pied (version suivante).", veiller:"Stimuler et valoriser la réussite. Déplacer les coupelles et mélanger les cerceaux entre les manches.",
+    schema:{f:[16,15], cones:[C(1.5,2.5,"cone"),C(1.5,7.5,"cone"),C(1.5,12.5,"cone")], hoops:[C(8,2.5,"hoop"),C(8,7.5,"hoop"),C(8,12.5,"hoop")], cups:[C(13,1.5),C(14.5,3.5),C(13,6.5),C(14.5,8.5),C(13,11.5),C(14.5,13.5)], players:[P(3,2.5,"b"),P(0.5,2.5,"b"),P(3,7.5,"r"),P(0.5,7.5,"r"),P(3,12.5,"y"),P(0.5,12.5,"y")], arrows:[A([[3,7.5],[7,7.5]],"m"),A([[9,7.5],[13,6.7]],"m")]}},
+  vaetvient2:{name:"Le va-et-vient · ballon au pied", kind:"defi", dur:13, src:"FFF U6/U7 · Thème 7 · variante « ballon au pied »",
+    desc:"Même relais avec un ballon conduit au pied : je conduis jusqu'au cerceau, je prends le cerceau à la main tout en gardant le ballon, je le pose sur la bonne couleur, je reviens en conduite et je tape dans la main du suivant. Première équipe qui a tout posé = 1 point.",
+    org:"3 couloirs de 10 m, 3 équipes de 3, 1 ballon par équipe (ou par enfant).", mat:["12 coupelles de 4 couleurs","6 cerceaux","3 plots","3 ballons"],
+    var:"Pied gauche. Cerceau à poser sur la coupelle annoncée par l'éducateur au dernier moment (réaction).", veiller:"Ballon sous contrôle même en portant le cerceau. Encourager sans pousser à la précipitation.",
+    schema:{f:[16,15], cones:[C(1.5,2.5,"cone"),C(1.5,7.5,"cone"),C(1.5,12.5,"cone")], hoops:[C(8,2.5,"hoop"),C(8,7.5,"hoop"),C(8,12.5,"hoop")], cups:[C(13,1.5),C(14.5,3.5),C(13,6.5),C(14.5,8.5),C(13,11.5),C(14.5,13.5)], players:[P(3,2.5,"b"),P(3,7.5,"r"),P(3,12.5,"y")], balls:[B(3.8,2.8),B(3.8,7.8),B(3.8,12.8)], arrows:[A([[3.8,7.8],[7.2,7.6]],"c"),A([[8.8,7.6],[12.6,6.8]],"c")]}},
+
+  /* ---- PÉRIODE 3 ---- */
+  soleil1:{name:"1, 2, 3 soleil", kind:"eveil", dur:10, src:"FFF U6/U7 · Thème 8 · Développement moteur",
+    desc:"Un joueur (le soleil) est sur la ligne d'arrivée, dos aux autres, et dit « 1, 2, 3… soleil ! ». Pendant qu'il parle, les joueurs partent en courant ; au mot « soleil » ils doivent s'arrêter. Celui qui bouge repart sur la ligne de départ. Le premier arrivé sur la ligne marque 1 point et devient le soleil.",
+    org:"Terrain 15 × 20 m, ligne de départ et ligne d'arrivée, 7 joueurs + 1 soleil.", mat:["8 coupelles"],
+    var:"Ballon à la main puis au pied. Obstacles. Inverser les rôles.", veiller:"Démontrer. Compter les points et valoriser. Varier le rythme d'énonciation de la phrase.",
+    schema:{f:[15,20], cups:[C(1,0),C(1,20),C(14,0),C(14,20)], players:[P(14,10,"y","S"),P(2,3,"b"),P(4,7,"b"),P(3,11,"b"),P(5,15,"b"),P(2,18,"b")], arrows:[A([[4,7],[9,8],[13,9]],"m")]}},
+  soleil2:{name:"1, 2, 3 soleil · ballon au pied", kind:"eveil", dur:10, src:"FFF U6/U7 · Thème 8 · variante « ballon au pied »",
+    desc:"Même jeu en conduite de balle : au mot « soleil », stop, pied sur le ballon, immobile. Un ballon qui roule = on repart au début. Le premier arrivé ballon au pied sur la ligne marque 1 point.",
+    org:"Terrain 15 × 20 m, 1 ballon par enfant.", mat:["8 coupelles","8 ballons"],
+    var:"Consigne d'arrêt imposée : semelle droite, puis gauche. Obstacles à contourner.", veiller:"Petites touches pour pouvoir s'arrêter net. Valoriser les arrêts propres.",
+    schema:{f:[15,20], cups:[C(1,0),C(1,20),C(14,0),C(14,20)], players:[P(14,10,"y","S"),P(2,3,"b"),P(4,7,"b"),P(3,11,"b"),P(5,15,"b")], balls:[B(2.8,3.3),B(4.8,7.3),B(3.8,11.3),B(5.8,15.3)], arrows:[A([[4.8,7.3],[9,8.5],[13,9.5]],"c")]}},
+  chateau1:{name:"Défendre son château", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 9 · Découverte de la cible",
+    desc:"Une équipe défend son château (des quilles au centre d'un cercle de coupelles) sans entrer dans le cercle. Les attaquants ont chacun un ballon à la main et lancent pour faire tomber les quilles depuis l'extérieur du cercle. 1 point par quille tombée. Séquences de 1 minute puis on inverse les rôles.",
+    org:"Terrain 20 × 20 m, château = 9 plots au centre d'un cercle de coupelles de 4 m de rayon, 4 attaquants avec ballon, 4 défenseurs.", mat:["9 plots","8 coupelles","8 ballons","chasubles 4/4"],
+    var:"Utiliser le ballon au pied (le ballon doit rester au sol).", veiller:"Démontrer, encourager. Séquences de 1 minute. Compter les points. Inverser les rôles.",
+    schema:{f:[20,20], hoops:[C(10,10,"hoop")], cones:[C(9,9.5,"cone"),C(10.5,9,"cone"),C(10,11,"cone"),C(11,10.5,"cone"),C(9.2,11,"cone")], cups:[C(10,6),C(14,10),C(10,14),C(6,10),C(7.2,7.2),C(12.8,7.2),C(12.8,12.8),C(7.2,12.8)], players:[P(9,7,"r"),P(13,10,"r"),P(10,13,"r"),P(7,10,"r"),P(3,4,"b"),P(17,5,"b"),P(16,16,"b"),P(4,16,"b")], balls:[B(3.8,4.3),B(16.2,5.3),B(15.2,15.3),B(4.8,15.3)], arrows:[A([[3.8,4.3],[8.8,9]],"s"),A([[16.2,5.3],[11.2,9.6]],"s")]}},
+  chateau2:{name:"Défendre son château · au pied", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 9 · variante « ballon au pied »",
+    desc:"Même jeu au pied : les attaquants frappent au sol (intérieur du pied) depuis l'extérieur du cercle pour renverser les quilles ; les défenseurs protègent avec les pieds et renvoient les ballons loin. 1 point par quille tombée. 1 minute puis on inverse.",
+    org:"Terrain 20 × 20 m, château au centre, cercle de 4-5 m, 1 ballon par attaquant.", mat:["9 plots","8 coupelles","8 ballons","chasubles 4/4"],
+    var:"2 châteaux plus petits. Frappe après 2 touches de conduite.", veiller:"Frappe intérieur du pied, ballon au sol. Défenseurs : se placer entre le ballon et le château, pas de main.",
+    schema:{f:[20,20], hoops:[C(10,10,"hoop")], cones:[C(9,9.5,"cone"),C(10.5,9,"cone"),C(10,11,"cone"),C(11,10.5,"cone")], cups:[C(10,5.5),C(14.5,10),C(10,14.5),C(5.5,10)], players:[P(9,7,"r"),P(13,10,"r"),P(10,13,"r"),P(7,10,"r"),P(3,4,"b"),P(17,5,"b"),P(16,16,"b"),P(4,16,"b")], balls:[B(3.8,4.3),B(16.2,5.3),B(15.2,15.3),B(4.8,15.3)], arrows:[A([[4.8,15.3],[9.4,11]],"s"),A([[15.2,15.3],[11,11]],"s")]}},
+  multibut1:{name:"Le multi-but", kind:"match", dur:14, src:"FFF U6/U7 · Thème 10 · Découverte de la cible",
+    desc:"Match 4 contre 4 : il faut attaquer dans 3 buts et défendre ces 3 buts (3 portes par côté : 1 axiale, 2 latérales). Les touches se font au pied, par une conduite de balle ou par une passe. 3 points = but marqué dans le but axial, 1 point dans un but latéral.",
+    org:"Terrain 30 × 20 m, 3 portes de 3 m (coupelles) sur chaque ligne de fond, 4 c 4, ballons de réserve autour du terrain.", mat:["16 coupelles","4 plots","4 ballons","chasubles 4/4"],
+    var:"Ajouter un joueur en tant que goal volant.", veiller:"Faire identifier les cibles à défendre et à attaquer. L'occupation de l'espace. Compter les points. Mettre des ballons autour du terrain.",
+    schema:{f:[30,20], cups:[C(0,3),C(0,6),C(0,8.5),C(0,11.5),C(0,14),C(0,17),C(30,3),C(30,6),C(30,8.5),C(30,11.5),C(30,14),C(30,17)], players:[P(7,6,"b"),P(9,14,"b"),P(13,10,"b"),P(17,5,"b"),P(15,15,"r"),P(19,10,"r"),P(22,6,"r"),P(23,14,"r")], balls:[B(7.7,6.4)], arrows:[A([[7.7,6.4],[12.5,9.5]],"p"),A([[13,10],[20,12],[26,15.5]],"c"),A([[26,15.5],[30,15.5]],"s")], labels:[{x:30,y:-1.2,t:"3 buts : axial = 3 pts, côtés = 1 pt"}]}},
+  locomotive1:{name:"La locomotive", kind:"defi", dur:12, src:"FFF U6/U7 · Thème 11 · Développement moteur",
+    desc:"Par 2 (un joueur de chaque équipe) : le premier effectue un parcours (slalom, cerceaux, haie…), le second le suit avec le ballon à la main et doit réaliser exactement le même parcours. 1 point = parcours réalisé correctement et sans erreur. Puis on inverse les rôles.",
+    org:"Terrain 30 × 20 m, 2 à 4 parcours en parallèle (plots, cerceaux, coupelles), 4 c 4 par paires.", mat:["9 plots","8 coupelles","4 cerceaux","4 ballons"],
+    var:"Donner un ballon à chaque joueur. Placer un ballon dans les pieds de chaque joueur. Complexifier le parcours (cerceaux, haies…).", veiller:"Stimuler et valoriser le bon parcours. Contrôler la vitesse du premier joueur. Inverser les rôles.",
+    schema:{f:[30,20], cones:[C(6,5,"cone"),C(10,7,"cone"),C(14,5,"cone"),C(6,15,"cone"),C(10,13,"cone"),C(14,15,"cone")], hoops:[C(19,5,"hoop"),C(19,15,"hoop")], cups:[C(24,3),C(24,7),C(24,13),C(24,17)], players:[P(2,5,"b"),P(0.5,5,"r"),P(2,15,"b"),P(0.5,15,"r")], balls:[B(0.5,3.4),B(0.5,13.4)], arrows:[A([[2,5],[6,3.5],[10,8.5],[14,3.5],[19,5],[24,5],[28,5]],"m")]}},
+  locomotive2:{name:"La locomotive · ballon au pied", kind:"defi", dur:13, src:"FFF U6/U7 · Thème 11 · variante « ballon dans les pieds »",
+    desc:"Même jeu, le wagon suit la locomotive en conduisant son ballon au pied et reproduit son parcours (slalom, tour du cerceau, passage de porte). Puis la locomotive prend aussi un ballon et les deux conduisent. 1 point par parcours réussi sans perdre le ballon.",
+    org:"Terrain 30 × 20 m, 2 parcours parallèles, 1 ballon par enfant.", mat:["9 plots","8 coupelles","4 cerceaux","8 ballons"],
+    var:"La locomotive change de rythme (lent / rapide). Parcours inventé par la locomotive.", veiller:"Ballon proche du pied, tête levée pour suivre la locomotive. La locomotive adapte sa vitesse.",
+    schema:{f:[30,20], cones:[C(6,5,"cone"),C(10,7,"cone"),C(14,5,"cone"),C(6,15,"cone"),C(10,13,"cone"),C(14,15,"cone")], hoops:[C(19,5,"hoop"),C(19,15,"hoop")], cups:[C(24,3),C(24,7),C(24,13),C(24,17)], players:[P(4,5,"b"),P(1.5,5,"r"),P(4,15,"b"),P(1.5,15,"r")], balls:[B(4.8,5.3),B(2.3,5.3),B(4.8,15.3),B(2.3,15.3)], arrows:[A([[4.8,5.3],[8,3.5],[12,8.5],[16,4],[19,6.5],[24,5],[28,5]],"c")]}},
+  futsal:{name:"Futsal · 4 contre 4 sans gardien", kind:"match", dur:16, src:"FFF U6/U7 · Futsal — choix n°1",
+    desc:"Match en salle (ou sur terrain de handball) à 4 contre 4 sans gardien, buts de handball fermés à moitié ou portes de plots. Ballon futsal (peu de rebond) : maîtrise de balle, touches au pied, pas de tacle ni de charge. Séquences de 4 minutes, on change d'adversaire. Aucun classement.",
+    org:"Demi-terrain de handball (20 × 20 m), 4 c 4 sans gardien, ballon futsal T3, 2 ballons de réserve.", mat:["2 buts ou 4 plots","ballon futsal T3 ×2","chasubles"],
+    var:"3 c 3 sans gardien si l'effectif est réduit (choix n°2 du guide).", veiller:"Faire découvrir les joies du futsal : jeu dynamique, technique en mouvement. Fair-play : pas de tacle, pas de charge.",
+    schema:{f:[20,20], cups:[C(0,0),C(20,0),C(0,20),C(20,20)], goals:[G(0,10,"v",3),G(20,10,"v",3)], players:[P(5,8,"b"),P(8,14,"b"),P(11,5,"b"),P(13,11,"b"),P(9,9,"r"),P(14,15,"r"),P(16,6,"r"),P(17,12,"r")], balls:[B(5.7,8.4)], arrows:[A([[5.7,8.4],[10.4,5.6]],"p"),A([[11,5],[15,3],[19,8]],"c")], labels:[{x:10,y:-1.2,t:"terrain de handball · ballon futsal"}]}},
+
+  /* ---- PÉRIODE 4 ---- */
+  quilles1:{name:"Abattre les quilles", kind:"defi", dur:12, src:"FFF U6/U7 · Thème 12 · Découverte de la cible",
+    desc:"Au signal de l'éducateur, les joueurs lancent leur ballon (à la main) pour faire tomber les quilles de leur équipe, alignées à 5-6 m. Ils récupèrent leur ballon et recommencent jusqu'à ce que toutes les quilles soient tombées. 1 point = l'équipe qui a fait tomber toutes ses quilles en premier.",
+    org:"Terrain 20 × 20 m, 2 ateliers face à face, 8 quilles (plots) par équipe sur une ligne, ligne de tir à 5-6 m, 1 ballon par enfant.", mat:["16 plots","8 coupelles","8 ballons"],
+    var:"À la main. Au pied. Pied faible.", veiller:"Démontrer. L'activité des enfants (pas d'attente). Les quilles ne doivent pas être trop lourdes afin de tomber.",
+    schema:{f:[20,20], cones:[C(10,2,"cone"),C(10,4,"cone"),C(10,6,"cone"),C(10,8,"cone"),C(10,12,"cone"),C(10,14,"cone"),C(10,16,"cone"),C(10,18,"cone")], cups:[C(4,1),C(4,9),C(16,11),C(16,19)], players:[P(4,3,"b"),P(4,5,"b"),P(4,7,"b"),P(4,8.5,"b"),P(16,12,"r"),P(16,14,"r"),P(16,16,"r"),P(16,18,"r")], balls:[B(4,1.4),B(16,10.4)], arrows:[A([[4.8,5],[9.4,5.5]],"s"),A([[15.2,14],[10.6,14.5]],"s")]}},
+  quilles2:{name:"Abattre les quilles · au pied", kind:"defi", dur:13, src:"FFF U6/U7 · Thème 12 · variante « au pied / pied faible »",
+    desc:"Même défi en frappant au pied : intérieur du pied, ballon au sol, depuis la ligne de tir. Manche 1 : pied fort. Manche 2 : pied faible (les quilles rapprochées à 4 m). L'équipe qui renverse toutes ses quilles en premier marque 1 point.",
+    org:"Terrain 20 × 20 m, 2 ateliers, 8 quilles par équipe, 1 ballon par enfant.", mat:["16 plots","8 coupelles","8 ballons"],
+    var:"Frappe après 2 touches de conduite. Quilles plus loin (8 m) pour les plus forts.", veiller:"Regarder la quille avant de frapper, pied d'appui à côté du ballon, cheville verrouillée.",
+    schema:{f:[20,20], cones:[C(10,2,"cone"),C(10,4,"cone"),C(10,6,"cone"),C(10,8,"cone"),C(10,12,"cone"),C(10,14,"cone"),C(10,16,"cone"),C(10,18,"cone")], cups:[C(4,1),C(4,9),C(16,11),C(16,19)], players:[P(4,3,"b"),P(4,5,"b"),P(4,7,"b"),P(16,12,"r"),P(16,14,"r"),P(16,16,"r")], balls:[B(4.8,3.3),B(4.8,5.3),B(4.8,7.3),B(15.2,12.3),B(15.2,14.3),B(15.2,16.3)], arrows:[A([[4.8,5.3],[9.4,5.6]],"s"),A([[15.2,14.3],[10.6,14.2]],"s")]}},
+  sorciers1:{name:"Les sorciers", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 13 · Découverte de l'adversaire",
+    desc:"Chaque joueur possède un ballon et le conduit dans l'aire de jeu. Le sorcier (sans ballon) doit sortir les ballons des joueurs hors du terrain. Le joueur qui perd son ballon reste immobile, jambes écartées ; pour se faire délivrer, un partenaire doit faire passer son ballon entre ses jambes. 1 point = conserver son ballon dans l'aire de jeu pendant le temps donné.",
+    org:"Terrain 20 × 20 m, 7 joueurs avec ballon + 1 sorcier (chasuble), 4 plots aux coins.", mat:["8 ballons","4 plots","1 chasuble"],
+    var:"Ajouter un sorcier. Passer entre les jambes de son partenaire pour le libérer.", veiller:"Compter les points et inverser les rôles. Occuper l'espace de jeu.",
+    schema:{f:[20,20], cones:[C(0,0,"cone"),C(20,0,"cone"),C(0,20,"cone"),C(20,20,"cone")], players:[P(10,10,"r","S"),P(4,4,"b"),P(15,5,"b"),P(5,15,"b","!"),P(16,15,"b"),P(10,3,"b"),P(9,17,"b")], balls:[B(4.7,4.4),B(15.7,5.4),B(16.7,15.4),B(10.7,3.4),B(9.7,17.4)], arrows:[A([[9.7,17.4],[7,16],[5.6,15.2]],"p"),A([[10,10],[14.3,5.7]],"m")]}},
+  sorciers2:{name:"Les sorciers · deux sorciers", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 13 · variante « ajouter un sorcier »",
+    desc:"Même jeu avec 2 sorciers : il faut regarder deux dangers à la fois. Les délivrances se font en passant son ballon entre les jambes du joueur figé OU en faisant le tour de lui en conduite. Manches de 1 minute, on compte combien de joueurs ont gardé leur ballon.",
+    org:"Terrain 20 × 20 m, 6 joueurs avec ballon + 2 sorciers.", mat:["8 ballons","4 plots","2 chasubles"],
+    var:"Les sorciers ne peuvent pas courir (marche rapide) pour rééquilibrer.", veiller:"Protéger son ballon en mettant son corps entre le ballon et le sorcier. Aller délivrer les copains.",
+    schema:{f:[20,20], cones:[C(0,0,"cone"),C(20,0,"cone"),C(0,20,"cone"),C(20,20,"cone")], players:[P(7,8,"r","S"),P(14,13,"r","S"),P(4,4,"b"),P(15,5,"b"),P(5,15,"b"),P(16,16,"b","!"),P(10,3,"b")], balls:[B(4.7,4.4),B(15.7,5.4),B(5.7,15.4),B(10.7,3.4)], arrows:[A([[15.7,5.4],[18,10],[17,14.5]],"c")]}},
+  quatre:{name:"Le 4 contre 4 · deux buts par équipe", kind:"match", dur:16, src:"FFF U6/U7 · Thème 14 · Découverte de la cible",
+    desc:"On attaque 2 buts et on défend 2 buts, pas de gardien. Les touches se font au pied, en conduite de balle ou par une passe. But marqué dans un des deux buts = 1 point. Séquences de 4 minutes.",
+    org:"Terrain 30 × 20 m, 2 portes de 3 m sur chaque ligne de fond (4 plots ou 8 coupelles), 4 c 4, 4 ballons.", mat:["8 plots","12 coupelles","4 ballons","chasubles 4/4"],
+    var:"On met 1 gardien qui défend les 2 buts. Obligation de faire une passe avant de marquer.", veiller:"Encourager et valoriser lorsqu'il y a un but et/ou une passe. L'occupation de l'espace. Compter les points.",
+    schema:{f:[30,20], cups:[C(0,3),C(0,7),C(0,13),C(0,17),C(30,3),C(30,7),C(30,13),C(30,17)], players:[P(7,6,"b"),P(9,14,"b"),P(13,10,"b"),P(18,5,"b"),P(15,15,"r"),P(19,10,"r"),P(22,6,"r"),P(24,14,"r")], balls:[B(7.7,6.4)], arrows:[A([[7.7,6.4],[12.5,9.6]],"p"),A([[13,10],[17,13],[22,16],[29.5,15]],"c")], labels:[{x:15,y:-1.2,t:"2 buts à attaquer · 2 buts à défendre"}]}},
+  magicien1:{name:"Le contrat du magicien", kind:"defi", dur:12, src:"FFF U6/U7 · Thème 15 · Développement moteur",
+    desc:"Chaque joueur, avec un ballon, exécute le contrat du magicien (l'éducateur). Contrat 1 : lancer à la main + 1 rebond + rattraper à la main. Contrat 2 : lancer à la main + frapper du pied + 1 rebond + rattraper à la main. 1 point = réussir 5 fois d'affilée le contrat.",
+    org:"Terrain 20 × 15 m, 1 ballon par enfant, en dispersion.", mat:["8 ballons","4 plots"],
+    var:"Lancer – tête – rebond – main. Lancer – rebond – pied – main.", veiller:"Stimuler et valoriser la réussite. La sécurité des enfants (occupation de l'espace, éviter les contacts).",
+    schema:{f:[20,15], cones:[C(0,0,"cone"),C(20,0,"cone"),C(0,15,"cone"),C(20,15,"cone")], players:[P(10,7.5,"e"),P(4,4,"b"),P(15,4,"b"),P(4,11,"b"),P(15,11,"b"),P(10,2.5,"b"),P(10,12.5,"b")], balls:[B(4,2.4),B(15,2.4),B(4,9.4),B(15,9.4),B(10,0.9),B(10,10.9)], arrows:[A([[4,3.4],[4,2.5]],"m"),A([[15,3.4],[15,2.5]],"m")], labels:[{x:10,y:14.2,t:"lancer · rebond · main  /  lancer · pied · rebond · main"}]}},
+  magicien2:{name:"Le contrat du magicien · niveau 2", kind:"defi", dur:13, src:"FFF U6/U7 · Thème 15 · variantes « tête » et « rebond-pied »",
+    desc:"Nouveaux contrats : lancer – tête – rebond – main ; lancer – rebond – pied – main ; lancer – pied – pied – main pour les plus forts. On note son record de réussites d'affilée et on essaie de le battre. 1 point par contrat réussi 5 fois d'affilée.",
+    org:"Terrain 20 × 15 m, 1 ballon par enfant.", mat:["8 ballons","4 plots"],
+    var:"Par 2 : je lance, mon copain frappe et rattrape. Contrat inventé par un enfant.", veiller:"Cheville dure, pointe du pied levée. Célébrer chaque record personnel.",
+    schema:{f:[20,15], cones:[C(0,0,"cone"),C(20,0,"cone"),C(0,15,"cone"),C(20,15,"cone")], players:[P(10,7.5,"e"),P(4,4,"b"),P(15,4,"b"),P(4,11,"b"),P(15,11,"b")], balls:[B(4,2.4),B(15,2.4),B(4,9.4),B(15,9.4)], labels:[{x:10,y:14.2,t:"lancer · tête · rebond · main"}]}},
+  demarque1:{name:"Démarque et marque · étapes 1 et 2", kind:"atelier", dur:14, src:"FFF U6/U7 · Thèmes 16-17 · Reconnaître le partenaire",
+    desc:"Départ du gardien. Terrain en 2 moitiés ; les joueurs sont inattaquables dans la zone bleue (leur camp). Le joueur A doit rester dans sa moitié de terrain. Un chasseur (défenseur) a le droit de franchir la ligne des 8 m dès qu'un joueur de champ adverse touche le ballon. Tir = 1 point, but marqué = 2 points. Étape 2 : un seul chasseur autorisé à sortir, les autres restent en zone défensive.",
+    org:"Terrain 30 × 20 m, 2 buts, 1 gardien par équipe, zone des 8 m tracée, 4 c 4.", mat:["8 coupelles","2 buts ou 4 plots","4 ballons","chasubles 4/4"],
+    var:"Rajouter un chasseur supplémentaire. Changer les rôles tous les 8 ballons.", veiller:"Encourager et valoriser lorsqu'il y a un but et/ou une passe. L'occupation de l'espace. Compter les points.",
+    schema:{f:[30,20], zones:[Z(0,0,15,20,"","#1E56C9"),Z(0,0,8,20,"","#ffffff"),Z(22,0,8,20,"","#ffffff")], goals:[G(0,10,"v",4),G(30,10,"v",4)], players:[P(1.5,10,"g","G"),P(28.5,10,"g","G"),P(6,5,"b","A"),P(10,14,"b"),P(13,8,"b"),P(18,12,"r","C"),P(24,6,"r"),P(24,14,"r")], balls:[B(1.5,8.4)], arrows:[A([[1.5,8.4],[5.4,5.4]],"p"),A([[6,5],[12.4,7.6]],"p"),A([[13,8],[20,9],[26,10]],"c"),A([[26,10],[29.5,10]],"s")], labels:[{x:7.5,y:-1.2,t:"zone bleue : inattaquable"}]}},
+  demarque2:{name:"Démarque et marque · étapes 3 à 5", kind:"atelier", dur:14, src:"FFF U6/U7 · Thèmes 18-20 · Reconnaître le partenaire",
+    desc:"Départ du gardien. Étape 3 : plus de zone inattaquable, le joueur A reste dans sa moitié, le chasseur 1 peut sortir quand l'adversaire touche le ballon, le chasseur 2 reste en zone défensive. Étapes 4-5 : un joueur doit obligatoirement rester dans la zone offensive (il se démarque pour recevoir) ; le joueur 2 peut franchir les 8 m. But marqué = 1 point.",
+    org:"Terrain 30 × 20 m, 2 buts, gardiens, ligne des 8 m, 4 c 4.", mat:["8 coupelles","2 buts ou 4 plots","4 ballons","chasubles 4/4"],
+    var:"Rajouter un chasseur. Le joueur 2 peut franchir la ligne des 8 m. Changer les rôles tous les 8 ballons.", veiller:"Se démarquer = s'écarter de l'adversaire et se montrer au porteur. Compter les points, valoriser passes et buts.",
+    schema:{f:[30,20], zones:[Z(0,0,8,20,"","#ffffff"),Z(22,0,8,20,"","#ffffff")], goals:[G(0,10,"v",4),G(30,10,"v",4)], players:[P(1.5,10,"g","G"),P(28.5,10,"g","G"),P(6,6,"b","A"),P(11,14,"b"),P(21,6,"b","2"),P(15,10,"r","C"),P(24,12,"r"),P(26,6,"r")], balls:[B(1.5,8.4)], arrows:[A([[1.5,8.4],[5.4,6.4]],"p"),A([[6,6],[10.4,13.4]],"p"),A([[11,14],[20.4,6.6]],"p"),A([[21,6],[26,8],[29.5,9.5]],"s"),A([[21,6],[19,3]],"m")]}},
+
+  /* ---- PÉRIODE 5 ---- */
+  coins1:{name:"Les quatre coins", kind:"eveil", dur:10, src:"FFF U6/U7 · Thème 21 · Développement moteur",
+    desc:"Chaque joueur a son ballon dans les mains et une couleur (chasuble). Au signal de l'éducateur, chacun doit rejoindre le coin correspondant à sa couleur et y déposer le ballon. 1 point pour l'équipe dont tous les ballons sont déposés en premier dans le bon coin.",
+    org:"Terrain 30 × 20 m, 4 coins de couleur (3 coupelles chacun), 2 joueurs par coin au minimum, 1 ballon par enfant.", mat:["12 coupelles de 4 couleurs","4 plots","8 ballons","chasubles 4 couleurs"],
+    var:"Ballon au sol : le joueur effectue une conduite pour aller vers le coin.", veiller:"Stimuler et valoriser la réussite. La sécurité des enfants : occupation de l'espace, éviter les contacts.",
+    schema:{f:[30,20], zones:[Z(0,0,4,4,"","#1E56C9"),Z(26,0,4,4,"","#D64545"),Z(0,16,4,4,"","#F2C200"),Z(26,16,4,4,"","#2E8B57")], players:[P(15,10,"e"),P(10,7,"b"),P(18,6,"r"),P(11,13,"y"),P(19,14,"g")], balls:[B(10,5.4),B(18,4.4),B(11,11.4),B(19,12.4)], arrows:[A([[10,7],[6,5],[2.5,2.5]],"m"),A([[18,6],[23,4],[27.5,2.5]],"m")]}},
+  coins2:{name:"Les quatre coins · en conduite", kind:"eveil", dur:10, src:"FFF U6/U7 · Thème 21 · variante « ballon au sol »",
+    desc:"Même jeu en conduite : au signal, chacun conduit son ballon jusqu'au coin de sa couleur et l'arrête avec la semelle dans le carré. Puis l'éducateur annonce une AUTRE couleur : tout le monde change de coin en conduite. Premier coin complet = 1 point.",
+    org:"Terrain 30 × 20 m, 4 coins de couleur, 1 ballon par enfant.", mat:["12 coupelles de 4 couleurs","8 ballons","chasubles 4 couleurs"],
+    var:"Couleur montrée (pas dite). Le dernier arrivé choisit la couleur suivante.", veiller:"Changement de direction rapide, tête levée, arrêt propre dans le coin.",
+    schema:{f:[30,20], zones:[Z(0,0,4,4,"","#1E56C9"),Z(26,0,4,4,"","#D64545"),Z(0,16,4,4,"","#F2C200"),Z(26,16,4,4,"","#2E8B57")], players:[P(15,10,"e"),P(10,7,"b"),P(18,6,"r"),P(11,13,"y"),P(19,14,"g")], balls:[B(10.7,7.4),B(18.7,6.4),B(11.7,13.4),B(19.7,14.4)], arrows:[A([[10.7,7.4],[6,5],[2.5,2.5]],"c"),A([[19.7,14.4],[24,16],[27.5,17.5]],"c")]}},
+  bergerie1:{name:"Minuit dans la bergerie", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 22 · Découverte de l'adversaire",
+    desc:"Les moutons sont en mouvement dans la bergerie et demandent l'heure au loup, qui est dans sa zone. Quand il répond « minuit », il peut sortir pour venir toucher les moutons, qui doivent sortir de la bergerie (séquence de 2 min maximum). Les moutons touchés vont dans le refuge du loup ; pour être délivré, un mouton libre vient lui taper dans la main. 1 point pour les moutons qui ne sont pas touchés.",
+    org:"Terrain 20 × 20 m : bergerie centrale, zone du loup et refuge dans un coin, 7 moutons + 1 loup.", mat:["9 plots","12 coupelles","1 chasuble"],
+    var:"Mettre un ballon dans les mains des moutons, puis dans les pieds.", veiller:"Compter les points et inverser les rôles. Occuper l'espace de jeu. Manches de 1 minute maximum.",
+    schema:{f:[20,20], zones:[Z(4,4,12,12,"BERGERIE","#F2C200"),Z(0,0,4,4,"LOUP","#D64545"),Z(16,16,4,4,"Refuge","#D64545")], players:[P(2,2,"r","L"),P(7,7,"b"),P(12,6,"b"),P(8,13,"b"),P(13,12,"b"),P(10,9,"b")], arrows:[A([[2,2],[6.5,6.6]],"m"),A([[13,12],[17,10],[19,8]],"m")]}},
+  bergerie2:{name:"Minuit dans la bergerie · ballon au pied", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 22 · variante « ballon dans les pieds »",
+    desc:"Même jeu : les moutons conduisent leur ballon dans la bergerie en demandant l'heure. À « minuit », ils sortent en conduite ; un mouton dont le ballon est touché par le loup va au refuge. Délivrance : un mouton libre fait passer son ballon entre les jambes du prisonnier. Manches de 1 minute.",
+    org:"Terrain 20 × 20 m, bergerie, zone du loup, refuge, 1 ballon par mouton.", mat:["9 plots","12 coupelles","8 ballons","1 chasuble"],
+    var:"Ballon à la main pour simplifier. 2 loups pour les plus forts.", veiller:"Tête levée pour voir le loup ; petites touches pour pouvoir changer de direction.",
+    schema:{f:[20,20], zones:[Z(4,4,12,12,"BERGERIE","#F2C200"),Z(0,0,4,4,"LOUP","#D64545"),Z(16,16,4,4,"Refuge","#D64545")], players:[P(2,2,"r","L"),P(7,7,"b"),P(12,6,"b"),P(8,13,"b"),P(13,12,"b")], balls:[B(7.7,7.4),B(12.7,6.4),B(8.7,13.4),B(13.7,12.4)], arrows:[A([[12.7,6.4],[16,3],[19,2]],"c"),A([[8.7,13.4],[4,17],[2,18.5]],"c")]}},
+  capitaine1:{name:"Ballon au capitaine", kind:"atelier", dur:12, src:"FFF U6/U7 · Thème 23 · Reconnaître le partenaire",
+    desc:"Chaque équipe doit trouver son capitaine, placé dans une zone au bout du terrain, par un jeu de passes à la main. Interdiction de courir avec le ballon et de toucher le porteur (distance 1 m). 1 point = ballon attrapé par le capitaine. On change de capitaine à chaque point.",
+    org:"Terrain 25 × 15 m, 2 zones capitaine de 3 m, 4 c 4 (3 joueurs + 1 capitaine), 1 ballon.", mat:["8 coupelles","1 ballon","chasubles 4/4"],
+    var:"Jouer avec le pied mais le capitaine peut bloquer avec les mains. Jeu au pied même pour le capitaine.", veiller:"Encourager et valoriser lorsqu'il y a un point et/ou une passe. L'occupation de l'espace. Compter les points.",
+    schema:{f:[25,15], zones:[Z(0,0,3,15,"","#D64545"),Z(22,0,3,15,"","#1E56C9")], players:[P(23.5,7.5,"b","C"),P(1.5,7.5,"r","C"),P(8,4,"b"),P(12,10,"b"),P(17,6,"b"),P(10,7,"r"),P(15,11,"r"),P(19,4,"r")], balls:[B(8,2.4)], arrows:[A([[8,4],[16.4,6]],"p"),A([[17,6],[23,7.2]],"p"),A([[12,10],[14,13]],"m")]}},
+  capitaine2:{name:"Ballon au capitaine · au pied", kind:"atelier", dur:13, src:"FFF U6/U7 · Thème 23 · variante « jeu au pied »",
+    desc:"Même jeu au pied : on progresse en conduite ou en passe au sol, et on marque 1 point quand le capitaine reçoit et arrête le ballon dans sa zone (avec les mains d'abord, puis au pied pour les plus forts). L'adversaire récupère en touchant le ballon. Changer de capitaine à chaque point.",
+    org:"Terrain 25 × 15 m, 2 zones capitaine, 4 c 4, 2 ballons.", mat:["8 coupelles","2 ballons","chasubles 4/4"],
+    var:"2 points si les 3 joueurs ont touché le ballon avant le capitaine. Capitaine mobile sur toute sa zone.", veiller:"Lever la tête pour voir le capitaine et le copain libre. Le capitaine se montre, bras levés.",
+    schema:{f:[25,15], zones:[Z(0,0,3,15,"","#D64545"),Z(22,0,3,15,"","#1E56C9")], players:[P(23.5,7.5,"b","C"),P(1.5,7.5,"r","C"),P(8,4,"b"),P(12,10,"b"),P(17,6,"b"),P(10,7,"r"),P(15,11,"r"),P(19,4,"r")], balls:[B(8.7,4.4)], arrows:[A([[8.7,4.4],[12,4],[16.4,5.6]],"c"),A([[17,6],[23,7.2]],"p")]}},
+  pyramide1:{name:"La pyramide", kind:"defi", dur:12, src:"FFF U6/U7 · Thème 24 · Découverte de la cible",
+    desc:"Chaque joueur prend son ballon à la main et doit réussir tous les étages de la pyramide : 1er étage, faire passer le ballon entre les 2 plots de la porte (lancer roulé) ; 2e étage, lancer le ballon dans le cerceau ; 3e étage, lancer le ballon dans le carré de coupelles. 1 point = tous les étages validés. On recommence en montant plus vite.",
+    org:"Terrain 20 × 15 m, 2 pyramides en parallèle : porte (2 plots) à 3 m, cerceau à 5 m, carré de 4 coupelles à 7 m ; 1 ballon par enfant.", mat:["8 plots","8 coupelles","4 cerceaux","8 ballons"],
+    var:"Utiliser le pied, ballon au sol. Le ballon doit s'immobiliser dans le cerceau, idem pour le carré. Modifier les étages (complexifier).", veiller:"Stimuler et valoriser la réussite. La fluidité dans les ateliers (pas de file d'attente).",
+    schema:{f:[20,15], cones:[C(6,3,"cone"),C(6,5,"cone"),C(6,10,"cone"),C(6,12,"cone")], hoops:[C(10,4,"hoop"),C(10,11,"hoop")], cups:[C(14,2.5),C(16,2.5),C(14,5.5),C(16,5.5),C(14,9.5),C(16,9.5),C(14,12.5),C(16,12.5)], players:[P(2,4,"b"),P(0.5,4,"b"),P(2,11,"r"),P(0.5,11,"r")], balls:[B(2,2.4),B(2,9.4)], arrows:[A([[2.8,4],[5.6,4]],"p"),A([[6.4,4],[9.4,4]],"p"),A([[10.6,4],[14.4,4]],"p")], labels:[{x:6,y:-1.2,t:"1 · porte"},{x:10,y:-1.2,t:"2 · cerceau"},{x:15,y:-1.2,t:"3 · carré"}]}},
+  pyramide2:{name:"La pyramide · au pied", kind:"defi", dur:13, src:"FFF U6/U7 · Thème 24 · variante « pied, ballon au sol »",
+    desc:"Même pyramide au pied, ballon au sol : passe dans la porte, puis frappe douce pour immobiliser le ballon dans le cerceau, puis dans le carré. Un étage raté = on le refait. 1 point = les 3 étages validés. Dernière manche : pied faible.",
+    org:"Terrain 20 × 15 m, 2 pyramides, 1 ballon par enfant.", mat:["8 plots","8 coupelles","4 cerceaux","8 ballons"],
+    var:"Étages plus loin. Étage 4 : tir dans un mini-but.", veiller:"Dosage de la frappe (intérieur du pied), regarder la cible. Valoriser la précision, pas la force.",
+    schema:{f:[20,15], cones:[C(6,3,"cone"),C(6,5,"cone"),C(6,10,"cone"),C(6,12,"cone")], hoops:[C(10,4,"hoop"),C(10,11,"hoop")], cups:[C(14,2.5),C(16,2.5),C(14,5.5),C(16,5.5),C(14,9.5),C(16,9.5),C(14,12.5),C(16,12.5)], players:[P(2,4,"b"),P(2,11,"r")], balls:[B(2.8,4.3),B(2.8,11.3)], arrows:[A([[2.8,4.3],[5.8,4.1]],"s"),A([[6.4,4],[9.6,4]],"s"),A([[10.6,4],[14.6,4]],"s")]}},
+
+  /* ---- Bilans et fêtes ---- */
+  rallye2:{name:"Le rallye des Pyrénées · bilan de période", kind:"defi", dur:30, src:"Bilan — 4 stations sur les 4 compétences FFF, avec les jeux de la période",
+    desc:"4 stations de 6 min, groupes de 3-4 qui tournent au coup de sifflet ; à chaque station, un jeu de la période joué en version « au pied », que l'éducateur observe pour noter 1 à 3 étoiles par enfant dans l'onglet Profils : ANIE (cible) : le jeu de tir de la période ; OSSAU (adversaire) : le jeu d'évitement de la période ; BALAÏTOUS (motricité) : le parcours de la période ; VIGNEMALE (partenaire) : passes par 2 dans une porte de 2 m, record en 1 min.",
+    org:"4 ateliers en carré de 12 × 12 m, 1 éducateur pour 2 stations, le téléphone pour noter.", mat:["12 plots","24 coupelles","1 ballon par enfant","4 cerceaux"],
+    var:"Passeport des sommets tamponné à chaque station.", veiller:"C'est une fête, pas un examen : records personnels, jamais de classement. Observer, corriger très peu.",
+    schema:{f:[28,28], zones:[Z(0,0,13,13,"ANIE · cible","#1E56C9"),Z(15,0,13,13,"OSSAU · adversaire","#D64545"),Z(0,15,13,13,"BALAÏTOUS · motricité","#F2C200"),Z(15,15,13,13,"VIGNEMALE · partenaire","#2E8B57")], players:[P(3,6.5,"b"),P(21,6.5,"r"),P(6.5,21,"y"),P(18,21,"b"),P(25,21,"b"),P(14,29.5,"e")], balls:[B(3.8,6.8),B(21.8,6.8),B(6.5,21.9),B(18.8,21.3)], arrows:[A([[18.8,21.3],[24.2,21]],"p")]}},
+  fete:{name:"La fête de la période", kind:"match", dur:35, src:"Fête — dernier samedi avant les vacances",
+    desc:"Mini-tournoi de foot à 3 : 4 équipes tirées au sort, noms de grands clubs, 2 terrains, matchs de 5 min, tout le monde rencontre tout le monde. Haie d'honneur, photo, goûter des parents. Pas de classement affiché : un « titre » pour chaque équipe (fair-play, solidaires, rapides, joueurs).",
+    org:"2 terrains de 25 × 15 m, buts de 4 m, chasubles 4 couleurs.", mat:["8 plots","24 coupelles","4 ballons","chasubles 4 couleurs","goûter"],
+    var:"Musique d'entrée des joueurs, un parent speaker.", veiller:"Le plaisir avant tout : on célèbre les buts des deux côtés.",
+    schema:{f:[52,15], cups:[C(0,0),C(25,0),C(0,15),C(25,15),C(27,0),C(52,0),C(27,15),C(52,15)], goals:[G(0,7.5,"v",4),G(25,7.5,"v",4),G(27,7.5,"v",4),G(52,7.5,"v",4)], players:[P(6,6,"b"),P(11,10,"b"),P(15,5,"b"),P(16,9,"r"),P(20,6,"r"),P(11,4,"r"),P(33,7,"y"),P(38,11,"y"),P(42,5,"y"),P(43,9,"g"),P(47,6,"g"),P(38,4,"g")], balls:[B(6.7,6.4),B(33.7,7.4)], labels:[{x:12.5,y:16.3,t:"Terrain 1"},{x:39.5,y:16.3,t:"Terrain 2"}]}},
+  fetefin:{name:"La fête de fin de saison", kind:"match", dur:40, src:"Dernière séance de l'année",
+    desc:"Tournoi des champions à 3 c 3 puis un match « enfants contre parents » (parents à genoux ou en marchant !). Remise à chaque enfant de son passeport des sommets de l'année et de son diplôme de l'école de foot. Photo de groupe, goûter.",
+    org:"2 terrains de 25 × 15 m, buts de 4 m, chasubles, diplômes imprimés.", mat:["8 plots","24 coupelles","4 ballons","chasubles 4 couleurs","diplômes","goûter"],
+    var:"Un parent speaker, la musique du club.", veiller:"Un mot personnel à chaque enfant devant les parents : ce qu'il a progressé cette année.",
+    schema:{f:[52,15], cups:[C(0,0),C(25,0),C(0,15),C(25,15),C(27,0),C(52,0),C(27,15),C(52,15)], goals:[G(0,7.5,"v",4),G(25,7.5,"v",4),G(27,7.5,"v",4),G(52,7.5,"v",4)], players:[P(6,6,"b"),P(11,10,"b"),P(15,5,"b"),P(16,9,"r"),P(20,6,"r"),P(11,4,"r"),P(33,7,"y"),P(38,11,"y"),P(42,5,"y"),P(43,9,"e"),P(47,6,"e"),P(38,4,"e")], balls:[B(6.7,6.4),B(33.7,7.4)], labels:[{x:12.5,y:16.3,t:"Tournoi des champions"},{x:39.5,y:16.3,t:"Enfants contre parents"}]}}
+});
+
+/* ---------- Programme des périodes 2 à 5 (généré) ---------- */
+/* Chaque semaine : mercredi = découverte du thème (v1 puis v2), samedi = réinvestissement au pied + match.
+   Dernière semaine : rallye (mercredi) et fête facultative (samedi = premier jour des vacances). */
+const PLAN = [
+  {per:2, weeks:[
+    {wed:"2026-11-04", sat:"2026-11-07", t:["epervier1","epervier2"], title:"L'épervier", theme:"Thème 4 · L'épervier : j'échappe au chasseur, je rejoins le refuge.", comp:"adversaire", eveil:"chatballon", match:"match3"},
+    {wed:null, sat:"2026-11-14", t:["queue1","queue2"], title:"La queue du diable", theme:"Thème 5 · La queue du diable : j'attrape sans me faire attraper (mercredi 11 novembre férié).", comp:"adversaire", eveil:"reveil", match:"match4", satFull:true},
+    {wed:"2026-11-18", sat:"2026-11-21", t:["stop1","stop2"], title:"Le stop-ball", theme:"Thème 6 · Le stop-ball : je trouve mon partenaire pour atteindre la zone.", comp:"partenaire", eveil:"epervier1", match:"match3"},
+    {wed:"2026-11-25", sat:"2026-11-28", t:["vaetvient1","vaetvient2"], title:"Le va-et-vient", theme:"Thème 7 · Le va-et-vient : le relais des couleurs.", comp:"moteur", eveil:"reveil", match:"match4"},
+    {wed:"2026-12-02", sat:"2026-12-05", t:["queue2","stop2"], title:"Réinvestir : queue du diable et stop-ball", theme:"On rejoue les jeux de la période, version au pied.", comp:"adversaire", eveil:"chatballon", match:"match3"},
+    {wed:"2026-12-09", sat:"2026-12-12", t:["epervier2","vaetvient2"], title:"Réinvestir : épervier et va-et-vient", theme:"Les 4 thèmes de la période mélangés, puis plateau blanc le samedi.", comp:"moteur", eveil:"reveil", match:"match4", satPlateauBlanc:true},
+    {wed:"2026-12-16", sat:"2026-12-19", rallye:true, fete:true}
+  ]},
+  {per:3, weeks:[
+    {wed:"2027-01-06", sat:"2027-01-09", t:["soleil1","soleil2"], title:"1, 2, 3 soleil", theme:"Thème 8 · 1, 2, 3 soleil : je m'arrête net au signal.", comp:"moteur", eveil:"reveil", match:"futsal"},
+    {wed:"2027-01-13", sat:"2027-01-16", t:["chateau1","chateau2"], title:"Défendre son château", theme:"Thème 9 · Défendre son château : je vise, je défends.", comp:"cible", eveil:"soleil2", match:"futsal"},
+    {wed:"2027-01-20", sat:"2027-01-23", t:["multibut1","locomotive1"], title:"Le multi-but", theme:"Thème 10 · Le multi-but : trois buts à attaquer, trois à défendre.", comp:"cible", eveil:"reveil", match:"futsal"},
+    {wed:"2027-01-27", sat:"2027-01-30", t:["locomotive1","locomotive2"], title:"La locomotive", theme:"Thème 11 · La locomotive : je reproduis le parcours de mon copain.", comp:"moteur", eveil:"soleil1", match:"futsal"},
+    {wed:"2027-02-03", sat:"2027-02-06", t:["chateau2","multibut1"], title:"Réinvestir : château et multi-but", theme:"Les cibles de la période, puis plateau blanc futsal le samedi.", comp:"cible", eveil:"soleil2", match:"futsal", satPlateauBlanc:true},
+    {wed:"2027-02-10", sat:"2027-02-13", rallye:true, fete:true}
+  ]},
+  {per:4, weeks:[
+    {wed:"2027-03-03", sat:"2027-03-06", t:["quilles1","quilles2"], title:"Abattre les quilles", theme:"Thème 12 · Abattre les quilles : je frappe juste.", comp:"cible", eveil:"reveil", match:"match3"},
+    {wed:"2027-03-10", sat:"2027-03-13", t:["sorciers1","sorciers2"], title:"Les sorciers", theme:"Thème 13 · Les sorciers : je protège mon ballon, je délivre mes copains.", comp:"adversaire", eveil:"chatballon", match:"match4"},
+    {wed:"2027-03-17", sat:"2027-03-20", t:["quatre","magicien1"], title:"Le 4 contre 4", theme:"Thème 14 · Le 4 contre 4 : deux buts à attaquer, deux à défendre.", comp:"cible", eveil:"reveil", match:"quatre"},
+    {wed:"2027-03-24", sat:"2027-03-27", t:["magicien1","magicien2"], title:"Le contrat du magicien", theme:"Thème 15 · Le magicien : lancer, rebond, pied, main.", comp:"moteur", eveil:"chatballon", match:"match4"},
+    {wed:"2027-03-31", sat:"2027-04-03", t:["demarque1","demarque2"], title:"Démarque et marque", theme:"Thèmes 16 à 20 · Démarque et marque : je m'écarte de l'adversaire pour recevoir et marquer.", comp:"partenaire", eveil:"reveil", match:"match4"},
+    {wed:"2027-04-07", sat:"2027-04-10", rallye:true, fete:true}
+  ]},
+  {per:5, weeks:[
+    {wed:"2027-04-28", sat:null, t:["coins1","coins2"], title:"Les quatre coins", theme:"Thème 21 · Les quatre coins : je cours vers ma couleur (samedi 1er mai férié).", comp:"moteur", eveil:"reveil", match:"match3"},
+    {wed:"2027-05-05", sat:null, t:["bergerie1","bergerie2"], title:"Minuit dans la bergerie", theme:"Thème 22 · Minuit dans la bergerie : le loup sort à minuit (samedi 8 mai férié).", comp:"adversaire", eveil:"coins2", match:"match4"},
+    {wed:"2027-05-12", sat:"2027-05-15", t:["capitaine1","capitaine2"], title:"Ballon au capitaine", theme:"Thème 23 · Ballon au capitaine : je trouve mon partenaire.", comp:"partenaire", eveil:"chatballon", match:"match3"},
+    {wed:"2027-05-19", sat:"2027-05-22", t:["pyramide1","pyramide2"], title:"La pyramide", theme:"Thème 24 · La pyramide : porte, cerceau, carré.", comp:"cible", eveil:"coins1", match:"match4"},
+    {wed:"2027-05-26", sat:"2027-05-29", t:["bergerie2","capitaine2"], title:"Réinvestir : bergerie et capitaine", theme:"Adversaire et partenaire : les deux jeux au pied.", comp:"adversaire", eveil:"reveil", match:"match3"},
+    {wed:"2027-06-02", sat:"2027-06-05", t:["pyramide2","quatre"], title:"Réinvestir : pyramide et 4 contre 4", theme:"Viser juste, puis jouer le vrai match à 4.", comp:"cible", eveil:"coins2", match:"match4", satPlateauBlanc:true},
+    {wed:"2027-06-09", sat:"2027-06-12", t:["demarque2","capitaine2"], title:"Se démarquer pour marquer", theme:"Le meilleur de l'année : démarquage et jeu avec le partenaire.", comp:"partenaire", eveil:"chatballon", match:"quatre"},
+    {wed:"2027-06-16", sat:"2027-06-19", rallye:true, fetefin:true}
+  ]}
+];
+(function buildSessions(){
+  const COMP={cible:"Découverte de la cible",adversaire:"Découverte de l'adversaire",partenaire:"Reconnaître le partenaire",moteur:"Développement moteur"};
+  PLAN.forEach(p=>{
+    const per=PERIODS[p.per-1];let n=0;
+    p.weeks.forEach(w=>{
+      if(w.rallye){
+        if(w.wed)SESSIONS.push({id:`p${p.per}-${String(++n).padStart(2,"0")}`,per:p.per,date:w.wed,title:"Le rallye des Pyrénées",theme:`Bilan festif de la période ${p.per} : 4 sommets, 4 compétences FFF, mon profil.`,objs:["Réinvestir les 4 compétences sur 4 stations","Établir le profil de chaque enfant (onglet Profils)","Finir la période par un match plaisir"],pef:per.pef.replace(" — "," — bilan : "),blocks:[{g:"accueil"},{g:"reveil",dur:7},{g:"rallye2"},{g:"match3",dur:14},{g:"calme"}]});
+        if(w.sat)SESSIONS.push({id:`p${p.per}-${String(++n).padStart(2,"0")}`,per:p.per,date:w.sat,sat:true,optional:!w.fetefin,title:w.fetefin?"La fête de fin de saison":`La fête de la période ${p.per}`,theme:w.fetefin?"Dernière séance : tournoi, match enfants-parents, diplômes et goûter.":"Premier samedi des vacances : mini-tournoi et goûter avec les parents (séance facultative selon présences).",objs:["Jouer, célébrer, se retrouver","Un titre pour chaque équipe","Remettre les passeports des sommets"],pef:per.pef,blocks:[{g:"accueil",dur:10},{g:"reveil",dur:10},{g:w.fetefin?"fetefin":"fete"},{g:"calme",dur:5}]});
+        return;
+      }
+      const g1=GAMES[w.t[0]],g2=GAMES[w.t[1]];
+      const objs=[`${COMP[w.comp]} : ${g1.name}`,`Jeu 1 : ${g1.name} · Jeu 2 : ${g2.name}`,`Match : ${GAMES[w.match].name}`];
+      if(w.wed)SESSIONS.push({id:`p${p.per}-${String(++n).padStart(2,"0")}`,per:p.per,date:w.wed,title:w.title,theme:w.theme,objs,pef:per.pef,blocks:[{g:"accueil"},{g:w.eveil},{g:w.t[0]},{g:w.t[1]},{g:w.match},{g:"calme"}]});
+      if(w.sat){
+        const blocks=w.satPlateauBlanc?[{g:"accueil",dur:8},{g:w.eveil,dur:8},{g:"plateaublanc"},{g:"calme"}]
+          :w.satFull?[{g:"accueil"},{g:w.eveil},{g:w.t[0]},{g:w.t[1]},{g:w.match},{g:"calme"}]
+          :[{g:"accueil"},{g:w.eveil},{g:w.t[1],dur:14},{g:w.match,dur:18},{g:w.match==="match3"?"match4":"match3",dur:10},{g:"calme"}];
+        SESSIONS.push({id:`p${p.per}-${String(++n).padStart(2,"0")}`,per:p.per,date:w.sat,sat:true,title:w.satPlateauBlanc?`${w.title} · plateau blanc`:`${w.title} · au pied`,theme:w.satPlateauBlanc?"Répétition du format plateau (3 rencontres + 1 jeu de la période) — si le district programme un vrai plateau ce jour-là, active « Plateau ».":w.theme.replace(/\.$/,"")+" — samedi : on rejoue au pied, puis on joue.",objs:w.satPlateauBlanc?["Vivre le déroulement complet d'un plateau","Appliquer les lois du jeu","Jouer 3 rencontres et 1 jeu sans attendre"]:[objs[0],"Réinvestir la variante au pied du mercredi","Deux formats de match : foot à 3 et foot à 4"],pef:per.pef,blocks});
+      }
+    });
+  });
+  SESSIONS.forEach(s=>{if(!s.per)s.per=1});
+  SESSIONS.sort((a,b)=>a.date.localeCompare(b.date));
+})();
+</script>
+<script>
+/* =========================================================
    APPLICATION
    ========================================================= */
-const LS_KEY="paufc-u7-v2";
+const LS_KEY="paufc-"+CAT.code.toLowerCase()+"-v2";
 let store={};
 try{store=JSON.parse(localStorage.getItem(LS_KEY)||"{}")||{}}catch(e){store={}}
 function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(store))}catch(e){}}
@@ -586,13 +888,17 @@ function renderSchema(sc){
 const LEGEND=`<div class="legend"><span><i style="background:#1E56C9"></i>équipe bleue</span><span><i style="background:#D64545"></i>équipe rouge</span><span><i style="background:#F2C200"></i>équipe jaune</span><span><i style="background:#8E44AD"></i>G = gardien</span><span><i style="background:#14213D"></i>E = éducateur</span><span>▲ coupelle / plot</span><span>○ ballon</span><span>— conduite</span><span>- - course sans ballon</span><span style="color:#B08A00">— passe</span><span style="color:#D64545">— tir</span></div>`;
 
 /* ---------- Helpers séances ---------- */
+function perOf(s){return PERIODS[(s.per||1)-1]}
+function sessionsOf(per){return SESSIONS.filter(x=>(x.per||1)===per)}
+function currentPer(){const p=PERIODS.find(p=>today<=D(p.to));return p?p.n:5}
+let curPer=null;
 function expandBlocks(s){let t=0;return s.blocks.map(b=>{const g=GAMES[b.g];const dur=b.dur||g.dur;const start=t;t+=dur;return {...g,id:b.g,dur,start}})}
 function firstSentence(t){const i=t.indexOf(". ");return i>0&&i<160?t.slice(0,i+1):t}
 function collectMat(blocks){const seen=new Set();const out=[];blocks.forEach(b=>(b.mat||[]).forEach(m=>{const k=m.toLowerCase().replace(/[\d+]/g,"").replace(/\s+/g," ").trim();if(!seen.has(k)){seen.add(k);out.push(m)}}));return out}
 function isPlateau(s){return !!s.sat&&!!get("plateau:"+s.id,false)}
 function educators(){return get("educs",[])}
 function normPhone(p){let d=(p||"").replace(/[^\d+]/g,"");if(d.startsWith("+"))d=d.slice(1);if(d.startsWith("0"))d="33"+d.slice(1);return d}
-const DEFAULT_URL="https://benjaminducousso-ui.github.io/PlanningPauFC/seances-u7.html";
+const DEFAULT_URL="https://benjaminducousso-ui.github.io/PlanningPauFC/"+CAT.file;
 function settings(){return Object.assign({lieu:"",hMer:"",hSam:"",signature:"",url:DEFAULT_URL},get("settings",{}))}
 function sessionLink(s){const u=(settings().url||"").trim();return u?`${u}${u.includes("?")?"&":"?"}seance=${s.id}`:""}
 
@@ -600,7 +906,7 @@ function waMessage(s){
   const st=settings();const plateau=isPlateau(s);
   const dateTxt=cap(fmtLong(s.date));
   const rdv=(s.sat?st.hSam:st.hMer);
-  let m=`⚽ *PAU FC U7 · ${dateTxt}*\n`;
+  let m=`⚽ *PAU FC ${CAT.code} · ${dateTxt}*\n`;
   if(plateau){
     const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
     m+=`🏟️ *PLATEAU DISTRICT*${info.lieu?` · ${info.lieu}`:""}${info.heure?` · RDV ${info.heure}`:""}\n`;
@@ -642,39 +948,33 @@ function renderGuide(){
   v.innerHTML=`
   <div class="eyebrow">Le fil de l'année</div>
   <h2 style="margin-top:4px">5 périodes, un cap : des enfants techniques qui adorent jouer</h2>
-  <p style="max-width:70ch;margin-top:8px;color:var(--muted)">Calendrier bâti sur le guide interactif FFF U6/U7 : 5 périodes, 24 thèmes de jeu répartis dans l'année, un message éducatif du Programme Éducatif Fédéral par période, et les vacances de la zone A (académie de Bordeaux). Les séances sont écrites période par période : la période 1 (thèmes 1 à 3) est prête dans l'onglet suivant.</p>
+  <p style="max-width:70ch;margin-top:8px;color:var(--muted)">${GUIDE.intro}</p>
   <div class="periods">${per}</div>
   <div class="grid2">
     <div style="display:flex;flex-direction:column;gap:18px">
       <div class="card"><h3>La séance type · 1 heure</h3>
-        <p class="note">À 5-6 ans (grande section / CP), l'enfant a horreur de l'immobilité imposée, se fatigue vite et récupère vite : jamais plus de 12-15 min sur une même activité, un ballon par enfant, on démontre avant d'expliquer. Le guide écrit chaque jeu « à la main » d'abord, puis « au pied » en variante : c'est la progression qu'on suit.</p>
+        <p class="note">${GUIDE.seanceNote}</p>
         <div class="seance-type">${SEANCE_TYPE.map(r=>`<div class="st-row"><span class="t num">${r[0]}</span><div><b>${esc(r[1])}</b> — ${esc(r[2])}</div></div>`).join("")}</div>
-        <p class="note" style="margin-top:10px">Avec 8 à 14 enfants et 1-2 éducateurs : un seul groupe pour l'éveil et le match, deux demi-groupes qui permutent sur les ateliers si vous êtes deux.</p>
+        <p class="note" style="margin-top:10px">${GUIDE.groupNote}</p>
       </div>
-      <div class="card"><h3>Le profil technique · 4 facettes</h3>
-        <p class="note">Les 4 compétences du guide U6/U7 (découverte de la cible, de l'adversaire, du partenaire, développement moteur), observées en fin de chaque période avec 1 à 3 étoiles, jamais de classement. Le rallye des Pyrénées de la dernière séance sert de bilan festif ; la grille est dans l'onglet Profils.</p>
+      <div class="card"><h3>Le profil technique · ${FACETS.length} facettes</h3>
+        <p class="note">${GUIDE.profilNote}</p>
         <div class="facets">${FACETS.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:18px">
       <div class="card"><h3>Ce que le guide fédéral demande</h3>
-        <ul>
-          <li><b>« L'enfant se construit au cœur du jeu »</b> : des jeux avec une histoire (déménageurs, pirates, magiciens), des points qu'on compte, des rôles qu'on inverse, des manches de 1 minute maximum.</li>
-          <li><b>Rassurer en permanence</b> : climat sécurisant, valoriser, positiver ; l'enfant a besoin d'être sollicité et encouragé.</li>
-          <li><b>Le faire bouger</b> : il est en âge d'acquérir équilibre et latéralisation, il a horreur de l'immobilité ; activité fractionnée effort / repos.</li>
-          <li><b>Démontrer, animer, encourager, valoriser</b> : les quatre verbes de la colonne « animation » de chaque fiche FFF.</li>
-          <li><b>Le samedi</b> : plateau = protocole fair-play 15', 3 rencontres de 10' + 1 jeu de 10' (pause après 2 rotations), protocole de fin 15'. Foot à 3 sans gardien (25 × 15 m) ou foot à 4 avec gardien (30 × 20 m). Aucun classement, tout le monde joue.</li>
-        </ul>
+        <ul>${GUIDE.principles.map(x=>`<li>${x}</li>`).join("")}</ul>
       </div>
       <div class="card"><h3>Comment utiliser cet outil</h3>
         <ul>
           <li>Onglet <b>Éducateurs</b> : saisis une fois leurs prénoms et numéros, le lieu et les horaires.</li>
           <li>Onglet <b>Séances</b> : choisis la séance, vérifie-la (bilan de la précédente sous la fiche), puis <b>Envoyer sur WhatsApp</b> : le message s'ouvre pré-rempli, tu n'as plus qu'à appuyer sur envoyer. Le message contient le déroulé et le lien vers la fiche du jour avec ses schémas.</li>
-          <li>Le samedi, si le district programme un plateau : active <b>Plateau ce samedi</b> sur la fiche, le message change tout seul.</li>
+          <li><b>Samedi de plateau</b> : active <b>Plateau ce samedi</b> sur la fiche, le message change tout seul. La séance d'entraînement prévue ce jour-là est <b>sautée, jamais décalée</b> : le samedi ne fait que réinvestir les séances de la semaine, et le plateau inclut « le jeu de la période ». Le programme reprend normalement à la séance suivante.</li>
           <li>Tout est enregistré sur cet appareil (envois, plateaux, bilans, profils).</li>
         </ul>
       </div>
-      <div class="callout">Tout vient du <b>guide interactif FFF U6/U7</b> : périodes, thèmes, consignes, buts, variantes, « veiller à », matériel et lois du jeu du plateau. Les schémas interactifs du PDF ne s'affichant pas, chaque jeu a été redessiné ici à partir de sa fiche (dimensions et effectifs de la FFF). Les progressions « à la main → au pied → avec obstacles » suivent les variantes écrites dans le guide.</div>
+      <div class="callout">${GUIDE.callout}</div>
     </div>
   </div>`;
 }
@@ -684,14 +984,17 @@ let currentId=null;
 function defaultSession(){const up=SESSIONS.find(s=>D(s.date)>=today);return (up||SESSIONS[SESSIONS.length-1]).id}
 function renderSessions(){
   const v=document.getElementById("view-seances");
-  if(!currentId)currentId=defaultSession();
-  const list=SESSIONS.map(s=>{const d=D(s.date);const sent=Object.keys(get("sent:"+s.id,{})).length>0;const pl=isPlateau(s);
+  if(!curPer)curPer=currentId?perOf(SESSIONS.find(x=>x.id===currentId)).n:currentPer();
+  if(!currentId||perOf(SESSIONS.find(x=>x.id===currentId)).n!==curPer){const up=sessionsOf(curPer).find(x=>D(x.date)>=today);currentId=(up||sessionsOf(curPer)[0]).id}
+  const chips=PERIODS.map(p=>`<button class="perchip" data-per="${p.n}" aria-pressed="${p.n===curPer}"><b>P${p.n}</b><span>${esc(p.name)}</span><small>${fmtShort(p.from)} → ${fmtShort(p.to)}</small></button>`).join("");
+  const list=sessionsOf(curPer).map(s=>{const d=D(s.date);const sent=Object.keys(get("sent:"+s.id,{})).length>0;const pl=isPlateau(s);
     return `<button class="sess-item" data-id="${s.id}" aria-current="${s.id===currentId}">
       <span class="d"><b class="num">${d.getDate()}</b><span>${MOIS_C[d.getMonth()]}</span></span>
       <span><span class="ttl">${esc(s.title)}</span><br><span class="sub">${cap(JOURS[d.getDay()])}${s.optional?" · facultatif":""}</span></span>
       <span style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">${pl?'<span class="chip plateau">Plateau</span>':`<span class="chip ${s.sat?'sam':'mer'}">${s.sat?'Samedi':'Mercredi'}</span>`}${sent?'<span class="chip sent">Envoyée</span>':''}</span>
     </button>`}).join("");
-  v.innerHTML=`<div class="sess-layout"><aside class="sess-list" aria-label="Liste des séances">${list}</aside><div id="sheet"></div></div>`;
+  v.innerHTML=`<div class="perbar" role="group" aria-label="Périodes">${chips}</div><div class="sess-layout"><aside class="sess-list" aria-label="Liste des séances">${list}</aside><div id="sheet"></div></div>`;
+  v.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{curPer=+b.dataset.per;currentId=null;renderSessions()}));
   v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{currentId=b.dataset.id;renderSessions();document.getElementById("sheet").scrollIntoView({behavior:"smooth",block:"start"})}));
   renderSheet();
 }
@@ -718,14 +1021,14 @@ function renderSheet(){
   const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
   el.innerHTML=`<div class="sheet">
     <div class="sheet-head">
-      <div><div class="eyebrow">Séance ${SESSIONS.indexOf(s)+1} / ${SESSIONS.length} · Période 1 « Que le match commence »${s.optional?" · facultative":""}</div>
+      <div><div class="eyebrow">Séance ${sessionsOf(perOf(s).n).indexOf(s)+1} / ${sessionsOf(perOf(s).n).length} · Période ${perOf(s).n} « ${esc(perOf(s).name)} »${s.optional?" · facultative":""}</div>
         <h2>${cap(fmtLong(s.date))}${plateau?" · Plateau":""}</h2>
         <h3 style="color:var(--yellow);margin-top:6px;font-size:24px">${esc(plateau?PLATEAU.title:s.title)}</h3>
         <p class="theme">${esc(plateau?PLATEAU.theme:s.theme)}</p></div>
-      <div class="meta"><span class="pill num">${total} min</span><span class="pill">8-14 enfants</span>${s.sat?`<button class="toggle" id="plateauToggle" aria-pressed="${plateau}">${plateau?"🏟️ Plateau ce samedi":"Entraînement · passer en plateau"}</button>`:""}</div>
+      <div class="meta"><span class="pill num">${total} min</span><span class="pill">${CAT.group||"8-14 enfants"}</span>${s.sat?`<button class="toggle" id="plateauToggle" aria-pressed="${plateau}">${plateau?"🏟️ Plateau ce samedi":"Entraînement · passer en plateau"}</button>`:""}</div>
     </div>
     ${plateau?`<div class="objs"><div><h4>Infos pratiques du plateau</h4><div class="field"><label for="plLieu">Lieu</label><input id="plLieu" type="text" value="${esc(info.lieu)}" placeholder="Club d'accueil"></div><div class="field"><label for="plHeure">Heure de rendez-vous</label><input id="plHeure" type="text" value="${esc(info.heure)}" placeholder="9h45"></div></div>
-      <div><h4>À veiller</h4><ul>${PLATEAU.veiller.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div></div>`
+      <div><h4>À veiller</h4><ul>${PLATEAU.veiller.map(o=>`<li>${esc(o)}</li>`).join("")}</ul><p class="note" style="margin-top:8px"><b>Et la séance prévue ?</b> Elle est sautée, pas décalée : le samedi ne fait que réinvestir les séances de la semaine, et le plateau contient lui-même « le jeu de la période ». Rien n'est perdu.</p></div></div>`
     :`<div class="objs"><div><h4>Objectifs du jour</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div>
       <div><h4>Message éducatif (PEF)</h4><p>${esc(s.pef)}</p><h4 style="margin-top:12px">Consigne unique du match</h4><p>${esc(blocks.find(b=>b.kind==="match")?"Une seule phrase répétée : celle de l'atelier du jour (ex. « lève la tête », « petites touches », « regarde le but »).":"—")}</p></div></div>`}
     <div class="timeline">${tl}</div><div class="tl-legend">${tlLeg}</div>
@@ -750,14 +1053,18 @@ function renderSheet(){
 function waIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c1.7.7 2.1.6 2.8.5a2.4 2.4 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c0-.1-.2-.2-.4-.3Z"/></svg>`}
 
 /* ---------- Vue Profils ---------- */
+let profPer=null;
+function starsOf(k,per){k.stars=k.stars||{};if(!k.stars.p1&&Object.keys(k.stars).some(x=>FACETS.find(f=>f.id===x))){k.stars={p1:k.stars}}k.stars["p"+per]=k.stars["p"+per]||{};return k.stars["p"+per]}
 function renderProfils(){
-  const v=document.getElementById("view-profils");const kids=get("kids",[]);
+  const v=document.getElementById("view-profils");const kids=get("kids",[]);if(!profPer)profPer=currentPer();
   const rows=kids.map((k,i)=>`<tr><td><input type="text" id="kid-${i}" value="${esc(k.name)}" data-i="${i}" aria-label="Prénom"></td>
-    ${FACETS.map(f=>`<td><span class="stars" data-i="${i}" data-f="${f.id}">${[1,2,3].map(n=>`<button class="${(k.stars?.[f.id]||0)>=n?'on':''}" data-n="${n}" aria-label="${n} étoile${n>1?'s':''}">★</button>`).join("")}</span></td>`).join("")}
+    ${FACETS.map(f=>`<td><span class="stars" data-i="${i}" data-f="${f.id}">${[1,2,3].map(n=>`<button class="${(starsOf(k,profPer)[f.id]||0)>=n?'on':''}" data-n="${n}" aria-label="${n} étoile${n>1?'s':''}">★</button>`).join("")}</span></td>`).join("")}
     <td><input type="text" id="note-${i}" value="${esc(k.note||"")}" data-i="${i}" placeholder="un mot" aria-label="Remarque"></td>
     <td><button class="del" data-i="${i}" aria-label="Retirer">×</button></td></tr>`).join("");
-  v.innerHTML=`<div class="eyebrow">Fin de période 1 · Rallye des Pyrénées (mer. 14 oct.)</div><h2 style="margin-top:4px">Profils techniques</h2>
-   <p style="max-width:70ch;margin-top:8px;color:var(--muted)">Les 4 compétences du guide FFF U6/U7. 1 étoile = découvre, 2 = réussit souvent, 3 = réussit et va vite. Ce n'est pas une note : c'est ce qu'on observe pour choisir les variantes de la période 2 (épervier, queue du diable, stop-ball, va-et-vient) et pour dire à chaque enfant ce qu'il a progressé. À remplir en bord de terrain pendant le rallye.</p>
+  const rallye=sessionsOf(profPer).find(x=>x.blocks.some(b=>/rallye|bilan/.test(b.g)));
+  v.innerHTML=`<div class="eyebrow">Bilan de période · ${esc(GUIDE.bilanName)}${rallye?` (${fmtLong(rallye.date)})`:""}</div><h2 style="margin-top:4px">Profils techniques</h2>
+   <div class="perbar" style="margin-top:12px">${PERIODS.map(p=>`<button class="perchip" data-pp="${p.n}" aria-pressed="${p.n===profPer}"><b>P${p.n}</b><span>${esc(p.name)}</span><small>${fmtShort(p.from)} → ${fmtShort(p.to)}</small></button>`).join("")}</div>
+   <p style="max-width:70ch;margin-top:8px;color:var(--muted)">${GUIDE.starsNote}</p>
    <div class="card" style="margin-top:16px">
      <div class="facets" style="margin-top:0">${FACETS.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div>
      <div class="tbl-wrap"><table class="prof-table"><thead><tr><th>Enfant</th>${FACETS.map(f=>`<th>${esc(f.name)}</th>`).join("")}<th>Remarque</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="7" class="note" style="padding:14px 8px">Aucun enfant pour l'instant — ajoute les prénoms ci-dessous.</td></tr>`}</tbody></table></div>
@@ -767,12 +1074,13 @@ function renderProfils(){
   const persist=()=>set("kids",kids);
   v.querySelectorAll("input[id^=kid-]").forEach(i=>i.addEventListener("change",e=>{kids[+e.target.dataset.i].name=e.target.value;persist()}));
   v.querySelectorAll("input[id^=note-]").forEach(i=>i.addEventListener("change",e=>{kids[+e.target.dataset.i].note=e.target.value;persist()}));
-  v.querySelectorAll(".stars button").forEach(b=>b.addEventListener("click",()=>{const sp=b.parentElement;const k=kids[+sp.dataset.i];k.stars=k.stars||{};const n=+b.dataset.n;k.stars[sp.dataset.f]=k.stars[sp.dataset.f]===n?0:n;persist();renderProfils()}));
+  v.querySelectorAll(".stars button").forEach(b=>b.addEventListener("click",()=>{const sp=b.parentElement;const k=kids[+sp.dataset.i];const st=starsOf(k,profPer);const n=+b.dataset.n;st[sp.dataset.f]=st[sp.dataset.f]===n?0:n;persist();renderProfils()}));
+  v.querySelectorAll(".perchip[data-pp]").forEach(b=>b.addEventListener("click",()=>{profPer=+b.dataset.pp;renderProfils()}));
   v.querySelectorAll(".del").forEach(b=>b.addEventListener("click",()=>{kids.splice(+b.dataset.i,1);persist();renderProfils()}));
   document.getElementById("addKid").addEventListener("click",()=>{kids.push({name:"",stars:{}});persist();renderProfils();const last=v.querySelector(`#kid-${kids.length-1}`);if(last)last.focus()});
   document.getElementById("bulkKids").addEventListener("click",()=>{document.getElementById("bulkBox").hidden=false});
   document.getElementById("bulkOk").addEventListener("click",()=>{document.getElementById("bulkArea").value.split(/\n/).map(x=>x.trim()).filter(Boolean).forEach(n=>kids.push({name:n,stars:{}}));persist();renderProfils()});
-  document.getElementById("copyProf").addEventListener("click",async()=>{const txt="Profils techniques U7 — période 1\n"+kids.map(k=>`${k.name} : ${FACETS.map(f=>`${f.name} ${"★".repeat(k.stars?.[f.id]||0)||"–"}`).join(" · ")}${k.note?` — ${k.note}`:""}`).join("\n");try{await navigator.clipboard.writeText(txt);toast("Bilan copié")}catch(e){toast("Copie impossible ici")}});
+  document.getElementById("copyProf").addEventListener("click",async()=>{const txt=`Profils techniques ${CAT.code} — période ${profPer}\n`+kids.map(k=>`${k.name} : ${FACETS.map(f=>`${f.name} ${"★".repeat(starsOf(k,profPer)[f.id]||0)||"–"}`).join(" · ")}${k.note?` — ${k.note}`:""}`).join("\n");try{await navigator.clipboard.writeText(txt);toast("Bilan copié")}catch(e){toast("Copie impossible ici")}});
 }
 
 /* ---------- Vue Réglages ---------- */
@@ -781,7 +1089,7 @@ function renderReglages(){
   const rows=ed.map((e,i)=>`<div class="edu-row"><input type="text" id="edn-${i}" value="${esc(e.name)}" placeholder="Prénom" aria-label="Prénom de l'éducateur"><input type="tel" id="edp-${i}" value="${esc(e.phone)}" placeholder="06 12 34 56 78" aria-label="Numéro WhatsApp"><button class="del" data-i="${i}" aria-label="Retirer">×</button></div>`).join("");
   v.innerHTML=`<div class="eyebrow">Réglages</div><h2 style="margin-top:4px">Éducateurs &amp; envoi</h2>
   <div class="settings-grid">
-    <div class="card"><h3>Éducateurs U7</h3><p class="note">Un bouton WhatsApp par personne sur chaque fiche. Les numéros restent sur cet appareil.</p>
+    <div class="card"><h3>Éducateurs ${CAT.code}</h3><p class="note">Un bouton WhatsApp par personne sur chaque fiche. Les numéros restent sur cet appareil.</p>
       <div class="edu-list">${rows||'<p class="note">Aucun éducateur saisi.</p>'}</div>
       <div class="prof-actions"><button class="btn ghost" id="addEdu">+ Ajouter un éducateur</button></div>
     </div>
@@ -789,12 +1097,12 @@ function renderReglages(){
       <div class="field"><label for="setLieu">Lieu d'entraînement</label><input id="setLieu" type="text" value="${esc(st.lieu)}" placeholder="Terrain synthétique n°2"></div>
       <div class="field"><label for="setHMer">Horaire du mercredi</label><input id="setHMer" type="text" value="${esc(st.hMer)}" placeholder="14h00 - 15h00"></div>
       <div class="field"><label for="setHSam">Horaire du samedi (entraînement)</label><input id="setHSam" type="text" value="${esc(st.hSam)}" placeholder="10h00 - 11h00"></div>
-      <div class="field"><label for="setSign">Signature</label><input id="setSign" type="text" value="${esc(st.signature)}" placeholder="Benjamin · Pau FC U7"></div>
+      <div class="field"><label for="setSign">Signature</label><input id="setSign" type="text" value="${esc(st.signature)}" placeholder="Benjamin · Pau FC ${CAT.code}"></div>
       <div class="field"><label for="setUrl">Adresse publique de cette page (mise dans le message)</label><input id="setUrl" type="url" value="${esc(st.url)}" placeholder="https://…/seances-u7.html"><span class="note">Le lien ouvre directement la fiche du jour, en lecture seule (sans boutons d'envoi ni réglages).</span></div>
       <div class="prof-actions"><button class="btn ghost" id="saveSet">Enregistrer</button></div>
     </div>
     <div class="card"><h3>Comment les éducateurs voient la fiche</h3>
-      <p>Le message WhatsApp contient le déroulé en texte et un lien du type <code>…/seances-u7.html?seance=s03</code>. En l'ouvrant, l'éducateur tombe directement sur la fiche du jour avec les schémas, en lecture seule. Pour que le lien marche, cette page doit être publiée sur le site du club (GitHub Pages, comme le calendrier) : déposer le fichier <code>seances-u7.html</code> dans le dépôt PlanningPauFC ; à chaque nouvelle période, remplacer le fichier.</p>
+      <p>Le message WhatsApp contient le déroulé en texte et un lien du type <code>…/${CAT.file}?seance=…</code>. En l'ouvrant, l'éducateur tombe directement sur la fiche du jour avec les schémas, en lecture seule. Pour que le lien marche, cette page doit être publiée sur le site du club (GitHub Pages, comme le calendrier) : déposer le fichier <code>${CAT.file}</code> dans le dépôt PlanningPauFC ; à chaque nouvelle période, remplacer le fichier.</p>
     </div>
     <div class="card"><h3>Sources des jeux</h3><ul class="source-list">${SOURCES.map(s=>`<li>${s.u?`<a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>`:esc(s.t)}</li>`).join("")}</ul>
       <div class="prof-actions"><button class="btn ghost small" id="resetAll">Effacer les données de cet appareil</button></div>
@@ -818,6 +1126,9 @@ function showTab(id){
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.getAttribute("aria-controls"))));
 const QS=new URLSearchParams(location.search);
 const EDU_MODE=QS.has("seance")&&SESSIONS.some(x=>x.id===QS.get("seance"));
-function renderAll(){renderGuide();if(EDU_MODE){document.documentElement.classList.add("edu");currentId=QS.get("seance");showTab("view-seances")}else showTab(get("tab","view-guide"))}
+function renderAll(){renderGuide();if(EDU_MODE){document.documentElement.classList.add("edu");currentId=QS.get("seance");curPer=perOf(SESSIONS.find(x=>x.id===currentId)).n;showTab("view-seances")}else showTab(get("tab","view-guide"))}
 renderAll();
 </script>
+
+</body>
+</html>
