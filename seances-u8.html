@@ -681,8 +681,8 @@ function collectMat(blocks){const seen=new Set();const out=[];blocks.forEach(b=>
 function isPlateau(s){return !!s.sat&&!!get("plateau:"+s.id,false)}
 function educators(){return get("educs",[])}
 function normPhone(p){let d=(p||"").replace(/[^\d+]/g,"");if(d.startsWith("+"))d=d.slice(1);if(d.startsWith("0"))d="33"+d.slice(1);return d}
-const DEFAULT_URL="https://benjaminducousso-ui.github.io/PlanningPauFC/"+CAT.file;
-function settings(){return Object.assign({lieu:"",hMer:"",hSam:"",signature:"",url:DEFAULT_URL},get("settings",{}))}
+const DEFAULT_URL="https://benjaminducousso-ui.github.io/AcademiePauFC/"+CAT.file;
+function settings(){const s=Object.assign({lieu:"",hMer:"",hSam:"",signature:"",url:DEFAULT_URL},get("settings",{}));if(s.url&&s.url.includes("/PlanningPauFC/"))s.url=s.url.replace("/PlanningPauFC/","/AcademiePauFC/");return s}
 function sessionLink(s){const u=(settings().url||"").trim();return u?`${u}${u.includes("?")?"&":"?"}seance=${s.id}`:""}
 
 function waMessage(s){
@@ -885,7 +885,7 @@ function renderReglages(){
       <div class="prof-actions"><button class="btn ghost" id="saveSet">Enregistrer</button></div>
     </div>
     <div class="card"><h3>Comment les éducateurs voient la fiche</h3>
-      <p>Le message WhatsApp contient le déroulé en texte et un lien du type <code>…/${CAT.file}?seance=…</code>. En l'ouvrant, l'éducateur tombe directement sur la fiche du jour avec les schémas, en lecture seule. Pour que le lien marche, cette page doit être publiée sur le site du club (GitHub Pages, comme le calendrier) : déposer le fichier <code>${CAT.file}</code> dans le dépôt PlanningPauFC ; à chaque nouvelle période, remplacer le fichier.</p>
+      <p>Le message WhatsApp contient le déroulé en texte et un lien du type <code>…/${CAT.file}?seance=…</code>. En l'ouvrant, l'éducateur tombe directement sur la fiche du jour avec les schémas, en lecture seule. Pour que le lien marche, cette page doit être publiée sur le site du club (GitHub Pages, comme le calendrier) : déposer le fichier <code>${CAT.file}</code> dans le dépôt AcademiePauFC ; à chaque nouvelle période, remplacer le fichier.</p>
     </div>
     <div class="card"><h3>Sources des jeux</h3><ul class="source-list">${SOURCES.map(s=>`<li>${s.u?`<a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>`:esc(s.t)}</li>`).join("")}</ul>
       <div class="prof-actions"><button class="btn ghost small" id="resetAll">Effacer les données de cet appareil</button></div>
