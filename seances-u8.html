@@ -126,6 +126,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .sheet-head .theme{color:#C9D6E8;margin-top:6px;max-width:60ch}
 .sheet-head .meta{display:flex;gap:8px;flex-wrap:wrap}
 .meta .pill{background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px;font-size:13px;color:#fff}
+.actionbox{margin:12px 20px 0;padding:12px 14px;border:1px dashed var(--line);border-radius:10px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}.actionbox .note{font-size:13px}.acrow{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}.acrow label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}.acrow input,.acrow select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;background:var(--surface);color:var(--ink);max-width:100%}
+.toggle:disabled{opacity:.4;cursor:default}
 .toggle{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 12px;font-weight:600;font-size:14px}
 .toggle[aria-pressed="true"]{background:var(--yellow);color:#3B2E00;border-color:var(--yellow)}
 .objs{display:grid;grid-template-columns:1fr;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)}
@@ -628,12 +630,12 @@ const L90=CAT.dur===90; // U9 : séances d'1h30
         }
         const T=GAMES[u.t],K=GAMES[u.tech];
         if(day===1){ // lundi (U9) : séance technique
-          SESSIONS.push({id:id(),per:per.n,date:s,title:`${K.name}`,theme:`Séance technique · ${K.src.replace("Technique · ","").replace("Motricité · ","")}.`,objs:[`Technique : ${K.name}`,"Beaucoup de répétitions, les 2 pieds","Jeu réduit pour réinvestir"],pef:per.pef,blocks:L90?[{g:"accueil"},{g:u.eveil,dur:12},{g:u.tech,dur:20},{g:"jongle",dur:10},{g:u.t,dur:15},{g:u.match,dur:25},{g:"calme"}]:[{g:"accueil"},{g:u.eveil},{g:u.tech},{g:"jongle",dur:10},{g:u.match,dur:17},{g:"calme"}]});
+          SESSIONS.push({id:id(),per:per.n,date:s,title:`${K.name}`,theme:`Séance technique · ${K.src.replace("Technique · ","").replace("Motricité · ","")}.`,objs:[`Technique : ${K.name}`,"Beaucoup de répétitions, les 2 pieds","Jeu réduit pour réinvestir"],pef:per.pef,blocks:L90?[{g:"accueil"},{g:u.eveil,dur:12},{g:u.tech,dur:20},{g:u.tech==="jongle"?"coord":"jongle",dur:10},{g:u.t,dur:15},{g:u.match,dur:25},{g:"calme"}]:[{g:"accueil"},{g:u.eveil},{g:u.tech},{g:u.tech==="jongle"?"coord":"jongle",dur:10},{g:u.match,dur:17},{g:"calme"}]});
         }else if(day===3){ // mercredi : thème FFF
-          SESSIONS.push({id:id(),per:per.n,date:s,title:u.title,theme:u.theme,objs:[`Jeu : ${T.name}`,`Technique : ${K.name}`,`Match : ${GAMES[u.match].name}`],pef:per.pef,blocks:L90?[{g:"accueil"},{g:u.eveil,dur:12},{g:u.tech,dur:18},{g:u.t,dur:20},{g:"jongle",dur:8},{g:u.match,dur:24},{g:"calme"}]:[{g:"accueil"},{g:u.eveil},{g:u.tech,dur:12},{g:u.t},{g:u.match,dur:13},{g:"calme"}]});
+          SESSIONS.push({id:id(),per:per.n,date:s,title:u.title,theme:u.theme,objs:L90||wi%2===0?[`Jeu : ${T.name}`,`Technique : ${K.name}`].concat(L90?[`Match : ${GAMES[u.match].name}`]:["Une seule consigne dans le jeu à thème"]):[`Technique : ${K.name}`,`Match : ${GAMES[u.match].name}`,"Une seule consigne dans le match"],pef:per.pef,blocks:L90?[{g:"accueil"},{g:u.eveil,dur:12},{g:u.tech,dur:18},{g:u.t,dur:20},{g:u.tech==="jongle"?"vitesse":"jongle",dur:8},{g:u.match,dur:24},{g:"calme"}]:(wi%2===0?[{g:"accueil"},{g:u.eveil},{g:u.tech,dur:14},{g:u.t,dur:25},{g:"calme"}]:[{g:"accueil"},{g:u.eveil},{g:u.tech,dur:14},{g:u.match,dur:25},{g:"calme"}])});
         }else{ // samedi : réinvestissement + match, ou plateau blanc
           if(pre){SESSIONS.push({id:id(),per:per.n,date:s,sat:true,title:`${u.title} · plateau blanc`,theme:"Répétition du format plateau (4 rencontres + 1 jeu de la période) — si le district programme un vrai plateau, active « Plateau ».",objs:["Vivre le déroulement complet d'un plateau","Appliquer les lois du jeu 5c5","Jouer 4 rencontres et 1 jeu sans attendre"],pef:per.pef,blocks:L90?[{g:"accueil",dur:10},{g:u.eveil,dur:12},{g:u.tech,dur:15},{g:"plateaublanc9",dur:50},{g:"calme"}]:[{g:"accueil",dur:8},{g:u.eveil,dur:8},{g:"plateaublanc9"},{g:"calme"}]})}
-          else SESSIONS.push({id:id(),per:per.n,date:s,sat:true,title:`${u.title} · on rejoue`,theme:u.theme.replace(/\.$/,"")+" — samedi : le jeu du thème avec sa variante, puis on joue.",objs:[`Jeu : ${T.name} (variante)`,"Réinvestir la technique de la semaine dans le match","Deux formats : 5c5 puis festi-foot"],pef:per.pef,blocks:L90?[{g:"accueil"},{g:u.eveil,dur:12},{g:u.tech,dur:15},{g:u.t,dur:18},{g:u.match,dur:20},{g:u.match==="festi"?"match5":"festi",dur:17},{g:"calme"}]:[{g:"accueil"},{g:u.eveil},{g:u.t},{g:u.match,dur:14},{g:u.match==="festi"?"match5":"festi",dur:11},{g:"calme"}]});
+          else SESSIONS.push({id:id(),per:per.n,date:s,sat:true,title:`${u.title} · on rejoue`,theme:u.theme.replace(/\.$/,"")+" — samedi : le jeu du thème avec sa variante, puis on joue.",objs:[`Jeu : ${T.name} (variante)`,"Réinvestir la technique de la semaine dans le match",L90?"Deux formats : 5c5 puis festi-foot":"Un seul match, une seule consigne"],pef:per.pef,blocks:L90?[{g:"accueil"},{g:u.eveil,dur:12},{g:u.tech,dur:15},{g:u.t,dur:18},{g:u.match,dur:20},{g:u.match==="festi"?"match5":"festi",dur:17},{g:"calme"}]:[{g:"accueil"},{g:u.eveil},{g:u.t,dur:20},{g:u.match,dur:22},{g:"calme"}]});
         }
       });
     });
@@ -885,14 +887,20 @@ const SESSION_DUR=CAT.dur||60;
 
 /* ---------- Séances modifiées (partagées via le classeur du club) ---------- */
 let OVR=get("ovr",{});const ORIG={};
-function snapshot(s){return {title:s.title,theme:s.theme,objs:[...s.objs],blocks:s.blocks.map(b=>({g:b.g,dur:b.dur}))}}
-function validData(d){return d&&typeof d.title==="string"&&Array.isArray(d.objs)&&Array.isArray(d.blocks)&&d.blocks.length>0&&d.blocks.every(b=>GAMES[b.g])}
-function applyOverrides(){SESSIONS.forEach(s=>{if(!ORIG[s.id])ORIG[s.id]=snapshot(s);const o=OVR[s.id];const use=o&&validData(o.data);const src=use?o.data:ORIG[s.id];
-  s.title=src.title;s.theme=src.theme||"";s.objs=[...src.objs];s.blocks=src.blocks.map(b=>({g:b.g,dur:b.dur||undefined}));s.mod=use?{by:o.by||"",ts:o.ts||0}:null})}
+function snapshot(s){return {title:s.title,theme:s.theme,objs:[...s.objs],note:s.note||"",blocks:s.blocks.map(b=>({g:b.g,dur:b.dur}))}}
+function validData(d){return d&&typeof d.title==="string"&&Array.isArray(d.objs)&&Array.isArray(d.blocks)&&d.blocks.length>0&&d.blocks.every(b=>GAMES[b.g])&&(!d.dup||/^\d{4}-\d{2}-\d{2}$/.test(d.date||""))}
+function perForDate(d){const p=PERIODS.find(p=>d>=p.from&&d<=p.to)||PERIODS.find(p=>d<p.from)||PERIODS[PERIODS.length-1];return p}
+function applyOverrides(){
+  /* séances dupliquées (créées par un éducateur) : présentes dans OVR avec data.dup, absentes des séances d'origine */
+  Object.entries(OVR).forEach(([id,o])=>{const i=SESSIONS.findIndex(x=>x.id===id);const d=o&&o.data;
+    if(d&&d.dup&&validData(d)&&i<0){const per=perForDate(d.date);const day=new Date(d.date+"T00:00:00Z").getUTCDay();SESSIONS.push({id,per:per.n,date:d.date,sat:day===6,dup:true,base:d.base||"",pef:per.pef||"",title:d.title,theme:d.theme||"",objs:[...d.objs],blocks:[]});SESSIONS.sort((a,b)=>a.date.localeCompare(b.date))}
+    if(i>=0&&SESSIONS[i].dup&&!d){SESSIONS.splice(i,1);if(currentId===id)currentId=null}});
+  SESSIONS.forEach(s=>{if(!ORIG[s.id])ORIG[s.id]=snapshot(s);const o=OVR[s.id];const use=o&&validData(o.data);const src=use?o.data:ORIG[s.id];
+  s.title=src.title;s.theme=src.theme||"";s.objs=[...src.objs];s.note=src.note||"";s.blocks=src.blocks.map(b=>({g:b.g,dur:b.dur||undefined}));s.mod=use&&!s.dup?{by:o.by||"",ts:o.ts||0}:null;if(s.dup&&o)s.by=o.by||""})}
 function rerender(){const id=document.querySelector(".view.active")?.id;if(id==="view-seances")renderSessions();else if(id==="view-guide")renderGuide()}
 async function loadOverrides(){try{const r=await fetch(`${API}?seances=${encodeURIComponent(CAT.code)}`,{cache:"no-store"});const arr=await r.json();if(!Array.isArray(arr))return;let ch=false;
   arr.forEach(x=>{if(!x||!x.id)return;const cur=OVR[x.id];if(!cur||(x.ts||0)>(cur.ts||0)){OVR[x.id]={data:x.data||null,by:x.by||"",ts:x.ts||0};ch=true}});
-  if(ch){set("ovr",OVR);applyOverrides();rerender()}}catch(e){}}
+  if(ch){set("ovr",OVR);applyOverrides();if(QS.has("seance")&&!EDU_MODE&&SESSIONS.some(x=>x.id===QS.get("seance"))){EDU_MODE=true;renderAll()}else rerender()}}catch(e){}}
 async function saveOverride(id,data,by){const ts=Date.now();OVR[id]={data,by,ts};set("ovr",OVR);applyOverrides();
   try{const r=await fetch(API,{method:"POST",body:JSON.stringify({seances:1,cat:CAT.code,id,data,by,ts}),headers:{"Content-Type":"text/plain;charset=utf-8"}});const j=await r.json();if(!j.ok)throw new Error(j.error||"save");toast(data?"Séance enregistrée et partagée avec le club":"Séance d'origine rétablie pour tout le club")}
   catch(e){toast("Enregistrée sur cet appareil ; le partage réessaiera plus tard")}}
@@ -919,6 +927,7 @@ function waMessage(s,detail){
     lines.push(`◆ *${s.title}*`);lines.push(`_${s.theme}_`);
     if(rdv||st.lieu)lines.push(`${[rdv?`RDV ${rdv}`:"",st.lieu].filter(Boolean).join(" · ")}`);
     if(s.mod&&s.mod.by)lines.push(`Séance ajustée par ${s.mod.by}`);
+    if(s.note)lines.push(`✦ *Consignes du référent* : ${s.note}`);
     if(lk)lines.push(`➜ Fiche complète (schémas, consignes, matériel) : ${lk}`);
     lines.push("",`◆ *Déroulé (${blocks.reduce((a,b)=>a+b.dur,0)}')*`);
     blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.dur}' *${b.name}*${b.kind!=="accueil"&&b.kind!=="calme"&&b.desc?` — ${firstSentence(b.desc)}`:""}`));
@@ -954,7 +963,7 @@ function renderGuide(){
   v.innerHTML=`
   <section class="hero">
     <div><div class="eyebrow">Le fil de l'année ${CAT.code}</div>
-    <h2 style="margin-top:4px">5 périodes, un cap : des enfants techniques qui adorent jouer</h2>
+    <h2 style="margin-top:4px">${GUIDE.title||"5 périodes, un cap : des enfants techniques qui adorent jouer"}</h2>
     <p class="lead">${GUIDE.intro}</p></div>
     <div class="kpis"><div><b class="num">${SESSIONS.length}</b><span>séances écrites</span></div><div><b class="num">${nGames}</b><span>jeux dans la bibliothèque</span></div><div><b class="num">${FACETS.length}</b><span>facettes suivies</span></div><div><b class="num">${SESSION_DUR===90?"1 h 30":"1 h"}</b><span>par séance</span></div></div>
   </section>
@@ -978,7 +987,7 @@ function renderGuide(){
 }
 
 /* ---------- Vue Séances ---------- */
-let currentId=null,editId=null,draft=null;
+let currentId=null,editId=null,draft=null,action=null;
 function renderSessions(){
   const v=document.getElementById("view-seances");
   if(!curPer)curPer=currentId?perOf(SESSIONS.find(x=>x.id===currentId)).n:currentPer();
@@ -988,11 +997,11 @@ function renderSessions(){
     return `<button class="sess-item" data-id="${s.id}" aria-current="${s.id===currentId}">
       <span class="d"><b class="num">${d.getDate()}</b><span>${MOIS_C[d.getMonth()]}</span></span>
       <span><span class="ttl">${esc(s.title)}</span><br><span class="sub">${[s.optional?"facultatif":"",s.mod?"✏️ modifiée":"",Object.keys(get("sent:"+s.id,{})).length?"":""].filter(Boolean).join(" · ")||"&nbsp;"}</span></span>
-      <span style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">${pl?'<span class="chip plateau">Plateau</span>':`<span class="chip ${s.sat?'sam':'mer'}">${cap(JOURS[d.getDay()])}</span>`}${sent?'<span class="chip sent">Envoyée</span>':''}</span>
+      <span style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">${pl?'<span class="chip plateau">'+(PLATEAU.label||'Plateau')+'</span>':`<span class="chip ${s.sat?'sam':'mer'}">${cap(JOURS[d.getDay()])}</span>`}${sent?'<span class="chip sent">Envoyée</span>':''}</span>
     </button>`}).join("");
   v.innerHTML=`<div class="perbar" role="group" aria-label="Périodes">${chips}</div><div class="sess-layout"><aside class="sess-list" aria-label="Liste des séances">${list}</aside><div id="sheet"></div></div>`;
   v.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{curPer=+b.dataset.per;currentId=null;editId=null;renderSessions()}));
-  v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{currentId=b.dataset.id;editId=null;renderSessions();document.getElementById("sheet").scrollIntoView({behavior:"smooth",block:"start"})}));
+  v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{currentId=b.dataset.id;editId=null;action=null;renderSessions();document.getElementById("sheet").scrollIntoView({behavior:"smooth",block:"start"})}));
   renderSheet();
 }
 function gameOptions(selected){const cur=finOf(selected);const order=[...FINALITES].sort((a,b)=>(a.id===cur?-1:b.id===cur?1:0));
@@ -1019,28 +1028,31 @@ function renderSheet(){
   const msg=waMessage(real,true);const enc=encodeURIComponent(msg);
   const waBtns=educs.length?educs.map((e,i)=>`<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${normPhone(e.phone)}?text=${enc}" data-edu="${i}">${waIcon()} ${esc(e.name)}${sent[e.name]?` ✓`:""}</a>`).join(""):`<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${enc}" data-edu="-1">${waIcon()} Envoyer sur WhatsApp</a>`;
   const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
-  const modChip=real.mod?`<span class="pill" title="${real.mod.ts?new Date(real.mod.ts).toLocaleString("fr-FR"):""}">✏️ Ajustée${real.mod.by?` par ${esc(real.mod.by)}`:""}</span>`:"";
+  const modChip=real.dup?`<span class="pill" title="Séance créée par duplication">⧉ Séance ajoutée${real.by?` par ${esc(real.by)}`:""}</span>`:real.mod?`<span class="pill" title="${real.mod.ts?new Date(real.mod.ts).toLocaleString("fr-FR"):""}">✏️ Ajustée${real.mod.by?` par ${esc(real.mod.by)}`:""}</span>`:"";
   const editor=editing?`<div class="editor">
       <div class="edhead"><h4>✏️ Modifier cette séance</h4><span class="note">Change un jeu (la liste propose d'abord ceux de même finalité), la durée d'un atelier, ou les textes. Total : <b id="edTotal" class="num">${total}</b> min pour ${SESSION_DUR} prévues.</span></div>
       <div class="edgrid">
         <div class="field"><label for="edTitle">Titre de la séance</label><input id="edTitle" type="text" value="${esc(draft.title)}"></div>
         <div class="field"><label for="edTheme">Thème (phrase d'accroche)</label><textarea id="edTheme" rows="2">${esc(draft.theme)}</textarea></div>
         <div class="field"><label for="edObjs">Objectifs du jour (un par ligne)</label><textarea id="edObjs" rows="3">${esc(draft.objs.join("\n"))}</textarea></div>
+        <div class="field" style="grid-column:1/-1"><label for="edNote">Consignes du référent aux éducateurs (facultatif — reprises sur la fiche et dans le message WhatsApp)</label><textarea id="edNote" rows="2" placeholder="Ex. : laisser de la créativité aux enfants, ne pas arrêter le jeu à chaque erreur, une consigne à la fois…">${esc(draft.note||"")}</textarea></div>
       </div>
       <div class="edblocks">${draft.blocks.map((b,i)=>{const g=GAMES[b.g];return `<div class="edrow"><span class="n num">${i+1}</span><select data-i="${i}" aria-label="Jeu ${i+1}">${gameOptions(b.g)}</select><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv"><button class="btn ghost small" data-up="${i}" title="Monter" ${i===0?"disabled":""}>↑</button><button class="btn ghost small" data-down="${i}" title="Descendre" ${i===draft.blocks.length-1?"disabled":""}>↓</button><button class="btn ghost small" data-del="${i}" title="Retirer">✕</button></span></div>`}).join("")}</div>
       <div class="prof-actions"><button class="btn ghost" id="edAdd">+ Ajouter un atelier</button><button class="btn ghost" id="edLib">📚 Voir la bibliothèque</button></div>
-      <div class="edsave"><div class="field" style="margin:0"><label for="edBy">Modifié par</label><input id="edBy" type="text" value="${esc(get("who",""))}" placeholder="Ton prénom"></div><button class="btn wa" id="edSave" style="background:var(--navy);color:#fff">💾 Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>${real.mod?`<button class="btn ghost" id="edReset">↺ Rétablir la séance d'origine</button>`:""}</div>
+      <div class="edsave"><div class="field" style="margin:0"><label for="edBy">Modifié par</label><input id="edBy" type="text" value="${esc(get("who",""))}" placeholder="Ton prénom"></div><button class="btn wa" id="edSave" style="background:var(--navy);color:#fff">💾 Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>${real.dup?`<button class="btn ghost" id="edDelete">🗑 Supprimer cette séance dupliquée</button>`:real.mod?`<button class="btn ghost" id="edReset">↺ Rétablir la séance d'origine</button>`:""}</div>
     </div>`:"";
   el.innerHTML=`<div class="sheet ${editing?"is-editing":""}">
     <div class="sheet-head">
       <div><div class="eyebrow">Séance ${sessionsOf(perOf(s).n).indexOf(real)+1} / ${sessionsOf(perOf(s).n).length} · Période ${perOf(s).n} « ${esc(perOf(s).name)} »${s.optional?" · facultative":""}</div>
-        <h2>${cap(fmtLong(s.date))}${plateau?" · Plateau":""}</h2>
+        <h2>${cap(fmtLong(s.date))}${plateau?" · "+(PLATEAU.label||"Plateau"):""}</h2>
         <h3 style="color:var(--yellow);margin-top:6px;font-size:24px">${esc(plateau?PLATEAU.title:s.title)}</h3>
         <p class="theme">${esc(plateau?PLATEAU.theme:s.theme)}</p></div>
-      <div class="meta"><span class="pill num">${total} min</span><span class="pill">${CAT.group||"8-14 enfants"}</span>${modChip}${s.sat&&!editing?`<button class="toggle" id="plateauToggle" aria-pressed="${plateau}">${plateau?"🏟️ Plateau ce samedi":"Entraînement · passer en plateau"}</button>`:""}${!plateau&&!editing?`<button class="toggle" id="editBtn">✏️ Modifier la séance</button>`:""}</div>
+      <div class="meta"><span class="pill num">${total} min</span><span class="pill">${CAT.group||"8-14 enfants"}</span>${modChip}${s.sat&&!editing?`<button class="toggle" id="plateauToggle" aria-pressed="${plateau}">${plateau?"🏟️ "+(PLATEAU.label||"Plateau")+" ce samedi":"Entraînement · passer en "+(PLATEAU.label||"plateau").toLowerCase()}</button>`:""}${!plateau&&!editing?`<button class="toggle" id="editBtn">✏️ Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button><button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}</div>
     </div>
+    ${!editing&&action?actionPanel(real):""}
     ${editor}
-    ${plateau?`<div class="objs"><div><h4>Infos pratiques du plateau</h4><div class="field"><label for="plLieu">Lieu</label><input id="plLieu" type="text" value="${esc(info.lieu)}" placeholder="Club d'accueil"></div><div class="field"><label for="plHeure">Heure de rendez-vous</label><input id="plHeure" type="text" value="${esc(info.heure)}" placeholder="9h45"></div></div>
+    ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}</div>`:""}
+    ${plateau?`<div class="objs"><div><h4>Infos pratiques ${PLATEAU.label?"du "+PLATEAU.label.toLowerCase():"du plateau"}</h4><div class="field"><label for="plLieu">Lieu</label><input id="plLieu" type="text" value="${esc(info.lieu)}" placeholder="Club d'accueil"></div><div class="field"><label for="plHeure">Heure de rendez-vous</label><input id="plHeure" type="text" value="${esc(info.heure)}" placeholder="9h45"></div></div>
       <div><h4>À veiller</h4><ul>${PLATEAU.veiller.map(o=>`<li>${esc(o)}</li>`).join("")}</ul><p class="note" style="margin-top:8px"><b>Et la séance prévue ?</b> Elle est sautée, pas décalée : le samedi ne fait que réinvestir les séances de la semaine, et le plateau contient lui-même « le jeu de la période ». Rien n'est perdu.</p></div></div>`
     :editing?"":`<div class="objs"><div><h4>Objectifs du jour</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div>
       <div><h4>Message éducatif (PEF)</h4><p>${esc(s.pef)}</p><h4 style="margin-top:12px">Consigne unique du match</h4><p>${esc(blocks.find(b=>b.kind==="match")?"Une seule phrase répétée : celle de l'atelier du jour (ex. « lève la tête », « petites touches », « regarde le but »).":"—")}</p></div></div>`}
@@ -1061,13 +1073,49 @@ function renderSheet(){
   document.getElementById("bilan").addEventListener("input",e=>set("bilan:"+s.id,e.target.value));
   el.querySelectorAll("a.btn.wa").forEach(a=>a.addEventListener("click",()=>{const i=+a.dataset.edu;const name=i>=0?educs[i].name:"WhatsApp";const st=get("sent:"+s.id,{});st[name]=new Date().toISOString();set("sent:"+s.id,st);setTimeout(renderSessions,600)}));
   const eb=document.getElementById("editBtn");if(eb)eb.addEventListener("click",()=>{editId=real.id;draft=snapshot(real);renderSheet();document.querySelector(".editor").scrollIntoView({behavior:"smooth",block:"start"})});
+  const db=document.getElementById("dupBtn");if(db)db.addEventListener("click",()=>{action=action==="dup"?null:"dup";renderSheet();const ap=document.querySelector(".actionbox");if(ap)ap.scrollIntoView({behavior:"smooth",block:"nearest"})});
+  const sb=document.getElementById("swapBtn");if(sb)sb.addEventListener("click",()=>{action=action==="move"?null:"move";renderSheet();const ap=document.querySelector(".actionbox");if(ap)ap.scrollIntoView({behavior:"smooth",block:"nearest"})});
+  if(action&&!editing)bindActionPanel(real);
   if(editing)bindEditor(real);
 }
+const signer=()=>{const w=(document.getElementById("acBy")||{}).value;const v=(w||get("who","")||"").trim();if(v)set("who",v);return v||"l'éducateur"};
+function actionPanel(real){
+  const who=get("who","");
+  if(action==="dup"){const def=(()=>{const d=new Date(real.date+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+7);return d.toISOString().slice(0,10)})();
+    return `<div class="actionbox"><b>⧉ Dupliquer cette séance</b><span class="note">Une copie identique est créée à la date choisie ; tu pourras ensuite la modifier ou la supprimer.</span>
+      <div class="acrow"><label>Date de la copie <input type="date" id="acDate" value="${def}"></label><label>Ton prénom <input type="text" id="acBy" value="${esc(who)}" placeholder="facultatif"></label><button class="btn wa" id="acDo" style="background:var(--navy);color:#fff">Créer la copie</button><button class="btn ghost" id="acCancel">Annuler</button></div></div>`}
+  if(action==="move"){const ord=SESSIONS.filter(x=>!isPlateau(x));const k=ord.indexOf(real);
+    const near=ord.filter(x=>x.id!==real.id&&Math.abs(D(x.date)-D(real.date))<45*864e5);const def=ord[k+1]||ord[k-1];
+    return `<div class="actionbox"><b>⇄ Déplacer cette séance</b><span class="note">Le contenu de cette séance prend la place de celle que tu choisis, et inversement (les dates ne bougent pas, le contenu voyage).</span>
+      <div class="acrow"><button class="btn ghost" id="acUp" ${k<=0?"disabled":""}>↑ Séance précédente</button><button class="btn ghost" id="acDown" ${k>=ord.length-1?"disabled":""}>↓ Séance suivante</button>
+      <label>ou avec la séance du <select id="acTarget">${near.map(x=>`<option value="${x.id}" ${def&&x.id===def.id?"selected":""}>${cap(fmtLong(x.date))} — ${esc(x.title)}</option>`).join("")}</select></label>
+      <label>Ton prénom <input type="text" id="acBy" value="${esc(who)}" placeholder="facultatif"></label><button class="btn wa" id="acDo" style="background:var(--navy);color:#fff">Échanger</button><button class="btn ghost" id="acCancel">Annuler</button></div></div>`}
+  return ""}
+function bindActionPanel(real){
+  const q=id=>document.getElementById(id);const cancel=q("acCancel");if(cancel)cancel.addEventListener("click",()=>{action=null;renderSheet()});
+  if(action==="dup"){q("acDo").addEventListener("click",()=>{const date=q("acDate").value;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){toast("Choisis une date");return}duplicateSession(real,date,signer())})}
+  if(action==="move"){const ord=SESSIONS.filter(x=>!isPlateau(x));const k=ord.indexOf(real);
+    const up=q("acUp"),dn=q("acDown");if(up&&!up.disabled)up.addEventListener("click",()=>swapSession(real,ord[k-1],signer()));if(dn&&!dn.disabled)dn.addEventListener("click",()=>swapSession(real,ord[k+1],signer()));
+    q("acDo").addEventListener("click",()=>{const t=SESSIONS.find(x=>x.id===q("acTarget").value);if(t){action=null;swapSession(real,t,signer())}})}}
+function swapSession(real,other,who){
+  /* Échange le contenu (titre, thème, objectifs, consignes, ateliers) de deux séances : la date reste, le contenu voyage. Deux modifications partagées. */
+  const a=snapshot(real),b=snapshot(other);
+  const mk=(src,tgt)=>{const d={title:src.title,theme:src.theme,objs:[...src.objs],note:src.note||"",blocks:src.blocks.map(x=>({g:x.g,dur:x.dur||undefined}))};if(tgt.dup){d.dup=true;d.date=tgt.date;d.base=tgt.base||""}return d};
+  const same=(d,id)=>{const o=ORIG[id];return !SESSIONS.find(x=>x.id===id).dup&&JSON.stringify({t:d.title,h:d.theme,o:d.objs,n:d.note,b:d.blocks})===JSON.stringify({t:o.title,h:o.theme,o:o.objs,n:o.note||"",b:o.blocks.map(x=>({g:x.g,dur:x.dur||undefined}))})};
+  const dA=mk(b,real),dB=mk(a,other);
+  Promise.all([saveOverride(real.id,same(dA,real.id)?null:dA,who),saveOverride(other.id,same(dB,other.id)?null:dB,who)]).then(()=>renderSessions());
+  currentId=other.id;curPer=perOf(other).n;renderSessions();toast(`Séance déplacée au ${fmtLong(other.date)}`)}
+/* keepPanel : les flèches ↑/↓ laissent le panneau ouvert pour enchaîner plusieurs déplacements ; « Échanger » le referme. */
+function duplicateSession(real,date,who){
+  const id="d"+Date.now().toString(36);const snap=snapshot(real);
+  const data={...snap,dup:true,date,base:real.id,title:real.title};
+  saveOverride(id,data,who).then(()=>{currentId=id;curPer=perForDate(date).n;renderSessions()});action=null;currentId=id;curPer=perForDate(date).n;renderSessions();toast("Copie créée au "+fmtLong(date)+" — tu peux la modifier")}
 function bindEditor(real){
   const q=id=>document.getElementById(id);
   q("edTitle").addEventListener("input",e=>draft.title=e.target.value);
   q("edTheme").addEventListener("input",e=>draft.theme=e.target.value);
   q("edObjs").addEventListener("input",e=>draft.objs=e.target.value.split(/\n/).map(x=>x.trim()).filter(Boolean));
+  q("edNote").addEventListener("input",e=>draft.note=e.target.value);
   q("edBy").addEventListener("change",e=>set("who",e.target.value.trim()));
   document.querySelectorAll(".edrow select").forEach(sel=>sel.addEventListener("change",()=>{const i=+sel.dataset.i;draft.blocks[i]={g:sel.value,dur:undefined};renderSheet()}));
   document.querySelectorAll(".edrow input[type=number]").forEach(inp=>inp.addEventListener("change",()=>{const i=+inp.dataset.i;const v=Math.max(1,Math.min(90,parseInt(inp.value)||GAMES[draft.blocks[i].g].dur));draft.blocks[i].dur=v;renderSheet()}));
@@ -1077,12 +1125,13 @@ function bindEditor(real){
   q("edAdd").addEventListener("click",()=>{const firstAtelier=Object.keys(GAMES).find(id=>GAMES[id].kind==="atelier")||Object.keys(GAMES)[0];const pos=Math.max(0,draft.blocks.length-1);draft.blocks.splice(pos,0,{g:firstAtelier});renderSheet()});
   q("edLib").addEventListener("click",()=>{set("libReturn",real.id);showTab("view-biblio")});
   q("edCancel").addEventListener("click",()=>{editId=null;draft=null;renderSheet()});
-  q("edSave").addEventListener("click",()=>{const by=q("edBy").value.trim();if(!by){toast("Indique ton prénom pour signer la modification");q("edBy").focus();return}set("who",by);
-    const data={title:draft.title.trim()||real.title,theme:draft.theme.trim(),objs:draft.objs.length?draft.objs:real.objs,blocks:draft.blocks.map(b=>({g:b.g,dur:b.dur||undefined}))};
+  q("edSave").addEventListener("click",()=>{const by=q("edBy").value.trim()||get("who","")||"l'éducateur";if(q("edBy").value.trim())set("who",by);
+    const data={title:draft.title.trim()||real.title,theme:draft.theme.trim(),objs:draft.objs.length?draft.objs:real.objs,note:(draft.note||"").trim(),blocks:draft.blocks.map(b=>({g:b.g,dur:b.dur||undefined}))};if(real.dup){data.dup=true;data.date=real.date;data.base=real.base||""}
     if(!validData(data)){toast("Séance incomplète");return}
-    const orig=ORIG[real.id];const same=JSON.stringify(data)===JSON.stringify({title:orig.title,theme:orig.theme,objs:orig.objs,blocks:orig.blocks.map(b=>({g:b.g,dur:b.dur||undefined}))});
+    const orig=ORIG[real.id];const same=!real.dup&&JSON.stringify(data)===JSON.stringify({title:orig.title,theme:orig.theme,objs:orig.objs,note:orig.note||"",blocks:orig.blocks.map(b=>({g:b.g,dur:b.dur||undefined}))});
     editId=null;draft=null;saveOverride(real.id,same?null:data,by).then(()=>renderSessions());renderSessions()});
-  const rs=q("edReset");if(rs)rs.addEventListener("click",()=>{if(!confirm("Rétablir la séance d'origine pour tout le club ?"))return;const by=q("edBy").value.trim()||get("who","");editId=null;draft=null;saveOverride(real.id,null,by).then(()=>renderSessions());renderSessions()});
+  const dl=q("edDelete");if(dl)dl.addEventListener("click",()=>{if(dl.dataset.armed!=="1"){dl.dataset.armed="1";dl.textContent="Confirmer la suppression ?";dl.style.color="#8A1F1F";return}const by=q("edBy").value.trim()||get("who","")||"l'éducateur";editId=null;draft=null;currentId=null;saveOverride(real.id,null,by).then(()=>renderSessions());renderSessions()});
+  const rs=q("edReset");if(rs)rs.addEventListener("click",()=>{if(rs.dataset.armed!=="1"){rs.dataset.armed="1";rs.textContent="Confirmer le rétablissement ?";return}const by=q("edBy").value.trim()||get("who","")||"l'éducateur";editId=null;draft=null;saveOverride(real.id,null,by).then(()=>renderSessions());renderSessions()});
 }
 function waIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c1.7.7 2.1.6 2.8.5a2.4 2.4 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c0-.1-.2-.2-.4-.3Z"/></svg>`}
 
@@ -1203,7 +1252,7 @@ function showTab(id){
 }
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.getAttribute("aria-controls"))));
 const QS=new URLSearchParams(location.search);
-const EDU_MODE=QS.has("seance")&&SESSIONS.some(x=>x.id===QS.get("seance"));
+let EDU_MODE=QS.has("seance")&&SESSIONS.some(x=>x.id===QS.get("seance"));
 applyOverrides();
 function renderAll(){renderGuide();if(EDU_MODE){document.documentElement.classList.add("edu");currentId=QS.get("seance");curPer=perOf(SESSIONS.find(x=>x.id===currentId)).n;showTab("view-seances")}else showTab(get("tab","view-guide"))}
 renderAll();
