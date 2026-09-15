@@ -114,6 +114,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .chip.mer{background:var(--surface-2);color:var(--muted)}
 .chip.plateau{background:var(--yellow);color:#3B2E00}
 .chip.sent{background:#DCF5E6;color:#1B5E36}
+.chip.mod{background:#E8EEFF;color:var(--navy);vertical-align:middle;margin-left:6px}
 .chip.opt{background:transparent;border:1px dashed var(--line);color:var(--muted)}
 :root[data-theme="dark"] .chip.sam{background:#4A3B00;color:#F2C200}
 :root[data-theme="dark"] .chip.sent{background:#153D28;color:#7ED9A3}
@@ -252,6 +253,13 @@ code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92
 .edrow .dur{display:inline-flex;align-items:center;gap:4px;font-size:14px;color:var(--muted)}
 .edrow .dur input{width:64px;border:1px solid var(--line);border-radius:8px;padding:7px 8px;font:inherit;background:var(--surface);color:var(--ink);text-align:right}
 .edrow .mv{display:inline-flex;gap:4px}
+.edrow .txt{grid-column:1/-1;justify-self:start}
+.edrow .txt[aria-expanded="true"]{background:var(--navy);color:#fff}
+.edtxt{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;padding:8px 0 2px;border-top:1px dashed var(--line)}
+.edtxt label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.edtxt input,.edtxt textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-weight:400;background:var(--surface);color:var(--ink);resize:vertical}
+.edtxt .note{margin:0;font-size:13px}
+
 .edsave{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .sheet.is-editing{outline:3px solid var(--yellow)}
 .libcard{border-top:1px solid var(--line)}
@@ -299,7 +307,7 @@ code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92
     <nav class="tabs" role="tablist" aria-label="Sections">
       <button class="tab" role="tab" id="tab-guide" aria-selected="true" aria-controls="view-guide">Guide de l'année</button>
       <button class="tab" role="tab" id="tab-seances" aria-selected="false" aria-controls="view-seances">Séances</button>
-      <button class="tab" role="tab" id="tab-biblio" aria-selected="false" aria-controls="view-biblio">Bibliothèque</button>
+      <button class="tab" role="tab" id="tab-biblio" aria-selected="false" aria-controls="view-biblio">Liste des ateliers</button>
       <button class="tab" role="tab" id="tab-profils" aria-selected="false" aria-controls="view-profils">Progression</button>
       <button class="tab" role="tab" id="tab-reglages" aria-selected="false" aria-controls="view-reglages">Éducateurs &amp; réglages</button>
     </nav>
@@ -315,9 +323,9 @@ code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div></div>
 <script>
-const CAT={code:"U12",file:"seances-u12.html",days:[2,4,6],group:"14-20 joueurs",dur:90};
+const CAT={code:"U12",file:"seances-u12.html",days:[1,2,4,6],satMatch:true,group:"14-20 joueurs",dur:90};
 const GUIDE={
-  intro:"Calendrier bâti sur le guide interactif FFF U12/U13 : 5 périodes, une compétence de jeu par période (conserver et progresser, s'opposer à la progression, jouer vite, déséquilibrer, finir), la technique en vitesse (conduite, dribble, passe et contrôle, jeu long, frappe, jeu de tête, jonglerie 50), un message éducatif du Programme Éducatif Fédéral par période, et les vacances de la zone A. Trois rendez-vous d'1h30 par semaine : le mardi est une séance technique (le geste de la semaine, la jonglerie ou les tests, une situation), le jeudi travaille le thème tactique de la semaine puis le match à 8, le samedi rejoue le thème puis joue — ou c'est le match de championnat, à activer sur la séance.",
+  intro:"Calendrier bâti sur le guide interactif FFF U12/U13 : 5 périodes, une compétence de jeu par période (conserver et progresser, s'opposer à la progression, jouer vite, déséquilibrer, finir), la technique en vitesse (conduite, dribble, passe et contrôle, jeu long, frappe, jeu de tête, jonglerie 50), un message éducatif du Programme Éducatif Fédéral par période, et les vacances de la zone A. Trois séances d'1h30 par semaine et le match le samedi : le lundi découvre le thème tactique de la semaine et travaille le jeu de position, le mardi est la séance technique (le geste de la semaine, la jonglerie ou les tests, une situation courte), le jeudi réinvestit le thème avec les gardiens puis joue le match à 8. Lundi et mardi, les gardiens sont au spécifique : ces séances se jouent sans gardien (petits buts, cibles, zones), et les gestes qui les réclament — frappe, jeu de tête, centre — sont placés le jeudi. Le samedi est affiché en match de championnat ; s'il n'y a pas de match, un clic sur « Entraînement » redonne la séance « on rejoue ».",
   groupNote:"Avec 14 à 20 joueurs et 2 éducateurs : deux groupes en rotation sur l'atelier technique et la situation, tout le monde ensemble pour l'éveil et le match à 8. Les gardiens font l'éveil et la technique avec le groupe, puis leur travail spécifique pendant la situation.",
   seanceNote:"À 11-12 ans (6e / 5e), le joueur est en pleine période d'or de l'apprentissage moteur, avant la poussée de croissance : on répète beaucoup, à haute intensité et à haute qualité, on exige les deux pieds, on installe les principes du jeu à 8 (largeur, profondeur, appuis-soutiens, cadrage-couverture, transitions). Une consigne à la fois, des situations avec des points, des rôles qui tournent, et du match à chaque séance.",
   profilNote:"Les quatre compétences du guide U12/U13 — tactique, technique, psychologique, athlétique — plus la jonglerie 50 (D, G, alternés, tête) et les tests physiques simples (30 m, navette, détente). 1 à 3 étoiles en fin de chaque période, jamais de classement ; le rallye technique de la dernière semaine sert de bilan.",
@@ -605,7 +613,9 @@ const PLATEAU = {
 /* ---------- Programme généré : semaines × jours de la catégorie ---------- */
 const HOLIDAYS=[["2026-10-17","2026-11-02"],["2026-12-19","2027-01-04"],["2027-02-13","2027-03-01"],["2027-04-10","2027-04-26"]];
 const FERIES=["2026-11-11","2027-03-29","2027-05-01","2027-05-06","2027-05-07","2027-05-08","2027-05-17"];
-/* Une unité par semaine : t = situation à thème (jeudi et samedi), tech = geste technique du mardi, mardi = 2e situation ou défi du mardi */
+/* Une unité par semaine : t = situation à thème (lundi, jeudi et samedi), tech = geste technique (mardi, ou jeudi s'il réclame un gardien), mardi = 2e situation ou défi du mardi.
+   Lundi et mardi sans gardien (spécifique gardiens) : GKF liste les gestes qui exigent un gardien, NOGK_TECH les remplaçants du mardi. */
+const GKF=new Set(["frappe12","tete12","centre12"]);const NOGK_TECH=["cond12","passe12","dribble12","jeulong12"];
 const UNITS = {
   1:[{t:"largeur12",tech:"cond12",mardi:"tests12",title:"Occuper la largeur et la profondeur",theme:"Conserver et progresser · ouvrir le jeu quand on a le ballon : les ailiers touchent la ligne, la pointe donne la profondeur.",eveil:"reveil12",match:"match8"},
      {t:"soutien12",tech:"passe12",mardi:"jongle12",title:"Appui et soutien",theme:"Conserver et progresser · toujours une solution devant et une derrière le porteur.",eveil:"toro12",match:"reduit12"},
@@ -658,16 +668,20 @@ const SESSIONS=[];
         if(last){
           if(sat){SESSIONS.push({id:id(),per:per.n,date:s,sat:true,optional:per.n<5,title:per.n===5?"La fête de fin de saison":`La fête de la période ${per.n}`,theme:per.n===5?"Dernière séance : tournoi avec les parents, carnets et records de l'année, goûter.":"Dernier samedi avant les vacances : tournoi festif et goûter avec les familles — ou match de championnat, à activer.",objs:["Jouer, célébrer, remercier","Un titre pour chaque équipe","Ranger ensemble"],pef:per.pef,blocks:[{g:"accueil",dur:10},{g:"passe10_12",dur:10},{g:"jongle12",dur:10},{g:per.n===5?"fetefin12":"fete12",dur:55},{g:"calme",dur:5}]})}
           else if(day===4){SESSIONS.push({id:id(),per:per.n,date:s,title:"Le rallye technique",theme:`Bilan de la période ${per.n} : 5 stations, 5 compétences du profil, records personnels.`,objs:["Réinvestir technique, jonglerie, athlétique et jeu sur 5 stations","Établir le profil de chaque joueur (onglet Progression)","Finir la période par un match"],pef:per.pef,blocks:[{g:"accueil"},{g:"reveil12",dur:12},{g:"bilan12",dur:35},{g:"match8",dur:33},{g:"calme",dur:5}]})}
-          else {SESSIONS.push({id:id(),per:per.n,date:s,title:"Préparer le rallye technique",theme:"Dernière séance technique de la période : on répète les gestes du bilan et on note les records.",objs:["Conduite des deux pieds en slalom","Records de jonglerie 50","Vitesse et détente"],pef:per.pef,blocks:[{g:"accueil"},{g:"reveil12",dur:12},{g:"cond12",dur:20},{g:"jongle12",dur:10},{g:"vitesse12",dur:15},{g:"reduit12",dur:25},{g:"calme"}]})}
+          else if(day===2){SESSIONS.push({id:id(),per:per.n,date:s,nogk:true,title:"Préparer le rallye technique",theme:"Dernière séance technique de la période : on répète les gestes du bilan et on note les records.",objs:["Conduite des deux pieds en slalom","Records de jonglerie 50","Vitesse et détente"],pef:per.pef,blocks:[{g:"accueil"},{g:"reveil12",dur:12},{g:"cond12",dur:20},{g:"jongle12",dur:10},{g:"vitesse12",dur:15},{g:"reduit12",dur:25},{g:"calme"}]})}
+          else {SESSIONS.push({id:id(),per:per.n,date:s,nogk:true,title:`Bilan du jeu : ${u.title.toLowerCase()}`,theme:"Dernier lundi de la période : la situation de la semaine puis un grand jeu de position pour observer ce que chacun a retenu.",objs:[`Situation : ${GAMES[u.t].name}`,"Observer les compétences de jeu de la période (onglet Progression)","Sans gardien : petits buts et zones d'arrivée"],pef:per.pef,blocks:[{g:"accueil"},{g:u.eveil,dur:12},{g:u.t,dur:28},{g:"position12",dur:40},{g:"calme",dur:5}]})}
           return;
         }
         const T=GAMES[u.t],K=GAMES[u.tech],M=GAMES[u.mardi];
-        if(day===2){ // mardi : séance technique + défi + situation courte
-          SESSIONS.push({id:id(),per:per.n,date:s,title:`${K.name}`,theme:`Séance technique · ${K.src.replace(/^(Technique|Athlétique) · /,"")}.`,objs:[`Technique : ${K.name}`,`Défi : ${M.name}`,"Beaucoup de répétitions, les deux pieds, en vitesse"],pef:per.pef,blocks:[{g:"accueil"},{g:u.eveil,dur:12},{g:u.tech,dur:22},{g:u.mardi,dur:12},{g:u.t,dur:16},{g:"reduit12",dur:20},{g:"calme"}]});
-        }else if(day===4){ // jeudi : thème tactique + match à 8
-          SESSIONS.push({id:id(),per:per.n,date:s,title:u.title,theme:u.theme,objs:[`Situation : ${T.name}`,`Technique : ${K.name}`,`Match : ${GAMES[u.match].name}`],pef:per.pef,blocks:[{g:"accueil"},{g:u.eveil,dur:10},{g:u.tech,dur:15},{g:u.t,dur:24},{g:u.match,dur:33},{g:"calme"}]});
+        const techMardi=GKF.has(u.tech)?NOGK_TECH[wi%NOGK_TECH.length]:u.tech;const KM=GAMES[techMardi];
+        if(day===1){ // lundi : découvrir le thème tactique + jeu de position (sans gardien)
+          SESSIONS.push({id:id(),per:per.n,date:s,nogk:true,title:`Découvrir : ${u.title.toLowerCase()}`,theme:u.theme.replace(/\.$/,"")+" — lundi : on pose le thème dans la situation, puis on le vit dans le jeu de position.",objs:[`Situation : ${T.name}`,"Comprendre le thème de la semaine : une consigne, des arrêts sur image","Sans gardien : petits buts, cibles et zones d'arrivée"],pef:per.pef,blocks:[{g:"accueil"},{g:u.eveil,dur:12},{g:u.t,dur:30},{g:"position12",dur:38},{g:"calme",dur:5}]});
+        }else if(day===2){ // mardi : séance technique + défi + situation courte (sans gardien)
+          SESSIONS.push({id:id(),per:per.n,date:s,nogk:true,title:`${KM.name}`,theme:`Séance technique · ${KM.src.replace(/^(Technique|Athlétique) · /,"")}.`,objs:[`Technique : ${KM.name}`,`Défi : ${M.name}`,"Beaucoup de répétitions, les deux pieds, en vitesse"],pef:per.pef,blocks:[{g:"accueil"},{g:u.eveil,dur:12},{g:techMardi,dur:22},{g:u.mardi,dur:12},{g:u.t,dur:16},{g:"reduit12",dur:20},{g:"calme"}]});
+        }else if(day===4){ // jeudi : thème tactique + geste avec gardien + match à 8
+          SESSIONS.push({id:id(),per:per.n,date:s,title:u.title,theme:u.theme,objs:[`Situation : ${T.name}`,`Technique${GKF.has(u.tech)?" avec les gardiens":""} : ${K.name}`,`Match : ${GAMES[u.match].name}`],pef:per.pef,blocks:[{g:"accueil"},{g:u.eveil,dur:10},{g:u.tech,dur:GKF.has(u.tech)?18:15},{g:u.t,dur:GKF.has(u.tech)?21:24},{g:u.match,dur:33},{g:"calme"}]});
         }else{ // samedi : on rejoue le thème puis on joue — ou match de championnat (à activer)
-          SESSIONS.push({id:id(),per:per.n,date:s,sat:true,title:`${u.title} · on rejoue`,theme:u.theme.replace(/\.$/,"")+" — samedi : la situation avec sa variante, puis le match à 8. Jour de championnat : active « Match ».",objs:[`Situation : ${T.name} (variante)`,"Réinvestir le thème de la semaine dans le match","Capitaines qui parlent, consigne unique"],pef:per.pef,blocks:[{g:"accueil"},{g:u.eveil,dur:10},{g:u.t,dur:22},{g:"match8",dur:48},{g:"calme",dur:5}]});
+          SESSIONS.push({id:id(),per:per.n,date:s,sat:true,title:`${u.title} · on rejoue`,theme:u.theme.replace(/\.$/,"")+" — samedi sans match : la situation avec sa variante, puis le match à 8.",objs:[`Situation : ${T.name} (variante)`,"Réinvestir le thème de la semaine dans le match","Capitaines qui parlent, consigne unique"],pef:per.pef,blocks:[{g:"accueil"},{g:u.eveil,dur:10},{g:u.t,dur:22},{g:"match8",dur:48},{g:"calme",dur:5}]});
         }
       });
     });
@@ -907,10 +921,10 @@ function perOf(s){return PERIODS[(s.per||1)-1]}
 function sessionsOf(per){return SESSIONS.filter(x=>(x.per||1)===per)}
 function currentPer(){const p=PERIODS.find(p=>today<=D(p.to));return p?p.n:5}
 let curPer=null;
-function expandBlocks(s){let t=0;return s.blocks.filter(b=>GAMES[b.g]).map(b=>{const g=GAMES[b.g];const dur=b.dur||g.dur;const start=t;t+=dur;return {...g,id:b.g,dur,start}})}
+function expandBlocks(s){let t=0;return s.blocks.filter(b=>GAMES[b.g]).map(b=>{const g=GAMES[b.g];const dur=b.dur||g.dur;const start=t;t+=dur;const o={...g,id:b.g,dur,start,edited:false};TXT.forEach(k=>{if(b[k]&&b[k]!==g[k]){o[k]=b[k];o.edited=true}});return o})}
 function firstSentence(t){const i=t.indexOf(". ");return i>0&&i<160?t.slice(0,i+1):t}
 function collectMat(blocks){const seen=new Set();const out=[];blocks.forEach(b=>(b.mat||[]).forEach(m=>{const k=m.toLowerCase().replace(/[\d+]/g,"").replace(/\s+/g," ").trim();if(!seen.has(k)){seen.add(k);out.push(m)}}));return out}
-function isPlateau(s){return !!s.sat&&!!get("plateau:"+s.id,false)}
+function isPlateau(s){return !!s.sat&&!!get("plateau:"+s.id,!!CAT.satMatch)}
 function educators(){return get("educs",[])}
 function normPhone(p){let d=(p||"").replace(/[^\d+]/g,"");if(d.startsWith("+"))d=d.slice(1);if(d.startsWith("0"))d="33"+d.slice(1);return d}
 const DEFAULT_URL="https://benjaminducousso-ui.github.io/AcademiePauFC/"+CAT.file;
@@ -920,7 +934,10 @@ const SESSION_DUR=CAT.dur||60;
 
 /* ---------- Séances modifiées (partagées via le classeur du club) ---------- */
 let OVR=get("ovr",{});const ORIG={};
-function snapshot(s){return {title:s.title,theme:s.theme,objs:[...s.objs],note:s.note||"",blocks:s.blocks.map(b=>({g:b.g,dur:b.dur}))}}
+/* blk : forme normalisée d'un atelier dans une séance — jeu, durée, et textes adaptés par l'éducateur (name/desc/var) qui ne touchent pas à la liste des ateliers */
+const TXT=["name","desc","var"];
+function blk(b){const o={g:b.g,dur:b.dur||undefined};TXT.forEach(k=>{const v=(b[k]||"").trim();const g=GAMES[b.g]||{};if(v&&v!==(g[k]||""))o[k]=v});return o}
+function snapshot(s){return {title:s.title,theme:s.theme,objs:[...s.objs],note:s.note||"",blocks:s.blocks.map(blk)}}
 function validData(d){return d&&typeof d.title==="string"&&Array.isArray(d.objs)&&Array.isArray(d.blocks)&&d.blocks.length>0&&d.blocks.every(b=>GAMES[b.g])&&(!d.dup||/^\d{4}-\d{2}-\d{2}$/.test(d.date||""))}
 function perForDate(d){const p=PERIODS.find(p=>d>=p.from&&d<=p.to)||PERIODS.find(p=>d<p.from)||PERIODS[PERIODS.length-1];return p}
 function applyOverrides(){
@@ -929,7 +946,7 @@ function applyOverrides(){
     if(d&&d.dup&&validData(d)&&i<0){const per=perForDate(d.date);const day=new Date(d.date+"T00:00:00Z").getUTCDay();SESSIONS.push({id,per:per.n,date:d.date,sat:day===6,dup:true,base:d.base||"",pef:per.pef||"",title:d.title,theme:d.theme||"",objs:[...d.objs],blocks:[]});SESSIONS.sort((a,b)=>a.date.localeCompare(b.date))}
     if(i>=0&&SESSIONS[i].dup&&!d){SESSIONS.splice(i,1);if(currentId===id)currentId=null}});
   SESSIONS.forEach(s=>{if(!ORIG[s.id])ORIG[s.id]=snapshot(s);const o=OVR[s.id];const use=o&&validData(o.data);const src=use?o.data:ORIG[s.id];
-  s.title=src.title;s.theme=src.theme||"";s.objs=[...src.objs];s.note=src.note||"";s.blocks=src.blocks.map(b=>({g:b.g,dur:b.dur||undefined}));s.mod=use&&!s.dup?{by:o.by||"",ts:o.ts||0}:null;if(s.dup&&o)s.by=o.by||""})}
+  s.title=src.title;s.theme=src.theme||"";s.objs=[...src.objs];s.note=src.note||"";s.blocks=src.blocks.map(b=>({...blk(b)}));s.mod=use&&!s.dup?{by:o.by||"",ts:o.ts||0}:null;if(s.dup&&o)s.by=o.by||""})}
 function rerender(){const id=document.querySelector(".view.active")?.id;if(id==="view-seances")renderSessions();else if(id==="view-guide")renderGuide()}
 async function loadOverrides(){try{const r=await fetch(`${API}?seances=${encodeURIComponent(CAT.code)}`,{cache:"no-store"});const arr=await r.json();if(!Array.isArray(arr))return;let ch=false;
   arr.forEach(x=>{if(!x||!x.id)return;const cur=OVR[x.id];if(!cur||(x.ts||0)>(cur.ts||0)){OVR[x.id]={data:x.data||null,by:x.by||"",ts:x.ts||0};ch=true}});
@@ -960,6 +977,7 @@ function waMessage(s,detail){
     lines.push(`◆ *${s.title}*`);lines.push(`_${s.theme}_`);
     if(rdv||st.lieu)lines.push(`${[rdv?`RDV ${rdv}`:"",st.lieu].filter(Boolean).join(" · ")}`);
     if(s.mod&&s.mod.by)lines.push(`Séance ajustée par ${s.mod.by}`);
+    if(s.nogk)lines.push(`◆ *Sans gardien* (spécifique gardiens) : petits buts, cibles ou zones d'arrivée`);
     if(s.note)lines.push(`✦ *Consignes du référent* : ${s.note}`);
     if(lk)lines.push(`➜ Fiche complète (schémas, consignes, matériel) : ${lk}`);
     lines.push("",`◆ *Déroulé (${blocks.reduce((a,b)=>a+b.dur,0)}')*`);
@@ -998,7 +1016,7 @@ function renderGuide(){
     <div><div class="eyebrow">Le fil de l'année ${CAT.code}</div>
     <h2 style="margin-top:4px">${GUIDE.title||"5 périodes, un cap : des enfants techniques qui adorent jouer"}</h2>
     <p class="lead">${GUIDE.intro}</p></div>
-    <div class="kpis"><div><b class="num">${SESSIONS.length}</b><span>séances écrites</span></div><div><b class="num">${nGames}</b><span>jeux dans la bibliothèque</span></div><div><b class="num">${FACETS.length}</b><span>facettes suivies</span></div><div><b class="num">${SESSION_DUR===90?"1 h 30":"1 h"}</b><span>par séance</span></div></div>
+    <div class="kpis"><div><b class="num">${SESSIONS.length}</b><span>séances écrites</span></div><div><b class="num">${nGames}</b><span>ateliers dans la liste</span></div><div><b class="num">${FACETS.length}</b><span>facettes suivies</span></div><div><b class="num">${SESSION_DUR===90?"1 h 30":"1 h"}</b><span>par séance</span></div></div>
   </section>
   <div class="periods">${per}</div>
   <p class="note" style="margin-top:8px">Vacances scolaires zone A (académie de Bordeaux) 2026-2027 : Toussaint 17 oct. → 2 nov. · Noël 19 déc. → 4 janv. · hiver 13 févr. → 1er mars · printemps 10 → 26 avr. · pont de l'Ascension 5 → 9 mai · été à partir du 3 juil. Aucune séance n'est programmée un jour férié ou pendant les vacances.</p>
@@ -1052,7 +1070,7 @@ function renderSheet(){
      <div>${b.schema?`<div class="schema">${renderSchema(b.schema)}</div>`:`<div class="schema" style="display:grid;place-items:center;min-height:120px;color:var(--muted);font-size:14px">${b.kind==="accueil"?"🤝 Cercle d'accueil":"🙌 Cercle de fin"}</div>`}</div>
      <div>
        <div class="when"><span class="t num">${plateau?b.t:b.dur+"'"}</span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${!plateau&&b.id?`<span class="chip mer">${esc(finName(finOf(b.id)))}</span>`:""}</div>
-       <h3>${esc(b.name)}</h3>${b.src?`<p class="src">${esc(b.src)}</p>`:""}
+       <h3>${esc(b.name)}${b.edited?` <span class="chip mod" title="Texte adapté par l'éducateur pour cette séance">✎ adapté</span>`:""}</h3>${b.src?`<p class="src">${esc(b.src)}</p>`:""}
        <p class="desc">${esc(b.desc||"")}</p>
      </div>
      ${b.org||b.var||b.veiller?`<div class="more">${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}</div>`:""}</article>`).join("");
@@ -1070,8 +1088,14 @@ function renderSheet(){
         <div class="field"><label for="edObjs">Objectifs du jour (un par ligne)</label><textarea id="edObjs" rows="3">${esc(draft.objs.join("\n"))}</textarea></div>
         <div class="field" style="grid-column:1/-1"><label for="edNote">Consignes du référent aux éducateurs (facultatif — reprises sur la fiche et dans le message WhatsApp)</label><textarea id="edNote" rows="2" placeholder="Ex. : laisser de la créativité aux enfants, ne pas arrêter le jeu à chaque erreur, une consigne à la fois…">${esc(draft.note||"")}</textarea></div>
       </div>
-      <div class="edblocks">${draft.blocks.map((b,i)=>{const g=GAMES[b.g];return `<div class="edrow"><span class="n num">${i+1}</span><select data-i="${i}" aria-label="Jeu ${i+1}">${gameOptions(b.g)}</select><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv"><button class="btn ghost small" data-up="${i}" title="Monter" ${i===0?"disabled":""}>↑</button><button class="btn ghost small" data-down="${i}" title="Descendre" ${i===draft.blocks.length-1?"disabled":""}>↓</button><button class="btn ghost small" data-del="${i}" title="Retirer">✕</button></span></div>`}).join("")}</div>
-      <div class="prof-actions"><button class="btn ghost" id="edAdd">+ Ajouter un atelier</button><button class="btn ghost" id="edLib">📚 Voir la bibliothèque</button></div>
+      <div class="edblocks">${draft.blocks.map((b,i)=>{const g=GAMES[b.g];return `<div class="edrow"><span class="n num">${i+1}</span><select data-i="${i}" aria-label="Jeu ${i+1}">${gameOptions(b.g)}</select><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv"><button class="btn ghost small" data-up="${i}" title="Monter" ${i===0?"disabled":""}>↑</button><button class="btn ghost small" data-down="${i}" title="Descendre" ${i===draft.blocks.length-1?"disabled":""}>↓</button><button class="btn ghost small" data-del="${i}" title="Retirer">✕</button></span>
+        <button class="btn ghost small txt" data-txt="${i}" aria-expanded="${!!b._open}" title="Adapter le texte de cet atelier pour cette séance">✎ Texte${TXT.some(k=>b[k]&&b[k]!==g[k])?" · adapté":""}</button>
+        ${b._open?`<div class="edtxt"><p class="note">Ces textes ne valent que pour cette séance (ils partent dans le message WhatsApp et sur la fiche) ; la liste des ateliers ne change pas.</p>
+          <label>Nom de l'atelier<input type="text" data-tk="name" data-i="${i}" value="${esc(b.name||g.name)}"></label>
+          <label>Déroulé et consignes<textarea data-tk="desc" data-i="${i}" rows="4">${esc(b.desc||g.desc||"")}</textarea></label>
+          <label>Variantes<textarea data-tk="var" data-i="${i}" rows="2">${esc(b.var||g.var||"")}</textarea></label>
+          <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}</div>`}).join("")}</div>
+      <div class="prof-actions"><button class="btn ghost" id="edAdd">+ Ajouter un atelier</button><button class="btn ghost" id="edLib">📚 Voir la liste des ateliers</button></div>
       <div class="edsave"><div class="field" style="margin:0"><label for="edBy">Modifié par</label><input id="edBy" type="text" value="${esc(get("who",""))}" placeholder="Ton prénom"></div><button class="btn wa" id="edSave" style="background:var(--navy);color:#fff">💾 Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>${real.dup?`<button class="btn ghost" id="edDelete">🗑 Supprimer cette séance dupliquée</button>`:real.mod?`<button class="btn ghost" id="edReset">↺ Rétablir la séance d'origine</button>`:""}</div>
     </div>`:"";
   el.innerHTML=`<div class="sheet ${editing?"is-editing":""}">
@@ -1084,6 +1108,7 @@ function renderSheet(){
     </div>
     ${!editing&&action?actionPanel(real):""}
     ${editor}
+    ${!editing&&s.nogk&&!plateau?`<div class="callout" style="margin:12px 20px 0"><b>🧤 Sans gardien</b> · les gardiens sont au spécifique : petits buts, cibles ou zones d'arrivée, personne dans les buts.</div>`:""}
     ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}</div>`:""}
     ${plateau?`<div class="objs"><div><h4>Infos pratiques ${PLATEAU.label?"du "+PLATEAU.label.toLowerCase():"du plateau"}</h4><div class="field"><label for="plLieu">Lieu</label><input id="plLieu" type="text" value="${esc(info.lieu)}" placeholder="Club d'accueil"></div><div class="field"><label for="plHeure">Heure de rendez-vous</label><input id="plHeure" type="text" value="${esc(info.heure)}" placeholder="9h45"></div></div>
       <div><h4>À veiller</h4><ul>${PLATEAU.veiller.map(o=>`<li>${esc(o)}</li>`).join("")}</ul><p class="note" style="margin-top:8px"><b>Et la séance prévue ?</b> Elle est sautée, pas décalée : le samedi ne fait que réinvestir les séances de la semaine, et le plateau contient lui-même « le jeu de la période ». Rien n'est perdu.</p></div></div>`
@@ -1133,8 +1158,8 @@ function bindActionPanel(real){
 function swapSession(real,other,who){
   /* Échange le contenu (titre, thème, objectifs, consignes, ateliers) de deux séances : la date reste, le contenu voyage. Deux modifications partagées. */
   const a=snapshot(real),b=snapshot(other);
-  const mk=(src,tgt)=>{const d={title:src.title,theme:src.theme,objs:[...src.objs],note:src.note||"",blocks:src.blocks.map(x=>({g:x.g,dur:x.dur||undefined}))};if(tgt.dup){d.dup=true;d.date=tgt.date;d.base=tgt.base||""}return d};
-  const same=(d,id)=>{const o=ORIG[id];return !SESSIONS.find(x=>x.id===id).dup&&JSON.stringify({t:d.title,h:d.theme,o:d.objs,n:d.note,b:d.blocks})===JSON.stringify({t:o.title,h:o.theme,o:o.objs,n:o.note||"",b:o.blocks.map(x=>({g:x.g,dur:x.dur||undefined}))})};
+  const mk=(src,tgt)=>{const d={title:src.title,theme:src.theme,objs:[...src.objs],note:src.note||"",blocks:src.blocks.map(blk)};if(tgt.dup){d.dup=true;d.date=tgt.date;d.base=tgt.base||""}return d};
+  const same=(d,id)=>{const o=ORIG[id];return !SESSIONS.find(x=>x.id===id).dup&&JSON.stringify({t:d.title,h:d.theme,o:d.objs,n:d.note,b:d.blocks})===JSON.stringify({t:o.title,h:o.theme,o:o.objs,n:o.note||"",b:o.blocks.map(blk)})};
   const dA=mk(b,real),dB=mk(a,other);
   Promise.all([saveOverride(real.id,same(dA,real.id)?null:dA,who),saveOverride(other.id,same(dB,other.id)?null:dB,who)]).then(()=>renderSessions());
   currentId=other.id;curPer=perOf(other).n;renderSessions();toast(`Séance déplacée au ${fmtLong(other.date)}`)}
@@ -1155,13 +1180,16 @@ function bindEditor(real){
   document.querySelectorAll("[data-up]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.up;[draft.blocks[i-1],draft.blocks[i]]=[draft.blocks[i],draft.blocks[i-1]];renderSheet()}));
   document.querySelectorAll("[data-down]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.down;[draft.blocks[i+1],draft.blocks[i]]=[draft.blocks[i],draft.blocks[i+1]];renderSheet()}));
   document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{if(draft.blocks.length<=1){toast("Il faut garder au moins un atelier");return}draft.blocks.splice(+b.dataset.del,1);renderSheet()}));
+  document.querySelectorAll("[data-txt]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txt;draft.blocks[i]._open=!draft.blocks[i]._open;renderSheet()}));
+  document.querySelectorAll(".edtxt [data-tk]").forEach(el=>el.addEventListener("input",()=>{const i=+el.dataset.i,k=el.dataset.tk;const g=GAMES[draft.blocks[i].g];const v=el.value;draft.blocks[i][k]=v.trim()&&v.trim()!==(g[k]||"")?v:undefined}));
+  document.querySelectorAll("[data-txtreset]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txtreset;TXT.forEach(k=>delete draft.blocks[i][k]);renderSheet()}));
   q("edAdd").addEventListener("click",()=>{const firstAtelier=Object.keys(GAMES).find(id=>GAMES[id].kind==="atelier")||Object.keys(GAMES)[0];const pos=Math.max(0,draft.blocks.length-1);draft.blocks.splice(pos,0,{g:firstAtelier});renderSheet()});
   q("edLib").addEventListener("click",()=>{set("libReturn",real.id);showTab("view-biblio")});
   q("edCancel").addEventListener("click",()=>{editId=null;draft=null;renderSheet()});
   q("edSave").addEventListener("click",()=>{const by=q("edBy").value.trim()||get("who","")||"l'éducateur";if(q("edBy").value.trim())set("who",by);
-    const data={title:draft.title.trim()||real.title,theme:draft.theme.trim(),objs:draft.objs.length?draft.objs:real.objs,note:(draft.note||"").trim(),blocks:draft.blocks.map(b=>({g:b.g,dur:b.dur||undefined}))};if(real.dup){data.dup=true;data.date=real.date;data.base=real.base||""}
+    const data={title:draft.title.trim()||real.title,theme:draft.theme.trim(),objs:draft.objs.length?draft.objs:real.objs,note:(draft.note||"").trim(),blocks:draft.blocks.map(blk)};if(real.dup){data.dup=true;data.date=real.date;data.base=real.base||""}
     if(!validData(data)){toast("Séance incomplète");return}
-    const orig=ORIG[real.id];const same=!real.dup&&JSON.stringify(data)===JSON.stringify({title:orig.title,theme:orig.theme,objs:orig.objs,note:orig.note||"",blocks:orig.blocks.map(b=>({g:b.g,dur:b.dur||undefined}))});
+    const orig=ORIG[real.id];const same=!real.dup&&JSON.stringify(data)===JSON.stringify({title:orig.title,theme:orig.theme,objs:orig.objs,note:orig.note||"",blocks:orig.blocks.map(blk)});
     editId=null;draft=null;saveOverride(real.id,same?null:data,by).then(()=>renderSessions());renderSessions()});
   const dl=q("edDelete");if(dl)dl.addEventListener("click",()=>{if(dl.dataset.armed!=="1"){dl.dataset.armed="1";dl.textContent="Confirmer la suppression ?";dl.style.color="#8A1F1F";return}const by=q("edBy").value.trim()||get("who","")||"l'éducateur";editId=null;draft=null;currentId=null;saveOverride(real.id,null,by).then(()=>renderSessions());renderSessions()});
   const rs=q("edReset");if(rs)rs.addEventListener("click",()=>{if(rs.dataset.armed!=="1"){rs.dataset.armed="1";rs.textContent="Confirmer le rétablissement ?";return}const by=q("edBy").value.trim()||get("who","")||"l'éducateur";editId=null;draft=null;saveOverride(real.id,null,by).then(()=>renderSessions());renderSessions()});
@@ -1189,7 +1217,7 @@ function renderBiblio(){
        ${g.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(g.veiller)}</div>`:""}
        <p class="note" style="margin-top:8px">${g.mat?`Matériel : ${g.mat.map(esc).join(", ")} · `:""}Utilisé dans ${SESSIONS.filter(s=>s.blocks.some(b=>b.g===id)).length} séance(s) de l'année.</p>
      </div></article>`}).join("");
-  v.innerHTML=`<div class="eyebrow">Bibliothèque ${CAT.code}</div><h2 style="margin-top:4px">Tous les jeux et ateliers, par finalité</h2>
+  v.innerHTML=`<div class="eyebrow">Liste des ateliers ${CAT.code}</div><h2 style="margin-top:4px">Tous les jeux et ateliers, par finalité</h2>
    <p class="note" style="margin-top:8px">Chaque jeu est classé selon ce qu'il fait progresser. Pour remplacer un jeu dans une séance : ouvre la séance, <b>✏️ Modifier</b>, puis choisis dans la liste — les jeux de même finalité sont proposés en premier.${ret?` <button class="btn ghost small" id="libBack">← Revenir à la séance en cours de modification</button>`:""}</p>
    <div class="perbar" style="margin-top:12px">${chips}</div>
    <div class="field" style="max-width:420px"><input id="libQ" type="search" value="${esc(libQ)}" placeholder="Rechercher un jeu (nom, consigne, thème FFF…)" aria-label="Rechercher"></div>
@@ -1261,7 +1289,7 @@ function renderReglages(){
       <div class="prof-actions"><button class="btn ghost" id="saveSet">Enregistrer</button></div>
     </div>
     <div class="card"><h3>Comment les éducateurs voient la fiche</h3>
-      <p>Le message WhatsApp contient le déroulé en texte et un lien du type <code>…/${CAT.file}?seance=…</code>. En l'ouvrant, l'éducateur tombe directement sur la fiche du jour avec les schémas ; il peut ouvrir la bibliothèque et modifier la séance (jeu, durée, textes) : la modification est enregistrée dans le classeur du club et visible par tous. Cette page est publiée sur le site du club (dépôt AcademiePauFC).</p>
+      <p>Le message WhatsApp contient le déroulé en texte et un lien du type <code>…/${CAT.file}?seance=…</code>. En l'ouvrant, l'éducateur tombe directement sur la fiche du jour avec les schémas ; il peut ouvrir la liste des ateliers et modifier la séance (jeu, durée, textes) : la modification est enregistrée dans le classeur du club et visible par tous. Cette page est publiée sur le site du club (dépôt AcademiePauFC).</p>
     </div>
     <div class="card"><h3>Sources des jeux</h3><ul class="source-list">${SOURCES.map(s=>`<li>${s.u?`<a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>`:esc(s.t)}</li>`).join("")}</ul>
       <div class="prof-actions"><button class="btn ghost small" id="resetAll">Effacer les données de cet appareil</button></div>
