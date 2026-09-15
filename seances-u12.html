@@ -114,6 +114,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .chip.mer{background:var(--surface-2);color:var(--muted)}
 .chip.plateau{background:var(--yellow);color:#3B2E00}
 .chip.sent{background:#DCF5E6;color:#1B5E36}
+.matchobjs{grid-template-columns:1fr!important}
+.matchcard{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface-2)}.matchcard.home{border-left:5px solid var(--yellow)}.matchcard.away{border-left:5px solid var(--navy-2)}.matchcard.none{border-style:dashed}
+.matchcard .vs{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-family:var(--display);font-size:24px;text-transform:uppercase;line-height:1.05}.matchcard .vs span{color:var(--muted)}
+.matchcard .mrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.matchcard .note{margin-top:6px}
+.teambox{margin-top:8px}.tbhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.tbgrid{display:grid;grid-template-columns:minmax(200px,280px) 1fr;gap:16px;align-items:start}@media (max-width:700px){.tbgrid{grid-template-columns:1fr}}
+.pitch{width:100%;height:auto;display:block;border-radius:8px}
+ul.xi{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:3px 12px}ul.xi li{font-size:15px}ul.xi .pos{display:inline-block;min-width:28px;font-family:var(--display);font-weight:800;color:var(--navy-2)}
+.convgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 10px;margin:6px 0 8px}.conv{display:flex;gap:6px;align-items:center;font-size:15px;font-weight:400}.conv input{width:18px;height:18px}
+.xigrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media (max-width:520px){.xigrid{grid-template-columns:1fr}}.xigrid .field span{font-size:12px;font-weight:700;color:var(--muted)}
+.medit .field textarea,.medit .field input,.medit .field select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--surface);color:var(--ink)}
 .chip.mod{background:#E8EEFF;color:var(--navy);vertical-align:middle;margin-left:6px}
 .chip.opt{background:transparent;border:1px dashed var(--line);color:var(--muted)}
 :root[data-theme="dark"] .chip.sam{background:#4A3B00;color:#F2C200}
@@ -598,7 +609,7 @@ const GAMES = {
 };
 
 const PLATEAU = {
-  title:"Match de championnat à 8", label:"Match", theme:"Journée de championnat du district : match à 8, 2 × 30 min, hors-jeu aux 13 m, relance protégée. Échauffement mené par le capitaine, tout le monde joue au moins une mi-temps, une consigne d'équipe liée au thème de la semaine.",
+  title:"MATCH", label:"Match", theme:"Journée de championnat du district : match à 8, 2 × 30 min, hors-jeu aux 13 m, relance protégée. Échauffement mené par le capitaine, tout le monde joue au moins une mi-temps, une consigne d'équipe liée au thème de la semaine.",
   blocks:[
     {t:"20'", kind:"accueil", name:"Accueil, vestiaire et échauffement", desc:"Feuille de match, licences, chasubles, gourdes, pharmacie. Échauffement mené par le capitaine : activation athlétique, passes à 3, frappes avec le gardien, mobilisations. Rappel de la consigne d'équipe et des 3 règles : on joue, on encourage, on respecte."},
     {t:"30'", kind:"match", name:"1re mi-temps", game:"championnat12"},
@@ -838,6 +849,76 @@ async function showCarnets(list,opts){
 }
 </script>
 <script>
+/* ===== Jour de match (catégories avec CAT.satMatch) =====
+   Le samedi s'affiche « MATCH » : adversaire, domicile/extérieur, heure et stade lus dans le calendrier du club
+   (data.json du site AcademiePauFC, mis à jour par la synchro FFF), l'équipe convoquée et la composition choisies
+   par le coach et partagées avec le club (Apps Script, mêmes clés que les séances : __team, __pl:<id>, m:<id>).
+   Match annulé ou reporté : un clic sur « Entraînement » remplace le match par la séance « on rejoue ». */
+const MATCH_ON=!!CAT.satMatch;
+let CAL=null,CAL_ERR=false;
+function calUrl(){try{return new URL("data.json",settings().url||DEFAULT_URL).href}catch(e){return "https://benjaminducousso-ui.github.io/AcademiePauFC/data.json"}}
+async function loadCal(){if(!MATCH_ON)return;const cached=get("caldata",null);if(cached&&cached.ts&&Date.now()-cached.ts<6*3600e3&&cached.data){CAL=cached.data}
+  try{const r=await fetch(calUrl(),{cache:"no-store"});const j=await r.json();if(j&&Array.isArray(j.rows)){CAL=j;set("caldata",{ts:Date.now(),data:{teams:j.teams,cols:j.cols,rows:j.rows.filter(rw=>/U1[0-9]/.test(rw[1])),fetchedAt:j.fetchedAt}});rerender()}}
+  catch(e){CAL_ERR=!CAL;rerender()}}
+function calTeams(){if(!CAL)return [];const age=parseInt(CAT.code.replace(/\D/g,""))||0;return (CAL.teams||[]).filter(t=>{const nums=(t.lcLib||"").match(/\d+/g)||[];return nums.some(n=>+n===age||+n===age+1)})}
+const teamSel=()=>{const o=OVR["__team"];return (o&&o.data&&o.data.team)||get("team","")};
+function matchFor(s){if(!CAL||!teamSel())return null;const cols=CAL.cols;const ci=k=>cols.indexOf(k);const rows=CAL.rows.filter(r=>r[ci("team")]===teamSel()&&String(r[ci("date")]||"").slice(0,10)===s.date);if(!rows.length)return null;const r=rows[0];
+  const g=k=>r[ci(k)];const hm=String(g("date")||"").match(/T(\d{2}):(\d{2})/);const heure=g("heureOk")&&hm?`${+hm[1]}h${hm[2]}`:"";
+  return {home:!!g("home"),dom:g("dom")||"",ext:g("ext")||"",heure,stade:g("stade")||"",ville:g("ville")||"",cp:g("cp")||"",poule:g("poule")||"",j:g("j")||"",statut:g("statut")||"",joue:!!g("joue"),bd:g("bd"),be:g("be"),adv:g("home")?g("ext"):g("dom")}}
+const matchData=s=>{const o=OVR["m:"+s.id];const d=(o&&o.data)||{};return {conv:d.conv||[],rdv:d.rdv||"",form:d.form||"1-3-3-1",xi:d.xi||{},note:d.note||""}};
+const FORMS={"1-3-3-1":[["G",50,88],["DG",22,68],["DC",50,72],["DD",78,68],["MG",22,44],["MC",50,48],["MD",78,44],["AT",50,20]],
+  "1-2-3-2":[["G",50,88],["DG",32,70],["DD",68,70],["MG",20,46],["MC",50,50],["MD",80,46],["AG",34,22],["AD",66,22]],
+  "1-3-2-2":[["G",50,88],["DG",22,68],["DC",50,72],["DD",78,68],["MG",34,46],["MD",66,46],["AG",34,22],["AD",66,22]]};
+const POS_LABEL={G:"Gardien",DG:"Défenseur gauche",DC:"Défenseur central",DD:"Défenseur droit",MG:"Milieu gauche",MC:"Milieu axial",MD:"Milieu droit",AT:"Attaquant",AG:"Attaquant gauche",AD:"Attaquant droit"};
+function kidNames(){return get("kids",[]).map(k=>(k.name||"").trim()).filter(Boolean)}
+function pitchSvg(md){const pts=FORMS[md.form]||FORMS["1-3-3-1"];
+  return `<svg viewBox="0 0 100 100" class="pitch" role="img" aria-label="Composition ${esc(md.form)}"><rect x="2" y="2" width="96" height="96" rx="3" fill="#2E8B57"/><rect x="6" y="6" width="88" height="88" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width=".8"/><path d="M6 50H94" stroke="#fff" stroke-opacity=".8" stroke-width=".8"/><circle cx="50" cy="50" r="9" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width=".8"/><rect x="30" y="78" width="40" height="16" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width=".8"/><rect x="30" y="6" width="40" height="16" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width=".8"/>
+    ${pts.map(([p,x,y])=>{const n=md.xi[p]||"";return `<g><circle cx="${x}" cy="${y}" r="5.2" fill="${p==="G"?"#F2C200":"#0B2A4A"}" stroke="#fff" stroke-width=".8"/><text x="${x}" y="${y+1.2}" text-anchor="middle" font-size="3.2" font-weight="700" fill="${p==="G"?"#3B2E00":"#fff"}">${esc(p)}</text><text x="${x}" y="${y+9.5}" text-anchor="middle" font-size="3.6" font-weight="700" fill="#fff" stroke="#0B2A4A" stroke-width=".5" paint-order="stroke">${esc(n.split(" ")[0]).slice(0,12)}</text></g>`}).join("")}</svg>`}
+let mEdit=false;
+function matchPanel(s){const m=matchFor(s);const md=(mEdit&&mDraft)?mDraft:matchData(s);const teams=calTeams();const team=teamSel();const tm=teams.find(t=>t.id===team);
+  const teamSelect=`<label class="field" style="margin:0"><span>Équipe dans le calendrier du club</span><select id="mTeam">${!team?`<option value="">— choisir l'équipe —</option>`:""}${teams.map(t=>`<option value="${t.id}" ${t.id===team?"selected":""}>${esc(t.libelle)}</option>`).join("")}</select></label>`;
+  const calState=!CAL?(CAL_ERR?`<p class="note">Calendrier du club inaccessible pour l'instant (hors ligne ?) — les infos du match s'afficheront dès qu'il sera joignable.</p>`:`<p class="note">Lecture du calendrier du club…</p>`):"";
+  const card=m?`<div class="matchcard ${m.home?"home":"away"}"><div class="vs"><b>${esc(m.dom)}</b><span>–</span><b>${esc(m.ext)}</b></div>
+      <div class="mrow"><span class="chip ${m.home?"sam":"mer"}">${m.home?"À domicile":"À l'extérieur"}</span>${m.heure?`<span class="chip mer">Coup d'envoi ${m.heure}</span>`:`<span class="chip mer">Heure à confirmer</span>`}${m.j?`<span class="chip mer">${esc(m.cp)}${m.poule?" · "+esc(m.poule):""} · J${esc(m.j)}</span>`:""}${m.joue&&m.bd!=null?`<span class="chip plateau">Score ${m.bd} – ${m.be}</span>`:m.statut&&m.statut!=="à venir"?`<span class="chip plateau">${esc(m.statut)}</span>`:""}</div>
+      ${m.stade?`<p class="note">${esc(m.stade)}${m.ville?" · "+esc(m.ville):""}</p>`:""}</div>`
+    :(CAL&&team?`<div class="matchcard none"><b>Pas de match trouvé pour ${esc(tm?tm.libelle:"cette équipe")} ce samedi dans le calendrier du club.</b><p class="note">Journée libre, match reporté ou calendrier pas encore publié. Si c'est bien un samedi sans match, clique sur « Remplacer par une séance » dans le bandeau : la séance « on rejoue » remplace le match pour tous les éducateurs.</p></div>`:"");
+  const conv=md.conv;const starters=Object.values(md.xi).filter(Boolean);const subs=conv.filter(n=>!starters.includes(n));
+  const view=`<div class="teambox"><div class="tbhead"><h4>Équipe convoquée${conv.length?` · ${conv.length}`:""}</h4>${!mEdit?`<button class="btn ghost small" id="mEditBtn">${conv.length?"✏️ Modifier l'équipe":"+ Composer l'équipe"}</button>`:""}</div>
+    ${!mEdit?(conv.length?`<div class="tbgrid"><div>${pitchSvg(md)}</div><div>${md.rdv?`<p><b>Rendez-vous</b> · ${esc(md.rdv)}</p>`:""}<p class="note" style="margin-top:6px"><b>Titulaires (${esc(md.form)})</b></p><ul class="xi">${(FORMS[md.form]||[]).map(([p])=>`<li><span class="pos">${esc(p)}</span>${esc(md.xi[p]||"—")}</li>`).join("")}</ul>${subs.length?`<p class="note" style="margin-top:8px"><b>Remplaçants</b> · ${subs.map(esc).join(", ")}</p>`:""}${md.note?`<p class="note" style="margin-top:8px"><b>Consignes</b> · ${esc(md.note)}</p>`:""}</div></div>`:`<p class="note">Choisis les joueurs convoqués (la liste vient de l'onglet Progression), la formation et la composition : tout est partagé avec les autres éducateurs et repris dans le message WhatsApp.</p>`):matchEditor(s,md)}</div>`;
+  return `<div class="objs matchobjs"><div>${teamSelect}${calState}${card}</div>${view}</div>`}
+function matchEditor(s,md){const names=[...new Set([...kidNames(),...md.conv])];const pts=FORMS[md.form]||FORMS["1-3-3-1"];const opts=(sel)=>`<option value="">—</option>`+md.conv.map(n=>`<option value="${esc(n)}" ${n===sel?"selected":""}>${esc(n)}</option>`).join("");
+  return `<div class="medit">
+    <div class="field"><label>Joueurs convoqués</label><div class="convgrid">${names.map((n,i)=>`<label class="conv"><input type="checkbox" data-conv="${esc(n)}" ${md.conv.includes(n)?"checked":""}> ${esc(n)}</label>`).join("")||`<span class="note">Aucun joueur dans l'onglet Progression : ajoute des noms ci-dessous.</span>`}</div>
+      <input type="text" id="mExtra" placeholder="Autres joueurs (séparés par des virgules)"></div>
+    <div class="edgrid" style="margin-top:10px"><div class="field"><label for="mRdv">Rendez-vous</label><input id="mRdv" type="text" value="${esc(md.rdv)}" placeholder="ex. 11h45 au stade, tenue bleue"></div>
+      <div class="field"><label for="mForm">Formation</label><select id="mForm">${Object.keys(FORMS).map(f=>`<option ${f===md.form?"selected":""}>${f}</option>`).join("")}</select></div>
+      <div class="field"><label for="mBy">Ton prénom</label><input id="mBy" type="text" value="${esc(get("who",""))}" placeholder="facultatif"></div></div>
+    <div class="tbgrid" style="margin-top:10px"><div>${pitchSvg(md)}</div><div class="xigrid">${pts.map(([p])=>`<label class="field" style="margin:0"><span>${esc(p)} · ${POS_LABEL[p]||p}</span><select data-xi="${p}">${opts(md.xi[p]||"")}</select></label>`).join("")}</div></div>
+    <div class="field" style="margin-top:10px"><label for="mNote">Consignes d'équipe (facultatif)</label><textarea id="mNote" rows="2">${esc(md.note)}</textarea></div>
+    <div class="prof-actions"><button class="btn wa" id="mSave" style="background:var(--navy);color:#fff">Enregistrer et partager</button><button class="btn ghost" id="mCancel">Annuler</button>${md.conv.length?`<button class="btn ghost" id="mClear">Effacer l'équipe</button>`:""}</div></div>`}
+let mDraft=null;
+function bindMatchPanel(s){const q=id=>document.getElementById(id);
+  const ts=q("mTeam");if(ts)ts.addEventListener("change",()=>{const v=ts.value;set("team",v);saveOverride("__team",v?{team:v}:null,signer()).then(()=>renderSessions());renderSessions()});
+  const eb=q("mEditBtn");if(eb)eb.addEventListener("click",()=>{mEdit=true;mDraft=matchData(s);renderSheet()});
+  if(!mEdit)return;const md=mDraft||(mDraft=matchData(s));
+  const rerenderKeep=()=>{renderSheet()};
+  document.querySelectorAll("[data-conv]").forEach(cb=>cb.addEventListener("change",()=>{const n=cb.dataset.conv;if(cb.checked){if(!md.conv.includes(n))md.conv.push(n)}else{md.conv=md.conv.filter(x=>x!==n);Object.keys(md.xi).forEach(p=>{if(md.xi[p]===n)delete md.xi[p]})}rerenderKeep()}));
+  const ex=q("mExtra");if(ex)ex.addEventListener("change",()=>{ex.value.split(",").map(x=>x.trim()).filter(Boolean).forEach(n=>{if(!md.conv.includes(n))md.conv.push(n)});rerenderKeep()});
+  q("mRdv").addEventListener("input",e=>md.rdv=e.target.value);q("mNote").addEventListener("input",e=>md.note=e.target.value);
+  q("mForm").addEventListener("change",e=>{md.form=e.target.value;const keep=FORMS[md.form].map(x=>x[0]);Object.keys(md.xi).forEach(p=>{if(!keep.includes(p))delete md.xi[p]});rerenderKeep()});
+  document.querySelectorAll("[data-xi]").forEach(sel=>sel.addEventListener("change",()=>{const p=sel.dataset.xi;const n=sel.value;Object.keys(md.xi).forEach(k=>{if(md.xi[k]===n&&k!==p)delete md.xi[k]});if(n)md.xi[p]=n;else delete md.xi[p];rerenderKeep()}));
+  q("mCancel").addEventListener("click",()=>{mEdit=false;mDraft=null;renderSheet()});
+  q("mSave").addEventListener("click",()=>{const by=(q("mBy").value||"").trim();if(by)set("who",by);const data={conv:md.conv,rdv:md.rdv.trim(),form:md.form,xi:md.xi,note:md.note.trim()};mEdit=false;mDraft=null;saveOverride("m:"+s.id,data.conv.length?data:null,by||"l'éducateur").then(()=>renderSheet());renderSheet()});
+  const cl=q("mClear");if(cl)cl.addEventListener("click",()=>{mEdit=false;mDraft=null;saveOverride("m:"+s.id,null,signer()).then(()=>renderSheet());renderSheet()})}
+function matchWaLines(s){const m=matchFor(s);const md=matchData(s);const L=[];
+  if(m){L.push(`◆ *${m.dom} – ${m.ext}* · ${m.home?"à domicile":"à l'extérieur"}${m.heure?` · coup d'envoi ${m.heure}`:""}`);if(m.stade)L.push(`● ${m.stade}${m.ville?", "+m.ville:""}`);if(m.cp)L.push(`_${m.cp}${m.poule?" · "+m.poule:""}${m.j?" · J"+m.j:""}_`)}
+  else L.push(`◆ *MATCH*${teamSel()?" · adversaire à confirmer (calendrier du club)":""}`);
+  if(md.rdv)L.push(`➜ Rendez-vous : ${md.rdv}`);
+  if(md.conv.length){L.push("",`★ *Convoqués (${md.conv.length})* : ${md.conv.join(", ")}`);const st=Object.values(md.xi).filter(Boolean);if(st.length){L.push(`◆ *Composition ${md.form}*`);(FORMS[md.form]||[]).forEach(([p])=>{if(md.xi[p])L.push(`- ${p} ${md.xi[p]}`)});const subs=md.conv.filter(n=>!st.includes(n));if(subs.length)L.push(`- Remplaçants : ${subs.join(", ")}`)}
+    if(md.note)L.push(`✦ *Consignes* : ${md.note}`)}
+  return L}
+</script>
+<script>
 /* =========================================================
    APPLICATION
    ========================================================= */
@@ -924,7 +1005,7 @@ let curPer=null;
 function expandBlocks(s){let t=0;return s.blocks.filter(b=>GAMES[b.g]).map(b=>{const g=GAMES[b.g];const dur=b.dur||g.dur;const start=t;t+=dur;const o={...g,id:b.g,dur,start,edited:false};TXT.forEach(k=>{if(b[k]&&b[k]!==g[k]){o[k]=b[k];o.edited=true}});return o})}
 function firstSentence(t){const i=t.indexOf(". ");return i>0&&i<160?t.slice(0,i+1):t}
 function collectMat(blocks){const seen=new Set();const out=[];blocks.forEach(b=>(b.mat||[]).forEach(m=>{const k=m.toLowerCase().replace(/[\d+]/g,"").replace(/\s+/g," ").trim();if(!seen.has(k)){seen.add(k);out.push(m)}}));return out}
-function isPlateau(s){return !!s.sat&&!!get("plateau:"+s.id,!!CAT.satMatch)}
+function isPlateau(s){if(!s.sat)return false;const o=OVR["__pl:"+s.id];if(o&&o.data&&typeof o.data.on==="boolean")return o.data.on;return !!get("plateau:"+s.id,!!CAT.satMatch)}
 function educators(){return get("educs",[])}
 function normPhone(p){let d=(p||"").replace(/[^\d+]/g,"");if(d.startsWith("+"))d=d.slice(1);if(d.startsWith("0"))d="33"+d.slice(1);return d}
 const DEFAULT_URL="https://benjaminducousso-ui.github.io/AcademiePauFC/"+CAT.file;
@@ -966,9 +1047,10 @@ function waMessage(s,detail){
   lines.push(`★ *PAU FC ${CAT.code} · ${dateTxt}*`);
   if(plateau){
     const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
-    lines.push(`*PLATEAU DISTRICT*${info.lieu?` · ${info.lieu}`:""}${info.heure?` · RDV ${info.heure}`:""}`);
+    if(MATCH_ON){lines[0]=`★ *MATCH ${CAT.code} · ${dateTxt}*`;matchWaLines(s).forEach(l=>lines.push(l));if(lk)lines.push(`➜ Fiche du match (équipe, déroulé) : ${lk}`)}
+    else{lines.push(`*PLATEAU DISTRICT*${info.lieu?` · ${info.lieu}`:""}${info.heure?` · RDV ${info.heure}`:""}`);
     lines.push(`_${PLATEAU.theme}_`);
-    if(lk)lines.push(`➜ Fiche complète : ${lk}`);
+    if(lk)lines.push(`➜ Fiche complète : ${lk}`)}
     lines.push("","◆ *Déroulé*");
     PLATEAU.blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.t} ${b.name}`));
     lines.push("","✦ *À veiller*");PLATEAU.veiller.forEach(v=>lines.push(`- ${v}`));lines.push("",`● *À prévoir* : ${PLATEAU.mat.join(", ")}`);
@@ -1047,7 +1129,7 @@ function renderSessions(){
   const list=sessionsOf(curPer).map(s=>{const d=D(s.date);const sent=Object.keys(get("sent:"+s.id,{})).length>0;const pl=isPlateau(s);
     return `<button class="sess-item" data-id="${s.id}" aria-current="${s.id===currentId}">
       <span class="d"><b class="num">${d.getDate()}</b><span>${MOIS_C[d.getMonth()]}</span></span>
-      <span><span class="ttl">${esc(s.title)}</span><br><span class="sub">${[s.optional?"facultatif":"",s.mod?"✏️ modifiée":"",Object.keys(get("sent:"+s.id,{})).length?"":""].filter(Boolean).join(" · ")||"&nbsp;"}</span></span>
+      <span><span class="ttl">${esc(pl?PLATEAU.title:s.title)}</span><br><span class="sub">${[s.optional?"facultatif":"",s.mod?"✏️ modifiée":"",Object.keys(get("sent:"+s.id,{})).length?"":""].filter(Boolean).join(" · ")||"&nbsp;"}</span></span>
       <span style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">${pl?'<span class="chip plateau">'+(PLATEAU.label||'Plateau')+'</span>':`<span class="chip ${s.sat?'sam':'mer'}">${cap(JOURS[d.getDay()])}</span>`}${sent?'<span class="chip sent">Envoyée</span>':''}</span>
     </button>`}).join("");
   v.innerHTML=`<div class="perbar" role="group" aria-label="Périodes">${chips}</div><div class="sess-layout"><aside class="sess-list" aria-label="Liste des séances">${list}</aside><div id="sheet"></div></div>`;
@@ -1101,16 +1183,16 @@ function renderSheet(){
   el.innerHTML=`<div class="sheet ${editing?"is-editing":""}">
     <div class="sheet-head">
       <div><div class="eyebrow">Séance ${sessionsOf(perOf(s).n).indexOf(real)+1} / ${sessionsOf(perOf(s).n).length} · Période ${perOf(s).n} « ${esc(perOf(s).name)} »${s.optional?" · facultative":""}</div>
-        <h2>${cap(fmtLong(s.date))}${plateau?" · "+(PLATEAU.label||"Plateau"):""}</h2>
+        <h2>${cap(fmtLong(s.date))}${plateau&&!MATCH_ON?" · "+(PLATEAU.label||"Plateau"):""}</h2>
         <h3 style="color:var(--yellow);margin-top:6px;font-size:24px">${esc(plateau?PLATEAU.title:s.title)}</h3>
-        <p class="theme">${esc(plateau?PLATEAU.theme:s.theme)}</p></div>
-      <div class="meta"><span class="pill num">${total} min</span><span class="pill">${CAT.group||"8-14 enfants"}</span>${modChip}${s.sat&&!editing?`<button class="toggle" id="plateauToggle" aria-pressed="${plateau}">${plateau?"🏟️ "+(PLATEAU.label||"Plateau")+" ce samedi":"Entraînement · passer en "+(PLATEAU.label||"plateau").toLowerCase()}</button>`:""}${!plateau&&!editing?`<button class="toggle" id="editBtn">✏️ Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button><button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}</div>
+        <p class="theme">${esc(plateau?(MATCH_ON&&matchFor(s)?(m=>`${m.dom} – ${m.ext} · ${m.home?"à domicile":"à l'extérieur"}${m.heure?" · coup d'envoi "+m.heure:""}${m.stade?" · "+m.stade:""}`)(matchFor(s)):PLATEAU.theme):s.theme)}</p></div>
+      <div class="meta"><span class="pill num">${total} min</span><span class="pill">${CAT.group||"8-14 enfants"}</span>${modChip}${s.sat&&!editing?`<button class="toggle" id="plateauToggle" aria-pressed="${plateau}">${plateau?"🏟️ "+(PLATEAU.label||"Plateau")+" ce samedi":MATCH_ON?"Entraînement · pas de match":"Entraînement · passer en "+(PLATEAU.label||"plateau").toLowerCase()}</button>${plateau&&MATCH_ON?`<button class="toggle" id="plateauToggle2" title="Match annulé ou reporté : la séance « on rejoue » remplace le match">↺ Remplacer par une séance</button>`:""}`:""}${!plateau&&!editing?`<button class="toggle" id="editBtn">✏️ Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button><button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}</div>
     </div>
     ${!editing&&action?actionPanel(real):""}
     ${editor}
     ${!editing&&s.nogk&&!plateau?`<div class="callout" style="margin:12px 20px 0"><b>🧤 Sans gardien</b> · les gardiens sont au spécifique : petits buts, cibles ou zones d'arrivée, personne dans les buts.</div>`:""}
     ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}</div>`:""}
-    ${plateau?`<div class="objs"><div><h4>Infos pratiques ${PLATEAU.label?"du "+PLATEAU.label.toLowerCase():"du plateau"}</h4><div class="field"><label for="plLieu">Lieu</label><input id="plLieu" type="text" value="${esc(info.lieu)}" placeholder="Club d'accueil"></div><div class="field"><label for="plHeure">Heure de rendez-vous</label><input id="plHeure" type="text" value="${esc(info.heure)}" placeholder="9h45"></div></div>
+    ${plateau&&MATCH_ON?matchPanel(s)+`<div class="objs"><div><h4>À veiller</h4><ul>${PLATEAU.veiller.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div><div><h4>Match annulé ou reporté ?</h4><p class="note">Clique sur « Remplacer par une séance » dans le bandeau : la séance « on rejoue » du thème de la semaine prend la place du match, pour tous les éducateurs. Un clic sur « Match ce samedi » le rétablit.</p></div></div>`:plateau?`<div class="objs"><div><h4>Infos pratiques ${PLATEAU.label?"du "+PLATEAU.label.toLowerCase():"du plateau"}</h4><div class="field"><label for="plLieu">Lieu</label><input id="plLieu" type="text" value="${esc(info.lieu)}" placeholder="Club d'accueil"></div><div class="field"><label for="plHeure">Heure de rendez-vous</label><input id="plHeure" type="text" value="${esc(info.heure)}" placeholder="9h45"></div></div>
       <div><h4>À veiller</h4><ul>${PLATEAU.veiller.map(o=>`<li>${esc(o)}</li>`).join("")}</ul><p class="note" style="margin-top:8px"><b>Et la séance prévue ?</b> Elle est sautée, pas décalée : le samedi ne fait que réinvestir les séances de la semaine, et le plateau contient lui-même « le jeu de la période ». Rien n'est perdu.</p></div></div>`
     :editing?"":`<div class="objs"><div><h4>Objectifs du jour</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div>
       <div><h4>Message éducatif (PEF)</h4><p>${esc(s.pef)}</p><h4 style="margin-top:12px">Consigne unique du match</h4><p>${esc(blocks.find(b=>b.kind==="match")?"Une seule phrase répétée : celle de l'atelier du jour (ex. « lève la tête », « petites touches », « regarde le but »).":"—")}</p></div></div>`}
@@ -1126,7 +1208,7 @@ function renderSheet(){
     </div>
     <div class="bilan"><label for="bilan">Bilan après séance (pour ajuster la suivante)</label><textarea id="bilan" placeholder="Ce qui a marché, ce qu'il faut refaire, un enfant à encourager…">${esc(get("bilan:"+s.id,""))}</textarea></div>
   </div>`;
-  const tg=document.getElementById("plateauToggle");if(tg)tg.addEventListener("click",()=>{set("plateau:"+s.id,!plateau);renderSessions()});
+  const tgl=()=>{set("plateau:"+s.id,!plateau);if(MATCH_ON)saveOverride("__pl:"+s.id,{on:!plateau},signer()).then(()=>renderSessions());renderSessions()};const tg=document.getElementById("plateauToggle");if(tg)tg.addEventListener("click",tgl);const tg2=document.getElementById("plateauToggle2");if(tg2)tg2.addEventListener("click",tgl);if(plateau&&MATCH_ON)bindMatchPanel(s);
   ["plLieu","plHeure"].forEach(id=>{const i=document.getElementById(id);if(i)i.addEventListener("change",()=>{set("plateauInfo:"+s.id,{lieu:document.getElementById("plLieu").value,heure:document.getElementById("plHeure").value});renderSheet()})});
   document.getElementById("bilan").addEventListener("input",e=>set("bilan:"+s.id,e.target.value));
   el.querySelectorAll("a.btn.wa").forEach(a=>a.addEventListener("click",()=>{const i=+a.dataset.edu;const name=i>=0?educs[i].name:"WhatsApp";const st=get("sent:"+s.id,{});st[name]=new Date().toISOString();set("sent:"+s.id,st);setTimeout(renderSessions,600)}));
@@ -1317,7 +1399,7 @@ let EDU_MODE=QS.has("seance")&&SESSIONS.some(x=>x.id===QS.get("seance"));
 applyOverrides();
 function renderAll(){renderGuide();if(EDU_MODE){document.documentElement.classList.add("edu");currentId=QS.get("seance");curPer=perOf(SESSIONS.find(x=>x.id===currentId)).n;showTab("view-seances")}else showTab(get("tab","view-guide"))}
 renderAll();
-loadOverrides();
+loadOverrides();if(typeof loadCal==="function")loadCal();
 /* Aide au défilement pour les tableaux plus larges que l'écran : ombre sur le bord droit,
    barre de défilement toujours visible et une courte mention sous le tableau. */
 function addScrollArrows(){document.querySelectorAll('.tbl-wrap,.sess-list').forEach(el=>{

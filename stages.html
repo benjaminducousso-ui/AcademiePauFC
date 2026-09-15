@@ -92,6 +92,25 @@ input.txt{width:150px;border:1px solid transparent;border-radius:6px;padding:5px
 .block .veiller{margin-top:10px;background:var(--surface-2);border-radius:8px;padding:8px 10px;font-size:14px}.block .veiller b{color:var(--yellow-ink)}
 .block .more{grid-column:1/-1;margin-top:-6px}.block .more dl{margin-top:0}.block .schema{margin:0}
 .materiel{padding:14px 20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}.materiel .mat{background:var(--surface-2);border-radius:6px;padding:4px 10px;font-size:14px}
+.meta .toggle{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px;cursor:pointer}
+.meta .toggle[aria-pressed="true"]{background:var(--yellow);color:#3B2E00;border-color:var(--yellow)}
+.chip{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap}.chip.mod{background:#E8EEFF;color:var(--navy);vertical-align:middle;margin-left:4px}
+.actionbox{margin:12px 20px 0;padding:12px 14px;border:1px dashed var(--line);border-radius:10px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}.actionbox .note{font-size:13px}
+.acrow{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}.acrow label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}.acrow input,.acrow select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-weight:400;background:var(--surface);color:var(--ink)}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line)}.btn.ghost:hover{border-color:var(--navy-2)}.btn.small{padding:7px 10px;font-size:14px}
+.prof-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.editor{padding:16px 20px;border-bottom:1px solid var(--line);background:var(--surface-2)}.editor .edhead{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin-bottom:8px}
+.editor .edgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}@media (max-width:700px){.editor .edgrid{grid-template-columns:1fr}.editor .edgrid .field{grid-column:auto!important}}
+.editor .field textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--surface);color:var(--ink);resize:vertical}
+.edblocks{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.edrow{display:grid;grid-template-columns:28px minmax(180px,1fr) auto auto auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+@media (max-width:700px){.edrow{grid-template-columns:28px 1fr auto}.edrow .kind{display:none}.edrow .mv{grid-column:1/-1;justify-self:end}}
+.edrow .n{font-family:var(--display);font-size:18px;font-weight:800;color:var(--navy-2);text-align:center}
+.edrow select{min-width:0;width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:var(--surface);color:var(--ink)}
+.edrow .dur{display:inline-flex;align-items:center;gap:4px;font-size:14px;color:var(--muted)}.edrow .dur input{width:64px;border:1px solid var(--line);border-radius:8px;padding:7px 8px;font:inherit;background:var(--surface);color:var(--ink);text-align:right}
+.edrow .mv{display:inline-flex;gap:4px}.edrow .txt{grid-column:1/-1;justify-self:start}.edrow .txt[aria-expanded="true"]{background:var(--navy);color:#fff}
+.edtxt{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;padding:8px 0 2px;border-top:1px dashed var(--line)}.edtxt label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.edtxt input,.edtxt textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-weight:400;background:var(--surface);color:var(--ink);resize:vertical}.edtxt .note{margin:0;font-size:13px}
 .sendbar{background:var(--surface-2);padding:16px 20px;border-top:1px solid var(--line)}.sendbar h4{margin-bottom:10px}
 .wa{background:#25D366;color:#0B3D22;border-color:#25D366}
 .legend span{margin-right:10px;white-space:nowrap}.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
@@ -136,11 +155,12 @@ input.txt{width:150px;border:1px solid transparent;border-radius:6px;padding:5px
     <div><div class="eyebrow">Pau FC · Académie · Stages vacances 2026-2027</div><h1>Stages de perfectionnement</h1><p>Deux jours par groupe d'âge. Le programme heure par heure, chaque séance type détaillée avec ses jeux et ses schémas, et l'appréciation de chaque enfant : des étoiles et un mot.</p></div>
   </div>
   <div class="catbar" id="catbar" role="group" aria-label="Groupes"></div>
-  <nav class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true" aria-controls="view-stage">Programme</button><button class="tab" role="tab" aria-selected="false" aria-controls="view-seances">Séances techniques</button><button class="tab" role="tab" aria-selected="false" aria-controls="view-appr">Appréciation</button></nav>
+  <nav class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true" aria-controls="view-stage">Programme</button><button class="tab" role="tab" aria-selected="false" aria-controls="view-seances">Séances techniques</button><button class="tab" role="tab" aria-selected="false" aria-controls="view-lib">Liste des ateliers</button><button class="tab" role="tab" aria-selected="false" aria-controls="view-appr">Appréciation</button></nav>
 </div></header>
 <main class="wrap">
   <section class="view active" id="view-stage" role="tabpanel"></section>
   <section class="view" id="view-seances" role="tabpanel"></section>
+  <section class="view" id="view-lib" role="tabpanel"></section>
   <section class="view" id="view-appr" role="tabpanel"></section>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -570,9 +590,9 @@ async function loadRemote(){const c=catKey();try{const r=await fetch(`${API}?pro
   if(n){save();render()}}catch(e){}}
 /* --- rendu --- */
 function renderCats(){document.getElementById("catbar").innerHTML=GROUPS.map(g=>`<button class="cat" data-g="${g.id}" aria-pressed="${g.id===gid}">${g.name}<small>${g.dayNames.join(" & ")}</small></button>`).join("");
-  document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{gid=b.dataset.g;set("g",gid);curS=get("s:"+gid,null);render();loadRemote()}))}
+  document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{gid=b.dataset.g;set("g",gid);curS=get("s:"+gid,null);render();loadRemote();loadOverrides()}))}
 function vacbar(){const g=grp();return `<div class="perbar">${VACANCES.map(v=>{const d=v[g.days];return `<button class="perchip" data-v="${v.id}" aria-pressed="${v.id===vac}"><b>${esc(v.name)}</b><span>${g.dayNames[0]} ${fmt(d[0])}</span><small>${g.dayNames[1]} ${fmt(d[1])}</small></button>`}).join("")}</div>`}
-function bindVac(root){root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{vac=b.dataset.v;set("vac",vac);render();loadRemote()}))}
+function bindVac(root){root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{vac=b.dataset.v;set("vac",vac);render();loadRemote();loadOverrides()}))}
 const st=()=>STAGE[gid];
 const KIND_LABEL={accueil:"Accueil",eveil:"Éveil",atelier:"Atelier",defi:"Défi",match:"Match / jeu",calme:"Calme"};
 const KIND_COLOR={accueil:"#6B7A90",eveil:"#C77700",atelier:"#1E56C9",defi:"#8E44AD",match:"#2E8B57",calme:"#6B7A90"};
@@ -588,7 +608,7 @@ function planSlots(day){return st().plan[day].map(([t,x,d])=>{if(typeof x==="obj
 function sessionLink(s){return `${location.origin}${location.pathname}?g=${gid}&s=${s.id}`}
 function waMessage(s){const g=grp();const vd=VACANCES.find(x=>x.id===vac);const d=vd[g.days][s.day-1];const blocks=blocksOf(s);
   /* Symboles non-emoji uniquement (★ ◆ ✦ ● ➜) : les caractères à présentation emoji arrivent en « ? » sur WhatsApp Mac ; le lien vers la fiche est en haut, avant le repli « Lire la suite ». */
-  const lines=[`★ *Stage ${vd.name} · ${g.name}* — ${g.dayNames[s.day-1]} ${fmt(d)}`,`◆ *${s.title}* (${totalOf(s)} min)`,`_${s.theme}_`,`➜ Fiche complète (schémas, consignes, matériel) : ${sessionLink(s)}`,"",`◆ *Déroulé*`];
+  const lines=[`★ *Stage ${vd.name} · ${g.name}* — ${g.dayNames[s.day-1]} ${fmt(d)}`,`◆ *${s.title}* (${totalOf(s)} min)`,`_${s.theme}_`,`➜ Fiche complète (schémas, consignes, matériel) : ${sessionLink(s)}`,...(s.note?[`✦ *Consignes du référent* : ${s.note}`]:[]),"",`◆ *Déroulé*`];
   blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.dur}' *${b.name}*${b.desc&&b.kind!=="accueil"&&b.kind!=="calme"?` — ${(b.desc.split(/(?<=[.!?])\s/)[0]||"").trim()}`:""}`));
   lines.push("","★ *Objectifs*");s.objs.forEach(o=>lines.push(`- ${o}`));
   lines.push("","✦ *À veiller*",`- ${s.veiller}`);blocks.filter(b=>b.veiller).forEach(b=>lines.push(`- ${b.name} : ${b.veiller}`));
@@ -603,29 +623,6 @@ function renderStage(){const v=document.getElementById("view-stage");const g=grp
   <div class="days">${[0,1].map(di=>`<div class="day"><h3>${g.dayNames[di]} ${fmt(dates[di])}</h3>${planSlots(di).map(sl=>sl.s?`<div class="slot sess" data-s="${sl.s.id}" role="button" tabindex="0"><span class="t">${sl.t}</span><div><b>${sl.s.tournoi?`Tournoi · ${esc(sl.s.tournoi)}`:`Séance ${S.sessions.filter(x=>!x.tournoi).indexOf(sl.s)+1} · ${esc(sl.s.short||sl.s.title)}`}</b><span class="note">${sl.tot} min · ${sl.t} → ${sl.end}${sl.s.tournoi?" · voir le détail dans Séances techniques":""}</span></div></div>`:`<div class="slot"><span class="t">${sl.t}</span><div><b>${esc(sl.title)}</b>${esc(sl.desc||"")}</div></div>`).join("")}</div>`).join("")}</div></div>
   <div class="callout"><b>À la fin du stage</b> : chaque famille repart avec les étoiles et le mot de l'éducateur (onglet « Appréciation »). Pas de compte rendu écrit individuel : deux minutes de face à face valent mieux.</div>`;
   bindVac(v);v.querySelectorAll(".slot.sess").forEach(el=>{const go=()=>{curS=el.dataset.s;set("s:"+gid,curS);renderSeances();document.querySelector('.tab[aria-controls="view-seances"]').click();window.scrollTo({top:0,behavior:"smooth"})};el.addEventListener("click",go);el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}})})}
-function renderSeances(){const v=document.getElementById("view-seances");const g=grp();const S=st();const vd=VACANCES.find(x=>x.id===vac);
-  if(!curS||!sessionOf(curS))curS=S.sessions[0].id;const s=sessionOf(curS);const blocks=blocksOf(s);const total=blocks.reduce((a,b)=>a+b.dur,0);
-  const list=[1,2].map(d=>`<div class="dayh">${g.dayNames[d-1]} ${fmt(vd[g.days][d-1])}</div>`+S.sessions.filter(x=>x.day===d).map((x,i)=>{const sl=[...planSlots(0),...planSlots(1)].find(p=>p.s&&p.s.id===x.id);return `<button class="sess-item" data-s="${x.id}" aria-current="${x.id===curS}"><span class="d"><b>${sl?sl.t:""}</b><span>J${d}</span></span><span><span class="ttl">${esc(x.title)}</span><br><span class="sub">${totalOf(x)} min · ${blocksOf(x).filter(b=>b.kind!=="accueil"&&b.kind!=="calme").length} jeux</span></span></button>`}).join("")).join("");
-  const tl=blocks.map(b=>`<span style="width:${(b.dur/total*100).toFixed(1)}%;background:${KIND_COLOR[b.kind]}" title="${esc(b.name)}"></span>`).join("");
-  const tlLeg=[...new Set(blocks.map(b=>b.kind))].map(k=>`<span><i style="background:${KIND_COLOR[k]}"></i>${KIND_LABEL[k]}</span>`).join("");
-  let clock=(()=>{const sl=[...planSlots(0),...planSlots(1)].find(p=>p.s&&p.s.id===s.id);return sl?slotTime(sl.t):null})();
-  const blocksHtml=blocks.map(b=>{const at=clock!==null?fmtTime(clock):"";if(clock!==null)clock+=b.dur;return `<article class="block">
-     <div>${b.schema?`<div class="schema">${renderSchema(b.schema)}</div>`:`<div class="schema" style="display:grid;place-items:center;min-height:120px;color:var(--muted);font-size:14px">${b.kind==="accueil"?"🤝 Cercle d'accueil":"🙌 Cercle de fin"}</div>`}</div>
-     <div><div class="when"><span class="t">${b.dur}'</span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${at?`<span class="note" style="font-size:12px">· ${at}</span>`:""}${b.src?`<span class="note" style="font-size:12px">· ${esc(b.src)}</span>`:""}</div>
-       <h3>${esc(b.name)}</h3><p class="desc">${esc(b.desc||"")}</p></div>
-       ${b.org||b.var||b.veiller?`<div class="more">${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}</div>`:""}</article>`}).join("");
-  const mat=collectMat(blocks);const msg=waMessage(s);
-  const sl=[...planSlots(0),...planSlots(1)].find(p=>p.s&&p.s.id===s.id);
-  v.innerHTML=`<div class="eyebrow">${esc(g.name)} · séances techniques</div><h2 style="margin-top:4px">${S.sessions.length} séances types de ${S.dur} minutes (tournois : 1 h), prêtes à mener</h2><p class="note" style="margin-top:6px">Chaque séance : un éveil, deux ou trois jeux avec leurs schémas, un jeu ou un match pour finir. L'éducateur suit le déroulé, met en place, corrige. Une consigne à la fois.</p>
-  <div class="sess-layout"><div class="sess-list">${list}</div>
-  <div class="sheet"><div class="sheet-head"><div><div class="eyebrow">Jour ${s.day} · ${sl?`${sl.t} → ${sl.end}`:""} · Stage ${esc(vd.name)}</div><h2>${esc(s.title)}</h2><p class="theme">${esc(s.theme)}</p></div><div class="meta"><span class="pill">${total} min</span><span class="pill">${esc(g.name)}</span><span class="pill">${esc(g.ratio)}</span></div></div>
-   <div class="objs"><div><h4>Objectifs de la séance</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div><div><h4>Le regard de l'éducateur</h4><p>${esc(s.veiller)}</p></div><div><h4>Repères d'appréciation</h4><p class="note">${FACETS.map(f=>`<b>${esc(f.name)}</b> : ${esc(g.facets[f.id])}`).join(" · ")}</p></div></div>
-   <div class="timeline">${tl}</div><div class="tl-legend">${tlLeg}</div>
-   <div class="blocks"><div style="padding:6px 20px 0">${LEGEND}</div>${blocksHtml}</div>
-   <div class="materiel"><span class="eyebrow" style="margin-right:6px">Matériel</span>${mat.map(m=>`<span class="mat">${esc(m)}</span>`).join("")}</div>
-   <div class="sendbar"><h4>Envoyer la séance aux éducateurs</h4><div class="toolbar" style="margin-top:0"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Envoyer sur WhatsApp</a></div><p class="note" style="margin-top:8px">Le message contient le déroulé et le lien direct vers cette fiche (schémas, consignes, matériel).</p></div>
-  </div></div>`;
-  v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{curS=b.dataset.s;set("s:"+gid,curS);renderSeances();window.scrollTo({top:0,behavior:"smooth"})}));}
 function stars(v,attrs){return `<span class="stars" ${attrs}>${[1,2,3].map(n=>`<button class="${(v||0)>=n?'on':''}" data-n="${n}" aria-label="${n} étoile${n>1?'s':''}">★</button>`).join("")}</span>`}
 function renderAppr(){const v=document.getElementById("view-appr");const g=grp();const vd=VACANCES.find(x=>x.id===vac);const list=kids();
   const head=`<tr><th>Enfant</th>${FACETS.map(f=>`<th title="${esc(g.facets[f.id])}">${esc(f.name)}</th>`).join("")}<th>Le mot de l'éducateur</th><th></th></tr>`;
@@ -688,11 +685,163 @@ function renderCarnet(){document.querySelector("header.top").hidden=true;const m
     const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",compress:true});pdfFiche(doc,CARNET);
     const slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"");const vd=VACANCES.find(x=>x.id===CARNET.v)||VACANCES[0];
     try{doc.save(`carnet-stage-${slug(vd.name)}-${slug(CARNET.n)}.pdf`);toast("PDF téléchargé")}catch(e){}})}
-function render(){if(!vac||!VACANCES.some(v=>v.id===vac))vac=nextVac().id;renderCats();renderStage();renderSeances();renderAppr()}
+/* ===== Adaptations des séances du stage : modifier, dupliquer, déplacer, texte des ateliers =====
+   Même principe que les pages séances : l'éducateur adapte la séance du jour, la modification est partagée
+   avec le club (Apps Script, cat = STAGE-<vacances>-<groupe>) ; la liste des ateliers reste intacte. */
+store.ovr=store.ovr||{};
+const TXT=["name","desc","var"];
+const ORIG={};
+GROUPS.forEach(g=>STAGE[g.id].sessions.forEach(s=>{ORIG[g.id+"|"+s.id]=snapshotWith(s,STAGE[g.id].lib)}));
+function blkWith(b,lib){const g=lib[b.g]||{};const o={g:b.g,dur:b.dur||undefined};TXT.forEach(k=>{const v=(b[k]||"").trim();if(v&&v!==(g[k]||""))o[k]=v});return o}
+function blk(b){return blkWith(b,st().lib)}
+function snapshotWith(s,lib){return {title:s.title,short:s.short||"",theme:s.theme||"",objs:[...(s.objs||[])],veiller:s.veiller||"",note:s.note||"",blocks:(s.blocks||[]).map(b=>blkWith(b,lib))}}
+function snapshot(s){return snapshotWith(s,st().lib)}
+function validData(d){const lib=st().lib;return !!d&&typeof d.title==="string"&&Array.isArray(d.objs)&&Array.isArray(d.blocks)&&d.blocks.length>0&&d.blocks.every(b=>lib[b.g])&&(!d.dup||d.day===1||d.day===2)}
+const ovrs=()=>(store.ovr[catKey()]=store.ovr[catKey()]||{});
+function applyOverrides(){const S=st();const O=ovrs();
+  /* copies de réserve : propres à ce stage (vacances + groupe) */
+  for(let i=S.sessions.length-1;i>=0;i--){const s=S.sessions[i];if(s.dup&&(s.vac!==vac||!O[s.id]||!O[s.id].data)){S.sessions.splice(i,1);if(curS===s.id)curS=null}}
+  Object.entries(O).forEach(([id,o])=>{const d=o&&o.data;if(d&&d.dup&&validData(d)&&!S.sessions.some(x=>x.id===id))S.sessions.push({id,day:d.day,dup:true,vac,base:d.base||"",title:d.title,theme:"",objs:[],blocks:[]})});
+  S.sessions.forEach(s=>{const o=O[s.id];const use=o&&validData(o.data);const src=use?o.data:ORIG[gid+"|"+s.id];if(!src)return;
+    s.title=src.title;s.short=src.short||"";s.theme=src.theme||"";s.objs=[...src.objs];s.veiller=src.veiller||"";s.note=src.note||"";s.blocks=src.blocks.map(b=>({...blk(b)}));s.mod=use&&!s.dup?{by:o.by||"",ts:o.ts||0}:null;if(s.dup&&o)s.by=o.by||""});
+  S.sessions.sort((a,b)=>a.day-b.day||(a.dup?1:0)-(b.dup?1:0))}
+async function loadOverrides(){const c=catKey();try{const r=await fetch(`${API}?seances=${encodeURIComponent(c)}`,{cache:"no-store"});const arr=await r.json();if(!Array.isArray(arr))return;const O=store.ovr[c]=store.ovr[c]||{};let ch=false;
+  arr.forEach(x=>{if(!x||!x.id)return;const cur=O[x.id];if(!cur||(x.ts||0)>(cur.ts||0)){O[x.id]={data:x.data||null,by:x.by||"",ts:x.ts||0};ch=true}});
+  if(ch&&c===catKey()){save();applyOverrides();render()}}catch(e){}}
+async function saveOverride(id,data,by){const c=catKey();const ts=Date.now();ovrs()[id]={data,by,ts};save();applyOverrides();
+  try{const r=await fetch(API,{method:"POST",body:JSON.stringify({seances:1,cat:c,id,data,by,ts}),headers:{"Content-Type":"text/plain;charset=utf-8"}});const j=await r.json();if(!j.ok)throw new Error(j.error||"save");toast(data?"Séance enregistrée et partagée avec le club":"Séance d'origine rétablie pour tout le club")}
+  catch(e){toast("Enregistrée sur cet appareil ; le partage réessaiera plus tard")}}
+const signer=()=>{const el=document.getElementById("acBy")||document.getElementById("edBy");const v=((el&&el.value)||get("who","")||"").trim();if(v)set("who",v);return v||"l'éducateur"};
+
+/* ---------- état de l'éditeur ---------- */
+let editId=null,draft=null,action=null;
+const KIND_ORDER=["accueil","eveil","atelier","defi","match","calme"];
+function libOptions(sel){const lib=st().lib;const ids=Object.keys(lib).sort((a,b)=>KIND_ORDER.indexOf(lib[a].kind)-KIND_ORDER.indexOf(lib[b].kind)||lib[a].name.localeCompare(lib[b].name,"fr"));
+  return KIND_ORDER.filter(k=>ids.some(id=>lib[id].kind===k)).map(k=>`<optgroup label="${KIND_LABEL[k]}">${ids.filter(id=>lib[id].kind===k).map(id=>`<option value="${id}" ${id===sel?"selected":""}>${esc(lib[id].name)} (${lib[id].dur}')</option>`).join("")}</optgroup>`).join("")}
+function editorHtml(s){const lib=st().lib;
+  return `<div class="editor"><div class="edhead"><b>✏️ Modifier cette séance</b><span class="note">Visible par tous les éducateurs du stage dès l'enregistrement ; la liste des ateliers ne change pas.</span></div>
+    <div class="edgrid">
+      <div class="field"><label for="edTitle">Titre</label><input id="edTitle" type="text" value="${esc(draft.title)}"></div>
+      <div class="field"><label for="edShort">Thématique (affichée dans le programme)</label><input id="edShort" type="text" value="${esc(draft.short)}" placeholder="ex. Conduite de balle"></div>
+      <div class="field"><label for="edBy">Ton prénom</label><input id="edBy" type="text" value="${esc(get("who",""))}" placeholder="facultatif"></div>
+      <div class="field" style="grid-column:1/-1"><label for="edTheme">Thème</label><textarea id="edTheme" rows="2">${esc(draft.theme)}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label for="edObjs">Objectifs (un par ligne)</label><textarea id="edObjs" rows="3">${esc(draft.objs.join("\n"))}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label for="edVeiller">Le regard de l'éducateur</label><textarea id="edVeiller" rows="2">${esc(draft.veiller)}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label for="edNote">Consignes du référent aux éducateurs (facultatif — reprises sur la fiche et dans le message WhatsApp)</label><textarea id="edNote" rows="2" placeholder="ex. Insister sur le pied faible, groupe très hétérogène">${esc(draft.note)}</textarea></div>
+    </div>
+    <div class="edblocks">${draft.blocks.map((b,i)=>{const g=lib[b.g]||{name:b.g,kind:"atelier",dur:10};return `<div class="edrow"><span class="n num">${i+1}</span><select data-i="${i}" aria-label="Atelier ${i+1}">${libOptions(b.g)}</select><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv"><button class="btn ghost small" data-up="${i}" title="Monter" ${i===0?"disabled":""}>↑</button><button class="btn ghost small" data-down="${i}" title="Descendre" ${i===draft.blocks.length-1?"disabled":""}>↓</button><button class="btn ghost small" data-del="${i}" title="Retirer">✕</button></span>
+        <button class="btn ghost small txt" data-txt="${i}" aria-expanded="${!!b._open}" title="Adapter le texte de cet atelier pour cette séance">✎ Texte${TXT.some(k=>b[k]&&b[k]!==g[k])?" · adapté":""}</button>
+        ${b._open?`<div class="edtxt"><p class="note">Ces textes ne valent que pour cette séance (ils partent dans le message WhatsApp et sur la fiche) ; la liste des ateliers ne change pas.</p>
+          <label>Nom de l'atelier<input type="text" data-tk="name" data-i="${i}" value="${esc(b.name||g.name)}"></label>
+          <label>Déroulé et consignes<textarea data-tk="desc" data-i="${i}" rows="4">${esc(b.desc||g.desc||"")}</textarea></label>
+          <label>Variantes<textarea data-tk="var" data-i="${i}" rows="2">${esc(b.var||g.var||"")}</textarea></label>
+          <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}</div>`}).join("")}</div>
+    <div class="prof-actions"><button class="btn ghost" id="edAdd">+ Ajouter un atelier</button><button class="btn ghost" id="edLib">📚 Voir la liste des ateliers</button></div>
+    <div class="prof-actions" style="margin-top:14px"><button class="btn primary" id="edSave">Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>
+      ${s.dup?`<button class="btn ghost" id="edDelete" style="margin-left:auto">🗑 Supprimer cette copie</button>`:s.mod?`<button class="btn ghost" id="edReset" style="margin-left:auto">↺ Rétablir la séance d'origine</button>`:""}</div></div>`}
+function bindEditor(s){const q=id=>document.getElementById(id);const lib=st().lib;
+  q("edTitle").addEventListener("input",e=>draft.title=e.target.value);q("edShort").addEventListener("input",e=>draft.short=e.target.value);
+  q("edTheme").addEventListener("input",e=>draft.theme=e.target.value);q("edVeiller").addEventListener("input",e=>draft.veiller=e.target.value);q("edNote").addEventListener("input",e=>draft.note=e.target.value);
+  q("edObjs").addEventListener("input",e=>draft.objs=e.target.value.split("\n").map(x=>x.trim()).filter(Boolean));
+  document.querySelectorAll(".edrow select").forEach(sel=>sel.addEventListener("change",()=>{const i=+sel.dataset.i;draft.blocks[i]={g:sel.value,dur:undefined};renderSeances()}));
+  document.querySelectorAll(".edrow input[type=number]").forEach(inp=>inp.addEventListener("change",()=>{const i=+inp.dataset.i;const v=Math.max(1,Math.min(90,parseInt(inp.value)||lib[draft.blocks[i].g].dur));draft.blocks[i].dur=v;renderSeances()}));
+  document.querySelectorAll("[data-up]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.up;[draft.blocks[i-1],draft.blocks[i]]=[draft.blocks[i],draft.blocks[i-1]];renderSeances()}));
+  document.querySelectorAll("[data-down]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.down;[draft.blocks[i+1],draft.blocks[i]]=[draft.blocks[i],draft.blocks[i+1]];renderSeances()}));
+  document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{if(draft.blocks.length<=1){toast("Il faut garder au moins un atelier");return}draft.blocks.splice(+b.dataset.del,1);renderSeances()}));
+  document.querySelectorAll("[data-txt]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txt;draft.blocks[i]._open=!draft.blocks[i]._open;renderSeances()}));
+  document.querySelectorAll(".edtxt [data-tk]").forEach(el=>el.addEventListener("input",()=>{const i=+el.dataset.i,k=el.dataset.tk;const g=lib[draft.blocks[i].g]||{};const v=el.value;draft.blocks[i][k]=v.trim()&&v.trim()!==(g[k]||"")?v:undefined}));
+  document.querySelectorAll("[data-txtreset]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txtreset;TXT.forEach(k=>delete draft.blocks[i][k]);renderSeances()}));
+  q("edAdd").addEventListener("click",()=>{const first=Object.keys(lib).find(id=>lib[id].kind==="atelier")||Object.keys(lib)[0];const pos=Math.max(0,draft.blocks.length-1);draft.blocks.splice(pos,0,{g:first});renderSeances()});
+  q("edLib").addEventListener("click",()=>{document.querySelector('.tab[aria-controls="view-lib"]').click();window.scrollTo({top:0,behavior:"smooth"})});
+  q("edCancel").addEventListener("click",()=>{editId=null;draft=null;renderSeances()});
+  q("edSave").addEventListener("click",()=>{const by=signer();
+    const data={title:draft.title.trim()||s.title,short:draft.short.trim(),theme:draft.theme.trim(),objs:draft.objs.length?draft.objs:s.objs,veiller:draft.veiller.trim(),note:draft.note.trim(),blocks:draft.blocks.map(blk)};if(s.dup){data.dup=true;data.day=s.day;data.base=s.base||""}
+    if(!validData(data)){toast("Séance incomplète");return}
+    const orig=ORIG[gid+"|"+s.id];const same=!s.dup&&orig&&JSON.stringify(data)===JSON.stringify(orig);
+    editId=null;draft=null;saveOverride(s.id,same?null:data,by).then(()=>render());render()});
+  const dl=q("edDelete");if(dl)dl.addEventListener("click",()=>{if(dl.dataset.armed!=="1"){dl.dataset.armed="1";dl.textContent="Confirmer la suppression ?";dl.style.color="#8A1F1F";return}const by=signer();editId=null;draft=null;curS=null;saveOverride(s.id,null,by).then(()=>render());render()});
+  const rs=q("edReset");if(rs)rs.addEventListener("click",()=>{if(rs.dataset.armed!=="1"){rs.dataset.armed="1";rs.textContent="Confirmer le rétablissement ?";return}const by=signer();editId=null;draft=null;saveOverride(s.id,null,by).then(()=>render());render()})}
+
+/* ---------- dupliquer / déplacer (panneaux en place, sans fenêtre) ---------- */
+const movable=x=>!x.tournoi;
+function actionPanel(s){const g=grp();const who=get("who","");
+  if(action==="dup")return `<div class="actionbox"><b>⧉ Dupliquer cette séance</b><span class="note">Une copie identique est ajoutée comme séance de réserve du jour choisi (hors planning horaire) ; tu pourras ensuite la modifier, l'échanger avec une séance du programme, ou la supprimer.</span>
+      <div class="acrow"><label>Jour de la copie <select id="acDay"><option value="1" ${s.day===1?"selected":""}>J1 · ${g.dayNames[0]}</option><option value="2" ${s.day===2?"selected":""}>J2 · ${g.dayNames[1]}</option></select></label><label>Ton prénom <input type="text" id="acBy" value="${esc(who)}" placeholder="facultatif"></label><button class="btn primary" id="acDo">Créer la copie</button><button class="btn ghost" id="acCancel">Annuler</button></div></div>`;
+  if(action==="move"){const ord=st().sessions.filter(movable);const k=ord.indexOf(s);const near=ord.filter(x=>x.id!==s.id);const def=ord[k+1]||ord[k-1];
+    return `<div class="actionbox"><b>⇄ Déplacer cette séance</b><span class="note">Le contenu de cette séance prend la place de celle que tu choisis, et inversement (les horaires du programme ne bougent pas, le contenu voyage).</span>
+      <div class="acrow"><button class="btn ghost" id="acUp" ${k<=0?"disabled":""}>↑ Séance précédente</button><button class="btn ghost" id="acDown" ${k>=ord.length-1?"disabled":""}>↓ Séance suivante</button>
+      <label>ou avec <select id="acTarget">${near.map(x=>`<option value="${x.id}" ${def&&x.id===def.id?"selected":""}>J${x.day} — ${esc(x.title)}${x.dup?" (réserve)":""}</option>`).join("")}</select></label>
+      <label>Ton prénom <input type="text" id="acBy" value="${esc(who)}" placeholder="facultatif"></label><button class="btn primary" id="acDo">Échanger</button><button class="btn ghost" id="acCancel">Annuler</button></div></div>`}
+  return ""}
+function bindActionPanel(s){const q=id=>document.getElementById(id);const cancel=q("acCancel");if(cancel)cancel.addEventListener("click",()=>{action=null;renderSeances()});
+  if(action==="dup"){q("acDo").addEventListener("click",()=>duplicateSession(s,+q("acDay").value,signer()))}
+  if(action==="move"){const ord=st().sessions.filter(movable);const k=ord.indexOf(s);
+    const up=q("acUp"),dn=q("acDown");if(up&&!up.disabled)up.addEventListener("click",()=>swapSession(s,ord[k-1],signer()));if(dn&&!dn.disabled)dn.addEventListener("click",()=>swapSession(s,ord[k+1],signer()));
+    q("acDo").addEventListener("click",()=>{const t=sessionOf(q("acTarget").value);if(t){action=null;swapSession(s,t,signer())}})}}
+function swapSession(a,b,who){const A=snapshot(a),B=snapshot(b);
+  const mk=(src,tgt)=>{const d={...src};if(tgt.dup){d.dup=true;d.day=tgt.day;d.base=tgt.base||""}return d};
+  const same=(d,x)=>!x.dup&&JSON.stringify(d)===JSON.stringify(ORIG[gid+"|"+x.id]);
+  const dA=mk(B,a),dB=mk(A,b);
+  Promise.all([saveOverride(a.id,same(dA,a)?null:dA,who),saveOverride(b.id,same(dB,b)?null:dB,who)]).then(()=>render());
+  curS=b.id;set("s:"+gid,curS);render();toast(`Séance déplacée (J${b.day})`)}
+function duplicateSession(s,day,who){const id="d"+Date.now().toString(36);const data={...snapshot(s),dup:true,day,base:s.id};
+  action=null;saveOverride(id,data,who).then(()=>render());curS=id;set("s:"+gid,curS);render();toast("Copie créée en séance de réserve — tu peux la modifier")}
+
+/* ---------- Liste des ateliers du groupe ---------- */
+let libQ="";
+function renderLib(){const v=document.getElementById("view-lib");if(!v)return;const g=grp();const lib=st().lib;const q=libQ.trim().toLowerCase();
+  const ids=Object.keys(lib).filter(id=>!q||`${lib[id].name} ${lib[id].desc||""} ${lib[id].src||""}`.toLowerCase().includes(q));
+  const groups=KIND_ORDER.filter(k=>ids.some(id=>lib[id].kind===k));
+  v.innerHTML=`<div class="eyebrow">Liste des ateliers · ${esc(g.name)}</div><h2 style="margin-top:4px">${Object.keys(lib).length} ateliers et jeux du stage</h2>
+    <p class="note" style="margin-top:6px">Tous les ateliers disponibles pour ce groupe, avec leur schéma. Dans « Modifier » une séance, chaque ligne se remplace par l'un de ces ateliers ; le texte d'un atelier se réécrit séance par séance sans toucher à cette liste.</p>
+    <div class="field" style="margin:12px 0;max-width:420px"><label for="libQ">Rechercher</label><input id="libQ" type="search" value="${esc(libQ)}" placeholder="nom, consigne, source…"></div>
+    ${groups.map(k=>`<h3 style="margin:18px 0 6px"><span class="kind k-${k}" style="color:#fff;background:${KIND_COLOR[k]}">${KIND_LABEL[k]}</span></h3><div class="blocks" style="border:1px solid var(--line);border-radius:12px;overflow:hidden">${ids.filter(id=>lib[id].kind===k).map(id=>{const b=lib[id];return `<article class="block">
+     <div>${b.schema?`<div class="schema">${renderSchema(b.schema)}</div>`:`<div class="schema" style="display:grid;place-items:center;min-height:120px;color:var(--muted);font-size:14px">${b.kind==="accueil"?"🤝 Cercle d'accueil":b.kind==="calme"?"🙌 Cercle de fin":"—"}</div>`}</div>
+     <div><div class="when"><span class="t">${b.dur}'</span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${b.src?`<span class="note" style="font-size:12px">· ${esc(b.src)}</span>`:""}</div>
+       <h3>${esc(b.name)}</h3><p class="desc">${esc(b.desc||"")}</p></div>
+       ${b.org||b.var||b.veiller?`<div class="more">${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}</div>`:""}</article>`}).join("")}</div>`).join("")||`<p class="note">Aucun atelier ne correspond.</p>`}`;
+  const inp=v.querySelector("#libQ");inp.addEventListener("input",()=>{libQ=inp.value;const pos=inp.selectionStart;renderLib();const n=document.getElementById("libQ");n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}})}
+
+/* ---------- Vue Séances (fiche + éditeur) ---------- */
+function renderSeances(){const v=document.getElementById("view-seances");const g=grp();const S=st();const vd=VACANCES.find(x=>x.id===vac);
+  if(!curS||!sessionOf(curS))curS=S.sessions[0].id;const s=sessionOf(curS);const editing=editId===s.id;if(!editing){editId=null;draft=null}
+  const blocks=blocksOf(s);const total=blocks.reduce((a,b)=>a+b.dur,0);
+  const allSlots=[...planSlots(0),...planSlots(1)];
+  const list=[1,2].map(d=>`<div class="dayh">${g.dayNames[d-1]} ${fmt(vd[g.days][d-1])}</div>`+S.sessions.filter(x=>x.day===d).map(x=>{const sl=allSlots.find(p=>p.s&&p.s.id===x.id);return `<button class="sess-item" data-s="${x.id}" aria-current="${x.id===curS}"><span class="d"><b>${sl?sl.t:"⧉"}</b><span>J${d}</span></span><span><span class="ttl">${esc(x.title)}</span>${x.dup?` <span class="chip mod">réserve</span>`:x.mod?` <span class="chip mod" title="Adaptée par ${esc(x.mod.by||"un éducateur")}">✎</span>`:""}<br><span class="sub">${totalOf(x)} min · ${blocksOf(x).filter(b=>b.kind!=="accueil"&&b.kind!=="calme").length} jeux</span></span></button>`}).join("")).join("");
+  const tl=blocks.map(b=>`<span style="width:${(b.dur/total*100).toFixed(1)}%;background:${KIND_COLOR[b.kind]}" title="${esc(b.name)}"></span>`).join("");
+  const tlLeg=[...new Set(blocks.map(b=>b.kind))].map(k=>`<span><i style="background:${KIND_COLOR[k]}"></i>${KIND_LABEL[k]}</span>`).join("");
+  const sl=allSlots.find(p=>p.s&&p.s.id===s.id);let clock=sl?slotTime(sl.t):null;
+  const blocksHtml=blocks.map(b=>{const at=clock!==null?fmtTime(clock):"";if(clock!==null)clock+=b.dur;const lg=S.lib[b.g]||{};const edited=TXT.some(k=>b[k]&&b[k]!==lg[k]);return `<article class="block">
+     <div>${b.schema?`<div class="schema">${renderSchema(b.schema)}</div>`:`<div class="schema" style="display:grid;place-items:center;min-height:120px;color:var(--muted);font-size:14px">${b.kind==="accueil"?"🤝 Cercle d'accueil":"🙌 Cercle de fin"}</div>`}</div>
+     <div><div class="when"><span class="t">${b.dur}'</span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${at?`<span class="note" style="font-size:12px">· ${at}</span>`:""}${b.src?`<span class="note" style="font-size:12px">· ${esc(b.src)}</span>`:""}</div>
+       <h3>${esc(b.name)}${edited?` <span class="chip mod" title="Texte adapté par l'éducateur pour cette séance">✎ adapté</span>`:""}</h3><p class="desc">${esc(b.desc||"")}</p></div>
+       ${b.org||b.var||b.veiller?`<div class="more">${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}</div>`:""}</article>`}).join("");
+  const mat=collectMat(blocks);const msg=waMessage(s);
+  const modChip=s.dup?`<span class="pill" title="Séance de réserve créée par duplication">⧉ Séance de réserve${s.by?` par ${esc(s.by)}`:""}</span>`:s.mod?`<span class="pill" title="${s.mod.ts?new Date(s.mod.ts).toLocaleString("fr-FR"):""}">✎ Adaptée${s.mod.by?` par ${esc(s.mod.by)}`:""}</span>`:"";
+  const tools=editing?"":`<button class="toggle" id="editBtn">✏️ Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button>${movable(s)?`<button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}`;
+  v.innerHTML=`<div class="eyebrow">${esc(g.name)} · séances techniques</div><h2 style="margin-top:4px">${S.sessions.filter(x=>!x.dup).length} séances types de ${S.dur} minutes (tournois : 1 h), prêtes à mener</h2><p class="note" style="margin-top:6px">Chaque séance : un éveil, deux ou trois jeux avec leurs schémas, un jeu ou un match pour finir. L'éducateur suit le déroulé, met en place, corrige. Une consigne à la fois. Chaque séance peut être modifiée, dupliquée ou déplacée par l'éducateur : la modification est partagée avec tout le club.</p>
+  <div class="sess-layout"><div class="sess-list">${list}</div>
+  <div class="sheet"><div class="sheet-head"><div><div class="eyebrow">Jour ${s.day} · ${sl?`${sl.t} → ${sl.end}`:s.dup?"séance de réserve (hors planning)":""} · Stage ${esc(vd.name)}</div><h2>${esc(s.title)}</h2><p class="theme">${esc(s.theme)}</p></div><div class="meta"><span class="pill">${total} min</span><span class="pill">${esc(g.name)}</span><span class="pill">${esc(g.ratio)}</span>${modChip}${tools}</div></div>
+   ${!editing&&action?actionPanel(s):""}
+   ${editing?editorHtml(s):""}
+   ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}</div>`:""}
+   <div class="objs"><div><h4>Objectifs de la séance</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div><div><h4>Le regard de l'éducateur</h4><p>${esc(s.veiller)}</p></div><div><h4>Repères d'appréciation</h4><p class="note">${FACETS.map(f=>`<b>${esc(f.name)}</b> : ${esc(g.facets[f.id])}`).join(" · ")}</p></div></div>
+   <div class="timeline">${tl}</div><div class="tl-legend">${tlLeg}</div>
+   <div class="blocks"><div style="padding:6px 20px 0">${LEGEND}</div>${blocksHtml}</div>
+   <div class="materiel"><span class="eyebrow" style="margin-right:6px">Matériel</span>${mat.map(m=>`<span class="mat">${esc(m)}</span>`).join("")}</div>
+   <div class="sendbar"><h4>Envoyer la séance aux éducateurs</h4><div class="toolbar" style="margin-top:0"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Envoyer sur WhatsApp</a></div><p class="note" style="margin-top:8px">Le message contient le déroulé (avec les adaptations de l'éducateur) et le lien direct vers cette fiche (schémas, consignes, matériel).</p></div>
+  </div></div>`;
+  v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{curS=b.dataset.s;set("s:"+gid,curS);editId=null;draft=null;action=null;renderSeances();window.scrollTo({top:0,behavior:"smooth"})}));
+  const eb=document.getElementById("editBtn");if(eb)eb.addEventListener("click",()=>{editId=s.id;draft=snapshot(s);action=null;renderSeances();const e=document.querySelector(".editor");if(e)e.scrollIntoView({behavior:"smooth",block:"start"})});
+  const db=document.getElementById("dupBtn");if(db)db.addEventListener("click",()=>{action=action==="dup"?null:"dup";renderSeances()});
+  const sb=document.getElementById("swapBtn");if(sb)sb.addEventListener("click",()=>{action=action==="move"?null:"move";renderSeances()});
+  if(editing)bindEditor(s);else if(action)bindActionPanel(s)}
+
+function render(){if(!vac||!VACANCES.some(v=>v.id===vac))vac=nextVac().id;applyOverrides();renderCats();renderStage();renderSeances();renderAppr();renderLib()}
 /* onglets */
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===t.getAttribute("aria-controls")));set("tab",t.getAttribute("aria-controls"))}));
 const savedTab=QS.get("s")?"view-seances":get("tab",null);if(savedTab&&document.getElementById(savedTab)){document.querySelector(`.tab[aria-controls="${savedTab}"]`).click()}
-if(CARNET&&CARNET.n){renderCarnet()}else{render();loadRemote();window.addEventListener("online",flush)}
+if(CARNET&&CARNET.n){renderCarnet()}else{render();loadRemote();loadOverrides();window.addEventListener("online",flush)}
 /* Aide au défilement pour les tableaux plus larges que l'écran : ombre sur le bord droit,
    barre de défilement toujours visible et une courte mention sous le tableau. */
 function addScrollArrows(){document.querySelectorAll('.tbl-wrap,.sess-list').forEach(el=>{
