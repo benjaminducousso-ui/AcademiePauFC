@@ -44,6 +44,17 @@ input.txt{width:100%;min-width:90px;box-sizing:border-box;border:1px solid trans
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50}.toast.show{opacity:1}
 .tabs{display:flex;gap:4px;margin-top:12px;overflow-x:auto;scrollbar-width:none}.tab{white-space:nowrap;background:transparent;color:#C9D6E8;border:0;border-bottom:3px solid transparent;padding:8px 12px;font-family:var(--display);font-size:17px;text-transform:uppercase;font-weight:700}.tab[aria-selected="true"]{color:var(--yellow);border-bottom-color:var(--yellow)}
 .view{display:none}.view.active{display:block}
+.testbox{margin-top:12px;padding:12px 14px;border:1px dashed var(--line);border-radius:10px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}
+.testbox .note{font-size:13px}
+.trows{display:flex;flex-direction:column;gap:6px}
+.trow{display:grid;grid-template-columns:26px minmax(160px,1fr) 110px 100px auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+@media (max-width:720px){.trow{grid-template-columns:26px 1fr auto}.trow input[data-k="unit"],.trow input[data-k="target"]{grid-column:2}}
+.trow.thead{background:transparent;border:0;padding:0 8px}.trow.thead span{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.trow .n{font-family:var(--display);font-size:17px;font-weight:800;color:var(--navy-2);text-align:center}
+.trow input{min-width:0;width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:var(--surface);color:var(--ink)}
+.trow .mv{display:inline-flex;gap:4px}
+.btn.small{padding:6px 9px;font-size:14px}
+.btn:disabled{opacity:.4}
 .legend{font-size:13px;color:var(--muted);margin-top:8px}
 
 .tbl-wrap{position:relative;scrollbar-width:thin;scrollbar-color:#B9C4D6 transparent;padding-bottom:2px}.tbl-wrap::-webkit-scrollbar{height:10px;-webkit-appearance:none}.tbl-wrap::-webkit-scrollbar-track{background:var(--surface-2);border-radius:6px}.tbl-wrap::-webkit-scrollbar-thumb{background:#8F9FB8;border-radius:6px}
@@ -262,6 +273,27 @@ const QS=new URLSearchParams(location.search);
 let cat=QS.get("cat")&&CATS.includes(QS.get("cat"))?QS.get("cat"):get("cat","U7");
 let per=get("per",(PERIODS.find(p=>today<=D(p.to))||PERIODS[4]).n);
 const grp=()=>GROUPS[GROUP_OF[cat]];
+/* ===== Repères mesurés (les items chiffrés à côté des étoiles) =====
+   Par défaut ceux du guide FFF du groupe ; chaque catégorie peut les adapter (ajouter, renommer, retirer).
+   La liste est partagée avec les autres éducateurs via le classeur du club (clé PROG-<catégorie> / __tests). */
+store.tests=store.tests||{};
+const UNITS=["contacts","s","m","cm","km/h","réussi 0/1","points","répétitions"];
+const isTime=u=>/^s(ec|econdes?)?\.?$/i.test(String(u||"").trim());
+const defTests=c=>GROUPS[GROUP_OF[c]].tests;
+function TESTS(c){c=c||cat;const cu=store.tests[c];return Array.isArray(cu)?cu:defTests(c)}
+const testsCustom=c=>Array.isArray(store.tests[c||cat]);
+function saveTests(c,list,by){const ts=Date.now();
+  if(list)store.tests[c]=list;else delete store.tests[c];
+  save();
+  const payload={seances:1,cat:"PROG-"+c,id:"__tests",data:list?{tests:list}:null,by:by||get("who","")||"l'éducateur",ts};
+  return fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}})
+    .then(r=>r.json()).then(j=>{if(!j.ok)throw new Error(j.error||"save");toast(list?"Repères enregistrés et partagés avec le club":"Repères du guide FFF rétablis pour le club")})
+    .catch(()=>toast("Enregistrés sur cet appareil ; le partage réessaiera plus tard"))}
+async function loadTests(c){try{const r=await fetch(`${API}?seances=${encodeURIComponent("PROG-"+c)}`,{cache:"no-store"});const arr=await r.json();if(!Array.isArray(arr))return;
+  const row=arr.find(x=>x&&x.id==="__tests");if(!row)return;
+  const list=row.data&&Array.isArray(row.data.tests)?row.data.tests:null;
+  const cur=store.tests[c];
+  if(JSON.stringify(cur||null)!==JSON.stringify(list)){if(list)store.tests[c]=list;else delete store.tests[c];save();if(c===cat)render()}}catch(e){}}
 /* --- données d'évaluation : store.evals[key] = {f:{},t:{},note,by,ts} --- */
 store.evals=store.evals||{};store.extra=store.extra||{};store.queue=store.queue||[];
 const key=(c,p,n)=>`${c}|${p}|${n}`;
@@ -281,20 +313,54 @@ async function loadRemote(c){try{const r=await fetch(`${API}?prog=${encodeURICom
   if(n){save();render()}}catch(e){}}
 /* --- rendu --- */
 function renderCats(){document.getElementById("catbar").innerHTML=CATS.map(c=>`<button class="cat" data-c="${c}" aria-pressed="${c===cat}">${c}<small>${(ROSTER[c]||[]).length+(store.extra[c]||[]).length} joueurs</small></button>`).join("");
-  document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{cat=b.dataset.c;set("cat",cat);render();loadRemote(cat)}))}
+  document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{cat=b.dataset.c;set("cat",cat);tEdit=false;tDraft=null;render();loadRemote(cat);loadTests(cat)}))}
 function perbar(){return `<div class="perbar">${PERIODS.map(p=>`<button class="perchip" data-p="${p.n}" aria-pressed="${p.n===per}"><b>P${p.n}</b><span>${esc(p.name)}</span><small>${fmtShort(p.from)} → ${fmtShort(p.to)}</small></button>`).join("")}</div>`}
 function bindPer(root){root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{per=+b.dataset.p;set("per",per);render()}))}
 function stars(v,attrs){return `<span class="stars" ${attrs}>${[1,2,3].map(n=>`<button class="${(v||0)>=n?'on':''}" data-n="${n}" aria-label="${n} étoile${n>1?'s':''}">★</button>`).join("")}</span>`}
+let tEdit=false,tDraft=null;
+function testsPanel(){
+  const rows=tDraft.map((t,i)=>`<div class="trow"><span class="n num">${i+1}</span>
+    <input type="text" data-k="name" data-i="${i}" value="${esc(t.name)}" placeholder="Nom du repère (ex. Jonglerie pied droit)" aria-label="Nom du repère ${i+1}">
+    <input type="text" data-k="unit" data-i="${i}" value="${esc(t.unit||"")}" list="unitlist" placeholder="unité" aria-label="Unité">
+    <input type="number" step="0.1" data-k="target" data-i="${i}" value="${t.target??""}" placeholder="objectif" aria-label="Objectif">
+    <span class="mv"><button class="btn small" data-up="${i}" title="Monter" ${i===0?"disabled":""}>↑</button><button class="btn small" data-down="${i}" title="Descendre" ${i===tDraft.length-1?"disabled":""}>↓</button><button class="btn small" data-del="${i}" title="Retirer ce repère">✕</button></span></div>`).join("");
+  return `<div class="testbox"><b>⚙️ Repères mesurés de la catégorie ${cat}</b>
+    <span class="note">Ce qu'on chiffre à côté des étoiles. Une ligne par repère : son nom, son unité, l'objectif visé (facultatif). Les valeurs déjà saisies pour les joueurs sont conservées. Pour un temps (unité « s »), l'objectif se lit « en dessous de ».</span>
+    <datalist id="unitlist">${UNITS.map(u=>`<option value="${u}">`).join("")}</datalist>
+    ${tDraft.length?`<div class="trow thead"><span></span><span>Nom du repère</span><span>Unité</span><span>Objectif</span><span></span></div>`:""}
+    <div class="trows">${rows||`<p class="note">Aucun repère : à cet âge on observe avec les étoiles, sans rien chiffrer.</p>`}</div>
+    <div class="toolbar"><button class="btn" id="tAdd">+ Ajouter un repère</button>
+      <div class="field"><label for="tBy">Ton prénom</label><input id="tBy" type="text" value="${esc(get("who",""))}" placeholder="facultatif"></div>
+      <button class="btn primary" id="tSave">Enregistrer et partager</button><button class="btn" id="tCancel">Annuler</button>
+      ${testsCustom()?`<button class="btn" id="tReset" style="margin-left:auto">↺ Revenir aux repères du guide FFF</button>`:""}</div></div>`}
+function bindTestsPanel(v){const q=id=>document.getElementById(id);
+  v.querySelectorAll(".trow input").forEach(i=>i.addEventListener("input",()=>{const t=tDraft[+i.dataset.i],k=i.dataset.k;
+    if(k==="target")t.target=i.value===""?null:+i.value;else t[k]=i.value}));
+  v.querySelectorAll("[data-up]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.up;[tDraft[i-1],tDraft[i]]=[tDraft[i],tDraft[i-1]];renderEval()}));
+  v.querySelectorAll("[data-down]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.down;[tDraft[i+1],tDraft[i]]=[tDraft[i],tDraft[i+1]];renderEval()}));
+  v.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{tDraft.splice(+b.dataset.del,1);renderEval()}));
+  q("tAdd").addEventListener("click",()=>{tDraft.push({id:"t"+Date.now().toString(36),name:"",unit:"contacts",target:null});renderEval();const last=v.querySelector(`.trow:last-child input[data-k="name"]`);if(last)last.focus()});
+  q("tCancel").addEventListener("click",()=>{tEdit=false;tDraft=null;renderEval()});
+  q("tSave").addEventListener("click",()=>{const by=(q("tBy").value||"").trim();if(by)set("who",by);
+    const list=tDraft.filter(t=>(t.name||"").trim()).map(t=>{const o={id:t.id,name:t.name.trim(),unit:(t.unit||"").trim()};if(t.target!=null&&t.target!=="")o.target=+t.target;if(isTime(o.unit))o.lower=true;return o});
+    tEdit=false;tDraft=null;
+    const same=JSON.stringify(list)===JSON.stringify(defTests(cat));
+    saveTests(cat,same?null:list,by).then(()=>render());renderEval()});
+  const rs=q("tReset");if(rs)rs.addEventListener("click",()=>{if(rs.dataset.armed!=="1"){rs.dataset.armed="1";rs.textContent="Confirmer le retour aux repères du guide ?";return}
+    tEdit=false;tDraft=null;saveTests(cat,null,(q("tBy").value||"").trim()).then(()=>render());renderEval()})}
 function renderEval(){const v=document.getElementById("view-eval");const g=grp();const P=PERIODS[per-1];const list=players(cat);
-  const head=`<tr><th>Joueur</th>${g.facets.map(f=>`<th title="${esc(f.desc)}">${esc(f.name)}</th>`).join("")}${g.tests.map(t=>`<th title="${esc(t.name)}">${esc(t.name)}<br><small>${esc(t.unit)}${t.target?` · obj. ${t.target}`:""}</small></th>`).join("")}<th>Mot de l'éducateur</th><th></th></tr>`;
-  const rows=list.map(p=>{const r=rec(cat,p,per);return `<tr data-p="${esc(p)}"><td class="name">${esc(p)}</td>${g.facets.map(f=>`<td data-l="${esc(f.name)}">${stars(r.f[f.id],`data-f="${f.id}"`)}</td>`).join("")}${g.tests.map(t=>`<td data-l="${esc(t.name)} (${esc(t.unit)}${t.target?`, obj. ${t.target}`:""})"><input class="num" type="number" step="0.1" data-t="${t.id}" value="${r.t[t.id]??""}" aria-label="${esc(t.name)}"></td>`).join("")}<td data-l="Mot de l'éducateur" class="notecell"><input class="txt" type="text" data-note value="${esc(r.note)}" placeholder="le mot de l'éducateur (carnet)"></td><td data-l="Carnet"><button class="btn" data-carnet="${esc(p)}" title="Carnet de ce joueur" style="padding:5px 8px">📄 Carnet</button></td></tr>`}).join("");
+  const head=`<tr><th>Joueur</th>${g.facets.map(f=>`<th title="${esc(f.desc)}">${esc(f.name)}</th>`).join("")}${TESTS().map(t=>`<th title="${esc(t.name)}">${esc(t.name)}<br><small>${esc(t.unit)}${t.target?` · obj. ${t.target}`:""}</small></th>`).join("")}<th>Mot de l'éducateur</th><th></th></tr>`;
+  const rows=list.map(p=>{const r=rec(cat,p,per);return `<tr data-p="${esc(p)}"><td class="name">${esc(p)}</td>${g.facets.map(f=>`<td data-l="${esc(f.name)}">${stars(r.f[f.id],`data-f="${f.id}"`)}</td>`).join("")}${TESTS().map(t=>`<td data-l="${esc(t.name)} (${esc(t.unit)}${t.target?`, obj. ${t.target}`:""})"><input class="num" type="number" step="0.1" data-t="${t.id}" value="${r.t[t.id]??""}" aria-label="${esc(t.name)}"></td>`).join("")}<td data-l="Mot de l'éducateur" class="notecell"><input class="txt" type="text" data-note value="${esc(r.note)}" placeholder="le mot de l'éducateur (carnet)"></td><td data-l="Carnet"><button class="btn" data-carnet="${esc(p)}" title="Carnet de ce joueur" style="padding:5px 8px">📄 Carnet</button></td></tr>`}).join("");
   v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Appréciation de la période ${per}</h2><p class="note" style="margin-top:6px">${esc(g.age)}</p>${perbar()}
    <div class="card"><div class="facets">${g.facets.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div>
-   <p class="legend">★ découvre · ★★ réussit souvent · ★★★ réussit vite et en match.${g.tests.length?" Repères mesurés : saisir la valeur du test de la période (objectifs du guide FFF indiqués).":""} Le message éducatif de la période : <b>${P.pef}</b>. Le <b>mot de l'éducateur</b>, les étoiles et les repères mesurés sont repris sur le <b>carnet de progression</b> (une page A4 par joueur, PDF ou impression) remis aux parents en fin de période.</p>
+   <p class="legend">★ découvre · ★★ réussit souvent · ★★★ réussit vite et en match.${TESTS().length?" Repères mesurés : saisir la valeur du test de la période ; la liste s'adapte avec le bouton « Repères mesurés » sous le tableau.":""} Le message éducatif de la période : <b>${P.pef}</b>. Le <b>mot de l'éducateur</b>, les étoiles et les repères mesurés sont repris sur le <b>carnet de progression</b> (une page A4 par joueur, PDF ou impression) remis aux parents en fin de période.</p>
+   ${tEdit?testsPanel():""}
    <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${rows||'<tr><td colspan="9" class="note">Aucun joueur.</td></tr>'}</tbody></table></div>
-   <div class="toolbar" style="margin-top:14px"><div class="field"><label for="who">Éducateur qui remplit</label><input id="who" type="text" value="${esc(get("who",""))}" placeholder="Prénom"></div><button class="btn" id="addP">+ Ajouter un joueur</button><span class="status" id="syncStatus" title="État du partage avec le classeur du club"></span></div>
+   <div class="toolbar" style="margin-top:14px"><div class="field"><label for="who">Éducateur qui remplit</label><input id="who" type="text" value="${esc(get("who",""))}" placeholder="Prénom"></div><button class="btn" id="addP">+ Ajouter un joueur</button><button class="btn" id="tEditBtn" aria-pressed="${tEdit}" title="Modifier, ajouter ou retirer les repères chiffrés">⚙️ Repères mesurés${TESTS().length?` · ${TESTS().length}`:""}</button><span class="status" id="syncStatus" title="État du partage avec le classeur du club"></span></div>
    <div class="toolbar" style="justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><span class="note" style="flex:1">Carnet de progression : une page A4 par joueur, à remettre aux parents en fin de période.</span><button class="btn primary" id="allCarnets">📄 Carnets de la période ${per} (PDF / impression)</button></div></div>`;
   bindPer(v);setStatus();
+  document.getElementById("tEditBtn").addEventListener("click",()=>{tEdit=!tEdit;tDraft=tEdit?TESTS().map(t=>({...t})):null;renderEval();if(tEdit){const b=v.querySelector(".testbox");if(b)b.scrollIntoView({behavior:"smooth",block:"nearest"})}});
+  if(tEdit)bindTestsPanel(v);
   document.getElementById("who").addEventListener("change",e=>set("who",e.target.value.trim()));
   v.querySelectorAll(".stars button").forEach(b=>b.addEventListener("click",()=>{const tr=b.closest("tr"),p=tr.dataset.p,f=b.parentElement.dataset.f;const r=rec(cat,p,per);const n=+b.dataset.n;r.f[f]=r.f[f]===n?0:n;push(cat,p,per);renderEval()}));
   v.querySelectorAll("input.num").forEach(i=>i.addEventListener("change",()=>{const p=i.closest("tr").dataset.p;const r=rec(cat,p,per);r.t[i.dataset.t]=i.value===""?null:+i.value;push(cat,p,per)}));
@@ -307,11 +373,11 @@ function renderProg(){const v=document.getElementById("view-prog");const g=grp()
   v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Le fil de l'année</h2><p class="note" style="margin-top:6px">${esc(g.age)}</p>
   <div class="periods">${PERIODS.map((p,i)=>`<div class="period"><b>P${p.n} · ${esc(p.name)}</b><small>${fmtShort(p.from)} → ${fmtShort(p.to)} · PEF ${p.pef}</small><ul>${g.periods[i].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`).join("")}</div>
   <div class="grid2"><div class="card"><h3>Ce qu'on apprécie</h3><div class="facets">${g.facets.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div></div>
-  <div class="card"><h3>Repères mesurés</h3>${g.tests.length?`<ul style="margin:6px 0 0;padding-left:18px">${g.tests.map(t=>`<li><b>${esc(t.name)}</b> — ${esc(t.unit)}${t.target?`, objectif du guide : ${t.target}`:""}${t.lower?" (plus petit = mieux)":""}</li>`).join("")}</ul>`:'<p class="note">Pas de repère chiffré à cet âge : on observe, on n\'évalue pas.</p>'}<p class="note" style="margin-top:10px"><b>Format de compétition</b> · ${esc(g.match)}</p></div></div>
+  <div class="card"><h3>Repères mesurés${testsCustom()?" (adaptés par le club)":""}</h3>${TESTS().length?`<ul style="margin:6px 0 0;padding-left:18px">${TESTS().map(t=>`<li><b>${esc(t.name)}</b> — ${esc(t.unit)}${t.target?`, objectif : ${t.target}`:""}${t.lower?" (plus petit = mieux)":""}</li>`).join("")}</ul>`:'<p class="note">Pas de repère chiffré à cet âge : on observe, on n\'évalue pas.</p>'}<p class="note" style="margin-top:10px"><b>Format de compétition</b> · ${esc(g.match)}</p></div></div>
   <div class="callout">${cat<="U13"||["U10","U11","U12","U13"].includes(cat)?"Programme et compétences tirés du guide interactif FFF de la catégorie (thèmes numérotés T1… = procédés d'apprentissage du guide).":"Au-delà des U13 la FFF ne publie pas de guide interactif : ce référentiel décline ses compétences (tactique, technique, psychologique, athlétique) et les tests physiques d'usage en préformation / formation. À valider et ajuster avec le RTJ."}</div>`}
 function renderBilan(){const v=document.getElementById("view-bilan");const g=grp();const list=players(cat);
   const rows=list.map(p=>{const cells=PERIODS.map(P=>{const r=store.evals[key(cat,p,P.n)];const vals=r?g.facets.map(f=>r.f[f.id]||0).filter(x=>x>0):[];const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;return `<td data-l="Période ${P.n}"><span class="trend" title="P${P.n}">${g.facets.map(f=>`<i class="${r&&r.f[f.id]?'l'+r.f[f.id]:''}"></i>`).join("")}${avg?` ${avg.toFixed(1)}`:""}</span></td>`}).join("");
-    const last=PERIODS.map(P=>store.evals[key(cat,p,P.n)]).filter(Boolean).pop();const tests=last?g.tests.filter(t=>last.t[t.id]!=null).map(t=>`${t.name.split(" ")[0]} ${last.t[t.id]}`).join(" · "):"";
+    const last=PERIODS.map(P=>store.evals[key(cat,p,P.n)]).filter(Boolean).pop();const tests=last?TESTS().filter(t=>last.t[t.id]!=null).map(t=>`${t.name.split(" ")[0]} ${last.t[t.id]}`).join(" · "):"";
     return `<tr><td class="name">${esc(p)}</td>${cells}<td class="note" data-l="Repères · mot">${esc(tests)}${last&&last.note?` — ${esc(last.note)}`:""}</td></tr>`}).join("");
   v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Bilan annuel</h2><p class="note" style="margin-top:6px">Une case par facette et par période (clair → foncé = 1 → 3 étoiles), la moyenne de la période, les derniers repères mesurés et le dernier mot de l'éducateur.</p>
   <div class="card"><div class="tbl-wrap"><table><thead><tr><th>Joueur</th>${PERIODS.map(P=>`<th>P${P.n}</th>`).join("")}<th>Repères · mot</th></tr></thead><tbody>${rows}</tbody></table></div></div>`}
@@ -321,7 +387,7 @@ function carnetOfPlayer(p,n){const g=grp();const P=PERIODS[n-1];const next=PERIO
   return {title:"CARNET DE PROGRESSION",line:`${cat} · Période ${n} « ${P.name} » · du ${fmtDay(P.from)}${y1!==y2?" "+y1:""} au ${fmtDay(P.to)} ${y2}`,name:p,
     sub:"a participé aux séances de la période et a travaillé :",items:(CARNET_ITEMS[GROUP_OF[cat]]||[])[n-1]||g.periods[n-1],
     facets:g.facets.map(f=>({name:f.name,desc:f.desc,n:r.f[f.id]||0})),
-    tests:g.tests.map(t=>({name:t.name,val:r.t[t.id],unit:t.unit,target:t.target})),
+    tests:TESTS().map(t=>({name:t.name,val:r.t[t.id],unit:t.unit,target:t.target})),
     legend:"1 étoile : découvre · 2 étoiles : réussit souvent · 3 étoiles : réussit vite et en match — on se compare à soi-même, jamais aux autres.",
     mot:r.note||"",educ:r.by||get("who",""),
     foot:(next?`Prochaine période : « ${next.name} » du ${fmtDay(next.from)} au ${fmtDay(next.to)} · message éducatif : ${next.pef}. `:"Merci pour cette belle saison ! ")+"À bientôt au Pau FC !"}}
@@ -330,7 +396,7 @@ function openCarnets(list){if(!list.length){toast("Aucun joueur");return}showCar
 function showTab(id){restoreMain();document.querySelector("header.top").hidden=false;document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.getAttribute("aria-controls")===id));document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id===id));set("tab",id);render()}
 function render(){renderCats();const id=get("tab","view-eval");if(id==="view-eval")renderEval();else if(id==="view-prog")renderProg();else renderBilan()}
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.getAttribute("aria-controls"))));
-showTab(get("tab","view-eval"));loadRemote(cat);flush();
+showTab(get("tab","view-eval"));loadRemote(cat);loadTests(cat);flush();
 /* Aide au défilement pour les tableaux plus larges que l'écran : ombre sur le bord droit,
    barre de défilement toujours visible et une courte mention sous le tableau. */
 function addScrollArrows(){document.querySelectorAll('.tbl-wrap,.sess-list').forEach(el=>{
