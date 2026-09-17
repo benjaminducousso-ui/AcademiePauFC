@@ -128,6 +128,19 @@ input.txt{width:150px;border:1px solid transparent;border-radius:6px;padding:5px
 .menupop button:hover{background:var(--surface-2)}
 .menupop button.danger{color:#8A1F1F}
 .menupop button.danger.armed{background:#8A1F1F;color:#fff}
+/* emplacement d'insertion entre deux ateliers */
+.slot{display:flex;align-items:center;justify-content:center;gap:8px;position:relative;min-height:26px;margin:-2px 0}
+.slot::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line);opacity:.7}
+.addhere{position:relative;z-index:1;width:26px;height:26px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:17px;font-weight:700;line-height:1;display:grid;place-items:center;cursor:pointer;padding:0}
+.addhere:hover,.addhere:focus-visible{background:var(--navy);border-color:var(--navy);color:#fff;transform:scale(1.08)}
+.rotpill{position:relative;z-index:1;font-size:12px;font-weight:700;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:3px 10px;cursor:pointer;line-height:1.2;opacity:0;transition:opacity .15s}
+.slot:hover .rotpill,.rotpill:focus-visible,.rotpill.on{opacity:1}
+.rotpill:hover{border-color:var(--navy-2);color:var(--navy-2)}
+.rotpill.on{border-style:solid;background:var(--yellow);border-color:var(--yellow);color:#3B2E00}
+@media (hover:none){.rotpill{opacity:1}}
+.edblocks.is-dragging .slot{visibility:hidden}
+.gmore{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.gmore summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--navy-2)}
 </style>
 <style>
 .days{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}@media (max-width:760px){.days{grid-template-columns:1fr}}
@@ -941,6 +954,9 @@ let editId=null,draft=null,action=null,edFocus=null;
 function applyEdFocus(){if(!edFocus)return;const f=edFocus;edFocus=null;
   if(f.field){const el=document.getElementById(f.field);if(!el)return;
     el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}},260);return}
+  if(f.sel!=null){const sl=document.querySelector('.edrow[data-i="'+f.sel+'"] select');
+    if(sl){const r=sl.closest(".edrow");if(r){r.scrollIntoView({behavior:"smooth",block:"center"});r.classList.add("flash")}
+      setTimeout(()=>sl.focus(),280)}return}
   if(f.blk!=null){const r=document.querySelector('.edrow[data-i="'+f.blk+'"]');if(!r)return;
     r.scrollIntoView({behavior:"smooth",block:"center"});r.classList.add("flash");
     const t=r.querySelector(".edtxt textarea,.edtxt input");if(t)setTimeout(()=>t.focus(),320)}}
@@ -984,7 +1000,10 @@ function editorHtml(s){const lib=st().lib;
       <div class="field" style="grid-column:1/-1"><label for="edVeiller">Le regard de l'éducateur</label><textarea id="edVeiller" rows="2">${esc(draft.veiller)}</textarea></div>
       <div class="field" style="grid-column:1/-1"><label for="edNote">Consignes du référent aux éducateurs (facultatif — reprises sur la fiche et dans le message WhatsApp)</label><textarea id="edNote" rows="2" placeholder="ex. Insister sur le pied faible, groupe très hétérogène">${esc(draft.note)}</textarea></div>
     </div>
-    <div class="edblocks">${(()=>{const drot=rotGroups(draft.blocks);return draft.blocks.map((b,i)=>{const g=lib[b.g]||{name:b.g,kind:"atelier",dur:10};return `${i>0?`<div class="rotlink${b.rot?" on":""}"><button type="button" data-rot="${i}" aria-pressed="${!!b.rot}" title="${b.rot?"Séparer ces deux ateliers":"Faire tourner ces ateliers en même temps, avec des sous-groupes"}">⟳ ${b.rot?"tournent ensemble":"faire tourner ensemble"}</button></div>`:""}
+    <div class="edblocks">${(()=>{const drot=rotGroups(draft.blocks);
+        const slot=i=>{const bb=draft.blocks[i];const mid=i>0&&i<draft.blocks.length;
+          return `<div class="slot"><button type="button" class="addhere" data-add="${i}" title="Ajouter un atelier ici" aria-label="Ajouter un atelier à la position ${i+1}">+</button>${mid?`<button type="button" class="rotpill${bb.rot?" on":""}" data-rot="${i}" aria-pressed="${!!bb.rot}" title="${bb.rot?"Séparer ces deux ateliers":"Faire tourner ces ateliers en même temps, avec des sous-groupes"}">⟳ ${bb.rot?"tournent ensemble":"faire tourner ensemble"}</button>`:""}</div>`};
+        return draft.blocks.map((b,i)=>{const g=lib[b.g]||{name:b.g,kind:"atelier",dur:10};return `${slot(i)}
         <div class="edrow${drot[i]>=0?" is-rot":""}" data-i="${i}"><button type="button" class="grip" data-grip="${i}" title="Glisse pour changer l'ordre (ou flèches ↑ ↓ du clavier)" aria-label="Atelier ${i+1} sur ${draft.blocks.length} — glisser pour réordonner"><span class="dots" aria-hidden="true">${gripIcon()}</span><span class="num">${i+1}</span></button>
         <div class="edname"><span class="kind k-${g.kind}">${KIND_LABEL[g.kind]}</span><select data-i="${i}" aria-label="Atelier ${i+1}">${libOptions(b.g)}</select></div>
         <div class="edtools"><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée en minutes"> min</label><button class="btn ghost small txt" data-txt="${i}" aria-expanded="${!!b._open}" title="Adapter le texte de cet atelier pour cette séance">✎ Texte${TXT.some(k=>b[k]&&b[k]!==g[k])?" ·":""}</button><button class="btn ghost small del" data-del="${i}" title="Retirer cet atelier de la séance" aria-label="Retirer cet atelier">✕</button></div>
@@ -992,8 +1011,8 @@ function editorHtml(s){const lib=st().lib;
           <label>Nom de l'atelier<input type="text" data-tk="name" data-i="${i}" value="${esc(b.name||g.name)}"></label>
           <label>Déroulé et consignes<textarea data-tk="desc" data-i="${i}" rows="4">${esc(b.desc||g.desc||"")}</textarea></label>
           <label>Variantes<textarea data-tk="var" data-i="${i}" rows="2">${esc(b.var||g.var||"")}</textarea></label>
-          <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}</div>`}).join("")})()}</div>
-    <div class="prof-actions"><button class="btn ghost" id="edAdd">+ Ajouter un atelier</button><button class="btn ghost" id="edLib">📚 Voir la liste des ateliers</button></div>
+          <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}</div>`}).join("")+slot(draft.blocks.length)})()}</div>
+    <div class="prof-actions"><button class="btn ghost small" id="edLib">📚 Voir la liste des ateliers</button></div>
     <div class="prof-actions" style="margin-top:14px"><button class="btn primary" id="edSave">Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>
       ${s.dup?`<button class="btn ghost" id="edDelete" style="margin-left:auto">🗑 Supprimer cette copie</button>`:s.mod?`<button class="btn ghost" id="edReset" style="margin-left:auto">↺ Rétablir la séance d'origine</button>`:""}</div></div>`}
 function bindEditor(s){const q=id=>document.getElementById(id);const lib=st().lib;
@@ -1006,6 +1025,9 @@ function bindEditor(s){const q=id=>document.getElementById(id);const lib=st().li
     if(g[i]>=0){const ids=g.map((y,j)=>y===g[i]?j:-1).filter(j=>j>=0);ids.forEach(j=>draft.blocks[j].dur=v);
       setTimeout(()=>{renderSeances();toast(`Les ${ids.length} ateliers tournants passent à ${v} min`)},0)}
     else setTimeout(renderSeances,0)}));
+  document.querySelectorAll("[data-add]").forEach(bt=>bt.addEventListener("click",()=>{const at=+bt.dataset.add;
+    const ids=Object.keys(lib);const def=ids.find(id=>lib[id].kind==="atelier")||ids[0];
+    draft.blocks.splice(at,0,{g:def});normRot(draft.blocks);equalizeRots(draft.blocks);edFocus={sel:at};renderSeances()}));
   document.querySelectorAll("[data-rot]").forEach(bt=>bt.addEventListener("click",()=>{const i=+bt.dataset.rot;
     if(draft.blocks[i].rot)delete draft.blocks[i].rot;else draft.blocks[i].rot=1;
     normRot(draft.blocks);const before=draft.blocks.map(b=>b.dur);equalizeRots(draft.blocks);
@@ -1016,7 +1038,6 @@ function bindEditor(s){const q=id=>document.getElementById(id);const lib=st().li
   document.querySelectorAll("[data-txt]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txt;draft.blocks[i]._open=!draft.blocks[i]._open;renderSeances()}));
   document.querySelectorAll(".edtxt [data-tk]").forEach(el=>el.addEventListener("input",()=>{const i=+el.dataset.i,k=el.dataset.tk;const g=lib[draft.blocks[i].g]||{};const v=el.value;draft.blocks[i][k]=v.trim()&&v.trim()!==(g[k]||"")?v:undefined}));
   document.querySelectorAll("[data-txtreset]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txtreset;TXT.forEach(k=>delete draft.blocks[i][k]);renderSeances()}));
-  q("edAdd").addEventListener("click",()=>{const first=Object.keys(lib).find(id=>lib[id].kind==="atelier")||Object.keys(lib)[0];const pos=Math.max(0,draft.blocks.length-1);draft.blocks.splice(pos,0,{g:first});renderSeances()});
   q("edLib").addEventListener("click",()=>{document.querySelector('.tab[aria-controls="view-lib"]').click();window.scrollTo({top:0,behavior:"smooth"})});
   q("edCancel").addEventListener("click",()=>{editId=null;draft=null;renderSeances()});
   q("edSave").addEventListener("click",()=>{const by=signer();

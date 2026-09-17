@@ -453,6 +453,19 @@ code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92
 .menupop button:hover{background:var(--surface-2)}
 .menupop button.danger{color:#8A1F1F}
 .menupop button.danger.armed{background:#8A1F1F;color:#fff}
+/* emplacement d'insertion entre deux ateliers */
+.slot{display:flex;align-items:center;justify-content:center;gap:8px;position:relative;min-height:26px;margin:-2px 0}
+.slot::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line);opacity:.7}
+.addhere{position:relative;z-index:1;width:26px;height:26px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:17px;font-weight:700;line-height:1;display:grid;place-items:center;cursor:pointer;padding:0}
+.addhere:hover,.addhere:focus-visible{background:var(--navy);border-color:var(--navy);color:#fff;transform:scale(1.08)}
+.rotpill{position:relative;z-index:1;font-size:12px;font-weight:700;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:3px 10px;cursor:pointer;line-height:1.2;opacity:0;transition:opacity .15s}
+.slot:hover .rotpill,.rotpill:focus-visible,.rotpill.on{opacity:1}
+.rotpill:hover{border-color:var(--navy-2);color:var(--navy-2)}
+.rotpill.on{border-style:solid;background:var(--yellow);border-color:var(--yellow);color:#3B2E00}
+@media (hover:none){.rotpill{opacity:1}}
+.edblocks.is-dragging .slot{visibility:hidden}
+.gmore{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.gmore summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--navy-2)}
 </style>
 
 <header class="top">
@@ -1385,10 +1398,10 @@ function bindSchemaEditor(){const q=id=>document.getElementById(id);const sc=()=
   const cl=q("skClear");if(cl)cl.addEventListener("click",()=>{skPush();const s=skNorm(gDraft.schema);gDraft.schema=Object.assign(skEmpty(),{f:s.f});skSel=null;skPend=null;skRepaint()})}
 /* ---------- Éditeur d'atelier ---------- */
 let gEdit=null,gDraft=null;   /* gEdit={id,from:"lib"|"session"} */
-function openGameEditor(id,from){const g=id?GAMES[id]:null;
+function openGameEditor(id,from,at){const g=id?GAMES[id]:null;
   gDraft=g?{name:g.name,kind:g.kind,dur:g.dur,desc:g.desc||"",org:g.org||"",var:g.var||"",veiller:g.veiller||"",mat:(g.mat||[]).join(", "),src:g.src||"",schema:g.schema?JSON.parse(JSON.stringify(g.schema)):skEmpty()}
     :{name:"",kind:"atelier",dur:15,desc:"",org:"",var:"",veiller:"",mat:"",src:"Atelier du club",schema:skEmpty()};
-  gEdit={id:id||null,from:from||"lib"};skSel=null;skPend=null;skTool="sel";skStack=[];
+  gEdit={id:id||null,from:from||"lib",at:(at==null?null:at)};skSel=null;skPend=null;skTool="sel";skStack=[];
   (from==="session"?renderSheet:renderBiblio)()}
 function closeGameEditor(){const from=gEdit&&gEdit.from;gEdit=null;gDraft=null;skStack=[];(from==="session"?renderSheet:renderBiblio)()}
 function renderGameEditor(){(gEdit&&gEdit.from==="session"?renderSheet:renderBiblio)()}
@@ -1401,14 +1414,17 @@ function gameEditorHtml(){const d=gDraft;
       <div class="field"><label for="gDur">Durée (min)</label><input id="gDur" type="number" min="2" max="60" step="1" value="${d.dur}"></div>
       <div class="field"><label for="gBy">Ton prénom</label><input id="gBy" type="text" value="${esc(get("who",""))}" placeholder="facultatif"></div>
       <div class="field" style="grid-column:1/-1"><label for="gDesc">Déroulé et consignes</label><textarea id="gDesc" rows="4" placeholder="Ce que font les enfants, les règles, le but du jeu…">${esc(d.desc)}</textarea></div>
-      <div class="field" style="grid-column:1/-1"><label for="gOrg">Organisation</label><input id="gOrg" type="text" value="${esc(d.org)}" placeholder="ex. 2 ateliers en parallèle, 1 ballon pour 2"></div>
-      <div class="field" style="grid-column:1/-1"><label for="gVar">Variantes</label><input id="gVar" type="text" value="${esc(d.var)}" placeholder="ex. plus facile : agrandir la zone ; plus dur : un défenseur de plus"></div>
-      <div class="field" style="grid-column:1/-1"><label for="gVeil">À veiller</label><input id="gVeil" type="text" value="${esc(d.veiller)}" placeholder="le point de coaching de l'atelier"></div>
-      <div class="field" style="grid-column:1/-1"><label for="gMat">Matériel (séparé par des virgules)</label><input id="gMat" type="text" value="${esc(d.mat)}" placeholder="8 coupelles, 4 ballons, 2 buts"></div>
     </div>
-    <h4 style="margin-top:14px">Le schéma de l'atelier</h4>
-    ${schemaEditorHtml(d.schema)}
-    <div class="prof-actions" style="margin-top:14px"><button class="btn wa" id="gSave" style="background:var(--navy);color:#fff">💾 Enregistrer l'atelier</button><button class="btn ghost" id="gCancel">Annuler</button>
+    <details class="gmore"${(d.org||d.var||d.veiller||d.mat)?" open":""}><summary>Détails (facultatif) : organisation, variantes, à veiller, matériel</summary>
+      <div class="edgrid" style="margin-top:10px">
+        <div class="field" style="grid-column:1/-1"><label for="gOrg">Organisation</label><input id="gOrg" type="text" value="${esc(d.org)}" placeholder="ex. 2 ateliers en parallèle, 1 ballon pour 2"></div>
+        <div class="field" style="grid-column:1/-1"><label for="gVar">Variantes</label><input id="gVar" type="text" value="${esc(d.var)}" placeholder="ex. plus facile : agrandir la zone ; plus dur : un défenseur de plus"></div>
+        <div class="field" style="grid-column:1/-1"><label for="gVeil">À veiller</label><input id="gVeil" type="text" value="${esc(d.veiller)}" placeholder="le point de coaching de l'atelier"></div>
+        <div class="field" style="grid-column:1/-1"><label for="gMat">Matériel (séparé par des virgules)</label><input id="gMat" type="text" value="${esc(d.mat)}" placeholder="8 coupelles, 4 ballons, 2 buts"></div>
+      </div></details>
+    <details class="gmore"${skHas(d.schema)?" open":""}><summary>Schéma sur le terrain (facultatif)</summary>
+      ${schemaEditorHtml(d.schema)}</details>
+    <div class="prof-actions" style="margin-top:14px"><button class="btn wa" id="gSave" style="background:var(--navy);color:#fff">${gEdit.from==="session"&&!gEdit.id?"✚ Créer et ajouter à la séance":"💾 Enregistrer l'atelier"}</button><button class="btn ghost" id="gCancel">Annuler</button>
       ${gEdit.id&&GAMES[gEdit.id]&&GAMES[gEdit.id].club?`<button class="btn ghost" id="gDel" style="margin-left:auto">🗑 Supprimer cet atelier</button>`:""}</div></div>`}
 function bindGameEditor(){const q=id=>document.getElementById(id);
   const map={gName:"name",gDesc:"desc",gOrg:"org",gVar:"var",gVeil:"veiller",gMat:"mat"};
@@ -1426,9 +1442,9 @@ function bindGameEditor(){const q=id=>document.getElementById(id);
     const mat=gDraft.mat.split(",").map(x=>x.trim()).filter(Boolean);if(mat.length)g.mat=mat;
     if(skHas(gDraft.schema))g.schema=skNorm(gDraft.schema);
     const games=Object.assign({},clubGames());games[id]=g;
-    const from=gEdit.from;gEdit=null;gDraft=null;
+    const from=gEdit.from;const gAt={at:gEdit.at,done:!!gEdit.id};gEdit=null;gDraft=null;
     GAMES[id]=Object.assign({},g,{club:true});
-    if(from==="session"&&draft){draft.blocks.splice(Math.max(0,draft.blocks.length-1),0,{g:id});}
+    if(from==="session"&&draft&&!gAt.done){const at=gAt.at==null?Math.max(0,draft.blocks.length-1):Math.max(0,Math.min(gAt.at,draft.blocks.length));draft.blocks.splice(at,0,{g:id});normRot(draft.blocks);equalizeRots(draft.blocks);edFocus={dur:at}}
     saveClubGames(games,by||get("who","")||"l'éducateur").then(()=>{(from==="session"?renderSheet:renderBiblio)()});
     (from==="session"?renderSheet:renderBiblio)();toast("Atelier enregistré et partagé avec le club")});
   const del=q("gDel");if(del)del.addEventListener("click",()=>{if(del.dataset.armed!=="1"){del.dataset.armed="1";del.textContent="Confirmer la suppression ?";del.style.color="#8A1F1F";return}
@@ -1441,7 +1457,7 @@ function bindGameEditor(){const q=id=>document.getElementById(id);
 
 /* ---------- Choisir un atelier dans la base (guide FFF + ateliers du club) ---------- */
 let pick=null;   /* {mode:"add"|"replace", i, q, fin, sel:[ids]} */
-function openPicker(mode,i){pick={mode,i:i==null?null:i,q:"",fin:null,sel:[]};renderSheet();
+function openPicker(mode,i){pick={mode,i:i==null?null:i,q:"",fin:null};renderSheet();
   setTimeout(()=>{const e=document.querySelector(".picker");if(e)e.scrollIntoView({behavior:"smooth",block:"nearest"})},60)}
 function pickerHtml(){
   const ids=Object.keys(GAMES);
@@ -1457,32 +1473,31 @@ function pickerHtml(){
   const fopts=[["",`Tous les ateliers (${ids.length})`]].concat(nClub?[["club",`Ateliers du club (${nClub})`]]:[])
     .concat(FINALITES.filter(f=>counts[f.id]).map(f=>[f.id,`${f.name} (${counts[f.id]})`]))
     .map(([v,l])=>`<option value="${v}" ${((pick.fin||"")===v)?"selected":""}>${esc(l)}</option>`).join("");
-  const rows=shown.map(id=>{const g=GAMES[id];const on=pick.sel.includes(id);
-    return `<button type="button" class="pkrow${on?" on":""}" data-pick="${id}">
-      <span class="pkbox">${pick.mode==="add"?(on?"✓":""):"›"}</span>
+  const rows=shown.map(id=>{const g=GAMES[id];
+    return `<button type="button" class="pkrow" data-pick="${id}">
+      <span class="pkbox">${pick.mode==="insert"?"+":"›"}</span>
       <span class="pkmini">${g.schema?renderSchema(g.schema):`<span class="pkno">${g.kind==="accueil"?"🤝":g.kind==="calme"?"🙌":"—"}</span>`}</span>
       <span class="pktxt"><b>${esc(g.name)}</b><span class="pkmeta"><span class="kind k-${g.kind}">${KIND_LABEL[g.kind]}</span> ${g.dur}' · ${esc(g.club?"Atelier du club":finName(finOf(id)))}</span>
         <span class="pkdesc">${esc((g.desc||"").slice(0,150))}</span></span></button>`}).join("");
   return `<div class="picker">
-    <div class="edhead"><h4>${pick.mode==="add"?"Choisir des ateliers pour cette séance":"Remplacer cet atelier"}</h4>
-      <span class="note">Catégorie ${CAT.code} : les ateliers du guide FFF et ceux créés par les éducateurs du club.${pick.mode==="add"?" Coche ceux que tu veux, ils s'ajoutent dans l'ordre choisi.":""}</span></div>
+    <div class="edhead"><h4>${pick.mode==="insert"?"Ajouter un atelier":"Remplacer cet atelier"}</h4>
+      <span class="note">Un clic suffit : l'atelier ${pick.mode==="insert"?"se place ici":"prend la place"}. Catégorie ${CAT.code} — ateliers du guide FFF et du club.</span>
+      <button type="button" class="btn ghost small" id="pkNewTop">✚ Créer mon atelier</button></div>
     <div class="field" style="max-width:420px;margin-top:8px"><input id="pkQ" type="search" value="${esc(pick.q)}" placeholder="Rechercher un atelier (nom, consigne…)" aria-label="Rechercher un atelier"></div>
     <div class="pkfilt">${chips}</div>
     <div class="pkfinsel"><label for="pkFin">Filtrer</label><select id="pkFin">${fopts}</select></div>
     <div class="pklist">${rows||`<p class="note" style="padding:12px">Aucun atelier ne correspond.</p>`}</div>
-    <div class="prof-actions">${pick.mode==="add"?`<button class="btn wa" id="pkDo" style="background:var(--navy);color:#fff" ${pick.sel.length?"":"disabled"}>${pick.sel.length?`Ajouter ${pick.sel.length} atelier${pick.sel.length>1?"s":""}`:"Ajouter les ateliers cochés"}</button>`:""}
-      <button class="btn ghost" id="pkNew">✚ Créer un nouvel atelier</button><button class="btn ghost" id="pkCancel">Annuler</button></div></div>`}
+    <div class="prof-actions"><button class="btn ghost" id="pkCancel">Fermer</button></div></div>`}
 function bindPicker(){const q=id=>document.getElementById(id);
   const inp=q("pkQ");if(inp)inp.addEventListener("input",()=>{pick.q=inp.value;clearTimeout(bindPicker._t);
     bindPicker._t=setTimeout(()=>{renderSheet();const n=document.getElementById("pkQ");if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}},220)});
   document.querySelectorAll("[data-pfin]").forEach(b=>b.addEventListener("click",()=>{pick.fin=b.dataset.pfin||null;renderSheet()}));
   const fs=q("pkFin");if(fs)fs.addEventListener("change",()=>{pick.fin=fs.value||null;renderSheet()});
   document.querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.pick;
-    if(pick.mode==="replace"){draft.blocks[pick.i]={g:id,dur:undefined};pick=null;renderSheet();return}
-    const k=pick.sel.indexOf(id);if(k<0)pick.sel.push(id);else pick.sel.splice(k,1);renderSheet()}));
-  const doB=q("pkDo");if(doB)doB.addEventListener("click",()=>{const pos=Math.max(0,draft.blocks.length-(GAMES[(draft.blocks[draft.blocks.length-1]||{}).g]&&GAMES[draft.blocks[draft.blocks.length-1].g].kind==="calme"?1:0));
-    pick.sel.forEach((id,n)=>draft.blocks.splice(pos+n,0,{g:id}));pick=null;renderSheet()});
-  q("pkNew").addEventListener("click",()=>{const i=pick.mode==="replace"?pick.i:null;pick=null;openGameEditor(null,"session")});
+    if(pick.mode==="replace"){const at=pick.i;draft.blocks[at]={g:id,dur:undefined};pick=null;equalizeRots(draft.blocks);edFocus={dur:at};renderSheet();return}
+    const at=Math.max(0,Math.min(pick.i,draft.blocks.length));
+    draft.blocks.splice(at,0,{g:id});pick=null;normRot(draft.blocks);equalizeRots(draft.blocks);edFocus={dur:at};renderSheet()}));
+  const nt=q("pkNewTop");if(nt)nt.addEventListener("click",()=>{const at=pick.mode==="insert"?pick.i:null;pick=null;openGameEditor(null,"session",at)});
   q("pkCancel").addEventListener("click",()=>{pick=null;renderSheet()})}
 
 /* ---------- Nouvelle séance ----------
@@ -1871,6 +1886,9 @@ let currentId=null,editId=null,draft=null,action=null,edFocus=null;
 function applyEdFocus(){if(!edFocus)return;const f=edFocus;edFocus=null;
   if(f.field){const el=document.getElementById(f.field);if(!el)return;
     el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}},260);return}
+  if(f.dur!=null){const inp=document.querySelector('.edrow[data-i="'+f.dur+'"] input[type=number]');
+    if(inp){const r=inp.closest(".edrow");if(r){r.scrollIntoView({behavior:"smooth",block:"center"});r.classList.add("flash")}
+      setTimeout(()=>{inp.focus();inp.select()},280)}return}
   if(f.blk!=null){const r=document.querySelector('.edrow[data-i="'+f.blk+'"]');if(!r)return;
     r.scrollIntoView({behavior:"smooth",block:"center"});r.classList.add("flash");
     const t=r.querySelector(".edtxt textarea,.edtxt input");if(t)setTimeout(()=>t.focus(),320)}}
@@ -1938,8 +1956,11 @@ ${real.dup?`<div class="field"><label for="edDate">Date de la séance</label><in
         <div class="field"><label for="edObjs">Objectifs du jour (un par ligne)</label><textarea id="edObjs" rows="3">${esc(draft.objs.join("\n"))}</textarea></div>
         <div class="field" style="grid-column:1/-1"><label for="edNote">Consignes du référent aux éducateurs (facultatif — reprises sur la fiche et dans le message WhatsApp)</label><textarea id="edNote" rows="2" placeholder="Ex. : laisser de la créativité aux enfants, ne pas arrêter le jeu à chaque erreur, une consigne à la fois…">${esc(draft.note||"")}</textarea></div>
       </div>
-      <div class="edblocks">${(()=>{const drot=rotGroups(draft.blocks);return draft.blocks.map((b,i)=>{const g=GAMES[b.g];const adapted=TXT.some(k=>b[k]&&b[k]!==g[k]);
-        return `${i>0?`<div class="rotlink${b.rot?" on":""}"><button type="button" data-rot="${i}" aria-pressed="${!!b.rot}" title="${b.rot?"Séparer ces deux ateliers":"Faire tourner ces ateliers en même temps, avec des sous-groupes"}">⟳ ${b.rot?"tournent ensemble":"faire tourner ensemble"}</button></div>`:""}
+      <div class="edblocks">${(()=>{const drot=rotGroups(draft.blocks);
+        const slot=i=>{const b=draft.blocks[i];const mid=i>0&&i<draft.blocks.length;
+          return `${pick&&pick.mode==="insert"&&pick.i===i?pickerHtml():""}<div class="slot"><button type="button" class="addhere" data-add="${i}" title="Ajouter un atelier ici" aria-label="Ajouter un atelier à la position ${i+1}">+</button>${mid?`<button type="button" class="rotpill${b.rot?" on":""}" data-rot="${i}" aria-pressed="${!!b.rot}" title="${b.rot?"Séparer ces deux ateliers":"Faire tourner ces ateliers en même temps, avec des sous-groupes"}">⟳ ${b.rot?"tournent ensemble":"faire tourner ensemble"}</button>`:""}</div>`};
+        return draft.blocks.map((b,i)=>{const g=GAMES[b.g];const adapted=TXT.some(k=>b[k]&&b[k]!==g[k]);
+        return `${slot(i)}
         <div class="edrow${drot[i]>=0?" is-rot":""}" data-i="${i}">
         <button type="button" class="grip" data-grip="${i}" title="Glisse pour changer l'ordre (ou flèches ↑ ↓ du clavier)" aria-label="Atelier ${i+1} sur ${draft.blocks.length} — glisser pour réordonner"><span class="dots" aria-hidden="true">${gripIcon()}</span><span class="num">${i+1}</span></button>
         <div class="edname"><span class="kind k-${g.kind}">${KIND_LABEL[g.kind]}</span><b>${esc(g.name)}</b></div>
@@ -1949,8 +1970,8 @@ ${real.dup?`<div class="field"><label for="edDate">Date de la séance</label><in
           <label>Déroulé et consignes<textarea data-tk="desc" data-i="${i}" rows="4">${esc(b.desc||g.desc||"")}</textarea></label>
           <label>Variantes<textarea data-tk="var" data-i="${i}" rows="2">${esc(b.var||g.var||"")}</textarea></label>
           <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}
-        ${pick&&pick.mode==="replace"&&pick.i===i?pickerHtml():""}</div>`}).join("")})()}</div>
-      ${pick&&pick.mode==="add"?pickerHtml():pick?"":`<div class="prof-actions"><button class="btn ghost" id="edAdd">+ Ajouter un atelier</button><button class="btn ghost" id="edNew">✚ Créer un atelier</button><button class="btn ghost" id="edLib">📚 Voir la liste des ateliers</button></div>`}
+        ${pick&&pick.mode==="replace"&&pick.i===i?pickerHtml():""}</div>`}).join("")+slot(draft.blocks.length)})()}</div>
+      <div class="prof-actions"><button class="btn ghost small" id="edLib">📚 Voir la liste des ateliers</button></div>
       <div class="edsave"><div class="field" style="margin:0"><label for="edBy">Modifié par</label><input id="edBy" type="text" value="${esc(get("who",""))}" placeholder="Ton prénom"></div><button class="btn wa" id="edSave" style="background:var(--navy);color:#fff">💾 Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>${!real.dup&&real.mod?`<button class="btn ghost" id="edReset">↺ Rétablir la séance d'origine</button>`:""}</div>
     </div>`:"";
   el.innerHTML=`<div class="sheet ${editing?"is-editing":""}">
@@ -2079,6 +2100,7 @@ function bindEditor(real){
     if(g[i]>=0){const ids=g.map((y,j)=>y===g[i]?j:-1).filter(j=>j>=0);ids.forEach(j=>draft.blocks[j].dur=v);
       setTimeout(()=>{renderSheet();toast(`Les ${ids.length} ateliers tournants passent à ${v} min`)},0)}
     else setTimeout(renderSheet,0)}));
+  document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>openPicker("insert",+b.dataset.add)));
   document.querySelectorAll("[data-rot]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.rot;
     const blk2=draft.blocks[i];
     if(blk2.rot){delete blk2.rot}
