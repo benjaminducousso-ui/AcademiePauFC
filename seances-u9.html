@@ -1263,25 +1263,26 @@ function bindPicker(){const q=id=>document.getElementById(id);
   q("pkNew").addEventListener("click",()=>{const i=pick.mode==="replace"?pick.i:null;pick=null;openGameEditor(null,"session")});
   q("pkCancel").addEventListener("click",()=>{pick=null;renderSheet()})}
 
-/* ---------- Nouvelle séance ---------- */
-function newSessionPanel(){const who=get("who","");const d=new Date();const def=new Date(Date.now()+864e5).toISOString().slice(0,10);
-  return `<div class="actionbox"><b>➕ Créer une séance</b><span class="note">Une séance vide s'ajoute à la date choisie : tu la composes ensuite avec les ateliers du guide, ceux du club, ou les tiens.</span>
-    <div class="acrow"><label>Date <input type="date" id="nsDate" value="${def}"></label><label>Titre <input type="text" id="nsTitle" placeholder="ex. Ma séance du mardi"></label><label>Ton prénom <input type="text" id="nsBy" value="${esc(who)}" placeholder="facultatif"></label>
-      <button class="btn wa" id="nsDo" style="background:var(--navy);color:#fff">Créer la séance</button><button class="btn ghost" id="nsCancel">Annuler</button></div></div>`}
-function bindNewSession(){const q=id=>document.getElementById(id);
-  q("nsCancel").addEventListener("click",()=>{action=null;renderSessions()});
-  q("nsDo").addEventListener("click",()=>{
-    const date=q("nsDate").value;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){toast("Choisis une date");return}
-    const by=(q("nsBy").value||"").trim();if(by)set("who",by);
-    const title=(q("nsTitle").value||"").trim()||"Ma séance";
-    const id="d"+Date.now().toString(36);
-    const first=Object.keys(GAMES).find(k=>GAMES[k].kind==="accueil"),last=Object.keys(GAMES).find(k=>GAMES[k].kind==="calme");
-    const blocks=[];if(first)blocks.push({g:first});if(last)blocks.push({g:last});
-    const data={title,theme:"",objs:["À compléter"],note:"",blocks,dup:true,date,base:""};
-    action=null;currentId=id;curPer=perForDate(date).n;
-    saveOverride(id,data,by||get("who","")||"l'éducateur").then(()=>{editId=id;draft=snapshot(SESSIONS.find(x=>x.id===id)||{title,theme:"",objs:data.objs,note:"",blocks});renderSessions();
-      const e=document.querySelector(".editor");if(e)e.scrollIntoView({behavior:"smooth",block:"start"})});
-    renderSessions();toast("Séance créée — à toi de la composer")})}
+/* ---------- Nouvelle séance ----------
+   Un clic suffit : la séance vierge est créée à la prochaine date d'entraînement
+   et s'ouvre aussitôt, prête à être remplie (titre, objectifs, ateliers). */
+function nextFreeDate(){const days=(CAT.days&&CAT.days.length)?CAT.days:[1,3,6];
+  for(let k=1;k<=28;k++){const d=new Date(Date.now()+k*864e5);
+    if(days.includes(d.getDay())){const iso=d.toISOString().slice(0,10);
+      if(!SESSIONS.some(x=>x.date===iso&&!isDel(x.id)))return iso}}
+  return new Date(Date.now()+864e5).toISOString().slice(0,10)}
+function createBlankSession(){
+  const date=nextFreeDate();const by=get("who","")||"l'éducateur";
+  const id="d"+Date.now().toString(36);
+  const first=Object.keys(GAMES).find(k=>GAMES[k].kind==="accueil"),last=Object.keys(GAMES).find(k=>GAMES[k].kind==="calme");
+  const blocks=[];if(first)blocks.push({g:first});if(last)blocks.push({g:last});
+  const data={title:"Nouvelle séance",theme:"",objs:["À compléter"],note:"",blocks,dup:true,date,base:""};
+  action=null;pick=null;currentId=id;curPer=perForDate(date).n;
+  saveOverride(id,data,by).then(()=>{
+    const real=SESSIONS.find(x=>x.id===id);if(!real)return;
+    editId=id;draft=snapshot(real);edFocus={field:"edTitle"};renderSessions();
+    const e=document.querySelector(".editor");if(e)e.scrollIntoView({behavior:"smooth",block:"start"})});
+  renderSessions();toast("Séance vierge créée — remplis-la, puis enregistre")}
 </script>
 <script>
 /* ===== Fiche de séance en PDF (une page A4) et partage WhatsApp =====
@@ -1533,8 +1534,12 @@ function applyOverrides(){
   Object.entries(OVR).forEach(([id,o])=>{const i=SESSIONS.findIndex(x=>x.id===id);const d=o&&o.data;
     if(d&&d.dup&&validData(d)&&i<0){const per=perForDate(d.date);const day=new Date(d.date+"T00:00:00Z").getUTCDay();SESSIONS.push({id,per:per.n,date:d.date,sat:day===6,dup:true,base:d.base||"",pef:per.pef||"",title:d.title,theme:d.theme||"",objs:[...d.objs],blocks:[]});SESSIONS.sort((a,b)=>a.date.localeCompare(b.date))}
     if(i>=0&&SESSIONS[i].dup&&!d){SESSIONS.splice(i,1);if(currentId===id)currentId=null}});
+  let moved=false;
   SESSIONS.forEach(s=>{if(!ORIG[s.id])ORIG[s.id]=snapshot(s);const o=OVR[s.id];const use=o&&validData(o.data);const src=use?o.data:ORIG[s.id];
-  s.title=src.title;s.theme=src.theme||"";s.objs=[...src.objs];s.note=src.note||"";s.blocks=src.blocks.map(b=>({...blk(b)}));s.mod=use&&!s.dup?{by:o.by||"",ts:o.ts||0}:null;if(s.dup&&o)s.by=o.by||""})}
+  /* une séance ajoutée peut être déplacée à une autre date depuis l'éditeur */
+  if(s.dup&&use&&src.date&&src.date!==s.date){s.date=src.date;s.per=perForDate(src.date).n;s.sat=new Date(src.date+"T00:00:00Z").getUTCDay()===6;moved=true}
+  s.title=src.title;s.theme=src.theme||"";s.objs=[...src.objs];s.note=src.note||"";s.blocks=src.blocks.map(b=>({...blk(b)}));s.mod=use&&!s.dup?{by:o.by||"",ts:o.ts||0}:null;if(s.dup&&o)s.by=o.by||""});
+  if(moved)SESSIONS.sort((a,b)=>a.date.localeCompare(b.date))}
 /* Supprimer une séance (d'origine comme ajoutée) : elle disparaît de la liste pour tout le club,
    et reste rétablissable depuis « séances supprimées » au bas de la colonne de gauche. */
 function delSession(real,by){const o=OVR[real.id];
@@ -1665,15 +1670,15 @@ function renderSessions(){
   v.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{curPer=+b.dataset.per;currentId=null;editId=null;renderSessions()}));
   v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{currentId=b.dataset.id;editId=null;action=null;renderSessions();document.getElementById("sheet").scrollIntoView({behavior:"smooth",block:"start"})}));
   v.querySelectorAll("[data-undel]").forEach(b=>b.addEventListener("click",()=>undelSession(b.dataset.undel,get("who","")||"l'éducateur")));
-  const nb=document.getElementById("newSess");if(nb)nb.addEventListener("click",()=>{action=action==="new"?null:"new";editId=null;renderSheet();const p=document.querySelector(".actionbox");if(p)p.scrollIntoView({behavior:"smooth",block:"nearest"})});
+  const nb=document.getElementById("newSess");if(nb)nb.addEventListener("click",()=>createBlankSession());
   renderSheet();
 }
 function gameOptions(selected){const cur=finOf(selected);const order=[...FINALITES].sort((a,b)=>(a.id===cur?-1:b.id===cur?1:0));
   return order.map(f=>{const ids=Object.keys(GAMES).filter(id=>finOf(id)===f.id);if(!ids.length)return "";return `<optgroup label="${esc(f.name)}${f.id===cur?" — même finalité":""}">${ids.map(id=>`<option value="${id}" ${id===selected?"selected":""}>${esc(GAMES[id].name)} (${GAMES[id].dur}')</option>`).join("")}</optgroup>`}).join("")}
 function renderSheet(){
   const real=SESSIONS.find(x=>x.id===currentId);const el=document.getElementById("sheet");
-  if(!real){el.innerHTML=`<div class="sheet">${action==="new"?newSessionPanel():""}<div class="objs"><div><h4>Aucune séance sur cette période</h4><p class="note">Toutes les séances de la période ont été supprimées. Crée une séance avec le bouton <b>➕ Créer une séance</b> en haut de la colonne, ou rétablis-en une depuis « séances supprimées » sous la liste.</p></div></div></div>`;
-    if(action==="new")bindNewSession();return}
+  if(!real){el.innerHTML=`<div class="sheet"><div class="objs"><div><h4>Aucune séance sur cette période</h4><p class="note">Toutes les séances de la période ont été supprimées. Crée une séance avec le bouton <b>➕ Créer une séance</b> en haut de la colonne, ou rétablis-en une depuis « séances supprimées » sous la liste.</p></div></div></div>`;
+    return}
   const editing=editId===real.id&&draft;
   const s=editing?Object.assign({},real,draft):real;
   const plateau=!editing&&isPlateau(s);
@@ -1705,6 +1710,7 @@ function renderSheet(){
   const editor=editing?`<div class="editor">
       <div class="edhead"><h4>✏️ Modifier cette séance</h4><span class="note">Glisse un atelier par sa poignée <b>⠿</b> pour changer l'ordre, touche « changer » pour en prendre un autre, « ✎ Texte » pour adapter les consignes. Total : <b id="edTotal" class="num">${total}</b> min pour ${SESSION_DUR} prévues.</span></div>
       <div class="edgrid">
+${real.dup?`<div class="field"><label for="edDate">Date de la séance</label><input id="edDate" type="date" value="${esc(real.date)}"></div>`:""}
         <div class="field"><label for="edTitle">Titre de la séance</label><input id="edTitle" type="text" value="${esc(draft.title)}"></div>
         <div class="field"><label for="edTheme">Thème (phrase d'accroche)</label><textarea id="edTheme" rows="2">${esc(draft.theme)}</textarea></div>
         <div class="field"><label for="edObjs">Objectifs du jour (un par ligne)</label><textarea id="edObjs" rows="3">${esc(draft.objs.join("\n"))}</textarea></div>
@@ -1734,7 +1740,7 @@ function renderSheet(){
       <div class="meta">${plateau&&MATCH_ON?"":`<span class="pill num">${total} min</span>`}<span class="pill">${CAT.group||"8-14 enfants"}</span>${modChip}${s.sat&&!editing?`<div class="seg" role="group" aria-label="Ce samedi"><span class="seglab">Ce samedi</span><button class="segbtn" id="segMatch" aria-pressed="${plateau}">🏟️ ${PLATEAU.label||"Plateau"}</button><button class="segbtn" id="segTrain" aria-pressed="${!plateau}">⚽ Entraînement</button></div>`:""}${!plateau&&!editing?`<button class="toggle" id="editBtn">${pencilIcon()} Modifier</button>`:""}${!editing?`<details class="moremenu"><summary class="toggle" title="Autres actions sur cette séance">⋯</summary><div class="menupop">${!plateau?`<button type="button" id="dupBtn">⧉ Dupliquer</button><button type="button" id="swapBtn">⇄ Déplacer</button>`:""}<button type="button" id="delBtn" class="danger">🗑 Supprimer</button></div></details>`:""}</div>
     </div>
     ${s.sat&&!editing?`<p class="seghint">${plateau?(MATCH_ON?"Match annulé ou reporté ? Clique sur <b>Entraînement</b> : la séance « on rejoue » du thème de la semaine prend la place du match, pour tous les éducateurs.":"Pas de "+(PLATEAU.label||"plateau").toLowerCase()+" ce samedi ? Clique sur <b>Entraînement</b> pour afficher la séance."):(MATCH_ON?"Ce samedi est affiché en entraînement. Un match finalement ? Clique sur <b>"+(PLATEAU.label||"Match")+"</b> pour le rétablir, pour tous les éducateurs.":"Jour de "+(PLATEAU.label||"plateau").toLowerCase()+" ? Clique sur <b>"+(PLATEAU.label||"Plateau")+"</b> : la séance est sautée, pas décalée.")}</p>`:""}
-    ${!editing&&action==="new"?newSessionPanel():!editing&&action?actionPanel(real):""}
+    ${!editing&&action?actionPanel(real):""}
     ${editing&&gEdit&&gEdit.from==="session"?gameEditorHtml():editor}
     ${!editing&&s.nogk&&!plateau?`<div class="callout" style="margin:12px 20px 0"><b>🧤 Sans gardien</b> · les gardiens sont au spécifique : petits buts, cibles ou zones d'arrivée, personne dans les buts.</div>`:""}
     ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}${!plateau?`<button class="zedit" id="edNoteBtn" title="Modifier les consignes du référent" aria-label="Modifier les consignes du référent">${pencilIcon()}</button>`:""}</div>`:""}
@@ -1773,7 +1779,7 @@ function renderSheet(){
   el.querySelectorAll("[data-bedit]").forEach(b=>b.addEventListener("click",()=>openEdit({blk:+b.dataset.bedit})));
   [["edTitleBtn","edTitle"],["edObjsBtn","edObjs"],["edNoteBtn","edNote"]].forEach(([id,f])=>{
     const b=document.getElementById(id);if(b)b.addEventListener("click",()=>openEdit({field:f}))});
-  if(action==="new"&&!editing)bindNewSession();else if(action&&!editing)bindActionPanel(real);
+  if(action&&!editing)bindActionPanel(real);
   if(editing&&gEdit&&gEdit.from==="session")bindGameEditor();else if(editing)bindEditor(real);
   applyEdFocus();
 }
@@ -1869,7 +1875,7 @@ function bindEditor(real){
   document.querySelectorAll("[data-gedit]").forEach(b=>b.addEventListener("click",()=>openGameEditor(b.dataset.gedit,"session")));
   q("edCancel").addEventListener("click",()=>{editId=null;draft=null;pick=null;renderSheet()});
   q("edSave").addEventListener("click",()=>{const by=q("edBy").value.trim()||get("who","")||"l'éducateur";if(q("edBy").value.trim())set("who",by);
-    const data={title:draft.title.trim()||real.title,theme:draft.theme.trim(),objs:draft.objs.length?draft.objs:real.objs,note:(draft.note||"").trim(),blocks:draft.blocks.map(blk)};if(real.dup){data.dup=true;data.date=real.date;data.base=real.base||""}
+    const data={title:draft.title.trim()||real.title,theme:draft.theme.trim(),objs:draft.objs.length?draft.objs:real.objs,note:(draft.note||"").trim(),blocks:draft.blocks.map(blk)};if(real.dup){const dv=(q("edDate")||{}).value;data.dup=true;data.date=/^\d{4}-\d{2}-\d{2}$/.test(dv||"")?dv:real.date;data.base=real.base||"";curPer=perForDate(data.date).n}
     if(!validData(data)){toast("Séance incomplète");return}
     const orig=ORIG[real.id];const same=!real.dup&&JSON.stringify(data)===JSON.stringify({title:orig.title,theme:orig.theme,objs:orig.objs,note:orig.note||"",blocks:orig.blocks.map(blk)});
     editId=null;draft=null;pick=null;saveOverride(real.id,same?null:data,by).then(()=>renderSessions());renderSessions()});
