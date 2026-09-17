@@ -93,6 +93,41 @@ input.txt{width:150px;border:1px solid transparent;border-radius:6px;padding:5px
 .rotwarn{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;border-left:4px solid var(--yellow);background:var(--surface);border-radius:0 8px 8px 0;font-size:13.5px}
 @media (hover:none){.zedit{width:34px;height:34px}.bedit{width:38px;height:38px}}
 .zedit{width:30px;height:30px}
+
+/* ---------- ligne d'atelier de l'éditeur (refonte) ---------- */
+.edrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;grid-template-columns:none}
+.edrow .grip{flex:0 0 auto}
+.edname{flex:1 1 220px;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.edname b{font-size:15.5px;font-weight:700;line-height:1.25}
+.edname .kind{flex:none;color:#fff}
+.edtools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-left:auto}
+.edtools .dur input{width:58px}
+.edname select{flex:1 1 auto;min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:var(--surface);color:var(--ink)}
+.edtools .del{color:#8A1F1F;border-color:#E3C9C9}
+.edtools .del:hover{background:#8A1F1F;color:#fff;border-color:#8A1F1F}
+.edrow .txt[aria-expanded="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.edrow .edtxt,.edrow .picker{flex:1 1 100%}
+@media (max-width:620px){.edtools{margin-left:0;width:100%}.edname{flex:1 1 100%}}
+
+/* lien de rotation entre deux ateliers */
+.rotlink{display:flex;justify-content:center;margin:-3px 0;position:relative;z-index:1}
+.rotlink button{font-size:12px;font-weight:700;border:1px dashed var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 12px;cursor:pointer;line-height:1.2}
+.rotlink button:hover,.rotlink button:focus-visible{border-color:var(--navy-2);color:var(--navy-2)}
+.rotlink.on button{border-style:solid;background:var(--yellow);border-color:var(--yellow);color:#3B2E00}
+.edblocks.is-dragging .rotlink{visibility:hidden}
+.edblocks{gap:4px}
+
+/* menu « autres actions » du bandeau de séance */
+.moremenu{position:relative}
+.moremenu summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-width:42px;font-size:18px;line-height:1}
+.moremenu summary::-webkit-details-marker{display:none}
+.moremenu[open] summary{background:var(--yellow);color:#3B2E00;border-color:var(--yellow)}
+.menupop{position:absolute;right:0;top:calc(100% + 6px);z-index:20;display:flex;flex-direction:column;min-width:200px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 28px rgba(11,42,74,.22);overflow:hidden}
+.menupop button{text-align:left;padding:10px 14px;font:inherit;font-size:14.5px;font-weight:600;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--ink);cursor:pointer}
+.menupop button:last-child{border-bottom:0}
+.menupop button:hover{background:var(--surface-2)}
+.menupop button.danger{color:#8A1F1F}
+.menupop button.danger.armed{background:#8A1F1F;color:#fff}
 </style>
 <style>
 .days{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}@media (max-width:760px){.days{grid-template-columns:1fr}}
@@ -650,11 +685,12 @@ async function fichePdfDoc(s){
   const rgrp=typeof rotGroups==="function"?rotGroups(blocks):blocks.map(()=>-1);
   for(let i=0;i<blocks.length;i++){const b=blocks[i];
     /* bandeau des ateliers tournants, juste avant le premier atelier du groupe */
-    if(rgrp[i]===i){const nb=rgrp.filter(x=>x===i).length;const tot=blocks.filter((x,j)=>rgrp[j]===i).reduce((a,x)=>a+(x.dur||0),0);
+    if(rgrp[i]===i){const nb=rgrp.filter(x=>x===i).length;const gb=blocks.filter((x,j)=>rgrp[j]===i);const tot=gb.reduce((a,x)=>a+(x.dur||0),0);
+      const memeDur=new Set(gb.map(x=>x.dur)).size===1;
       if(y+9>286){foot();doc.addPage();y=14}
       doc.setFillColor(FCS.yel);doc.roundedRect(MX,y,W,7,1.6,1.6,"F");
       doc.setTextColor("#3B2E00");doc.setFont("Poppins","bold");doc.setFontSize(7.2);
-      doc.text(`ATELIERS TOURNANTS · ${nb} ateliers en parallèle, ${nb} sous-groupes qui tournent · ${tot} min au total`,MX+4,y+4.8);
+      doc.text(`ATELIERS TOURNANTS · ${nb} ateliers en même temps · ${nb} sous-groupes, on change ${memeDur?`toutes les ${blocks[i].dur} min`:"au signal"} · ${tot} min en tout`,MX+4,y+4.8);
       y+=9}
     const hasS=!!b.schema;const tx0=MX+(hasS?SW+6:0)+4,tw=W-(hasS?SW+6:0)-8;
     doc.setFont("Poppins","bold");doc.setFontSize(10.5);const nl=doc.splitTextToSize(b.name,tw-26);
@@ -780,7 +816,7 @@ function waMessage(s){const g=grp();const vd=VACANCES.find(x=>x.id===vac);const 
   /* Symboles non-emoji uniquement (★ ◆ ✦ ● ➜) : les caractères à présentation emoji arrivent en « ? » sur WhatsApp Mac ; le lien vers la fiche est en haut, avant le repli « Lire la suite ». */
   const lines=[`★ *Stage ${vd.name} · ${g.name}* — ${g.dayNames[s.day-1]} ${fmt(d)}`,`◆ *${s.title}* (${totalOf(s)} min)`,`_${s.theme}_`,`➜ Fiche complète (schémas, consignes, matériel) : ${sessionLink(s)}`,...(s.note?[`✦ *Consignes du référent* : ${s.note}`]:[]),"",`◆ *Déroulé*`];
   const wg=rotGroups(blocks);
-  blocks.forEach((b,i)=>{if(wg[i]===i){const nb=rotSize(wg,i);lines.push(`⟳ _Ateliers tournants : ${nb} ateliers en parallèle, ${nb} sous-groupes qui tournent_`)}
+  blocks.forEach((b,i)=>{if(wg[i]===i){const nb=rotSize(wg,i);lines.push(`⟳ _Ateliers tournants : les ${nb} ateliers suivants tournent en même temps — ${nb} sous-groupes, on change d\u0027atelier toutes les ${b.dur} min_`)}
     lines.push(`${i+1}. ${b.dur}' *${b.name}*${wg[i]>=0?" (en rotation)":""}${b.desc&&b.kind!=="accueil"&&b.kind!=="calme"?` — ${(b.desc.split(/(?<=[.!?])\s/)[0]||"").trim()}`:""}`)});
   lines.push("","★ *Objectifs*");s.objs.forEach(o=>lines.push(`- ${o}`));
   lines.push("","✦ *À veiller*",`- ${s.veiller}`);blocks.filter(b=>b.veiller).forEach(b=>lines.push(`- ${b.name} : ${b.veiller}`));
@@ -948,8 +984,10 @@ function editorHtml(s){const lib=st().lib;
       <div class="field" style="grid-column:1/-1"><label for="edVeiller">Le regard de l'éducateur</label><textarea id="edVeiller" rows="2">${esc(draft.veiller)}</textarea></div>
       <div class="field" style="grid-column:1/-1"><label for="edNote">Consignes du référent aux éducateurs (facultatif — reprises sur la fiche et dans le message WhatsApp)</label><textarea id="edNote" rows="2" placeholder="ex. Insister sur le pied faible, groupe très hétérogène">${esc(draft.note)}</textarea></div>
     </div>
-    <div class="edblocks">${(()=>{const drot=rotGroups(draft.blocks);return draft.blocks.map((b,i)=>{const g=lib[b.g]||{name:b.g,kind:"atelier",dur:10};return `<div class="edrow${drot[i]>=0?" is-rot":""}" data-i="${i}"><button type="button" class="grip" data-grip="${i}" title="Glisse pour changer l'ordre (ou flèches ↑ ↓ du clavier)" aria-label="Atelier ${i+1} sur ${draft.blocks.length} — glisser pour réordonner"><span class="dots" aria-hidden="true">${gripIcon()}</span><span class="num">${i+1}</span></button><select data-i="${i}" aria-label="Atelier ${i+1}">${libOptions(b.g)}</select><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv">${i>0?`<button class="btn ghost small rotbtn" data-rot="${i}" aria-pressed="${!!b.rot}" title="${b.rot?"Ne plus faire tourner avec l'atelier précédent":"Faire tourner avec l'atelier précédent : les enfants sont répartis en sous-groupes"}">⟳ ${b.rot?"tourne":"tourner"}</button>`:""}<button class="btn ghost small" data-del="${i}" title="Retirer cet atelier">✕</button></span>
-        <button class="btn ghost small txt" data-txt="${i}" aria-expanded="${!!b._open}" title="Adapter le texte de cet atelier pour cette séance">✎ Texte${TXT.some(k=>b[k]&&b[k]!==g[k])?" · adapté":""}</button>
+    <div class="edblocks">${(()=>{const drot=rotGroups(draft.blocks);return draft.blocks.map((b,i)=>{const g=lib[b.g]||{name:b.g,kind:"atelier",dur:10};return `${i>0?`<div class="rotlink${b.rot?" on":""}"><button type="button" data-rot="${i}" aria-pressed="${!!b.rot}" title="${b.rot?"Séparer ces deux ateliers":"Faire tourner ces ateliers en même temps, avec des sous-groupes"}">⟳ ${b.rot?"tournent ensemble":"faire tourner ensemble"}</button></div>`:""}
+        <div class="edrow${drot[i]>=0?" is-rot":""}" data-i="${i}"><button type="button" class="grip" data-grip="${i}" title="Glisse pour changer l'ordre (ou flèches ↑ ↓ du clavier)" aria-label="Atelier ${i+1} sur ${draft.blocks.length} — glisser pour réordonner"><span class="dots" aria-hidden="true">${gripIcon()}</span><span class="num">${i+1}</span></button>
+        <div class="edname"><span class="kind k-${g.kind}">${KIND_LABEL[g.kind]}</span><select data-i="${i}" aria-label="Atelier ${i+1}">${libOptions(b.g)}</select></div>
+        <div class="edtools"><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée en minutes"> min</label><button class="btn ghost small txt" data-txt="${i}" aria-expanded="${!!b._open}" title="Adapter le texte de cet atelier pour cette séance">✎ Texte${TXT.some(k=>b[k]&&b[k]!==g[k])?" ·":""}</button><button class="btn ghost small del" data-del="${i}" title="Retirer cet atelier de la séance" aria-label="Retirer cet atelier">✕</button></div>
         ${b._open?`<div class="edtxt"><p class="note">Ces textes ne valent que pour cette séance (ils partent dans le message WhatsApp et sur la fiche) ; la liste des ateliers ne change pas.</p>
           <label>Nom de l'atelier<input type="text" data-tk="name" data-i="${i}" value="${esc(b.name||g.name)}"></label>
           <label>Déroulé et consignes<textarea data-tk="desc" data-i="${i}" rows="4">${esc(b.desc||g.desc||"")}</textarea></label>
@@ -1041,7 +1079,7 @@ function renderSeances(){const v=document.getElementById("view-seances");const g
   const rgrp=rotGroups(blocks);
   const rotBand=i=>{if(rgrp[i]!==i)return "";const ids=rgrp.map((x,j)=>x===i?j:-1).filter(j=>j>=0);
     const durs=[...new Set(ids.map(j=>blocks[j].dur))];
-    return `<div class="rotband"><b>⟳ Ateliers tournants</b> · ${ids.length} ateliers en parallèle, ${ids.length} sous-groupes qui tournent ${durs.length===1?`toutes les ${durs[0]} min`:`(${ids.map(j=>blocks[j].dur).join(" / ")} min)`} — ${ids.reduce((a,j)=>a+blocks[j].dur,0)} min au total. Chaque enfant fait les ${ids.length} ateliers.</div>`};
+    return `<div class="rotband"><b>⟳ Ateliers tournants</b> · Les ${ids.length} ateliers qui suivent tournent en même temps : partage le groupe en <b>${ids.length} sous-groupes</b>, un par atelier, et fais changer tout le monde ${durs.length===1?`toutes les ${durs[0]} min`:"au signal"}. Chaque enfant fait les ${ids.length} ateliers, ${ids.reduce((a,j)=>a+blocks[j].dur,0)} min en tout.</div>`};
   const blocksHtml=blocks.map((b,bi)=>{const at=clock!==null?fmtTime(clock):"";if(clock!==null)clock+=b.dur;const lg=S.lib[b.g]||{};const edited=TXT.some(k=>b[k]&&b[k]!==lg[k]);return `${rotBand(bi)}<article class="block${rgrp[bi]>=0?" in-rot":""}">
      ${!editing?`<button class="bedit" data-bedit="${bi}" title="Modifier cet atelier pour cette séance" aria-label="Modifier « ${esc(b.name)} »">${pencilIcon()}</button>`:""}
      <div>${b.schema?`<div class="schema">${renderSchema(b.schema)}</div>`:`<div class="schema" style="display:grid;place-items:center;min-height:120px;color:var(--muted);font-size:14px">${b.kind==="accueil"?"🤝 Cercle d'accueil":"🙌 Cercle de fin"}</div>`}</div>
@@ -1050,7 +1088,7 @@ function renderSeances(){const v=document.getElementById("view-seances");const g
        ${b.org||b.var||b.veiller?`<div class="more">${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}</div>`:""}</article>`}).join("");
   const mat=collectMat(blocks);const msg=waMessage(s);
   const modChip=s.dup?`<span class="pill" title="Séance de réserve créée par duplication">⧉ Séance de réserve${s.by?` par ${esc(s.by)}`:""}</span>`:s.mod?`<span class="pill" title="${s.mod.ts?new Date(s.mod.ts).toLocaleString("fr-FR"):""}">✎ Adaptée${s.mod.by?` par ${esc(s.mod.by)}`:""}</span>`:"";
-  const tools=editing?"":`<button class="toggle" id="editBtn">${pencilIcon()} Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button>${movable(s)?`<button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}`;
+  const tools=editing?"":`<button class="toggle" id="editBtn">${pencilIcon()} Modifier</button><details class="moremenu"><summary class="toggle" title="Autres actions sur cette séance">⋯</summary><div class="menupop"><button type="button" id="dupBtn">⧉ Dupliquer</button>${movable(s)?`<button type="button" id="swapBtn">⇄ Déplacer</button>`:""}</div></details>`;
   v.innerHTML=`<div class="eyebrow">${esc(g.name)} · séances techniques</div><h2 style="margin-top:4px">${S.sessions.filter(x=>!x.dup).length} séances types ${durTxt()}, prêtes à mener</h2><p class="note" style="margin-top:6px">Chaque séance : un éveil, deux ou trois jeux avec leurs schémas, un jeu ou un match pour finir. L'éducateur suit le déroulé, met en place, corrige. Une consigne à la fois. Chaque séance peut être modifiée, dupliquée ou déplacée par l'éducateur : la modification est partagée avec tout le club.</p>
   <div class="sess-layout"><div class="sess-list">${list}</div>
   <div class="sheet"><div class="sheet-head"><div><div class="eyebrow">Jour ${s.day} · ${sl?`${sl.t} → ${sl.end}`:s.dup?"séance de réserve (hors planning)":""} · Stage ${esc(vd.name)}</div><h2>${esc(s.title)}${!editing?`<button class="zedit" id="edTitleBtn" title="Modifier le titre et le thème" aria-label="Modifier le titre et le thème">${pencilIcon()}</button>`:""}</h2><p class="theme">${esc(s.theme)}</p></div><div class="meta"><span class="pill">${total} min</span><span class="pill">${esc(g.name)}</span><span class="pill">${esc(g.ratio)}</span>${modChip}${tools}</div></div>
