@@ -349,6 +349,76 @@ code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92
 .block .src,.libcard .src{font-size:12px;color:var(--muted);margin:-2px 0 6px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 [hidden]{display:none!important}
+
+/* ---------- UX : création en tête de liste, crayons de zone, glisser-déposer ---------- */
+.newsess{justify-content:center;background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700}
+.newsess:hover{background:var(--navy-2);border-color:var(--navy-2)}
+@media (max-width:900px){.newsess{flex:0 0 auto;white-space:nowrap;align-self:stretch}}
+.block{position:relative}
+.bedit{position:absolute;top:12px;right:14px;width:34px;height:34px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:15px;line-height:1;opacity:.5;transition:opacity .15s,border-color .15s,transform .15s;z-index:2}
+.block:hover .bedit,.bedit:focus-visible{opacity:1;border-color:var(--navy-2);transform:scale(1.06)}
+@media (hover:none){.bedit{opacity:.85}}
+.zedit{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:12px;line-height:1;margin-left:10px;vertical-align:middle;opacity:.6;transition:opacity .15s,border-color .15s}
+.zedit:hover,.zedit:focus-visible{opacity:1;border-color:var(--navy-2)}
+.sheet-head .zedit{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.12)}
+@media (hover:none){.zedit{opacity:.9}}
+.edrow .grip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:transparent;border:0;padding:0;color:var(--muted);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.edrow .grip:active{cursor:grabbing}
+.edrow .grip .dots{font-size:13px;line-height:1}
+.edrow .grip .num{font-family:var(--display);font-size:17px;font-weight:800;color:var(--navy-2);line-height:1}
+.edrow.dragging{box-shadow:0 10px 24px rgba(11,42,74,.28);border-color:var(--navy-2);opacity:.96}
+.edblocks.is-dragging{cursor:grabbing}
+.edrow.flash{animation:edflash 1.4s ease-out}
+@keyframes edflash{0%,45%{box-shadow:inset 0 0 0 2px var(--yellow)}100%{box-shadow:none}}
+.edrow .kind{white-space:nowrap}
+.bedit svg,.zedit svg{display:block}
+.bedit{color:var(--muted)}.zedit{color:var(--muted)}
+.sheet-head .zedit{color:#fff}
+.block:hover .bedit,.bedit:focus-visible,.zedit:hover,.zedit:focus-visible{color:var(--navy-2)}
+.sheet-head .zedit:hover,.sheet-head .zedit:focus-visible{color:#fff;border-color:#fff}
+.edrow .grip .dots{display:block;opacity:.75}
+.sess-col{display:flex;flex-direction:column;gap:8px;position:sticky;top:12px}
+.sess-list{position:static;top:auto}
+@media (max-width:900px){.sess-col{position:static}}
+.sess-col{min-width:0;max-width:100%}
+.sess-list{min-width:0;max-width:100%}
+.edrow{grid-template-columns:34px minmax(150px,1fr) max-content max-content max-content}
+.edrow .kind{min-width:max-content;overflow:visible}
+@media (max-width:700px){.edrow{grid-template-columns:34px 1fr max-content}}
+.edrow .kind{padding:3px 10px 3px 9px}
+/* Sélecteur d'ateliers : une seule liste, en colonne, et des filtres qui reviennent à la ligne. */
+.pklist{grid-template-columns:1fr;max-height:min(60vh,480px)}
+@media (max-width:760px){.pklist{grid-template-columns:1fr;max-height:min(60vh,380px)}}
+.pkfilt{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 10px}
+.pkfilt button{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
+.pkfilt button:hover{border-color:var(--navy-2)}
+.pkfilt button b{font-family:var(--display);font-size:13px;color:var(--navy-2)}
+.pkfilt button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.pkfilt button[aria-pressed="true"] b{color:var(--yellow)}
+.pkmeta .kind{padding:2px 9px 2px 8px}
+.pkfinsel{display:none;align-items:center;gap:8px;margin:8px 0 10px;font-size:13px;font-weight:700;color:var(--muted)}
+.pkfinsel select{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:9px;font:inherit;font-weight:600;background:var(--surface);color:var(--ink)}
+@media (max-width:760px){.pkfilt{display:none}.pkfinsel{display:flex}}
+
+/* ---------- ateliers tournants + suppression de séance ---------- */
+.rotband{display:block;margin:10px 20px 0;padding:8px 12px;border-left:4px solid var(--yellow);background:var(--surface-2);border-radius:0 8px 8px 0;font-size:14px;color:var(--ink)}
+.rotband b{color:var(--yellow-ink)}
+.block.in-rot{background:linear-gradient(90deg,rgba(242,194,0,.10),transparent 220px)}
+.chip.rot{background:var(--yellow);color:#3B2E00;border-color:var(--yellow)}
+.edrow.is-rot{border-left:4px solid var(--yellow)}
+.rotbtn[aria-pressed="true"]{background:var(--yellow);border-color:var(--yellow);color:#3B2E00;font-weight:700}
+.toggle.danger{border-color:rgba(255,255,255,.3)}
+.toggle.danger.armed{background:#8A1F1F;border-color:#8A1F1F;color:#fff}
+.delbox{margin-top:4px;font-size:13px;color:var(--muted)}
+.delbox summary{cursor:pointer;padding:6px 8px;border:1px dashed var(--line);border-radius:8px;background:var(--surface)}
+.delrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;border:1px solid var(--line);border-top:0;background:var(--surface);font-size:13px}
+.delrow:first-of-type{margin-top:6px;border-top:1px solid var(--line);border-radius:8px 8px 0 0}
+.delrow:last-of-type{border-radius:0 0 8px 8px}
+.rotwarn{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;border-left:4px solid var(--yellow);background:var(--surface);border-radius:0 8px 8px 0;font-size:13.5px}
+.block.in-rot{border-left:4px solid var(--yellow)}
+.rotband{margin-bottom:-4px}
+@media (hover:none){.zedit{width:34px;height:34px}.bedit{width:38px;height:38px}}
+.zedit{width:30px;height:30px}
 </style>
 
 <header class="top">
@@ -365,7 +435,6 @@ code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92
       <button class="tab" role="tab" id="tab-guide" aria-selected="true" aria-controls="view-guide">Guide de l'année</button>
       <button class="tab" role="tab" id="tab-seances" aria-selected="false" aria-controls="view-seances">Séances</button>
       <button class="tab" role="tab" id="tab-biblio" aria-selected="false" aria-controls="view-biblio">Liste des ateliers</button>
-      <button class="tab" role="tab" id="tab-profils" aria-selected="false" aria-controls="view-profils">Progression</button>
       <button class="tab" role="tab" id="tab-reglages" aria-selected="false" aria-controls="view-reglages">Éducateurs &amp; réglages</button>
     </nav>
   </div>
@@ -1126,11 +1195,11 @@ function matchPanel(s){const m=matchFor(s);const md=(mEdit&&mDraft)?mDraft:match
   const conv=md.conv;const starters=Object.values(md.xi).filter(Boolean);const subs=conv.filter(n=>!starters.includes(n));
   const hourEd=mHour?`<div class="acrow" style="margin:8px 0"><label>Heure de convocation <input type="text" id="mHourIn" value="${esc(convTime(s,md))}" placeholder="ex. 12h00"></label><button class="btn wa" id="mHourSave" style="background:var(--navy);color:#fff">OK</button><button class="btn ghost" id="mHourCancel">Annuler</button></div>`:"";
   const view=`<div class="teambox"><div class="tbhead"><h4>Équipe convoquée${conv.length?` · ${conv.length}`:""}</h4>${!mEdit?`<button class="btn ghost small" id="mEditBtn">${conv.length?"✏️ Modifier l'équipe":"+ Composer l'équipe"}</button>`:""}</div>
-    ${!mEdit?(conv.length?`<div class="tbgrid"><div>${pitchSvg(md)}</div><div>${md.rdv?`<p><b>Rendez-vous</b> · ${esc(md.rdv)}</p>`:""}<p class="note" style="margin-top:6px"><b>Titulaires (${esc(md.form)})</b></p><ul class="xi">${(FORMS[md.form]||[]).map(([p])=>`<li><span class="pos">${esc(p)}</span>${esc(md.xi[p]||"—")}</li>`).join("")}</ul>${subs.length?`<p class="note" style="margin-top:8px"><b>Remplaçants</b> · ${subs.map(esc).join(", ")}</p>`:""}${md.note?`<p class="note" style="margin-top:8px"><b>Consignes</b> · ${esc(md.note)}</p>`:""}</div></div>`:`<p class="note">Choisis les joueurs convoqués (la liste vient de l'onglet Progression), la formation et la composition : tout est partagé avec les autres éducateurs et repris dans le message WhatsApp.</p>`):matchEditor(s,md)}</div>`;
+    ${!mEdit?(conv.length?`<div class="tbgrid"><div>${pitchSvg(md)}</div><div>${md.rdv?`<p><b>Rendez-vous</b> · ${esc(md.rdv)}</p>`:""}<p class="note" style="margin-top:6px"><b>Titulaires (${esc(md.form)})</b></p><ul class="xi">${(FORMS[md.form]||[]).map(([p])=>`<li><span class="pos">${esc(p)}</span>${esc(md.xi[p]||"—")}</li>`).join("")}</ul>${subs.length?`<p class="note" style="margin-top:8px"><b>Remplaçants</b> · ${subs.map(esc).join(", ")}</p>`:""}${md.note?`<p class="note" style="margin-top:8px"><b>Consignes</b> · ${esc(md.note)}</p>`:""}</div></div>`:`<p class="note">Choisis les joueurs convoqués (la liste vient de l'outil Progression, et tu peux en ajouter d'autres), la formation et la composition : tout est partagé avec les autres éducateurs et repris dans le message WhatsApp.</p>`):matchEditor(s,md)}</div>`;
   return `<div class="objs matchobjs"><div>${teamSelect}${calState}${card}${hourEd}</div>${view}</div>`}
 function matchEditor(s,md){const names=[...new Set([...kidNames(),...md.conv])];const pts=FORMS[md.form]||FORMS["1-3-3-1"];const opts=(sel)=>`<option value="">—</option>`+md.conv.map(n=>`<option value="${esc(n)}" ${n===sel?"selected":""}>${esc(n)}</option>`).join("");
   return `<div class="medit">
-    <div class="field"><label>Joueurs convoqués</label><div class="convgrid">${names.map((n,i)=>`<label class="conv"><input type="checkbox" data-conv="${esc(n)}" ${md.conv.includes(n)?"checked":""}> ${esc(n)}</label>`).join("")||`<span class="note">Aucun joueur dans l'onglet Progression : ajoute des noms ci-dessous.</span>`}</div>
+    <div class="field"><label>Joueurs convoqués</label><div class="convgrid">${names.map((n,i)=>`<label class="conv"><input type="checkbox" data-conv="${esc(n)}" ${md.conv.includes(n)?"checked":""}> ${esc(n)}</label>`).join("")||`<span class="note">Aucun joueur enregistré : ajoute les noms ci-dessous.</span>`}</div>
       <input type="text" id="mExtra" placeholder="Autres joueurs (séparés par des virgules)"></div>
     <div class="edgrid" style="margin-top:10px"><div class="field"><label for="mHeure">Heure de convocation</label><input id="mHeure" type="text" value="${esc(convTime(s,md))}" placeholder="ex. 12h00"></div>
       <div class="field"><label for="mRdv">Lieu de rendez-vous, tenue…</label><input id="mRdv" type="text" value="${esc(md.rdv)}" placeholder="ex. au Hameau, tenue bleue"></div>
@@ -1346,9 +1415,14 @@ function pickerHtml(){
   const q=(pick.q||"").toLowerCase();
   const shown=ids.filter(id=>(!pick.fin||(pick.fin==="club"?GAMES[id].club:finOf(id)===pick.fin))&&(!q||`${GAMES[id].name} ${GAMES[id].desc||""} ${GAMES[id].src||""}`.toLowerCase().includes(q)));
   const nClub=ids.filter(id=>GAMES[id].club).length;
-  const chips=`<button class="perchip" data-pfin="" aria-pressed="${!pick.fin}"><b>Tous</b><span>${ids.length} ateliers</span></button>`
-    +(nClub?`<button class="perchip" data-pfin="club" aria-pressed="${pick.fin==="club"}"><b>${nClub}</b><span>Ateliers du club</span></button>`:"")
-    +FINALITES.filter(f=>counts[f.id]).map(f=>`<button class="perchip" data-pfin="${f.id}" aria-pressed="${pick.fin===f.id}"><b>${counts[f.id]}</b><span>${esc(f.name)}</span></button>`).join("");
+  /* filtres compacts qui reviennent à la ligne : pas de deuxième liste qui défile */
+  const chips=`<button type="button" data-pfin="" aria-pressed="${!pick.fin}">Tous <b>${ids.length}</b></button>`
+    +(nClub?`<button type="button" data-pfin="club" aria-pressed="${pick.fin==="club"}">Ateliers du club <b>${nClub}</b></button>`:"")
+    +FINALITES.filter(f=>counts[f.id]).map(f=>`<button type="button" data-pfin="${f.id}" aria-pressed="${pick.fin===f.id}">${esc(f.name)} <b>${counts[f.id]}</b></button>`).join("");
+  /* sur téléphone, un simple menu déroulant remplace les pastilles */
+  const fopts=[["",`Tous les ateliers (${ids.length})`]].concat(nClub?[["club",`Ateliers du club (${nClub})`]]:[])
+    .concat(FINALITES.filter(f=>counts[f.id]).map(f=>[f.id,`${f.name} (${counts[f.id]})`]))
+    .map(([v,l])=>`<option value="${v}" ${((pick.fin||"")===v)?"selected":""}>${esc(l)}</option>`).join("");
   const rows=shown.map(id=>{const g=GAMES[id];const on=pick.sel.includes(id);
     return `<button type="button" class="pkrow${on?" on":""}" data-pick="${id}">
       <span class="pkbox">${pick.mode==="add"?(on?"✓":""):"›"}</span>
@@ -1359,7 +1433,8 @@ function pickerHtml(){
     <div class="edhead"><h4>${pick.mode==="add"?"Choisir des ateliers pour cette séance":"Remplacer cet atelier"}</h4>
       <span class="note">Catégorie ${CAT.code} : les ateliers du guide FFF et ceux créés par les éducateurs du club.${pick.mode==="add"?" Coche ceux que tu veux, ils s'ajoutent dans l'ordre choisi.":""}</span></div>
     <div class="field" style="max-width:420px;margin-top:8px"><input id="pkQ" type="search" value="${esc(pick.q)}" placeholder="Rechercher un atelier (nom, consigne…)" aria-label="Rechercher un atelier"></div>
-    <div class="perbar">${chips}</div>
+    <div class="pkfilt">${chips}</div>
+    <div class="pkfinsel"><label for="pkFin">Filtrer</label><select id="pkFin">${fopts}</select></div>
     <div class="pklist">${rows||`<p class="note" style="padding:12px">Aucun atelier ne correspond.</p>`}</div>
     <div class="prof-actions">${pick.mode==="add"?`<button class="btn wa" id="pkDo" style="background:var(--navy);color:#fff" ${pick.sel.length?"":"disabled"}>${pick.sel.length?`Ajouter ${pick.sel.length} atelier${pick.sel.length>1?"s":""}`:"Ajouter les ateliers cochés"}</button>`:""}
       <button class="btn ghost" id="pkNew">✚ Créer un nouvel atelier</button><button class="btn ghost" id="pkCancel">Annuler</button></div></div>`}
@@ -1367,6 +1442,7 @@ function bindPicker(){const q=id=>document.getElementById(id);
   const inp=q("pkQ");if(inp)inp.addEventListener("input",()=>{pick.q=inp.value;clearTimeout(bindPicker._t);
     bindPicker._t=setTimeout(()=>{renderSheet();const n=document.getElementById("pkQ");if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}},220)});
   document.querySelectorAll("[data-pfin]").forEach(b=>b.addEventListener("click",()=>{pick.fin=b.dataset.pfin||null;renderSheet()}));
+  const fs=q("pkFin");if(fs)fs.addEventListener("change",()=>{pick.fin=fs.value||null;renderSheet()});
   document.querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.pick;
     if(pick.mode==="replace"){draft.blocks[pick.i]={g:id,dur:undefined};pick=null;renderSheet();return}
     const k=pick.sel.indexOf(id);if(k<0)pick.sel.push(id);else pick.sel.splice(k,1);renderSheet()}));
@@ -1450,7 +1526,15 @@ async function fichePdfDoc(s){
     doc.text("Pau FC Academy · fiche de séance — beaucoup de ballon, peu de parole, un bravo à chacun.",MX,292);
     doc.text(`${CAT.code} · ${cap(fmtLong(s.date))}`,PW-MX,292,{align:"right"})};
   let clock=0;
+  const rgrp=typeof rotGroups==="function"?rotGroups(blocks):blocks.map(()=>-1);
   for(let i=0;i<blocks.length;i++){const b=blocks[i];
+    /* bandeau des ateliers tournants, juste avant le premier atelier du groupe */
+    if(rgrp[i]===i){const nb=rgrp.filter(x=>x===i).length;const tot=blocks.filter((x,j)=>rgrp[j]===i).reduce((a,x)=>a+(x.dur||0),0);
+      if(y+9>286){foot();doc.addPage();y=14}
+      doc.setFillColor(FC.yel);doc.roundedRect(MX,y,W,7,1.6,1.6,"F");
+      doc.setTextColor("#3B2E00");doc.setFont("Poppins","bold");doc.setFontSize(7.2);
+      doc.text(`ATELIERS TOURNANTS · ${nb} ateliers en parallèle, ${nb} sous-groupes qui tournent · ${tot} min au total`,MX+4,y+4.8);
+      y+=9}
     const hasS=!!b.schema;const tx0=MX+(hasS?SW+6:0)+4,tw=W-(hasS?SW+6:0)-8;
     doc.setFont("Poppins","bold");doc.setFontSize(10.5);const nl=doc.splitTextToSize(b.name,tw-26);
     doc.setFont("Poppins","normal");doc.setFontSize(7.4);
@@ -1464,8 +1548,12 @@ async function fichePdfDoc(s){
     const h=Math.max(hasS?sh+6:16,textH+4);
     if(y+h>286){foot();doc.addPage();y=14;
       doc.setTextColor(FC.gray);doc.setFont("Poppins","bold");doc.setFontSize(7);
-      doc.text(`${CAT.code} · ${cap(fmtLong(s.date))} · ${s.title.toUpperCase()} — SUITE`,MX,y-4)}
-    doc.setDrawColor(FC.line);doc.setFillColor("#FFFFFF");doc.roundedRect(MX,y,W,h,2,2,"FD");
+      doc.text(`${CAT.code} · ${cap(fmtLong(s.date))} · ${s.title.toUpperCase()} — SUITE`,MX,y-4);
+      if(rgrp[i]>=0&&rgrp[i]!==i){doc.setFillColor(FC.yel);doc.roundedRect(MX,y,W,7,1.6,1.6,"F");
+        doc.setTextColor("#3B2E00");doc.setFont("Poppins","bold");doc.setFontSize(7.2);
+        doc.text("ATELIERS TOURNANTS (suite)",MX+4,y+4.8);y+=9}}
+    doc.setDrawColor(rgrp[i]>=0?FC.yel:FC.line);doc.setFillColor("#FFFFFF");doc.roundedRect(MX,y,W,h,2,2,"FD");
+    if(rgrp[i]>=0){doc.setFillColor(FC.yel);doc.rect(MX,y+2,1.6,h-4,"F")}
     if(hasS){const png=await svgToPng(renderSchema(b.schema),Math.round(SW*9),Math.round(sh*9));
       if(png){try{doc.addImage(png,"PNG",MX+3,y+3.5,SW,sh)}catch(e){}}}
     let ty=y+3.6;
@@ -1590,10 +1678,11 @@ const LEGEND=`<div class="legend"><span><i style="background:#1E56C9"></i>équip
 
 /* ---------- Helpers séances ---------- */
 function perOf(s){return PERIODS[(s.per||1)-1]}
-function sessionsOf(per){return SESSIONS.filter(x=>(x.per||1)===per)}
+function sessionsOf(per){return SESSIONS.filter(x=>(x.per||1)===per&&!isDel(x.id))}
+function deletedOf(per){return SESSIONS.filter(x=>(x.per||1)===per&&isDel(x.id))}
 function currentPer(){const p=PERIODS.find(p=>today<=D(p.to));return p?p.n:5}
 let curPer=null;
-function expandBlocks(s){let t=0;return s.blocks.filter(b=>GAMES[b.g]).map(b=>{const g=GAMES[b.g];const dur=b.dur||g.dur;const start=t;t+=dur;const o={...g,id:b.g,dur,start,edited:false};TXT.forEach(k=>{if(b[k]&&b[k]!==g[k]){o[k]=b[k];o.edited=true}});return o})}
+function expandBlocks(s){let t=0;return s.blocks.filter(b=>GAMES[b.g]).map(b=>{const g=GAMES[b.g];const dur=b.dur||g.dur;const start=t;t+=dur;const o={...g,id:b.g,dur,start,rot:!!b.rot,edited:false};TXT.forEach(k=>{if(b[k]&&b[k]!==g[k]){o[k]=b[k];o.edited=true}});return o})}
 function firstSentence(t){const i=t.indexOf(". ");return i>0&&i<160?t.slice(0,i+1):t}
 function collectMat(blocks){const seen=new Set();const out=[];blocks.forEach(b=>(b.mat||[]).forEach(m=>{const k=m.toLowerCase().replace(/[\d+]/g,"").replace(/\s+/g," ").trim();if(!seen.has(k)){seen.add(k);out.push(m)}}));return out}
 function isPlateau(s){if(!s.sat)return false;const o=OVR["__pl:"+s.id];if(o&&o.data&&typeof o.data.on==="boolean")return o.data.on;return !!get("plateau:"+s.id,!!CAT.satMatch)}
@@ -1608,8 +1697,21 @@ const SESSION_DUR=CAT.dur||60;
 let OVR=get("ovr",{});const ORIG={};
 /* blk : forme normalisée d'un atelier dans une séance — jeu, durée, et textes adaptés par l'éducateur (name/desc/var) qui ne touchent pas à la liste des ateliers */
 const TXT=["name","desc","var"];
-function blk(b){const o={g:b.g,dur:b.dur||undefined};TXT.forEach(k=>{const v=(b[k]||"").trim();const g=GAMES[b.g]||{};if(v&&v!==(g[k]||""))o[k]=v});return o}
+function blk(b){const o={g:b.g,dur:b.dur||undefined};if(b.rot)o.rot=1;TXT.forEach(k=>{const v=(b[k]||"").trim();const g=GAMES[b.g]||{};if(v&&v!==(g[k]||""))o[k]=v});return o}
 function snapshot(s){return {title:s.title,theme:s.theme,objs:[...s.objs],note:s.note||"",blocks:s.blocks.map(blk)}}
+function isDel(id){const o=OVR[id];return !!(o&&o.data&&o.data.del)}
+/* groupes d'ateliers tournants : grp[i] = index du premier atelier du groupe, -1 sinon */
+function rotGroups(blocks){const grp=blocks.map(()=>-1);
+  for(let i=1;i<blocks.length;i++){if(blocks[i].rot){grp[i]=grp[i-1]>=0?grp[i-1]:i-1;if(grp[i-1]<0)grp[i-1]=i-1}}
+  return grp}
+function rotSize(grp,at){return grp.filter(x=>x===at).length}
+function normRot(bl){if(bl[0])delete bl[0].rot;return bl}
+/* Des ateliers tournants durent forcément le même temps : on aligne tout le groupe
+   sur la durée de son premier atelier, à chaque changement. */
+function equalizeRots(bl,dur){const g=rotGroups(bl);
+  g.forEach((x,i)=>{if(x===i){const ids=g.map((y,j)=>y===i?j:-1).filter(j=>j>=0);
+    const d=dur||bl[i].dur||(GAMES[bl[i].g]||{}).dur||10;ids.forEach(j=>bl[j].dur=d)}});
+  return bl}
 function validData(d){return d&&typeof d.title==="string"&&Array.isArray(d.objs)&&Array.isArray(d.blocks)&&d.blocks.length>0&&d.blocks.every(b=>GAMES[b.g])&&(!d.dup||/^\d{4}-\d{2}-\d{2}$/.test(d.date||""))}
 function perForDate(d){const p=PERIODS.find(p=>d>=p.from&&d<=p.to)||PERIODS.find(p=>d<p.from)||PERIODS[PERIODS.length-1];return p}
 function applyOverrides(){
@@ -1620,6 +1722,16 @@ function applyOverrides(){
     if(i>=0&&SESSIONS[i].dup&&!d){SESSIONS.splice(i,1);if(currentId===id)currentId=null}});
   SESSIONS.forEach(s=>{if(!ORIG[s.id])ORIG[s.id]=snapshot(s);const o=OVR[s.id];const use=o&&validData(o.data);const src=use?o.data:ORIG[s.id];
   s.title=src.title;s.theme=src.theme||"";s.objs=[...src.objs];s.note=src.note||"";s.blocks=src.blocks.map(b=>({...blk(b)}));s.mod=use&&!s.dup?{by:o.by||"",ts:o.ts||0}:null;if(s.dup&&o)s.by=o.by||""})}
+/* Supprimer une séance (d'origine comme ajoutée) : elle disparaît de la liste pour tout le club,
+   et reste rétablissable depuis « séances supprimées » au bas de la colonne de gauche. */
+function delSession(real,by){const o=OVR[real.id];
+  const base=(o&&o.data&&validData(o.data))?o.data:(real.dup?Object.assign(snapshot(real),{dup:true,date:real.date,base:real.base||""}):{});
+  const data=Object.assign({},base,{del:1});
+  if(currentId===real.id)currentId=null;editId=null;draft=null;action=null;
+  saveOverride(real.id,data,by).then(()=>renderSessions());renderSessions();toast("Séance supprimée — rétablissable en bas de la liste")}
+function undelSession(id,by){const o=OVR[id];const d=o&&o.data?Object.assign({},o.data):null;
+  if(d)delete d.del;
+  currentId=id;saveOverride(id,(d&&Object.keys(d).length)?d:null,by).then(()=>renderSessions());renderSessions();toast("Séance rétablie")}
 function rerender(){const id=document.querySelector(".view.active")?.id;if(id==="view-seances")renderSessions();else if(id==="view-guide")renderGuide()}
 async function loadOverrides(){try{const r=await fetch(`${API}?seances=${encodeURIComponent(CAT.code)}`,{cache:"no-store"});const arr=await r.json();if(!Array.isArray(arr))return;let ch=false;
   arr.forEach(x=>{if(!x||!x.id)return;const cur=OVR[x.id];if(!cur||(x.ts||0)>(cur.ts||0)){OVR[x.id]={data:x.data||null,by:x.by||"",ts:x.ts||0};ch=true}});
@@ -1655,7 +1767,9 @@ function waMessage(s,detail){
     if(s.note)lines.push(`✦ *Consignes du référent* : ${s.note}`);
     if(lk)lines.push(`➜ Fiche complète (schémas, consignes, matériel) : ${lk}`);
     lines.push("",`◆ *Déroulé (${blocks.reduce((a,b)=>a+b.dur,0)}')*`);
-    blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.dur}' *${b.name}*${b.kind!=="accueil"&&b.kind!=="calme"&&b.desc?` — ${firstSentence(b.desc)}`:""}`));
+    const wgrp=rotGroups(blocks);
+    blocks.forEach((b,i)=>{if(wgrp[i]===i){const nb=rotSize(wgrp,i);lines.push(`⟳ _Ateliers tournants : ${nb} ateliers en parallèle, ${nb} sous-groupes qui tournent_`)}
+      lines.push(`${i+1}. ${b.dur}' *${b.name}*${wgrp[i]>=0?" (en rotation)":""}${b.kind!=="accueil"&&b.kind!=="calme"&&b.desc?` — ${firstSentence(b.desc)}`:""}`)});
     lines.push("","★ *Objectifs du jour*");s.objs.forEach(o=>lines.push(`- ${o}`));
     lines.push("","✦ *À veiller*");blocks.filter(b=>["atelier","defi","match","eveil"].includes(b.kind)&&b.veiller).forEach(b=>lines.push(`- ${b.name} : ${b.veiller}`));
     lines.push("",`● *Matériel* : ${collectMat(blocks).join(", ")}`);
@@ -1683,7 +1797,7 @@ function renderGuide(){
     ["📅","Choisir la séance","Onglet <b>Séances</b> : la prochaine séance est déjà sélectionnée, avec ses jeux, schémas, consignes et matériel."],
     ["✏️","L'ajuster si besoin","<b>Modifier la séance</b> : changer un jeu (même finalité proposée d'abord), une durée, un texte. Partagé avec tout le club, réversible."],
     ["💬","L'envoyer","<b>Envoyer sur WhatsApp</b> : message court prêt à partir, avec le lien vers la fiche complète pour l'éducateur."],
-    ["⭐","Suivre les enfants","Onglet <b>Progression</b> : les étoiles par période et le <b>carnet</b> PDF à remettre aux parents."]
+    ["⭐","Suivre les enfants","L'outil <b>Progression</b>, à part : les étoiles par période, les repères mesurés et le <b>carnet</b> PDF à remettre aux parents."]
   ].map(([i,t,d])=>`<div class="step"><div class="step-ico">${i}</div><h4>${t}</h4><p>${d}</p></div>`).join("");
   v.innerHTML=`
   <section class="hero">
@@ -1712,21 +1826,32 @@ function renderGuide(){
 }
 
 /* ---------- Vue Séances ---------- */
-let currentId=null,editId=null,draft=null,action=null;
+let currentId=null,editId=null,draft=null,action=null,edFocus=null;
+/* Édition « au clic sur la zone » : un crayon ouvre l'éditeur et amène directement au bon champ. */
+function applyEdFocus(){if(!edFocus)return;const f=edFocus;edFocus=null;
+  if(f.field){const el=document.getElementById(f.field);if(!el)return;
+    el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}},260);return}
+  if(f.blk!=null){const r=document.querySelector('.edrow[data-i="'+f.blk+'"]');if(!r)return;
+    r.scrollIntoView({behavior:"smooth",block:"center"});r.classList.add("flash");
+    const t=r.querySelector(".edtxt textarea,.edtxt input");if(t)setTimeout(()=>t.focus(),320)}}
 function renderSessions(){
   const v=document.getElementById("view-seances");
+  if(currentId&&!(typeof EDU_MODE!=="undefined"&&EDU_MODE)&&(isDel(currentId)||!SESSIONS.some(x=>x.id===currentId)))currentId=null;
   if(!curPer)curPer=currentId?perOf(SESSIONS.find(x=>x.id===currentId)).n:currentPer();
-  if(!currentId||perOf(SESSIONS.find(x=>x.id===currentId)).n!==curPer){const up=sessionsOf(curPer).find(x=>D(x.date)>=today);currentId=(up||sessionsOf(curPer)[0]).id}
+  if(!currentId||perOf(SESSIONS.find(x=>x.id===currentId)).n!==curPer){const li=sessionsOf(curPer);const up=li.find(x=>D(x.date)>=today);currentId=(up||li[0]||{}).id||null}
   const chips=PERIODS.map(p=>`<button class="perchip" data-per="${p.n}" aria-pressed="${p.n===curPer}"><b>P${p.n}</b><span>${esc(p.name)}</span><small>${fmtShort(p.from)} → ${fmtShort(p.to)}</small></button>`).join("");
+  const del=deletedOf(curPer);
+  const dels=del.length?`<details class="delbox"><summary>${del.length} séance${del.length>1?"s":""} supprimée${del.length>1?"s":""}</summary>${del.map(x=>{const d=D(x.date);return `<div class="delrow"><span>${d.getDate()} ${MOIS_C[d.getMonth()]} · ${esc(x.title)}</span><button class="btn ghost small" data-undel="${x.id}">↺ Rétablir</button></div>`}).join("")}</details>`:"";
   const list=sessionsOf(curPer).map(s=>{const d=D(s.date);const sent=Object.keys(get("sent:"+s.id,{})).length>0;const pl=isPlateau(s);
     return `<button class="sess-item" data-id="${s.id}" aria-current="${s.id===currentId}">
       <span class="d"><b class="num">${d.getDate()}</b><span>${MOIS_C[d.getMonth()]}</span></span>
       <span><span class="ttl">${esc(pl?PLATEAU.title:s.title)}</span><br><span class="sub">${[s.optional?"facultatif":"",s.mod?"✏️ modifiée":"",Object.keys(get("sent:"+s.id,{})).length?"":""].filter(Boolean).join(" · ")||"&nbsp;"}</span></span>
       <span style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">${pl?'<span class="chip plateau">'+(PLATEAU.label||'Plateau')+'</span>':`<span class="chip ${s.sat?'sam':'mer'}">${cap(JOURS[d.getDay()])}</span>`}${sent?'<span class="chip sent">Envoyée</span>':''}</span>
     </button>`}).join("");
-  v.innerHTML=`<div class="perbar" role="group" aria-label="Périodes">${chips}</div><div class="sess-layout"><aside class="sess-list" aria-label="Liste des séances">${list}<button class="btn ghost" id="newSess" style="margin-top:8px;justify-content:center">➕ Créer une séance</button></aside><div id="sheet"></div></div>`;
+  v.innerHTML=`<div class="perbar" role="group" aria-label="Périodes">${chips}</div><div class="sess-layout"><aside class="sess-col"><button class="btn newsess" id="newSess">➕ Créer une séance</button><div class="sess-list" aria-label="Liste des séances">${list}</div>${dels}</aside><div id="sheet"></div></div>`;
   v.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{curPer=+b.dataset.per;currentId=null;editId=null;renderSessions()}));
   v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{currentId=b.dataset.id;editId=null;action=null;renderSessions();document.getElementById("sheet").scrollIntoView({behavior:"smooth",block:"start"})}));
+  v.querySelectorAll("[data-undel]").forEach(b=>b.addEventListener("click",()=>undelSession(b.dataset.undel,get("who","")||"l'éducateur")));
   const nb=document.getElementById("newSess");if(nb)nb.addEventListener("click",()=>{action=action==="new"?null:"new";editId=null;renderSheet();const p=document.querySelector(".actionbox");if(p)p.scrollIntoView({behavior:"smooth",block:"nearest"})});
   renderSheet();
 }
@@ -1734,6 +1859,8 @@ function gameOptions(selected){const cur=finOf(selected);const order=[...FINALIT
   return order.map(f=>{const ids=Object.keys(GAMES).filter(id=>finOf(id)===f.id);if(!ids.length)return "";return `<optgroup label="${esc(f.name)}${f.id===cur?" — même finalité":""}">${ids.map(id=>`<option value="${id}" ${id===selected?"selected":""}>${esc(GAMES[id].name)} (${GAMES[id].dur}')</option>`).join("")}</optgroup>`}).join("")}
 function renderSheet(){
   const real=SESSIONS.find(x=>x.id===currentId);const el=document.getElementById("sheet");
+  if(!real){el.innerHTML=`<div class="sheet">${action==="new"?newSessionPanel():""}<div class="objs"><div><h4>Aucune séance sur cette période</h4><p class="note">Toutes les séances de la période ont été supprimées. Crée une séance avec le bouton <b>➕ Créer une séance</b> en haut de la colonne, ou rétablis-en une depuis « séances supprimées » sous la liste.</p></div></div></div>`;
+    if(action==="new")bindNewSession();return}
   const editing=editId===real.id&&draft;
   const s=editing?Object.assign({},real,draft):real;
   const plateau=!editing&&isPlateau(s);
@@ -1741,11 +1868,18 @@ function renderSheet(){
   const total=blocks.reduce((a,b)=>a+b.dur,0);
   const tl=blocks.map(b=>`<span style="width:${(b.dur/total*100).toFixed(1)}%;background:${KIND_COLOR[b.kind]}" title="${esc(b.name)}"></span>`).join("");
   const tlLeg=[...new Set(blocks.map(b=>b.kind))].map(k=>`<span><i style="background:${KIND_COLOR[k]}"></i>${KIND_LABEL[k]}</span>`).join("");
-  const blocksHtml=blocks.map((b,i)=>`<article class="block">
+  /* index de l'atelier dans la séance réelle : les blocs inconnus sont filtrés par expandBlocks */
+  const bidx=plateau?[]:s.blocks.map((b,i)=>GAMES[b.g]?i:-1).filter(i=>i>=0);
+  const grp=rotGroups(blocks);
+  const rotBand=i=>{if(grp[i]!==i)return "";const ids=grp.map((x,j)=>x===i?j:-1).filter(j=>j>=0);
+    const durs=[...new Set(ids.map(j=>blocks[j].dur))];
+    return `<div class="rotband"><b>⟳ Ateliers tournants</b> · ${ids.length} ateliers en parallèle, ${ids.length} sous-groupes qui tournent ${durs.length===1?`toutes les ${durs[0]} min`:`(${ids.map(j=>blocks[j].dur).join(" / ")} min)`} — ${ids.reduce((a,j)=>a+blocks[j].dur,0)} min au total. Chaque enfant fait les ${ids.length} ateliers.</div>`};
+  const blocksHtml=blocks.map((b,i)=>`${rotBand(i)}<article class="block${grp[i]>=0?" in-rot":""}">
+     ${!plateau&&!editing?`<button class="bedit" data-bedit="${bidx[i]}" title="Modifier cet atelier pour cette séance" aria-label="Modifier « ${esc(b.name)} »">${pencilIcon()}</button>`:""}
      <div>${b.schema?`<div class="schema">${renderSchema(b.schema)}</div>`:`<div class="schema" style="display:grid;place-items:center;min-height:120px;color:var(--muted);font-size:14px">${b.kind==="accueil"?"🤝 Cercle d'accueil":"🙌 Cercle de fin"}</div>`}</div>
      <div>
        <div class="when"><span class="t num">${plateau?b.t:b.dur+"'"}</span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${!plateau&&b.id?`<span class="chip mer">${esc(finName(finOf(b.id)))}</span>`:""}</div>
-       <h3>${esc(b.name)}${b.edited?` <span class="chip mod" title="Texte adapté par l'éducateur pour cette séance">✎ adapté</span>`:""}</h3>${b.src?`<p class="src">${esc(b.src)}</p>`:""}
+       <h3>${esc(b.name)}${grp[i]>=0?` <span class="chip rot">⟳ atelier ${grp.slice(0,i+1).filter(x=>x===grp[i]).length} / ${rotSize(grp,grp[i])}</span>`:""}${b.edited?` <span class="chip mod" title="Texte adapté par l'éducateur pour cette séance">✎ adapté</span>`:""}</h3>${b.src?`<p class="src">${esc(b.src)}</p>`:""}
        <p class="desc">${esc(b.desc||"")}</p>
      </div>
      ${b.org||b.var||b.veiller?`<div class="more">${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}</div>`:""}</article>`).join("");
@@ -1756,39 +1890,39 @@ function renderSheet(){
   const info=get("plateauInfo:"+s.id,{lieu:"",heure:""});
   const modChip=real.dup?`<span class="pill" title="Séance créée par duplication">⧉ Séance ajoutée${real.by?` par ${esc(real.by)}`:""}</span>`:real.mod?`<span class="pill" title="${real.mod.ts?new Date(real.mod.ts).toLocaleString("fr-FR"):""}">✏️ Ajustée${real.mod.by?` par ${esc(real.mod.by)}`:""}</span>`:"";
   const editor=editing?`<div class="editor">
-      <div class="edhead"><h4>✏️ Modifier cette séance</h4><span class="note">Change un jeu (la liste propose d'abord ceux de même finalité), la durée d'un atelier, ou les textes. Total : <b id="edTotal" class="num">${total}</b> min pour ${SESSION_DUR} prévues.</span></div>
+      <div class="edhead"><h4>✏️ Modifier cette séance</h4><span class="note">Glisse un atelier par sa poignée <b>⠿</b> pour changer l'ordre, touche « changer » pour en prendre un autre, « ✎ Texte » pour adapter les consignes. Total : <b id="edTotal" class="num">${total}</b> min pour ${SESSION_DUR} prévues.</span></div>
       <div class="edgrid">
         <div class="field"><label for="edTitle">Titre de la séance</label><input id="edTitle" type="text" value="${esc(draft.title)}"></div>
         <div class="field"><label for="edTheme">Thème (phrase d'accroche)</label><textarea id="edTheme" rows="2">${esc(draft.theme)}</textarea></div>
         <div class="field"><label for="edObjs">Objectifs du jour (un par ligne)</label><textarea id="edObjs" rows="3">${esc(draft.objs.join("\n"))}</textarea></div>
         <div class="field" style="grid-column:1/-1"><label for="edNote">Consignes du référent aux éducateurs (facultatif — reprises sur la fiche et dans le message WhatsApp)</label><textarea id="edNote" rows="2" placeholder="Ex. : laisser de la créativité aux enfants, ne pas arrêter le jeu à chaque erreur, une consigne à la fois…">${esc(draft.note||"")}</textarea></div>
       </div>
-      <div class="edblocks">${draft.blocks.map((b,i)=>{const g=GAMES[b.g];return `<div class="edrow"><span class="n num">${i+1}</span><button type="button" class="pkbtn" data-prep="${i}" title="Changer d'atelier">${esc(g.name)}<span class="pkchg">changer</span></button><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv"><button class="btn ghost small" data-up="${i}" title="Monter" ${i===0?"disabled":""}>↑</button><button class="btn ghost small" data-down="${i}" title="Descendre" ${i===draft.blocks.length-1?"disabled":""}>↓</button><button class="btn ghost small" data-del="${i}" title="Retirer">✕</button>${g.club?`<button class="btn ghost small" data-gedit="${b.g}" title="Modifier cet atelier du club">✎</button>`:""}</span>
+      <div class="edblocks">${(()=>{const drot=rotGroups(draft.blocks);return draft.blocks.map((b,i)=>{const g=GAMES[b.g];return `<div class="edrow${drot[i]>=0?" is-rot":""}" data-i="${i}"><button type="button" class="grip" data-grip="${i}" title="Glisse pour changer l'ordre (ou flèches ↑ ↓ du clavier)" aria-label="Atelier ${i+1} sur ${draft.blocks.length} — glisser pour réordonner"><span class="dots" aria-hidden="true">${gripIcon()}</span><span class="num">${i+1}</span></button><button type="button" class="pkbtn" data-prep="${i}" title="Changer d'atelier">${esc(g.name)}<span class="pkchg">changer</span></button><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv">${i>0?`<button class="btn ghost small rotbtn" data-rot="${i}" aria-pressed="${!!b.rot}" title="${b.rot?"Ne plus faire tourner avec l'atelier précédent":"Faire tourner avec l'atelier précédent : les enfants sont répartis en sous-groupes"}">⟳ ${b.rot?"tourne":"tourner"}</button>`:""}<button class="btn ghost small" data-del="${i}" title="Retirer cet atelier">✕</button>${g.club?`<button class="btn ghost small" data-gedit="${b.g}" title="Modifier cet atelier dans la liste du club">✎ atelier</button>`:""}</span>
         <button class="btn ghost small txt" data-txt="${i}" aria-expanded="${!!b._open}" title="Adapter le texte de cet atelier pour cette séance">✎ Texte${TXT.some(k=>b[k]&&b[k]!==g[k])?" · adapté":""}</button>
         ${b._open?`<div class="edtxt"><p class="note">Ces textes ne valent que pour cette séance (ils partent dans le message WhatsApp et sur la fiche) ; la liste des ateliers ne change pas.</p>
           <label>Nom de l'atelier<input type="text" data-tk="name" data-i="${i}" value="${esc(b.name||g.name)}"></label>
           <label>Déroulé et consignes<textarea data-tk="desc" data-i="${i}" rows="4">${esc(b.desc||g.desc||"")}</textarea></label>
           <label>Variantes<textarea data-tk="var" data-i="${i}" rows="2">${esc(b.var||g.var||"")}</textarea></label>
-          <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}</div>`}).join("")}</div>
+          <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}</div>`}).join("")})()}</div>
       ${pick?pickerHtml():`<div class="prof-actions"><button class="btn ghost" id="edAdd">+ Ajouter un atelier</button><button class="btn ghost" id="edNew">✚ Créer un atelier</button><button class="btn ghost" id="edLib">📚 Voir la liste des ateliers</button></div>`}
-      <div class="edsave"><div class="field" style="margin:0"><label for="edBy">Modifié par</label><input id="edBy" type="text" value="${esc(get("who",""))}" placeholder="Ton prénom"></div><button class="btn wa" id="edSave" style="background:var(--navy);color:#fff">💾 Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>${real.dup?`<button class="btn ghost" id="edDelete">🗑 Supprimer cette séance dupliquée</button>`:real.mod?`<button class="btn ghost" id="edReset">↺ Rétablir la séance d'origine</button>`:""}</div>
+      <div class="edsave"><div class="field" style="margin:0"><label for="edBy">Modifié par</label><input id="edBy" type="text" value="${esc(get("who",""))}" placeholder="Ton prénom"></div><button class="btn wa" id="edSave" style="background:var(--navy);color:#fff">💾 Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>${!real.dup&&real.mod?`<button class="btn ghost" id="edReset">↺ Rétablir la séance d'origine</button>`:""}</div>
     </div>`:"";
   el.innerHTML=`<div class="sheet ${editing?"is-editing":""}">
     <div class="sheet-head">
       <div><div class="eyebrow">Séance ${sessionsOf(perOf(s).n).indexOf(real)+1} / ${sessionsOf(perOf(s).n).length} · Période ${perOf(s).n} « ${esc(perOf(s).name)} »${s.optional?" · facultative":""}</div>
         <h2>${cap(fmtLong(s.date))}${plateau&&!MATCH_ON?" · "+(PLATEAU.label||"Plateau"):""}</h2>
-        <h3 style="color:var(--yellow);margin-top:6px;font-size:24px">${esc(plateau?PLATEAU.title:s.title)}</h3>
+        <h3 style="color:var(--yellow);margin-top:6px;font-size:24px">${esc(plateau?PLATEAU.title:s.title)}${!plateau&&!editing?`<button class="zedit" id="edTitleBtn" title="Modifier le titre et le thème de cette séance" aria-label="Modifier le titre et le thème">${pencilIcon()}</button>`:""}</h3>
         <p class="theme">${esc(plateau?(MATCH_ON?(matchesFor(s).length?matchesFor(s).map(m=>`${m.dom} – ${m.ext} · ${m.home?"à domicile":"à l'extérieur"}${m.heure?" · coup d'envoi "+m.heure:""}`).join(" — "):""):PLATEAU.theme):s.theme)}</p></div>
-      <div class="meta">${plateau&&MATCH_ON?"":`<span class="pill num">${total} min</span>`}<span class="pill">${CAT.group||"8-14 enfants"}</span>${modChip}${s.sat&&!editing?`<div class="seg" role="group" aria-label="Ce samedi"><span class="seglab">Ce samedi</span><button class="segbtn" id="segMatch" aria-pressed="${plateau}">🏟️ ${PLATEAU.label||"Plateau"}</button><button class="segbtn" id="segTrain" aria-pressed="${!plateau}">⚽ Entraînement</button></div>`:""}${!plateau&&!editing?`<button class="toggle" id="editBtn">✏️ Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button><button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}</div>
+      <div class="meta">${plateau&&MATCH_ON?"":`<span class="pill num">${total} min</span>`}<span class="pill">${CAT.group||"8-14 enfants"}</span>${modChip}${s.sat&&!editing?`<div class="seg" role="group" aria-label="Ce samedi"><span class="seglab">Ce samedi</span><button class="segbtn" id="segMatch" aria-pressed="${plateau}">🏟️ ${PLATEAU.label||"Plateau"}</button><button class="segbtn" id="segTrain" aria-pressed="${!plateau}">⚽ Entraînement</button></div>`:""}${!plateau&&!editing?`<button class="toggle" id="editBtn">${pencilIcon()} Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button><button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}${!editing?`<button class="toggle danger" id="delBtn" title="Retirer cette date du programme">🗑 Supprimer</button>`:""}</div>
     </div>
     ${s.sat&&!editing?`<p class="seghint">${plateau?(MATCH_ON?"Match annulé ou reporté ? Clique sur <b>Entraînement</b> : la séance « on rejoue » du thème de la semaine prend la place du match, pour tous les éducateurs.":"Pas de "+(PLATEAU.label||"plateau").toLowerCase()+" ce samedi ? Clique sur <b>Entraînement</b> pour afficher la séance."):(MATCH_ON?"Ce samedi est affiché en entraînement. Un match finalement ? Clique sur <b>"+(PLATEAU.label||"Match")+"</b> pour le rétablir, pour tous les éducateurs.":"Jour de "+(PLATEAU.label||"plateau").toLowerCase()+" ? Clique sur <b>"+(PLATEAU.label||"Plateau")+"</b> : la séance est sautée, pas décalée.")}</p>`:""}
     ${!editing&&action==="new"?newSessionPanel():!editing&&action?actionPanel(real):""}
     ${editing&&gEdit&&gEdit.from==="session"?gameEditorHtml():editor}
     ${!editing&&s.nogk&&!plateau?`<div class="callout" style="margin:12px 20px 0"><b>🧤 Sans gardien</b> · les gardiens sont au spécifique : petits buts, cibles ou zones d'arrivée, personne dans les buts.</div>`:""}
-    ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}</div>`:""}
+    ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}${!plateau?`<button class="zedit" id="edNoteBtn" title="Modifier les consignes du référent" aria-label="Modifier les consignes du référent">${pencilIcon()}</button>`:""}</div>`:""}
     ${plateau&&MATCH_ON?matchPanel(s):plateau?`<div class="objs"><div><h4>Infos pratiques ${PLATEAU.label?"du "+PLATEAU.label.toLowerCase():"du plateau"}</h4><div class="field"><label for="plLieu">Lieu</label><input id="plLieu" type="text" value="${esc(info.lieu)}" placeholder="Club d'accueil"></div><div class="field"><label for="plHeure">Heure de rendez-vous</label><input id="plHeure" type="text" value="${esc(info.heure)}" placeholder="9h45"></div></div>
       <div><h4>À veiller</h4><ul>${PLATEAU.veiller.map(o=>`<li>${esc(o)}</li>`).join("")}</ul><p class="note" style="margin-top:8px"><b>Et la séance prévue ?</b> Elle est sautée, pas décalée : le samedi ne fait que réinvestir les séances de la semaine, et le plateau contient lui-même « le jeu de la période ». Rien n'est perdu.</p></div></div>`
-    :editing?"":`<div class="objs"><div><h4>Objectifs du jour</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div>
+    :editing?"":`<div class="objs"><div><h4>Objectifs du jour<button class="zedit" id="edObjsBtn" title="Modifier les objectifs du jour" aria-label="Modifier les objectifs du jour">${pencilIcon()}</button></h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div>
       <div><h4>Message éducatif (PEF)</h4><p>${esc(s.pef)}</p><h4 style="margin-top:12px">Consigne unique du match</h4><p>${esc(blocks.find(b=>b.kind==="match")?"Une seule phrase répétée : celle de l'atelier du jour (ex. « lève la tête », « petites touches », « regarde le but »).":"—")}</p></div></div>`}
     ${plateau&&MATCH_ON?"":`<div class="timeline">${tl}</div><div class="tl-legend">${tlLeg}</div>
     <div class="blocks"><div style="padding:6px 20px 0">${LEGEND}</div>${blocksHtml}</div>
@@ -1810,8 +1944,20 @@ function renderSheet(){
   const eb=document.getElementById("editBtn");if(eb)eb.addEventListener("click",()=>{editId=real.id;draft=snapshot(real);renderSheet();document.querySelector(".editor").scrollIntoView({behavior:"smooth",block:"start"})});
   const db=document.getElementById("dupBtn");if(db)db.addEventListener("click",()=>{action=action==="dup"?null:"dup";renderSheet();const ap=document.querySelector(".actionbox");if(ap)ap.scrollIntoView({behavior:"smooth",block:"nearest"})});
   const sb=document.getElementById("swapBtn");if(sb)sb.addEventListener("click",()=>{action=action==="move"?null:"move";renderSheet();const ap=document.querySelector(".actionbox");if(ap)ap.scrollIntoView({behavior:"smooth",block:"nearest"})});
+  const delb=document.getElementById("delBtn");if(delb)delb.addEventListener("click",()=>{
+    if(delb.dataset.armed!=="1"){delb.dataset.armed="1";delb.textContent="Confirmer la suppression ?";delb.classList.add("armed");
+      setTimeout(()=>{if(delb.isConnected&&delb.dataset.armed==="1"){delb.dataset.armed="";delb.textContent="🗑 Supprimer";delb.classList.remove("armed")}},6000);return}
+    delSession(real,get("who","")||"l'éducateur")});
+  /* les crayons posés sur les zones : ils ouvrent l'éditeur au bon endroit */
+  const openEdit=focus=>{editId=real.id;draft=snapshot(real);action=null;pick=null;
+    if(focus&&focus.blk!=null&&draft.blocks[focus.blk])draft.blocks[focus.blk]._open=true;
+    edFocus=focus||null;renderSheet()};
+  el.querySelectorAll("[data-bedit]").forEach(b=>b.addEventListener("click",()=>openEdit({blk:+b.dataset.bedit})));
+  [["edTitleBtn","edTitle"],["edObjsBtn","edObjs"],["edNoteBtn","edNote"]].forEach(([id,f])=>{
+    const b=document.getElementById(id);if(b)b.addEventListener("click",()=>openEdit({field:f}))});
   if(action==="new"&&!editing)bindNewSession();else if(action&&!editing)bindActionPanel(real);
   if(editing&&gEdit&&gEdit.from==="session")bindGameEditor();else if(editing)bindEditor(real);
+  applyEdFocus();
 }
 const signer=()=>{const w=(document.getElementById("acBy")||{}).value;const v=(w||get("who","")||"").trim();if(v)set("who",v);return v||"l'éducateur"};
 function actionPanel(real){
@@ -1845,6 +1991,34 @@ function duplicateSession(real,date,who){
   const id="d"+Date.now().toString(36);const snap=snapshot(real);
   const data={...snap,dup:true,date,base:real.id,title:real.title};
   saveOverride(id,data,who).then(()=>{currentId=id;curPer=perForDate(date).n;renderSessions()});action=null;currentId=id;curPer=perForDate(date).n;renderSessions();toast("Copie créée au "+fmtLong(date)+" — tu peux la modifier")}
+/* Réordonner les ateliers en les glissant : la ligne suit le doigt (ou la souris) et
+   se replace entre ses voisines ; au clavier, les flèches ↑ ↓ sur la poignée font pareil. */
+function moveBlock(from,to){if(to<0||to>=draft.blocks.length||to===from)return false;
+  const [b]=draft.blocks.splice(from,1);draft.blocks.splice(to,0,b);return true}
+function bindDrag(){
+  const list=document.querySelector(".edblocks");if(!list)return;
+  const rows=()=>[...list.querySelectorAll(".edrow")];
+  const commit=()=>{const order=rows().map(r=>+r.dataset.i);
+    if(order.some((v,i)=>v!==i)){draft.blocks=equalizeRots(normRot(order.map(i=>draft.blocks[i])));renderSheet();toast("Ordre des ateliers mis à jour")}};
+  list.querySelectorAll("[data-grip]").forEach(g=>{
+    g.addEventListener("keydown",e=>{const i=+g.dataset.grip;let to=null;
+      if(e.key==="ArrowUp")to=i-1;else if(e.key==="ArrowDown")to=i+1;else return;
+      e.preventDefault();if(moveBlock(i,to)){edFocus=null;renderSheet();
+        const n=document.querySelector('.edrow[data-i="'+to+'"] [data-grip]');if(n)n.focus()}});
+    g.addEventListener("pointerdown",e=>{
+      if(e.button!==undefined&&e.button!==0)return;e.preventDefault();
+      const row=g.closest(".edrow");row.classList.add("dragging");list.classList.add("is-dragging");
+      try{g.setPointerCapture(e.pointerId)}catch(err){}
+      const move=ev=>{const y=ev.clientY;
+        rows().forEach(r=>{if(r===row)return;const b=r.getBoundingClientRect();
+          if(y>b.top&&y<b.bottom){if(y>b.top+b.height/2)r.after(row);else r.before(row)}})};
+      const up=()=>{window.removeEventListener("pointermove",move);
+        row.classList.remove("dragging");list.classList.remove("is-dragging");
+        try{g.releasePointerCapture(e.pointerId)}catch(err){}
+        commit()};
+      window.addEventListener("pointermove",move);
+      window.addEventListener("pointerup",up,{once:true});
+      window.addEventListener("pointercancel",up,{once:true})})})}
 function bindEditor(real){
   const q=id=>document.getElementById(id);
   q("edTitle").addEventListener("input",e=>draft.title=e.target.value);
@@ -1854,10 +2028,20 @@ function bindEditor(real){
   q("edBy").addEventListener("change",e=>set("who",e.target.value.trim()));
   document.querySelectorAll("[data-prep]").forEach(b=>b.addEventListener("click",()=>openPicker("replace",+b.dataset.prep)));
   if(pick)bindPicker();
-  document.querySelectorAll(".edrow input[type=number]").forEach(inp=>inp.addEventListener("change",()=>{const i=+inp.dataset.i;const v=Math.max(1,Math.min(90,parseInt(inp.value)||GAMES[draft.blocks[i].g].dur));draft.blocks[i].dur=v;renderSheet()}));
-  document.querySelectorAll("[data-up]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.up;[draft.blocks[i-1],draft.blocks[i]]=[draft.blocks[i],draft.blocks[i-1]];renderSheet()}));
-  document.querySelectorAll("[data-down]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.down;[draft.blocks[i+1],draft.blocks[i]]=[draft.blocks[i],draft.blocks[i+1]];renderSheet()}));
-  document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{if(draft.blocks.length<=1){toast("Il faut garder au moins un atelier");return}draft.blocks.splice(+b.dataset.del,1);renderSheet()}));
+  document.querySelectorAll(".edrow input[type=number]").forEach(inp=>inp.addEventListener("change",()=>{const i=+inp.dataset.i;const v=Math.max(1,Math.min(90,parseInt(inp.value)||GAMES[draft.blocks[i].g].dur));draft.blocks[i].dur=v;const g=rotGroups(draft.blocks);
+    /* le rendu est différé : on ne remplace pas le DOM pendant que le champ perd le focus */
+    if(g[i]>=0){const ids=g.map((y,j)=>y===g[i]?j:-1).filter(j=>j>=0);ids.forEach(j=>draft.blocks[j].dur=v);
+      setTimeout(()=>{renderSheet();toast(`Les ${ids.length} ateliers tournants passent à ${v} min`)},0)}
+    else setTimeout(renderSheet,0)}));
+  document.querySelectorAll("[data-rot]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.rot;
+    const blk2=draft.blocks[i];
+    if(blk2.rot){delete blk2.rot}
+    else blk2.rot=1;
+    normRot(draft.blocks);const before=draft.blocks.map(b=>b.dur);equalizeRots(draft.blocks);
+    const chg=draft.blocks.some((b,j)=>b.dur!==before[j]);
+    renderSheet();if(chg)toast("Même durée pour tous les ateliers du groupe : c'est ce qui permet aux sous-groupes de tourner ensemble")}));
+  bindDrag();
+  document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{if(draft.blocks.length<=1){toast("Il faut garder au moins un atelier");return}draft.blocks.splice(+b.dataset.del,1);equalizeRots(normRot(draft.blocks));renderSheet()}));
   document.querySelectorAll("[data-txt]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txt;draft.blocks[i]._open=!draft.blocks[i]._open;renderSheet()}));
   document.querySelectorAll(".edtxt [data-tk]").forEach(el=>el.addEventListener("input",()=>{const i=+el.dataset.i,k=el.dataset.tk;const g=GAMES[draft.blocks[i].g];const v=el.value;draft.blocks[i][k]=v.trim()&&v.trim()!==(g[k]||"")?v:undefined}));
   document.querySelectorAll("[data-txtreset]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txtreset;TXT.forEach(k=>delete draft.blocks[i][k]);renderSheet()}));
@@ -1874,6 +2058,8 @@ function bindEditor(real){
   const dl=q("edDelete");if(dl)dl.addEventListener("click",()=>{if(dl.dataset.armed!=="1"){dl.dataset.armed="1";dl.textContent="Confirmer la suppression ?";dl.style.color="#8A1F1F";return}const by=q("edBy").value.trim()||get("who","")||"l'éducateur";editId=null;draft=null;pick=null;currentId=null;saveOverride(real.id,null,by).then(()=>renderSessions());renderSessions()});
   const rs=q("edReset");if(rs)rs.addEventListener("click",()=>{if(rs.dataset.armed!=="1"){rs.dataset.armed="1";rs.textContent="Confirmer le rétablissement ?";return}const by=q("edBy").value.trim()||get("who","")||"l'éducateur";editId=null;draft=null;pick=null;saveOverride(real.id,null,by).then(()=>renderSessions());renderSessions()});
 }
+function pencilIcon(){return `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>`}
+function gripIcon(){return `<svg viewBox="0 0 12 20" width="11" height="16" aria-hidden="true"><g fill="currentColor"><circle cx="4" cy="5" r="1.4"/><circle cx="8" cy="5" r="1.4"/><circle cx="4" cy="10" r="1.4"/><circle cx="8" cy="10" r="1.4"/><circle cx="4" cy="15" r="1.4"/><circle cx="8" cy="15" r="1.4"/></g></svg>`}
 function waIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c1.7.7 2.1.6 2.8.5a2.4 2.4 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c0-.1-.2-.2-.4-.3Z"/></svg>`}
 
 /* ---------- Vue Bibliothèque ---------- */
@@ -2000,7 +2186,7 @@ document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>show
 const QS=new URLSearchParams(location.search);
 let EDU_MODE=QS.has("seance")&&SESSIONS.some(x=>x.id===QS.get("seance"));
 applyOverrides();
-function renderAll(){renderGuide();if(EDU_MODE){document.documentElement.classList.add("edu");currentId=QS.get("seance");curPer=perOf(SESSIONS.find(x=>x.id===currentId)).n;showTab("view-seances")}else showTab(get("tab","view-guide"))}
+function renderAll(){renderGuide();if(EDU_MODE){document.documentElement.classList.add("edu");currentId=QS.get("seance");curPer=perOf(SESSIONS.find(x=>x.id===currentId)).n;showTab("view-seances")}else{const t=get("tab","view-guide");showTab(document.getElementById(t.replace("view-","tab-"))?t:"view-guide")}}
 renderAll();
 loadOverrides();if(typeof loadCal==="function")loadCal();
 /* Aide au défilement pour les tableaux plus larges que l'écran : ombre sur le bord droit,
@@ -2010,7 +2196,7 @@ function addScrollArrows(){document.querySelectorAll('.tbl-wrap,.sess-list').for
   let bar=el.nextElementSibling;if(!(bar&&bar.classList.contains('scrollhint')))bar=null;
   el.classList.toggle('has-more',over);
   if(!over){if(bar)bar.hidden=true;return}
-  if(!bar){bar=document.createElement('div');bar.className='scrollhint';bar.innerHTML='<span aria-hidden="true">↔</span> Tableau plus large que l’écran : faites-le glisser vers la gauche pour voir toutes les colonnes.';el.parentNode.insertBefore(bar,el.nextSibling);
+  if(!bar){bar=document.createElement('div');bar.className='scrollhint';bar.innerHTML=el.classList.contains('sess-list')?'<span aria-hidden="true">↔</span> Fais glisser la liste vers la gauche pour voir les autres séances de la période.':'<span aria-hidden="true">↔</span> Tableau plus large que l’écran : faites-le glisser vers la gauche pour voir toutes les colonnes.';el.parentNode.insertBefore(bar,el.nextSibling);
     const upd=()=>el.classList.toggle('at-end',el.scrollLeft+el.clientWidth>=el.scrollWidth-4);el.addEventListener('scroll',upd,{passive:true});upd()}
   bar.hidden=false})}
 const _sh=new MutationObserver(()=>{clearTimeout(_sh._t);_sh._t=setTimeout(addScrollArrows,120)});_sh.observe(document.querySelector('main'),{childList:true,subtree:true});window.addEventListener('resize',()=>{clearTimeout(_sh._t);_sh._t=setTimeout(addScrollArrows,120)});setTimeout(addScrollArrows,300);

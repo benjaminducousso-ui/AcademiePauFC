@@ -53,6 +53,46 @@ input.txt{width:150px;border:1px solid transparent;border-radius:6px;padding:5px
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 [hidden]{display:none!important}
+
+/* ---------- UX : création en tête de liste, crayons de zone, glisser-déposer ---------- */
+.block{position:relative}
+.bedit{position:absolute;top:12px;right:14px;width:34px;height:34px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:15px;line-height:1;opacity:.5;transition:opacity .15s,border-color .15s,transform .15s;z-index:2}
+.block:hover .bedit,.bedit:focus-visible{opacity:1;border-color:var(--navy-2);transform:scale(1.06)}
+@media (hover:none){.bedit{opacity:.85}}
+.zedit{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:12px;line-height:1;margin-left:10px;vertical-align:middle;opacity:.6;transition:opacity .15s,border-color .15s}
+.zedit:hover,.zedit:focus-visible{opacity:1;border-color:var(--navy-2)}
+.sheet-head .zedit{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.12)}
+@media (hover:none){.zedit{opacity:.9}}
+.edrow .grip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:transparent;border:0;padding:0;color:var(--muted);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.edrow .grip:active{cursor:grabbing}
+.edrow .grip .dots{font-size:13px;line-height:1}
+.edrow .grip .num{font-family:var(--display);font-size:17px;font-weight:800;color:var(--navy-2);line-height:1}
+.edrow.dragging{box-shadow:0 10px 24px rgba(11,42,74,.28);border-color:var(--navy-2);opacity:.96}
+.edblocks.is-dragging{cursor:grabbing}
+.edrow.flash{animation:edflash 1.4s ease-out}
+@keyframes edflash{0%,45%{box-shadow:inset 0 0 0 2px var(--yellow)}100%{box-shadow:none}}
+.edrow .kind{white-space:nowrap}
+.bedit svg,.zedit svg{display:block}
+.bedit{color:var(--muted)}.zedit{color:var(--muted)}
+.sheet-head .zedit{color:#fff}
+.block:hover .bedit,.bedit:focus-visible,.zedit:hover,.zedit:focus-visible{color:var(--navy-2)}
+.sheet-head .zedit:hover,.sheet-head .zedit:focus-visible{color:#fff;border-color:#fff}
+.edrow .grip .dots{display:block;opacity:.75}
+
+.edrow{grid-template-columns:34px minmax(150px,1fr) max-content max-content max-content}
+.edrow .kind{min-width:max-content;overflow:visible}
+@media (max-width:700px){.edrow{grid-template-columns:34px 1fr max-content}}
+.edrow .kind{padding:3px 10px 3px 9px}
+
+.rotband{display:block;margin:10px 20px 0;padding:8px 12px;border-left:4px solid var(--yellow);background:var(--surface-2);border-radius:0 8px 8px 0;font-size:14px;color:var(--ink)}
+.rotband b{color:var(--yellow-ink)}
+.block.in-rot{border-left:4px solid var(--yellow)}
+.chip.rot{background:var(--yellow);color:#3B2E00;border-color:var(--yellow)}
+.edrow.is-rot{border-left:4px solid var(--yellow)}
+.rotbtn[aria-pressed="true"]{background:var(--yellow);border-color:var(--yellow);color:#3B2E00;font-weight:700}
+.rotwarn{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;border-left:4px solid var(--yellow);background:var(--surface);border-radius:0 8px 8px 0;font-size:13.5px}
+@media (hover:none){.zedit{width:34px;height:34px}.bedit{width:38px;height:38px}}
+.zedit{width:30px;height:30px}
 </style>
 <style>
 .days{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}@media (max-width:760px){.days{grid-template-columns:1fr}}
@@ -607,7 +647,15 @@ async function fichePdfDoc(s){
     doc.text(`Pau FC Academy · stage ${vd.name} · fiche de séance — beaucoup de ballon, peu de parole, un bravo à chacun.`,MX,292);
     doc.text(`${g.name} · ${`${g.dayNames[s.day-1]} ${fmt(dte)}`}`,PW-MX,292,{align:"right"})};
   let clock=0;
+  const rgrp=typeof rotGroups==="function"?rotGroups(blocks):blocks.map(()=>-1);
   for(let i=0;i<blocks.length;i++){const b=blocks[i];
+    /* bandeau des ateliers tournants, juste avant le premier atelier du groupe */
+    if(rgrp[i]===i){const nb=rgrp.filter(x=>x===i).length;const tot=blocks.filter((x,j)=>rgrp[j]===i).reduce((a,x)=>a+(x.dur||0),0);
+      if(y+9>286){foot();doc.addPage();y=14}
+      doc.setFillColor(FCS.yel);doc.roundedRect(MX,y,W,7,1.6,1.6,"F");
+      doc.setTextColor("#3B2E00");doc.setFont("Poppins","bold");doc.setFontSize(7.2);
+      doc.text(`ATELIERS TOURNANTS · ${nb} ateliers en parallèle, ${nb} sous-groupes qui tournent · ${tot} min au total`,MX+4,y+4.8);
+      y+=9}
     const hasS=!!b.schema;const tx0=MX+(hasS?SW+6:0)+4,tw=W-(hasS?SW+6:0)-8;
     doc.setFont("Poppins","bold");doc.setFontSize(10.5);const nl=doc.splitTextToSize(b.name,tw-26);
     doc.setFont("Poppins","normal");doc.setFontSize(7.4);
@@ -621,8 +669,12 @@ async function fichePdfDoc(s){
     const h=Math.max(hasS?sh+6:16,textH+4);
     if(y+h>286){foot();doc.addPage();y=14;
       doc.setTextColor(FCS.gray);doc.setFont("Poppins","bold");doc.setFontSize(7);
-      doc.text(`${g.name} · ${`${g.dayNames[s.day-1]} ${fmt(dte)}`} · ${s.title.toUpperCase()} — SUITE`,MX,y-4)}
-    doc.setDrawColor(FCS.line);doc.setFillColor("#FFFFFF");doc.roundedRect(MX,y,W,h,2,2,"FD");
+      doc.text(`${g.name} · ${`${g.dayNames[s.day-1]} ${fmt(dte)}`} · ${s.title.toUpperCase()} — SUITE`,MX,y-4);
+      if(rgrp[i]>=0&&rgrp[i]!==i){doc.setFillColor(FCS.yel);doc.roundedRect(MX,y,W,7,1.6,1.6,"F");
+        doc.setTextColor("#3B2E00");doc.setFont("Poppins","bold");doc.setFontSize(7.2);
+        doc.text("ATELIERS TOURNANTS (suite)",MX+4,y+4.8);y+=9}}
+    doc.setDrawColor(rgrp[i]>=0?FCS.yel:FCS.line);doc.setFillColor("#FFFFFF");doc.roundedRect(MX,y,W,h,2,2,"FD");
+    if(rgrp[i]>=0){doc.setFillColor(FCS.yel);doc.rect(MX,y+2,1.6,h-4,"F")}
     if(hasS){const png=await svgToPngS(renderSchema(b.schema),Math.round(SW*9),Math.round(sh*9));
       if(png){try{doc.addImage(png,"PNG",MX+3,y+3.5,SW,sh)}catch(e){}}}
     let ty=y+3.6;
@@ -727,7 +779,9 @@ function sessionLink(s){return `${location.origin}${location.pathname}?g=${gid}&
 function waMessage(s){const g=grp();const vd=VACANCES.find(x=>x.id===vac);const d=vd[g.days][s.day-1];const blocks=blocksOf(s);
   /* Symboles non-emoji uniquement (★ ◆ ✦ ● ➜) : les caractères à présentation emoji arrivent en « ? » sur WhatsApp Mac ; le lien vers la fiche est en haut, avant le repli « Lire la suite ». */
   const lines=[`★ *Stage ${vd.name} · ${g.name}* — ${g.dayNames[s.day-1]} ${fmt(d)}`,`◆ *${s.title}* (${totalOf(s)} min)`,`_${s.theme}_`,`➜ Fiche complète (schémas, consignes, matériel) : ${sessionLink(s)}`,...(s.note?[`✦ *Consignes du référent* : ${s.note}`]:[]),"",`◆ *Déroulé*`];
-  blocks.forEach((b,i)=>lines.push(`${i+1}. ${b.dur}' *${b.name}*${b.desc&&b.kind!=="accueil"&&b.kind!=="calme"?` — ${(b.desc.split(/(?<=[.!?])\s/)[0]||"").trim()}`:""}`));
+  const wg=rotGroups(blocks);
+  blocks.forEach((b,i)=>{if(wg[i]===i){const nb=rotSize(wg,i);lines.push(`⟳ _Ateliers tournants : ${nb} ateliers en parallèle, ${nb} sous-groupes qui tournent_`)}
+    lines.push(`${i+1}. ${b.dur}' *${b.name}*${wg[i]>=0?" (en rotation)":""}${b.desc&&b.kind!=="accueil"&&b.kind!=="calme"?` — ${(b.desc.split(/(?<=[.!?])\s/)[0]||"").trim()}`:""}`)});
   lines.push("","★ *Objectifs*");s.objs.forEach(o=>lines.push(`- ${o}`));
   lines.push("","✦ *À veiller*",`- ${s.veiller}`);blocks.filter(b=>b.veiller).forEach(b=>lines.push(`- ${b.name} : ${b.veiller}`));
   const mat=collectMat(blocks);if(mat.length)lines.push("",`● *Matériel* : ${mat.join(", ")}`);
@@ -810,7 +864,7 @@ store.ovr=store.ovr||{};
 const TXT=["name","desc","var"];
 const ORIG={};
 GROUPS.forEach(g=>STAGE[g.id].sessions.forEach(s=>{ORIG[g.id+"|"+s.id]=snapshotWith(s,STAGE[g.id].lib)}));
-function blkWith(b,lib){const g=lib[b.g]||{};const o={g:b.g,dur:b.dur||undefined};TXT.forEach(k=>{const v=(b[k]||"").trim();if(v&&v!==(g[k]||""))o[k]=v});return o}
+function blkWith(b,lib){const g=lib[b.g]||{};const o={g:b.g,dur:b.dur||undefined};if(b.rot)o.rot=1;TXT.forEach(k=>{const v=(b[k]||"").trim();if(v&&v!==(g[k]||""))o[k]=v});return o}
 function blk(b){return blkWith(b,st().lib)}
 function snapshotWith(s,lib){return {title:s.title,short:s.short||"",theme:s.theme||"",objs:[...(s.objs||[])],veiller:s.veiller||"",note:s.note||"",blocks:(s.blocks||[]).map(b=>blkWith(b,lib))}}
 function snapshot(s){return snapshotWith(s,st().lib)}
@@ -831,13 +885,60 @@ async function saveOverride(id,data,by){const c=catKey();const ts=Date.now();ovr
   catch(e){toast("Enregistrée sur cet appareil ; le partage réessaiera plus tard")}}
 const signer=()=>{const el=document.getElementById("acBy")||document.getElementById("edBy");const v=((el&&el.value)||get("who","")||"").trim();if(v)set("who",v);return v||"l'éducateur"};
 
+/* ---------- ateliers tournants (sous-groupes qui tournent) ---------- */
+function rotGroups(blocks){const g=blocks.map(()=>-1);
+  for(let i=1;i<blocks.length;i++){if(blocks[i].rot){g[i]=g[i-1]>=0?g[i-1]:i-1;if(g[i-1]<0)g[i-1]=i-1}}
+  return g}
+function rotSize(g,at){return g.filter(x=>x===at).length}
+function normRot(bl){if(bl[0])delete bl[0].rot;return bl}
+/* Des ateliers tournants durent forcément le même temps : tout le groupe suit son premier atelier. */
+function equalizeRots(bl,dur){const lib=st().lib;const g=rotGroups(bl);
+  g.forEach((x,i)=>{if(x===i){const ids=g.map((y,j)=>y===i?j:-1).filter(j=>j>=0);
+    const d=dur||bl[i].dur||(lib[bl[i].g]||{}).dur||10;ids.forEach(j=>bl[j].dur=d)}});
+  return bl}
+/* ---------- icônes d'action ---------- */
+function pencilIcon(){return `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>`}
+function gripIcon(){return `<svg viewBox="0 0 12 20" width="11" height="16" aria-hidden="true"><g fill="currentColor"><circle cx="4" cy="5" r="1.4"/><circle cx="8" cy="5" r="1.4"/><circle cx="4" cy="10" r="1.4"/><circle cx="8" cy="10" r="1.4"/><circle cx="4" cy="15" r="1.4"/><circle cx="8" cy="15" r="1.4"/></g></svg>`}
 /* ---------- état de l'éditeur ---------- */
-let editId=null,draft=null,action=null;
+let editId=null,draft=null,action=null,edFocus=null;
+/* Un crayon posé sur une zone ouvre l'éditeur directement au bon champ. */
+function applyEdFocus(){if(!edFocus)return;const f=edFocus;edFocus=null;
+  if(f.field){const el=document.getElementById(f.field);if(!el)return;
+    el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}},260);return}
+  if(f.blk!=null){const r=document.querySelector('.edrow[data-i="'+f.blk+'"]');if(!r)return;
+    r.scrollIntoView({behavior:"smooth",block:"center"});r.classList.add("flash");
+    const t=r.querySelector(".edtxt textarea,.edtxt input");if(t)setTimeout(()=>t.focus(),320)}}
+function moveBlock(from,to){if(to<0||to>=draft.blocks.length||to===from)return false;
+  const [b]=draft.blocks.splice(from,1);draft.blocks.splice(to,0,b);return true}
+function bindDrag(){
+  const list=document.querySelector(".edblocks");if(!list)return;
+  const rows=()=>[...list.querySelectorAll(".edrow")];
+  const commit=()=>{const order=rows().map(r=>+r.dataset.i);
+    if(order.some((v,i)=>v!==i)){draft.blocks=equalizeRots(normRot(order.map(i=>draft.blocks[i])));renderSeances();toast("Ordre des ateliers mis \u00e0 jour")}};
+  list.querySelectorAll("[data-grip]").forEach(g=>{
+    g.addEventListener("keydown",e=>{const i=+g.dataset.grip;let to=null;
+      if(e.key==="ArrowUp")to=i-1;else if(e.key==="ArrowDown")to=i+1;else return;
+      e.preventDefault();if(moveBlock(i,to)){edFocus=null;renderSeances();
+        const nn=document.querySelector('.edrow[data-i="'+to+'"] [data-grip]');if(nn)nn.focus()}});
+    g.addEventListener("pointerdown",e=>{
+      if(e.button!==undefined&&e.button!==0)return;e.preventDefault();
+      const row=g.closest(".edrow");row.classList.add("dragging");list.classList.add("is-dragging");
+      try{g.setPointerCapture(e.pointerId)}catch(err){}
+      const move=ev=>{const y=ev.clientY;
+        rows().forEach(r=>{if(r===row)return;const b=r.getBoundingClientRect();
+          if(y>b.top&&y<b.bottom){if(y>b.top+b.height/2)r.after(row);else r.before(row)}})};
+      const up=()=>{window.removeEventListener("pointermove",move);
+        row.classList.remove("dragging");list.classList.remove("is-dragging");
+        try{g.releasePointerCapture(e.pointerId)}catch(err){}
+        commit()};
+      window.addEventListener("pointermove",move);
+      window.addEventListener("pointerup",up,{once:true});
+      window.addEventListener("pointercancel",up,{once:true})})})}
 const KIND_ORDER=["accueil","eveil","atelier","defi","match","calme"];
 function libOptions(sel){const lib=st().lib;const ids=Object.keys(lib).sort((a,b)=>KIND_ORDER.indexOf(lib[a].kind)-KIND_ORDER.indexOf(lib[b].kind)||lib[a].name.localeCompare(lib[b].name,"fr"));
   return KIND_ORDER.filter(k=>ids.some(id=>lib[id].kind===k)).map(k=>`<optgroup label="${KIND_LABEL[k]}">${ids.filter(id=>lib[id].kind===k).map(id=>`<option value="${id}" ${id===sel?"selected":""}>${esc(lib[id].name)} (${lib[id].dur}')</option>`).join("")}</optgroup>`).join("")}
 function editorHtml(s){const lib=st().lib;
-  return `<div class="editor"><div class="edhead"><b>✏️ Modifier cette séance</b><span class="note">Visible par tous les éducateurs du stage dès l'enregistrement ; la liste des ateliers ne change pas.</span></div>
+  return `<div class="editor"><div class="edhead"><b>✏️ Modifier cette séance</b><span class="note">Glisse un atelier par sa poignée <b>⠿</b> pour changer l'ordre. Visible par tous les éducateurs du stage dès l'enregistrement ; la liste des ateliers ne change pas.</span></div>
     <div class="edgrid">
       <div class="field"><label for="edTitle">Titre</label><input id="edTitle" type="text" value="${esc(draft.title)}"></div>
       <div class="field"><label for="edShort">Thématique (affichée dans le programme)</label><input id="edShort" type="text" value="${esc(draft.short)}" placeholder="ex. Conduite de balle"></div>
@@ -847,13 +948,13 @@ function editorHtml(s){const lib=st().lib;
       <div class="field" style="grid-column:1/-1"><label for="edVeiller">Le regard de l'éducateur</label><textarea id="edVeiller" rows="2">${esc(draft.veiller)}</textarea></div>
       <div class="field" style="grid-column:1/-1"><label for="edNote">Consignes du référent aux éducateurs (facultatif — reprises sur la fiche et dans le message WhatsApp)</label><textarea id="edNote" rows="2" placeholder="ex. Insister sur le pied faible, groupe très hétérogène">${esc(draft.note)}</textarea></div>
     </div>
-    <div class="edblocks">${draft.blocks.map((b,i)=>{const g=lib[b.g]||{name:b.g,kind:"atelier",dur:10};return `<div class="edrow"><span class="n num">${i+1}</span><select data-i="${i}" aria-label="Atelier ${i+1}">${libOptions(b.g)}</select><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv"><button class="btn ghost small" data-up="${i}" title="Monter" ${i===0?"disabled":""}>↑</button><button class="btn ghost small" data-down="${i}" title="Descendre" ${i===draft.blocks.length-1?"disabled":""}>↓</button><button class="btn ghost small" data-del="${i}" title="Retirer">✕</button></span>
+    <div class="edblocks">${(()=>{const drot=rotGroups(draft.blocks);return draft.blocks.map((b,i)=>{const g=lib[b.g]||{name:b.g,kind:"atelier",dur:10};return `<div class="edrow${drot[i]>=0?" is-rot":""}" data-i="${i}"><button type="button" class="grip" data-grip="${i}" title="Glisse pour changer l'ordre (ou flèches ↑ ↓ du clavier)" aria-label="Atelier ${i+1} sur ${draft.blocks.length} — glisser pour réordonner"><span class="dots" aria-hidden="true">${gripIcon()}</span><span class="num">${i+1}</span></button><select data-i="${i}" aria-label="Atelier ${i+1}">${libOptions(b.g)}</select><span class="kind k-${g.kind}" style="color:#fff">${KIND_LABEL[g.kind]}</span><label class="dur"><input type="number" min="1" max="90" step="1" data-i="${i}" value="${b.dur||g.dur}" aria-label="Durée"> min</label><span class="mv">${i>0?`<button class="btn ghost small rotbtn" data-rot="${i}" aria-pressed="${!!b.rot}" title="${b.rot?"Ne plus faire tourner avec l'atelier précédent":"Faire tourner avec l'atelier précédent : les enfants sont répartis en sous-groupes"}">⟳ ${b.rot?"tourne":"tourner"}</button>`:""}<button class="btn ghost small" data-del="${i}" title="Retirer cet atelier">✕</button></span>
         <button class="btn ghost small txt" data-txt="${i}" aria-expanded="${!!b._open}" title="Adapter le texte de cet atelier pour cette séance">✎ Texte${TXT.some(k=>b[k]&&b[k]!==g[k])?" · adapté":""}</button>
         ${b._open?`<div class="edtxt"><p class="note">Ces textes ne valent que pour cette séance (ils partent dans le message WhatsApp et sur la fiche) ; la liste des ateliers ne change pas.</p>
           <label>Nom de l'atelier<input type="text" data-tk="name" data-i="${i}" value="${esc(b.name||g.name)}"></label>
           <label>Déroulé et consignes<textarea data-tk="desc" data-i="${i}" rows="4">${esc(b.desc||g.desc||"")}</textarea></label>
           <label>Variantes<textarea data-tk="var" data-i="${i}" rows="2">${esc(b.var||g.var||"")}</textarea></label>
-          <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}</div>`}).join("")}</div>
+          <button class="btn ghost small" data-txtreset="${i}">Revenir au texte de la liste</button></div>`:""}</div>`}).join("")})()}</div>
     <div class="prof-actions"><button class="btn ghost" id="edAdd">+ Ajouter un atelier</button><button class="btn ghost" id="edLib">📚 Voir la liste des ateliers</button></div>
     <div class="prof-actions" style="margin-top:14px"><button class="btn primary" id="edSave">Enregistrer et partager</button><button class="btn ghost" id="edCancel">Annuler</button>
       ${s.dup?`<button class="btn ghost" id="edDelete" style="margin-left:auto">🗑 Supprimer cette copie</button>`:s.mod?`<button class="btn ghost" id="edReset" style="margin-left:auto">↺ Rétablir la séance d'origine</button>`:""}</div></div>`}
@@ -862,10 +963,18 @@ function bindEditor(s){const q=id=>document.getElementById(id);const lib=st().li
   q("edTheme").addEventListener("input",e=>draft.theme=e.target.value);q("edVeiller").addEventListener("input",e=>draft.veiller=e.target.value);q("edNote").addEventListener("input",e=>draft.note=e.target.value);
   q("edObjs").addEventListener("input",e=>draft.objs=e.target.value.split("\n").map(x=>x.trim()).filter(Boolean));
   document.querySelectorAll(".edrow select").forEach(sel=>sel.addEventListener("change",()=>{const i=+sel.dataset.i;draft.blocks[i]={g:sel.value,dur:undefined};renderSeances()}));
-  document.querySelectorAll(".edrow input[type=number]").forEach(inp=>inp.addEventListener("change",()=>{const i=+inp.dataset.i;const v=Math.max(1,Math.min(90,parseInt(inp.value)||lib[draft.blocks[i].g].dur));draft.blocks[i].dur=v;renderSeances()}));
-  document.querySelectorAll("[data-up]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.up;[draft.blocks[i-1],draft.blocks[i]]=[draft.blocks[i],draft.blocks[i-1]];renderSeances()}));
-  document.querySelectorAll("[data-down]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.down;[draft.blocks[i+1],draft.blocks[i]]=[draft.blocks[i],draft.blocks[i+1]];renderSeances()}));
-  document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{if(draft.blocks.length<=1){toast("Il faut garder au moins un atelier");return}draft.blocks.splice(+b.dataset.del,1);renderSeances()}));
+  document.querySelectorAll(".edrow input[type=number]").forEach(inp=>inp.addEventListener("change",()=>{const i=+inp.dataset.i;const v=Math.max(1,Math.min(90,parseInt(inp.value)||lib[draft.blocks[i].g].dur));draft.blocks[i].dur=v;const g=rotGroups(draft.blocks);
+    /* rendu différé : on ne remplace pas le DOM pendant que le champ perd le focus */
+    if(g[i]>=0){const ids=g.map((y,j)=>y===g[i]?j:-1).filter(j=>j>=0);ids.forEach(j=>draft.blocks[j].dur=v);
+      setTimeout(()=>{renderSeances();toast(`Les ${ids.length} ateliers tournants passent à ${v} min`)},0)}
+    else setTimeout(renderSeances,0)}));
+  document.querySelectorAll("[data-rot]").forEach(bt=>bt.addEventListener("click",()=>{const i=+bt.dataset.rot;
+    if(draft.blocks[i].rot)delete draft.blocks[i].rot;else draft.blocks[i].rot=1;
+    normRot(draft.blocks);const before=draft.blocks.map(b=>b.dur);equalizeRots(draft.blocks);
+    const chg=draft.blocks.some((b,j)=>b.dur!==before[j]);
+    renderSeances();if(chg)toast("Même durée pour tous les ateliers du groupe : c'est ce qui permet aux sous-groupes de tourner ensemble")}));
+  bindDrag();
+  document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{if(draft.blocks.length<=1){toast("Il faut garder au moins un atelier");return}draft.blocks.splice(+b.dataset.del,1);equalizeRots(normRot(draft.blocks));renderSeances()}));
   document.querySelectorAll("[data-txt]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txt;draft.blocks[i]._open=!draft.blocks[i]._open;renderSeances()}));
   document.querySelectorAll(".edtxt [data-tk]").forEach(el=>el.addEventListener("input",()=>{const i=+el.dataset.i,k=el.dataset.tk;const g=lib[draft.blocks[i].g]||{};const v=el.value;draft.blocks[i][k]=v.trim()&&v.trim()!==(g[k]||"")?v:undefined}));
   document.querySelectorAll("[data-txtreset]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txtreset;TXT.forEach(k=>delete draft.blocks[i][k]);renderSeances()}));
@@ -929,21 +1038,26 @@ function renderSeances(){const v=document.getElementById("view-seances");const g
   const tl=blocks.map(b=>`<span style="width:${(b.dur/total*100).toFixed(1)}%;background:${KIND_COLOR[b.kind]}" title="${esc(b.name)}"></span>`).join("");
   const tlLeg=[...new Set(blocks.map(b=>b.kind))].map(k=>`<span><i style="background:${KIND_COLOR[k]}"></i>${KIND_LABEL[k]}</span>`).join("");
   const sl=allSlots.find(p=>p.s&&p.s.id===s.id);let clock=sl?slotTime(sl.t):null;
-  const blocksHtml=blocks.map(b=>{const at=clock!==null?fmtTime(clock):"";if(clock!==null)clock+=b.dur;const lg=S.lib[b.g]||{};const edited=TXT.some(k=>b[k]&&b[k]!==lg[k]);return `<article class="block">
+  const rgrp=rotGroups(blocks);
+  const rotBand=i=>{if(rgrp[i]!==i)return "";const ids=rgrp.map((x,j)=>x===i?j:-1).filter(j=>j>=0);
+    const durs=[...new Set(ids.map(j=>blocks[j].dur))];
+    return `<div class="rotband"><b>⟳ Ateliers tournants</b> · ${ids.length} ateliers en parallèle, ${ids.length} sous-groupes qui tournent ${durs.length===1?`toutes les ${durs[0]} min`:`(${ids.map(j=>blocks[j].dur).join(" / ")} min)`} — ${ids.reduce((a,j)=>a+blocks[j].dur,0)} min au total. Chaque enfant fait les ${ids.length} ateliers.</div>`};
+  const blocksHtml=blocks.map((b,bi)=>{const at=clock!==null?fmtTime(clock):"";if(clock!==null)clock+=b.dur;const lg=S.lib[b.g]||{};const edited=TXT.some(k=>b[k]&&b[k]!==lg[k]);return `${rotBand(bi)}<article class="block${rgrp[bi]>=0?" in-rot":""}">
+     ${!editing?`<button class="bedit" data-bedit="${bi}" title="Modifier cet atelier pour cette séance" aria-label="Modifier « ${esc(b.name)} »">${pencilIcon()}</button>`:""}
      <div>${b.schema?`<div class="schema">${renderSchema(b.schema)}</div>`:`<div class="schema" style="display:grid;place-items:center;min-height:120px;color:var(--muted);font-size:14px">${b.kind==="accueil"?"🤝 Cercle d'accueil":"🙌 Cercle de fin"}</div>`}</div>
      <div><div class="when"><span class="t">${b.dur}'</span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${at?`<span class="note" style="font-size:12px">· ${at}</span>`:""}${b.src?`<span class="note" style="font-size:12px">· ${esc(b.src)}</span>`:""}</div>
-       <h3>${esc(b.name)}${edited?` <span class="chip mod" title="Texte adapté par l'éducateur pour cette séance">✎ adapté</span>`:""}</h3><p class="desc">${esc(b.desc||"")}</p></div>
+       <h3>${esc(b.name)}${rgrp[bi]>=0?` <span class="chip rot">⟳ atelier ${rgrp.slice(0,bi+1).filter(x=>x===rgrp[bi]).length} / ${rotSize(rgrp,rgrp[bi])}</span>`:""}${edited?` <span class="chip mod" title="Texte adapté par l'éducateur pour cette séance">✎ adapté</span>`:""}</h3><p class="desc">${esc(b.desc||"")}</p></div>
        ${b.org||b.var||b.veiller?`<div class="more">${b.org||b.var?`<dl>${b.org?`<dt>Organisation</dt><dd>${esc(b.org)}</dd>`:""}${b.var?`<dt>Variantes</dt><dd>${esc(b.var)}</dd>`:""}</dl>`:""}${b.veiller?`<div class="veiller"><b>Veiller à</b> · ${esc(b.veiller)}</div>`:""}</div>`:""}</article>`}).join("");
   const mat=collectMat(blocks);const msg=waMessage(s);
   const modChip=s.dup?`<span class="pill" title="Séance de réserve créée par duplication">⧉ Séance de réserve${s.by?` par ${esc(s.by)}`:""}</span>`:s.mod?`<span class="pill" title="${s.mod.ts?new Date(s.mod.ts).toLocaleString("fr-FR"):""}">✎ Adaptée${s.mod.by?` par ${esc(s.mod.by)}`:""}</span>`:"";
-  const tools=editing?"":`<button class="toggle" id="editBtn">✏️ Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button>${movable(s)?`<button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}`;
+  const tools=editing?"":`<button class="toggle" id="editBtn">${pencilIcon()} Modifier</button><button class="toggle" id="dupBtn" aria-pressed="${action==="dup"}">⧉ Dupliquer</button>${movable(s)?`<button class="toggle" id="swapBtn" aria-pressed="${action==="move"}">⇄ Déplacer</button>`:""}`;
   v.innerHTML=`<div class="eyebrow">${esc(g.name)} · séances techniques</div><h2 style="margin-top:4px">${S.sessions.filter(x=>!x.dup).length} séances types ${durTxt()}, prêtes à mener</h2><p class="note" style="margin-top:6px">Chaque séance : un éveil, deux ou trois jeux avec leurs schémas, un jeu ou un match pour finir. L'éducateur suit le déroulé, met en place, corrige. Une consigne à la fois. Chaque séance peut être modifiée, dupliquée ou déplacée par l'éducateur : la modification est partagée avec tout le club.</p>
   <div class="sess-layout"><div class="sess-list">${list}</div>
-  <div class="sheet"><div class="sheet-head"><div><div class="eyebrow">Jour ${s.day} · ${sl?`${sl.t} → ${sl.end}`:s.dup?"séance de réserve (hors planning)":""} · Stage ${esc(vd.name)}</div><h2>${esc(s.title)}</h2><p class="theme">${esc(s.theme)}</p></div><div class="meta"><span class="pill">${total} min</span><span class="pill">${esc(g.name)}</span><span class="pill">${esc(g.ratio)}</span>${modChip}${tools}</div></div>
+  <div class="sheet"><div class="sheet-head"><div><div class="eyebrow">Jour ${s.day} · ${sl?`${sl.t} → ${sl.end}`:s.dup?"séance de réserve (hors planning)":""} · Stage ${esc(vd.name)}</div><h2>${esc(s.title)}${!editing?`<button class="zedit" id="edTitleBtn" title="Modifier le titre et le thème" aria-label="Modifier le titre et le thème">${pencilIcon()}</button>`:""}</h2><p class="theme">${esc(s.theme)}</p></div><div class="meta"><span class="pill">${total} min</span><span class="pill">${esc(g.name)}</span><span class="pill">${esc(g.ratio)}</span>${modChip}${tools}</div></div>
    ${!editing&&action?actionPanel(s):""}
    ${editing?editorHtml(s):""}
-   ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}</div>`:""}
-   <div class="objs"><div><h4>Objectifs de la séance</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div><div><h4>Le regard de l'éducateur</h4><p>${esc(s.veiller)}</p></div><div><h4>Repères d'appréciation</h4><p class="note">${FACETS.map(f=>`<b>${esc(f.name)}</b> : ${esc(g.facets[f.id])}`).join(" · ")}</p></div></div>
+   ${!editing&&s.note?`<div class="callout" style="margin:12px 20px 0"><b>💬 Consignes du référent</b> · ${esc(s.note)}<button class="zedit" id="edNoteBtn" title="Modifier les consignes du référent" aria-label="Modifier les consignes du référent">${pencilIcon()}</button></div>`:""}
+   <div class="objs"><div><h4>Objectifs de la séance${!editing?`<button class="zedit" id="edObjsBtn" title="Modifier les objectifs" aria-label="Modifier les objectifs">${pencilIcon()}</button>`:""}</h4><ul>${s.objs.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></div><div><h4>Le regard de l'éducateur${!editing?`<button class="zedit" id="edVeillerBtn" title="Modifier le regard de l'éducateur" aria-label="Modifier le regard de l'éducateur">${pencilIcon()}</button>`:""}</h4><p>${esc(s.veiller)}</p></div><div><h4>Repères d'appréciation</h4><p class="note">${FACETS.map(f=>`<b>${esc(f.name)}</b> : ${esc(g.facets[f.id])}`).join(" · ")}</p></div></div>
    <div class="timeline">${tl}</div><div class="tl-legend">${tlLeg}</div>
    <div class="blocks"><div style="padding:6px 20px 0">${LEGEND}</div>${blocksHtml}</div>
    <div class="materiel"><span class="eyebrow" style="margin-right:6px">Matériel</span>${mat.map(m=>`<span class="mat">${esc(m)}</span>`).join("")}</div>
@@ -954,7 +1068,14 @@ function renderSeances(){const v=document.getElementById("view-seances");const g
   const eb=document.getElementById("editBtn");if(eb)eb.addEventListener("click",()=>{editId=s.id;draft=snapshot(s);action=null;renderSeances();const e=document.querySelector(".editor");if(e)e.scrollIntoView({behavior:"smooth",block:"start"})});
   const db=document.getElementById("dupBtn");if(db)db.addEventListener("click",()=>{action=action==="dup"?null:"dup";renderSeances()});
   const sb=document.getElementById("swapBtn");if(sb)sb.addEventListener("click",()=>{action=action==="move"?null:"move";renderSeances()});
-  if(editing)bindEditor(s);else if(action)bindActionPanel(s)}
+  const openEdit=focus=>{editId=s.id;draft=snapshot(s);action=null;
+    if(focus&&focus.blk!=null&&draft.blocks[focus.blk])draft.blocks[focus.blk]._open=true;
+    edFocus=focus||null;renderSeances()};
+  v.querySelectorAll("[data-bedit]").forEach(b=>b.addEventListener("click",()=>openEdit({blk:+b.dataset.bedit})));
+  [["edTitleBtn","edTitle"],["edObjsBtn","edObjs"],["edVeillerBtn","edVeiller"],["edNoteBtn","edNote"]].forEach(([id,fl])=>{
+    const b=document.getElementById(id);if(b)b.addEventListener("click",()=>openEdit({field:fl}))});
+  if(editing)bindEditor(s);else if(action)bindActionPanel(s)
+  applyEdFocus()}
 
 function render(){if(!vac||!VACANCES.some(v=>v.id===vac))vac=nextVac().id;applyOverrides();renderCats();renderStage();renderSeances();renderAppr();renderLib()}
 /* onglets */
