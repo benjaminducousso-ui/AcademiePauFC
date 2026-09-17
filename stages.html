@@ -553,6 +553,120 @@ function pdfFiche(doc,d){const {g,vd,first,stageLine,next}=dipData(d);const PW=2
   doc.setFontSize(6.8);doc.text(doc.splitTextToSize(next+" À bientôt au Pau FC !",W)[0],CX,283.2,{align:"center"})}
 </script>
 <script>
+/* ===== Fiche de séance en PDF (une page A4) et partage WhatsApp =====
+   Le RTJ veut du visuel pour les éducateurs : la séance part en PDF, schémas compris, plutôt qu'en texte.
+   Rendu avec jsPDF (police Poppins embarquée, comme le carnet) ; les schémas SVG sont rasterisés à la volée. */
+const FCS={navy:"#0B2A4A",navy2:"#123B66",yel:"#F2C200",ink:"#1E2430",gray:"#6E7887",line:"#DCE2EC",light:"#F4F6FA"};
+const KIND_PDFS={accueil:"#6B7A90",eveil:"#C77700",atelier:"#1E56C9",defi:"#8E44AD",match:"#2E8B57",calme:"#6B7A90"};
+/* le SVG est rasterisé à son propre ratio : sinon les ronds (joueurs, ballons) s'étirent */
+function svgToPngS(svg,w,h){return new Promise(res=>{
+  const img=new Image();const blob="data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(svg)));
+  img.onload=()=>{const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");
+    x.fillStyle="#2F6B43";x.fillRect(0,0,w,h);
+    const nw=img.naturalWidth||w,nh=img.naturalHeight||h;const k=Math.min(w/nw,h/nh);
+    const dw=nw*k,dh=nh*k;x.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);res(c.toDataURL("image/png"))};
+  img.onerror=()=>res(null);img.src=blob})}
+function fitTextS(doc,txt,w,size,style,max){doc.setFont("Poppins",style||"normal");
+  let s=size;for(;s>6;s-=.5){doc.setFontSize(s);if(doc.splitTextToSize(txt,w).length<=(max||1))break}
+  return s}
+async function fichePdfDoc(s){
+  await loadJsPDF();const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",compress:true});pdfFonts(doc);
+  const g=grp();const vd=VACANCES.find(x=>x.id===vac);const dte=vd[g.days][s.day-1];const plateau=false;const blocks=blocksOf(s);
+  const total=blocks.reduce((a,b)=>a+(b.dur||0),0);
+  const PW=210,MX=12,W=PW-2*MX;
+  /* — bandeau — */
+  doc.setFillColor(FCS.navy);doc.rect(0,0,PW,34,"F");
+  try{doc.addImage(CREST_PNG,"PNG",MX,6,22,22)}catch(e){}
+  doc.setTextColor(FCS.yel);doc.setFont("Poppins","bold");doc.setFontSize(8.5);
+  doc.text(`PAU FC ACADEMY · ${g.name} · ${`${g.dayNames[s.day-1]} ${fmt(dte)}`}`,MX+27,12);
+  doc.setTextColor("#FFFFFF");const ts=fitTextS(doc,s.title,W-30,19,"bold",1);
+  doc.setFontSize(ts);doc.text(s.title,MX+27,20.5);
+  doc.setTextColor("#C9D6E8");doc.setFont("Poppins","normal");doc.setFontSize(8.2);
+  doc.text(doc.splitTextToSize(s.theme||"",W-30).slice(0,2),MX+27,25.5);
+  doc.setTextColor(FCS.yel);doc.setFont("Poppins","bold");doc.setFontSize(9);
+  doc.text([`${total} min`,g.ratio||""].filter(Boolean).join(" · "),PW-MX,12,{align:"right"});
+  /* — objectifs / consignes — */
+  let y=40;
+  const objs=s.objs||[];
+  doc.setFillColor(FCS.light);doc.roundedRect(MX,y-5,W,20,2,2,"F");
+  doc.setTextColor(FCS.gray);doc.setFont("Poppins","bold");doc.setFontSize(7);
+  doc.text("OBJECTIFS DE LA SÉANCE",MX+4,y-1);
+  doc.setTextColor(FCS.ink);doc.setFont("Poppins","normal");doc.setFontSize(8.2);
+  const col2=s.note||s.veiller;
+  const ow=col2?W/2-8:W-8;
+  let oy=y+3.5;objs.slice(0,3).forEach(o=>{doc.setFillColor(FCS.yel);doc.circle(MX+5.2,oy-1,.9,"F");
+    doc.text(doc.splitTextToSize(o,ow-6).slice(0,1),MX+7.5,oy);oy+=4.2});
+  if(col2){const x2=MX+W/2;doc.setTextColor(FCS.gray);doc.setFont("Poppins","bold");doc.setFontSize(7);
+    doc.text(s.note?"CONSIGNES DU RÉFÉRENT":"LE REGARD DE L’ÉDUCATEUR",x2,y-1);
+    doc.setTextColor(FCS.ink);doc.setFont("Poppins","normal");doc.setFontSize(8.2);
+    doc.text(doc.splitTextToSize(s.note||s.veiller||"",W/2-6).slice(0,3),x2,y+3.5)}
+  y+=20;
+  /* — ateliers les uns sous les autres, dans l'ordre de la séance — */
+  const SW=Math.min(58,W*0.33);
+  const foot=()=>{doc.setTextColor(FCS.gray);doc.setFont("Poppins","italic");doc.setFontSize(6.2);
+    doc.text(`Pau FC Academy · stage ${vd.name} · fiche de séance — beaucoup de ballon, peu de parole, un bravo à chacun.`,MX,292);
+    doc.text(`${g.name} · ${`${g.dayNames[s.day-1]} ${fmt(dte)}`}`,PW-MX,292,{align:"right"})};
+  let clock=0;
+  for(let i=0;i<blocks.length;i++){const b=blocks[i];
+    const hasS=!!b.schema;const tx0=MX+(hasS?SW+6:0)+4,tw=W-(hasS?SW+6:0)-8;
+    doc.setFont("Poppins","bold");doc.setFontSize(10.5);const nl=doc.splitTextToSize(b.name,tw-26);
+    doc.setFont("Poppins","normal");doc.setFontSize(7.4);
+    const dlAll=doc.splitTextToSize(b.desc||"",tw);const dl=dlAll.slice(0,9);
+    if(dlAll.length>dl.length&&dl.length)dl[dl.length-1]=dl[dl.length-1].replace(/[\s,;.]*$/,"…");
+    const vlAll=b.veiller?doc.splitTextToSize(b.veiller,tw-16):[];const vl=vlAll.slice(0,3);
+    const orgAll=b.org?doc.splitTextToSize(b.org,tw):[];const org=orgAll.slice(0,2);
+    const ar=hasS&&b.schema.f?(b.schema.f[0]+5.2)/(b.schema.f[1]+5.2):1.4;
+    const sh=hasS?SW/ar:0;
+    const textH=9+nl.length*4.4+dl.length*3.2+(org.length?1+org.length*3.2:0)+(vl.length?3+vl.length*3.2:0);
+    const h=Math.max(hasS?sh+6:16,textH+4);
+    if(y+h>286){foot();doc.addPage();y=14;
+      doc.setTextColor(FCS.gray);doc.setFont("Poppins","bold");doc.setFontSize(7);
+      doc.text(`${g.name} · ${`${g.dayNames[s.day-1]} ${fmt(dte)}`} · ${s.title.toUpperCase()} — SUITE`,MX,y-4)}
+    doc.setDrawColor(FCS.line);doc.setFillColor("#FFFFFF");doc.roundedRect(MX,y,W,h,2,2,"FD");
+    if(hasS){const png=await svgToPngS(renderSchema(b.schema),Math.round(SW*9),Math.round(sh*9));
+      if(png){try{doc.addImage(png,"PNG",MX+3,y+3.5,SW,sh)}catch(e){}}}
+    let ty=y+3.6;
+    doc.setFillColor(KIND_PDFS[b.kind]||FCS.navy2);doc.roundedRect(tx0,ty,14,4.8,1,1,"F");
+    doc.setTextColor("#FFFFFF");doc.setFont("Poppins","bold");doc.setFontSize(5.8);
+    doc.text((KIND_LABEL[b.kind]||"").toUpperCase(),tx0+7,ty+3.3,{align:"center"});
+    doc.setTextColor(FCS.navy2);doc.setFontSize(9.5);doc.text(`${b.dur}'`,tx0+16.5,ty+3.8);
+    doc.setTextColor(FCS.gray);doc.setFont("Poppins","normal");doc.setFontSize(6.4);
+    doc.text(clock?`+${clock} min`:"départ",tx0+tw-2,ty+3.8,{align:"right"});clock+=b.dur||0;
+    ty+=9.4;doc.setTextColor(FCS.ink);doc.setFont("Poppins","bold");doc.setFontSize(10.5);
+    doc.text(nl,tx0,ty);ty+=nl.length*4.4;
+    doc.setFont("Poppins","normal");doc.setFontSize(7.4);doc.setTextColor(FCS.gray);
+    doc.text(dl,tx0,ty);ty+=dl.length*3.2;
+    if(org.length){doc.setFont("Poppins","italic");doc.setTextColor(FCS.navy2);doc.text(org,tx0,ty+2.6);ty+=1+org.length*3.2}
+    if(vl.length){ty+=3;doc.setFillColor(FCS.yel);doc.rect(tx0,ty-2.6,1.4,vl.length*3.2+1,"F");
+      doc.setFont("Poppins","bold");doc.setFontSize(6.6);doc.setTextColor(FCS.ink);doc.text("À VEILLER",tx0+3,ty);
+      doc.setFont("Poppins","normal");doc.setFontSize(7.2);doc.setTextColor(FCS.ink);doc.text(vl,tx0+16,ty);}
+    y+=h+2}
+  /* — matériel + pied de page — */
+  const mat=collectMat(blocks);
+  if(y<282){doc.setDrawColor(FCS.line);doc.line(MX,y,PW-MX,y);
+    doc.setTextColor(FCS.gray);doc.setFont("Poppins","bold");doc.setFontSize(6.5);doc.text("MATÉRIEL",MX,y+4);
+    doc.setFont("Poppins","normal");doc.setTextColor(FCS.ink);doc.setFontSize(7);
+    doc.text(doc.splitTextToSize(mat.join(" · "),W-22).slice(0,2),MX+18,y+4)}
+  doc.setTextColor(FCS.gray);doc.setFont("Poppins","italic");doc.setFontSize(6.2);
+  doc.text(`Pau FC Academy · stage ${vd.name} · fiche de séance — beaucoup de ballon, peu de parole, un bravo à chacun.`,MX,292);
+  doc.text(`${g.name} · ${`${g.dayNames[s.day-1]} ${fmt(dte)}`}`,PW-MX,292,{align:"right"});
+  return doc}
+const ficheName=s=>`stage-${vac}-${gid}-j${s.day}.pdf`;
+/* Un seul geste : sur téléphone le partage natif (WhatsApp y figure), sinon le téléchargement.
+   Dans l'aperçu Claude, le téléchargement passe par la capacité « downloads » de la page publiée. */
+async function savePdfFile(doc,name){
+  try{const dl=(window.claude&&claude.use)?await claude.use("downloads"):null;
+    if(dl&&dl.save){await dl.save({filename:name,data:doc.output("blob")});return true}}catch(e){}
+  doc.save(name);return true}
+async function fichePdf(s){
+  toast("Préparation de la fiche PDF…");
+  try{const doc=await fichePdfDoc(s);const name=ficheName(s);
+    try{if(navigator.canShare){const file=new File([doc.output("blob")],name,{type:"application/pdf"});
+      if(navigator.canShare({files:[file]})){await navigator.share({files:[file],title:`Séance ${grp().name} · ${s.title}`,text:`${s.title} — ${grp().name}`});return "shared"}}}catch(e){if(e&&e.name==="AbortError")return "shared"}
+    await savePdfFile(doc,name);toast("Fiche PDF enregistrée");return "saved"}
+  catch(e){toast("Fiche PDF indisponible (connexion ?) — le message texte reste possible");return "error"}}
+</script>
+<script>
 /* ===== Application Stages ===== */
 const LS="paufc-stages-v1";let store={};try{store=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch(e){}
 const save=()=>{try{localStorage.setItem(LS,JSON.stringify(store))}catch(e){}};
@@ -833,9 +947,10 @@ function renderSeances(){const v=document.getElementById("view-seances");const g
    <div class="timeline">${tl}</div><div class="tl-legend">${tlLeg}</div>
    <div class="blocks"><div style="padding:6px 20px 0">${LEGEND}</div>${blocksHtml}</div>
    <div class="materiel"><span class="eyebrow" style="margin-right:6px">Matériel</span>${mat.map(m=>`<span class="mat">${esc(m)}</span>`).join("")}</div>
-   <div class="sendbar"><h4>Envoyer la séance aux éducateurs</h4><div class="toolbar" style="margin-top:0"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Envoyer sur WhatsApp</a></div><p class="note" style="margin-top:8px">Le message contient le déroulé (avec les adaptations de l'éducateur) et le lien direct vers cette fiche (schémas, consignes, matériel).</p></div>
+   <div class="sendbar"><h4>Envoyer la séance aux éducateurs</h4><div class="toolbar" style="margin-top:0"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Envoyer sur WhatsApp</a><button class="btn" id="pdfDl">📄 Fiche PDF</button></div><p class="note" style="margin-top:8px">« Fiche PDF » donne la séance sur une page A4 avec les schémas : sur téléphone le partage s'ouvre (WhatsApp compris), sur ordinateur le PDF est téléchargé. Le message WhatsApp contient le déroulé en texte et le lien vers cette fiche.</p></div>
   </div></div>`;
   v.querySelectorAll(".sess-item").forEach(b=>b.addEventListener("click",()=>{curS=b.dataset.s;set("s:"+gid,curS);editId=null;draft=null;action=null;renderSeances();window.scrollTo({top:0,behavior:"smooth"})}));
+  const pd=document.getElementById("pdfDl");if(pd)pd.addEventListener("click",()=>fichePdf(s));
   const eb=document.getElementById("editBtn");if(eb)eb.addEventListener("click",()=>{editId=s.id;draft=snapshot(s);action=null;renderSeances();const e=document.querySelector(".editor");if(e)e.scrollIntoView({behavior:"smooth",block:"start"})});
   const db=document.getElementById("dupBtn");if(db)db.addEventListener("click",()=>{action=action==="dup"?null:"dup";renderSeances()});
   const sb=document.getElementById("swapBtn");if(sb)sb.addEventListener("click",()=>{action=action==="move"?null:"move";renderSeances()});
