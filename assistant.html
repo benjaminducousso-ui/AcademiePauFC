@@ -236,6 +236,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .sopen .t{display:block;font-weight:700;font-size:16.5px;line-height:1.2}
 .sopen .s{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
 .sopen .d{text-align:center;font-family:var(--display);line-height:1}
+
+.info{position:relative;display:inline-grid;place-items:center;width:24px;height:24px;margin-left:8px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);font-family:var(--body);font-size:13px;font-weight:800;font-style:italic;line-height:1;vertical-align:middle;text-transform:none}
+.info:hover,.info:focus-visible{background:var(--navy);border-color:var(--navy);color:#fff}
+.krow{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:start;padding:12px 4px;border-top:1px solid var(--line)}
+.krow:first-child{border-top:0}
+.krow .kind{justify-self:start;white-space:normal;text-align:center}
+.krow p{font-size:15px;color:var(--ink)}
+@media (max-width:480px){.krow{grid-template-columns:1fr;gap:6px}}
+.info::after{content:"";position:absolute;inset:-10px}
+@media (hover:none){.info{width:28px;height:28px;font-size:15px}}
+
+.tbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;padding:10px 14px;border-radius:12px;background:var(--surface-2);font-size:15px}
+.tbar b{font-family:var(--display);font-size:20px;font-weight:800;color:var(--navy-2)}
+.tbar.off{background:#FFF6DA;border-left:4px solid var(--yellow)}
+:root[data-theme="dark"] .tbar.off{background:#3A3000}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tbar.off{background:#3A3000}}
 </style>
 <header class="top"><div class="topin" id="topbar"></div></header>
 <main class="app" id="app"></main>
@@ -585,12 +601,40 @@ const finName=id=>(FINALITES.find(f=>f.id===id)||{}).name||"Jeu";
 
 /* ---------- composition d'une séance ---------- */
 function pick1(list,avoid){const free=list.filter(g=>!avoid.includes(g.id));const src=free.length?free:list;return src[Math.floor(Math.random()*src.length)]}
+/* « Défendre son château » et « Défendre son château · au pied » sont deux variantes
+   du même atelier : on n'en garde qu'une seule dans une séance. */
+const rootKey=n=>(n||"").split("·")[0].normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+/* Consignes de jeu à thème : une règle claire, vérifiable par les enfants. */
+const THEMES={
+  conduite:[["conduite avant la passe","Avant de passer, le porteur doit conduire son ballon sur au moins trois appuis. Un but après un dribble réussi compte double."],
+            ["dribbler pour marquer","Un but ne compte que s'il est précédé d'un dribble : le buteur ou un partenaire a éliminé un adversaire balle au pied."]],
+  passe:[["trois passes avant le but","Il faut trois passes réussies dans l'équipe avant de pouvoir marquer."],
+         ["tout le monde touche","Un but ne compte que si tous les joueurs de l'équipe ont touché le ballon depuis la récupération."]],
+  frappe:[["frapper du premier contact","Un but marqué du premier contact compte double."],
+          ["tirer de loin","Un but tiré depuis l'extérieur de la zone compte double."]],
+  duel:[["gagner son duel","Un but compte double s'il suit un duel gagné balle au pied."],
+        ["défense individuelle","Chaque joueur défend sur un adversaire désigné : pas de but sur une récupération à deux."]],
+  collectif:[["occuper la largeur","Un but ne compte que si le ballon est passé par les deux côtés du terrain avant la frappe."],
+             ["tous dans le camp adverse","Au moment du but, tous les joueurs de l'équipe doivent être dans la moitié adverse."]],
+  motricite:[["remise en jeu en course","Chaque remise en jeu se fait en conduite, sans arrêt du ballon."],
+             ["deux pieds obligatoires","Chaque joueur doit toucher le ballon des deux pieds avant que son équipe puisse marquer."]],
+  jonglerie:[["relance jonglée","Le gardien relance à la main ou en jonglant : jamais en dégagement lointain."],
+             ["contrôle avant la passe","Le ballon doit être contrôlé avant chaque passe : pas de renvoi direct."]]
+};
+function themeFor(fins,exclu){
+  const ids=(fins||[]).filter(f=>THEMES[f]);
+  const src=ids.length?ids:["collectif"];
+  let l=[];src.forEach(f=>l=l.concat(THEMES[f]));
+  const neufs=l.filter(t=>t[0]!==exclu);if(neufs.length)l=neufs;
+  return l[Math.floor(Math.random()*l.length)]}
+const themeLabel=b=>/^Jeu à thème · /.test(b.name||"")?b.name.replace("Jeu à thème · ",""):null;
 function suggest(b,avoid){
   avoid=avoid||[];
   const acc=poolFor(b.cats,["accueil"]),cal=poolFor(b.cats,["calme"]);
   const evs=poolFor(b.cats,["eveil"]);
   let ats=poolFor(b.cats,["atelier","defi"]);
   const mts=poolFor(b.cats,["match"]);
+  if(b.fam){const f=ats.filter(g=>g.fam===b.fam);if(f.length>=b.n)ats=f;else ats=f.concat(ats.filter(g=>g.fam!==b.fam))}
   if(b.fins&&b.fins.length){const f=ats.filter(g=>b.fins.includes(g.fin));if(f.length>=b.n)ats=f;else{const rest=ats.filter(g=>!b.fins.includes(g.fin));ats=f.concat(rest)}}
   /* on écarte des propositions les temps forts (fête, bilan, plateau) : ils restent dans la liste */
   const evt=g=>/f[êe]te|bilan|tour des|plateau|tournoi|rallye/i.test(g.name||"");
@@ -601,8 +645,12 @@ function suggest(b,avoid){
   const add=(g,dur,extra)=>{if(!g)return;used.push(g.id);blocks.push(Object.assign({g:g.id,dur},extra||{}))};
   const petit=b.dur<=45;
   const dAcc=petit?4:5,dCal=petit?3:5,dEv=petit?8:10;
-  const mt=b.match&&mts2.length?pick1(mts2,avoid):null;
-  let dMatch=mt?(b.dur>=75?20:15):0;
+  const veutTh=!!b.theme,veutLib=!!b.match;
+  const mtTh=veutTh&&mts2.length?pick1(mts2,avoid):null;
+  const mtLib=veutLib&&mts2.length?pick1(mts2.filter(g=>!mtTh||g.id!==mtTh.id),avoid):null;
+  const mt=mtTh||mtLib;
+  let dMatch=(mtTh||mtLib)?(b.dur>=75?20:15):0;
+  if(mtTh&&mtLib)dMatch=b.dur>=75?25:20;
   const ev=evs.length?pick1(evs,avoid):null;
   let reste=b.dur-dAcc-dCal-(ev?dEv:0)-dMatch;
   if(reste<b.n*5){const manque=b.n*5-reste;const pris=Math.min(manque,Math.max(0,dMatch-10));dMatch-=pris;reste+=pris}
@@ -614,11 +662,26 @@ function suggest(b,avoid){
   else if(b.rot&&rab>=5)durs[durs.length-1]+=0;
   add(acc.length?pick1(acc,[]):null,dAcc);
   add(ev,dEv);
-  const chosen=[];
-  for(let i=0;i<b.n;i++){const g=pick1(ats.filter(x=>!chosen.includes(x.id)),avoid.concat(used));if(g){chosen.push(g.id);add(g,durs[i],i>0&&b.rot?{rot:1}:null)}}
-  if(mt){const extra=b.theme?{name:"Match à thème · "+(b.fins&&b.fins.length?b.fins.map(finName).join(" / "):"la consigne du jour"),
-      desc:(mt.desc||"")+" Consigne du jour à respecter pour que le but compte : celle des ateliers de la séance."}:null;
-    add(mt,dMatch,extra)}
+  const chosen=[],roots=[];
+  for(let i=0;i<b.n;i++){
+    let libre=ats.filter(x=>!chosen.includes(x.id)&&!roots.includes(rootKey(x.name)));
+    if(!libre.length)libre=ats.filter(x=>!chosen.includes(x.id));
+    const g=pick1(libre,avoid.concat(used));
+    if(g){chosen.push(g.id);roots.push(rootKey(g.name));add(g,durs[i],i>0&&b.rot?{rot:1}:null)}}
+  /* au moins un défi technique dès qu'il y a trois ateliers ou plus */
+  if(b.n>=3&&!chosen.some(id=>gameOf(id).kind==="defi")){
+    let df=poolFor(b.cats,["defi"]).filter(g=>!evt(g)&&!hors(g)&&!chosen.includes(g.id)&&!roots.includes(rootKey(g.name)));
+    const dfp=df.filter(g=>!b.fins||!b.fins.length||b.fins.includes(g.fin));if(dfp.length)df=dfp;
+    if(df.length){const g=pick1(df,avoid);const j=chosen.length-1;
+      const k=blocks.findIndex(x=>x.g===chosen[j]);
+      if(k>=0){blocks[k].g=g.id;chosen[j]=g.id;roots[j]=rootKey(g.name);used.push(g.id)}}}
+  const th=themeFor(b.fins);
+  const themeBlock=g=>({name:"Jeu à thème · "+th[0],desc:"Consigne du jour : "+th[1]+"\n"+(g.desc||"")});
+  if(mtTh&&mtLib){const dTh=b.dur>=75?15:10;
+    add(mtTh,dTh,themeBlock(mtTh));
+    add(mtLib,Math.max(5,dMatch-dTh),null)}
+  else if(mtTh)add(mtTh,dMatch,themeBlock(mtTh));
+  else if(mtLib)add(mtLib,dMatch,null);
   add(cal.length?pick1(cal,[]):null,dCal);
   return blocks}
 function titleOf(b,blocks){
@@ -628,7 +691,8 @@ function titleOf(b,blocks){
   const top=Object.entries(c).sort((a,b2)=>b2[1]-a[1])[0];
   return top?finName(top[0]):"Séance du jour"}
 function newSession(b,blocks){
-  return {id:uid(),date:b.date,cats:b.cats.slice(),eff:b.eff,dur:b.dur,fins:(b.fins||[]).slice(),rot:!!b.rot,
+  return {id:uid(),date:b.date,cats:b.cats.slice(),eff:b.eff,dur:b.dur,fins:(b.fins||[]).slice(),fam:b.fam||null,rot:!!b.rot,
+    gTheme:!!b.theme,gLibre:!!b.match,
     title:titleOf(b,blocks),blocks,by:store.who||"",ts:Date.now()}}
 
 /* ---------- helpers de rendu ---------- */
@@ -659,6 +723,24 @@ let VIEW="home",SES=null,BRIEF=null,EDIT=false,PICK=null,GED=null,GDRAFT=null,FO
 const root=()=>document.getElementById("app");
 function go(v){VIEW=v;render();window.scrollTo({top:0,behavior:"instant"})}
 
+/* ---------- le vocabulaire fédéral, expliqué en six lignes ---------- */
+const KINDS_HELP=[
+  ["accueil","Accueil","On se retrouve, on se salue, le ballon est déjà là. 5 minutes, jamais d'attente."],
+  ["eveil","Mise en train","Le corps se met en route en jouant, sans arrêt de jeu. On appelle aussi ça l'échauffement."],
+  ["atelier","Situation","Le cœur du travail : une situation d'apprentissage construite autour du thème, où l'éducateur observe et corrige."],
+  ["defi","Défi technique","L'enfant se mesure à lui-même, avec un résultat chiffré : jonglerie, quilles, chrono. On note le record."],
+  ["match","Jeu","Le temps d'opposition libre : match, festi-foot, jeu réduit. On joue, on ne coupe pas."],
+  ["calme","Retour au calme","On range, on dit ce qu'on a vu de réussi, un mot à chacun. 5 minutes qui comptent."]];
+function showKinds(){const host=document.getElementById("modal");document.body.style.overflow="hidden";
+  host.innerHTML=`<div class="sheetmodal" id="ovk"><div class="modal" role="dialog" aria-modal="true" aria-label="Les types de blocs">
+    <div class="mhead"><div class="grab"></div><h3>Les blocs d'une séance</h3>
+      <p class="hint">L'accueil, la mise en train, le jeu final et le retour au calme sont placés par l'assistant : tu ne choisis que le nombre d'ateliers du cœur de séance — <b>situations et défis techniques</b>.</p></div>
+    <div class="mlist">${KINDS_HELP.map(([k,t,d])=>`<div class="krow"><span class="kind k-${k}">${t}</span><p>${d}</p></div>`).join("")}</div>
+    <div class="mfoot"><button class="btn primary" id="kok">J'ai compris</button></div></div></div>`;
+  const close=()=>{host.innerHTML="";document.body.style.overflow=""};
+  document.getElementById("kok").addEventListener("click",close);
+  document.getElementById("ovk").addEventListener("click",e=>{if(e.target.id==="ovk")close()})}
+
 /* ---------- qui es-tu ? (une fois, pas un compte) ---------- */
 function askName(){const host=document.getElementById("modal");document.body.style.overflow="hidden";
   host.innerHTML=`<div class="sheetmodal" id="ovn"><div class="modal" role="dialog" aria-modal="true" aria-label="Ton prénom">
@@ -682,7 +764,7 @@ function viewHome(){
         <button class="srm" data-rm="${s.id}" title="${isMine(s)?"Supprimer cette séance":"Retirer de ma liste"}" aria-label="${isMine(s)?"Supprimer la séance "+esc(s.title):"Retirer de ma liste"}">🗑</button></div>`;
   return `<section class="card hero">
       <h2>Ta séance en deux minutes</h2>
-      <p>Dis-moi pour qui et combien de temps : l'assistant compose la séance avec les ateliers du guide FFF et ceux du club. Tu ajustes, tu partages.</p>
+      <p>Dis-moi pour qui et combien de temps : l'assistant compose la séance avec les situations du guide FFF et celles du club. Tu ajustes, tu partages.</p>
       <button class="big" id="start">➕ Créer une séance</button>
     </section>
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:26px">
@@ -695,7 +777,7 @@ function viewHome(){
       <p class="hint" style="margin-top:4px">Celles des autres éducateurs. Ouvre-en une et « Reprendre » pour t'en faire une copie à ton nom.</p>
       <div class="list">${autres.map(row).join("")}</div>`:""}`}
 function bindHome(){
-  document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,dur:60,fins:[],n:3,match:true,theme:false,rot:false},store.last||{},{date:today()});go("brief")});
+  document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,dur:60,fins:[],fam:null,n:3,match:true,theme:false,rot:false},store.last||{},{date:today()});go("brief")});
   document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{SES=store.sessions.find(x=>x.id===b.dataset.open);EDIT=false;go("sheet")}));
   const wb=document.getElementById("whoBtn");if(wb)wb.addEventListener("click",askName);
   /* corbeille : deux appuis, pour ne rien perdre par mégarde */
@@ -714,7 +796,7 @@ function viewBrief(){
   return `<section class="card">
     <div class="q"><span class="qlab">Pour qui ?</span>
       <div class="chips" id="qcats">${CATS.map(c=>`<button class="chip" data-cat="${c}" aria-pressed="${b.cats.includes(c)}">${c}</button>`).join("")}</div>
-      <p class="hint" style="margin-top:8px">${b.cats.length?`${poolFor(b.cats,["atelier","defi"]).length} ateliers disponibles pour ${b.cats.join(", ")}.`:"Choisis une ou plusieurs catégories."}</p></div>
+      <p class="hint" style="margin-top:8px">${b.cats.length?`${poolFor(b.cats,["atelier","defi"]).length} situations et défis disponibles pour ${b.cats.join(", ")}.`:"Choisis une ou plusieurs catégories."}</p></div>
 
     <div class="q"><span class="qlab">Quel jour ?</span>
       <input class="datein" type="date" id="qdate" value="${b.date}"></div>
@@ -730,16 +812,18 @@ function viewBrief(){
     <div class="q" style="margin-top:0"><span class="qlab">Travailler quoi ? <span style="font-weight:400;text-transform:none;letter-spacing:0">(facultatif)</span></span>
       <div class="chips" id="qfins">${FINALITES.filter(f=>!/bilan|f[êe]te/i.test(f.name)&&poolFor(b.cats,["atelier","defi"]).some(g=>g.fin===f.id)).map(f=>`<button class="chip" data-fin="${f.id}" aria-pressed="${b.fins.includes(f.id)}">${esc(f.name)}</button>`).join("")||`<span class="hint">Choisis d'abord une catégorie.</span>`}</div></div>
 
-    <div class="q"><span class="qlab">Combien d'ateliers ?</span>
-      <div class="stepper"><button id="nm" aria-label="Moins" ${b.n<=1?"disabled":""}>−</button><span class="v num" id="nv">${b.n}</span><button id="np" aria-label="Plus" ${b.n>=5?"disabled":""}>+</button><span class="u">ateliers</span></div></div>
+    <div class="q"><span class="qlab">Combien d'ateliers ?<button class="info" id="iKinds" aria-label="Les types de blocs, expliqués">i</button></span>
+      <div class="stepper"><button id="nm" aria-label="Moins" ${b.n<=1?"disabled":""}>−</button><span class="v num" id="nv">${b.n}</span><button id="np" aria-label="Plus" ${b.n>=5?"disabled":""}>+</button><span class="u">ateliers</span></div>
+      <p class="hint" style="margin-top:8px">Le cœur de la séance : des <b>situations</b> et des <b>défis techniques</b> pris dans le guide fédéral. L'accueil, la mise en train, le jeu final et le retour au calme s'ajoutent tout seuls.</p></div>
 
     <div class="q"><span class="qlab">Comment les mener ?</span>
-      <div class="seg" id="qrot"><button data-rot="0" aria-pressed="${!b.rot}">L'un après l'autre</button><button data-rot="1" aria-pressed="${b.rot}">⟳ En rotation</button></div>
-      <p class="hint" style="margin-top:8px">${b.rot?`Le groupe est partagé en ${b.n} sous-groupes qui tournent d'atelier en atelier.`:"Tout le groupe fait le même atelier en même temps."}</p></div>
+      <div class="seg" id="qrot"><button data-rot="0" aria-pressed="${!b.rot}">L'une après l'autre</button><button data-rot="1" aria-pressed="${b.rot}">⟳ En ateliers tournants</button></div>
+      <p class="hint" style="margin-top:8px">${b.rot?`Le groupe est partagé en ${b.n} sous-groupes qui tournent d'une situation à l'autre.`:"Tout le groupe fait la même situation en même temps."}</p></div>
 
     <div class="q"><span class="qlab">Et pour finir ?</span>
-      <button class="switch" id="qmatch" aria-pressed="${b.match}"><span><b>Un match</b><span class="sub">Toujours mieux de finir par jouer</span></span><span class="tog" aria-hidden="true"></span></button>
-      ${b.match?`<button class="switch" id="qtheme" aria-pressed="${b.theme}"><span><b>Match à thème</b><span class="sub">Une consigne de la séance à respecter pour marquer</span></span><span class="tog" aria-hidden="true"></span></button>`:""}</div>
+      <button class="switch" id="qtheme" aria-pressed="${b.theme}"><span><b>Un jeu à thème</b><span class="sub">Le match avec une consigne de la séance à respecter pour que le but compte</span></span><span class="tog" aria-hidden="true"></span></button>
+      <button class="switch" id="qmatch" aria-pressed="${b.match}"><span><b>Un jeu libre</b><span class="sub">On joue, on ne coupe pas : festi-foot, jeu réduit</span></span><span class="tog" aria-hidden="true"></span></button>
+      ${!b.match&&!b.theme?`<p class="hint" style="margin-top:8px">Aucun des deux : la séance s'arrête après le dernier atelier.</p>`:b.match&&b.theme?`<p class="hint" style="margin-top:8px">Les deux : on joue d'abord avec la consigne, puis on lâche tout.</p>`:""}</div>
   </section>
 
   <div class="actionbar"><div class="in">
@@ -757,8 +841,9 @@ function bindBrief(){
   const step=(id,key,min,max)=>{document.getElementById(id+"m").addEventListener("click",()=>{b[key]=Math.max(min,b[key]-1);re()});
     document.getElementById(id+"p").addEventListener("click",()=>{b[key]=Math.min(max,b[key]+1);re()})};
   step("eff","eff",4,30);step("n","n",1,5);
+  document.getElementById("iKinds").addEventListener("click",showKinds);
   document.getElementById("qmatch").addEventListener("click",()=>{b.match=!b.match;re()});
-  const th=document.getElementById("qtheme");if(th)th.addEventListener("click",()=>{b.theme=!b.theme;re()});
+  document.getElementById("qtheme").addEventListener("click",()=>{b.theme=!b.theme;re()});
   document.getElementById("build").addEventListener("click",()=>{if(!b.cats.length)return;
     AVOID=[];const blocks=suggest(b,[]);SES=newSession(b,blocks);EDIT=false;store.last=Object.assign({},b);persist();save();go("sheet")});
   document.getElementById("blank").addEventListener("click",()=>{if(!b.cats.length){toast("Choisis au moins une catégorie");return}
@@ -774,7 +859,7 @@ function viewSheet(){
     return `<div class="rotband"><b>⟳ Ateliers tournants</b> · les ${ids.length} ateliers qui suivent tournent en même temps : partage le groupe en <b>${ids.length} sous-groupes</b>, un par atelier, et fais changer tout le monde toutes les ${bl[i].dur} min.</div>`};
   const body=EDIT?editList():bl.map((b,i)=>`${band(i)}<article class="blk${grp[i]>=0?" inrot":""}">
       <div class="sch">${b.schema?renderSchema(b.schema):`<span style="color:var(--muted);font-size:26px">${b.kind==="accueil"?"🤝":"🙌"}</span>`}</div>
-      ${["atelier","defi","eveil","match"].includes(b.kind)?`<button class="reroll" data-roll="${i}" title="Une autre proposition pour cet atelier" aria-label="Une autre proposition pour « ${esc(b.name)} »">↻</button>`:""}
+      ${["atelier","defi","eveil","match"].includes(b.kind)?`<button class="reroll" data-roll="${i}" title="Une autre proposition" aria-label="Une autre proposition pour « ${esc(b.name)} »">↻</button>`:""}
       <div><div class="top"><span class="d num">${b.dur}'</span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${b.fam==="jeu"?`<span class="fam">🎲 Jeu</span>`:b.fam==="technique"?`<span class="fam">🎯 Exercice</span>`:""}${grp[i]>=0?`<span class="kind" style="background:var(--yellow);color:#3B2E00">⟳ ${grp.slice(0,i+1).filter(x=>x===grp[i]).length}/${rotSize(grp,grp[i])}</span>`:""}</div>
         <h3>${esc(b.name)}</h3>
         <p class="desc">${esc(b.desc||"")}</p>
@@ -811,17 +896,17 @@ function viewSheet(){
 function editList(){
   const bl=SES.blocks;const grp=rotGroups(bl);
   const slot=i=>{const b=bl[i];const mid=i>0&&i<bl.length;
-    return `${PICK&&PICK.at===i?"":""}<div class="slot"><button class="plus" data-add="${i}" aria-label="Ajouter un atelier ici">+</button>${mid?`<button class="rotpill${b.rot?" on":""}" data-rot="${i}" aria-pressed="${!!b.rot}">⟳ ${b.rot?"tournent ensemble":"faire tourner ensemble"}</button>`:""}</div>`};
+    return `${PICK&&PICK.at===i?"":""}<div class="slot"><button class="plus" data-add="${i}" aria-label="Ajouter ici">+</button>${mid?`<button class="rotpill${b.rot?" on":""}" data-rot="${i}" aria-pressed="${!!b.rot}">⟳ ${b.rot?"tournent ensemble":"faire tourner ensemble"}</button>`:""}</div>`};
   const rows=bl.map((b,i)=>{const g=gameOf(b.g);const nm=b.name||g.name;
     return `${slot(i)}<div class="erow${grp[i]>=0?" inrot":""}" data-i="${i}">
-      <button class="grip" data-grip="${i}" aria-label="Déplacer l'atelier ${i+1}"><span aria-hidden="true">⠿</span><span class="n num">${i+1}</span></button>
+      <button class="grip" data-grip="${i}" aria-label="Déplacer le bloc ${i+1}"><span aria-hidden="true">⠿</span><span class="n num">${i+1}</span></button>
       <div class="ename"><span class="kind k-${g.kind}">${KIND_LABEL[g.kind]}</span><b>${esc(nm)}</b></div>
       <div class="etools">
         ${["atelier","defi","eveil","match"].includes(g.kind)?`<button class="btn sm" data-roll="${i}" title="Une autre proposition">↻</button>`:""}
         <button class="btn sm" data-chg="${i}">⇄ Changer</button>
         <label class="dur"><input type="number" min="1" max="90" data-dur="${i}" value="${b.dur||g.dur}" aria-label="Durée en minutes"> min</label>
         <button class="btn sm" data-txt="${i}" aria-expanded="${!!b._open}">✎ Texte${b.name||b.desc||b.var?" ·":""}</button>
-        <button class="btn sm" data-rm="${i}" aria-label="Retirer" style="color:var(--danger)">✕</button>
+        <button class="btn sm" data-rm="${i}" aria-label="Retirer de la séance" style="color:var(--danger)">✕</button>
       </div>
       ${b._open?`<div class="etxt">
         <label>Nom de l'atelier<input type="text" data-tk="name" data-i="${i}" value="${esc(nm)}"></label>
@@ -829,25 +914,53 @@ function editList(){
         <label>Variantes<textarea data-tk="var" data-i="${i}" rows="2">${esc(b.var===undefined?(g.var||""):b.var)}</textarea></label>
         <button class="btn sm" data-txtreset="${i}">Revenir au texte d'origine</button></div>`:""}
     </div>`}).join("");
+  const tot=totalOf(SES),cible=SES.dur||tot,ecart=tot-cible;
   return `<div style="padding:14px 16px 18px">
     <div class="field" style="margin-top:0"><label for="etitle">Titre de la séance</label><input id="etitle" type="text" value="${esc(SES.title)}"></div>
+    <div class="tbar${ecart?" off":""}"><span><b class="num">${tot} min</b> ${ecart===0?"— pile ce qui était prévu":ecart>0?`— ${ecart} de plus que les ${cible} prévues`:`— ${-ecart} de moins que les ${cible} prévues`}</span>${ecart?`<button class="btn sm" id="reb">Rééquilibrer</button>`:""}</div>
     <div class="elist">${rows}${slot(bl.length)}</div>
-    <p class="hint" style="margin-top:12px">Glisse un atelier par sa poignée pour changer l'ordre. Le <b>+</b> ajoute un atelier à cet endroit.</p>
+    <p class="hint" style="margin-top:12px">Glisse un bloc par sa poignée pour changer l'ordre. Le <b>+</b> ajoute une situation, un jeu ou un défi à cet endroit.</p>
   </div>`}
 
 /* Remplace un seul bloc par une autre proposition du même registre. */
+let SEEN={};
 function reroll(i){const b=SES.blocks[i];const g0=gameOf(b.g);
-  const kinds=g0.kind==="atelier"||g0.kind==="defi"?["atelier","defi"]:[g0.kind];
-  let pool=poolFor(SES.cats,kinds).filter(g=>g.id!==b.g&&!SES.blocks.some(x=>x.g===g.id));
-  if(g0.kind==="match")pool=pool.filter(g=>!/futsal|hand/i.test(g.name+" "+(g.desc||"")));
-  if(g0.fam)  {const same=pool.filter(g=>g.fam===g0.fam);if(same.length)pool=same}
-  if(SES.fins&&SES.fins.length&&(kinds.length>1)){const f=pool.filter(g=>SES.fins.includes(g.fin));if(f.length)pool=f}
-  if(!pool.length){toast("Pas d'autre atelier disponible dans ce registre");return}
-  const g=pool[Math.floor(Math.random()*pool.length)];
-  SES.blocks[i]={g:g.id,dur:b.dur,rot:b.rot};persist();render();toast("Atelier remplacé : "+g.name)}
+  const atelier=g0.kind==="atelier"||g0.kind==="defi";
+  const kinds=atelier?["atelier","defi"]:[g0.kind];
+  /* tout le registre est disponible : situations ET défis techniques, quelle que soit la famille */
+  const usedRoots=SES.blocks.map((x,j)=>j===i?null:rootKey(gameOf(x.g).name)).filter(Boolean);
+  let pool=poolFor(SES.cats,kinds).filter(g=>g.id!==b.g&&!SES.blocks.some((x,j)=>j!==i&&x.g===g.id)&&!usedRoots.includes(rootKey(g.name)));
+  pool=pool.filter(g=>!/futsal|hand/i.test(g.name+" "+(g.desc||"")));
+  /* les temps forts (fête, plateau, tournoi, bilan) ne sont jamais proposés automatiquement */
+  const evt=g=>/f[êe]te|bilan|tour des|plateau|tournoi|rallye/i.test(g.name||"");
+  pool=pool.filter(g=>!evt(g));
+  const theme=/^Jeu à thème/.test(b.name||"");
+  if(!pool.length){
+    if(theme){const th=themeFor(SES.fins,themeLabel(b));b.name="Jeu à thème · "+th[0];
+      b.desc="Consigne du jour : "+th[1]+"\n"+(gameOf(b.g).desc||"");
+      persist();render();toast("Nouvelle consigne : "+th[1]);return}
+    toast("Rien d'autre de disponible dans ce registre");return}
+  /* la finalité du jour n'est qu'une préférence : si elle n'offre pas de choix, on ouvre */
+  let tri=pool;
+  if(atelier&&SES.fins&&SES.fins.length){const f=pool.filter(g=>SES.fins.includes(g.fin));
+    /* on ne se limite à la finalité du jour que si elle offre vraiment du choix */
+    if(f.length>=8)tri=f.concat(pool.filter(g=>g.kind==="defi"&&!SES.fins.includes(g.fin)))}
+  /* on fait le tour du registre avant de repasser sur un atelier déjà proposé */
+  const vus=SEEN[i]||[];
+  let neufs=tri.filter(g=>!vus.includes(g.id));
+  if(!neufs.length){SEEN[i]=[];neufs=tri}
+  const g=neufs[Math.floor(Math.random()*neufs.length)];
+  SEEN[i]=(SEEN[i]||[]).concat(g.id);
+  SES.blocks[i]={g:g.id,dur:b.dur,rot:b.rot};
+  if(theme){const th=themeFor(SES.fins,themeLabel(b));SES.blocks[i].name="Jeu à thème · "+th[0];
+    SES.blocks[i].desc="Consigne du jour : "+th[1]+"\n"+(g.desc||"")}
+  persist();render();
+  const reste=tri.length-1;
+  toast(g.name+(reste>0?" · "+reste+" autre"+(reste>1?"s":"")+" possible"+(reste>1?"s":""):""))}
 function bindSheet(){
   if(EDIT){
     const t=document.getElementById("etitle");if(t)t.addEventListener("input",e=>{SES.title=e.target.value;const h=document.getElementById("stitle");if(h)h.textContent=e.target.value});
+    const rb=document.getElementById("reb");if(rb)rb.addEventListener("click",rebalance);
     document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>openPicker("insert",+b.dataset.add)));
     document.querySelectorAll("[data-chg]").forEach(b=>b.addEventListener("click",()=>openPicker("replace",+b.dataset.chg)));
     document.querySelectorAll("[data-roll]").forEach(b=>b.addEventListener("click",()=>reroll(+b.dataset.roll)));
@@ -879,8 +992,8 @@ function bindSheet(){
   document.getElementById("edit").addEventListener("click",()=>{ensureMine();EDIT=true;persist();render()});
   document.getElementById("again").addEventListener("click",()=>{ensureMine();
     AVOID=AVOID.concat(SES.blocks.map(b=>b.g));if(AVOID.length>60)AVOID=AVOID.slice(-40);
-    const b={cats:SES.cats,date:SES.date,eff:SES.eff,dur:SES.dur,fins:SES.fins,n:Math.max(1,SES.blocks.filter(x=>["atelier","defi"].includes(gameOf(x.g).kind)).length),
-      match:SES.blocks.some(x=>gameOf(x.g).kind==="match"),theme:(store.last||{}).theme,rot:SES.rot};
+    const b={cats:SES.cats,date:SES.date,eff:SES.eff,dur:SES.dur,fins:SES.fins,fam:SES.fam||null,n:Math.max(1,SES.blocks.filter(x=>["atelier","defi"].includes(gameOf(x.g).kind)).length),
+      match:!!SES.gLibre,theme:!!SES.gTheme,rot:SES.rot};
     const blocks=suggest(b,AVOID);SES.blocks=blocks;SES.title=titleOf(b,blocks);persist();render();toast("Une autre proposition")});
   document.getElementById("wa").addEventListener("click",()=>{persist();
     const txt=encodeURIComponent(waMessage(SES));window.open("https://wa.me/?text="+txt,"_blank","noopener")});
@@ -892,6 +1005,30 @@ function persist(){if(!SES)return;SES.ts=Date.now();SES.by=SES.by||store.who||""
   if(store.sessions.length>200)store.sessions=store.sessions.slice(0,200);save();
   if(isMine(SES)){clearTimeout(persist._t);persist._t=setTimeout(()=>pushSes(clean),1200)}}
 
+/* Les durées se règlent une par une ; ce bouton refait le partage d'un coup,
+   en gardant l'accueil, la mise en train, les jeux et le retour au calme tels quels. */
+function rebalance(){
+  const bl=SES.blocks,cible=SES.dur||totalOf(SES);
+  const g=rotGroups(bl);
+  const estCoeur=i=>["atelier","defi"].includes(gameOf(bl[i].g).kind);
+  /* une unité = un atelier seul, ou un groupe tournant entier dès qu'il contient un atelier */
+  const unites=[];const pris=new Set();
+  bl.forEach((b,i)=>{if(pris.has(i))return;
+    if(g[i]>=0){const ids=g.map((x,j)=>x===g[i]?j:-1).filter(j=>j>=0);
+      if(ids.some(estCoeur)){ids.forEach(j=>pris.add(j));unites.push(ids)}}
+    else if(estCoeur(i)){pris.add(i);unites.push([i])}});
+  const nb=unites.reduce((a,u)=>a+u.length,0);
+  if(!nb){toast("Aucun atelier à rééquilibrer");return}
+  const fixe=bl.reduce((a,b,i)=>a+(pris.has(i)?0:(b.dur||gameOf(b.g).dur||0)),0);
+  const reste=cible-fixe;
+  if(reste<nb*5){toast("Pas assez de temps : enlève un atelier ou allonge la séance");return}
+  const base=Math.max(5,Math.floor(reste/nb/5)*5);
+  unites.forEach(u=>u.forEach(i=>bl[i].dur=base));
+  let rab=reste-base*nb;
+  for(const u of unites){const cout=5*u.length;if(rab>=cout){u.forEach(i=>bl[i].dur+=5);rab-=cout}}
+  if(rab>0){const dernier=bl.map((b,i)=>gameOf(b.g).kind==="match"?i:-1).filter(i=>i>=0).pop();
+    if(dernier!=null)bl[dernier].dur+=rab;else bl[unites[unites.length-1][0]].dur+=rab}
+  persist();render();toast("Durées rééquilibrées sur "+cible+" min")}
 /* ---------- glisser-déposer ---------- */
 function bindDrag(){const list=document.querySelector(".elist");if(!list)return;
   const rows=()=>[...list.querySelectorAll(".erow")];
@@ -933,8 +1070,8 @@ function renderModal(){
   const fins=FINALITES.filter(f=>Object.values(GAMES).some(g=>g.fin===f.id&&(!g.cats||g.cats.some(c=>cats.includes(c)))));
   host.innerHTML=`<div class="sheetmodal" id="ov"><div class="modal" role="dialog" aria-modal="true" aria-label="Choisir un atelier">
     <div class="mhead"><div class="grab"></div>
-      <h3>${PICK.mode==="insert"?"Ajouter un atelier":"Remplacer cet atelier"}</h3>
-      <p class="hint">Un clic et c'est fait — ${cats.join(", ")}.</p>
+      <h3>${PICK.mode==="insert"?"Ajouter à la séance":"Remplacer"}</h3>
+      <p class="hint">Situations, jeux et défis techniques du guide FFF et du club — ${cats.join(", ")}. Un clic et c'est fait.</p>
       <div class="msearch"><input id="pq" type="search" placeholder="Rechercher…" value="${esc(PICK.q)}" aria-label="Rechercher un atelier"></div>
     </div>
     <div class="mfilt">
@@ -948,7 +1085,7 @@ function renderModal(){
         <span class="mini">${g.schema?renderSchema(g.schema):`<span style="font-size:22px">${g.kind==="accueil"?"🤝":g.kind==="calme"?"🙌":"⚽"}</span>`}</span>
         <span><b>${esc(g.name)}</b><span class="meta"><span class="kind k-${g.kind}">${KIND_LABEL[g.kind]}</span>${g.fam==="jeu"?`<span class="fam">🎲 Jeu</span>`:g.fam==="technique"?`<span class="fam">🎯 Exercice</span>`:""} ${g.dur}'${g.mine?" · le mien":g.club?" · "+esc(g.by||"un éducateur"):g.fin?" · "+esc(finName(g.fin)):""}</span></span>
         <span class="go" aria-hidden="true">${PICK.mode==="insert"?"+":"›"}</span></button>`).join(""):`<p class="empty">Aucun atelier ne correspond.</p>`}</div>
-    <div class="mfoot"><button class="btn primary" id="pnew">✚ Créer mon atelier</button><button class="btn" id="pclose">Fermer</button></div>
+    <div class="mfoot"><button class="btn primary" id="pnew">✚ Créer la mienne</button><button class="btn" id="pclose">Fermer</button></div>
   </div></div>`;
   const q2=document.getElementById("pq");
   q2.addEventListener("input",()=>{PICK.q=q2.value;clearTimeout(renderModal._t);renderModal._t=setTimeout(()=>{renderModal();const n=document.getElementById("pq");if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}},200)});
@@ -970,10 +1107,10 @@ function applyFocus(){if(!FOCUS)return;const f=FOCUS;FOCUS=null;
 function openGameEditor(at,mode){GED={at,mode};GDRAFT={name:"",kind:"atelier",dur:15,desc:"",org:"",var:"",veiller:"",mat:"",schema:skEmpty()};skSel=null;skPend=null;skTool="sel";skStack=[];renderModal();
   setTimeout(()=>{const n=document.getElementById("gname");if(n)n.focus()},150)}
 function gameEditorHtml(){const d=GDRAFT;
-  const KINDS=[["eveil","Éveil"],["atelier","Atelier"],["defi","Défi"],["match","Match"],["accueil","Accueil"],["calme","Retour au calme"]];
+  const KINDS=[["atelier","Situation"],["eveil","Mise en train"],["defi","Défi technique"],["match","Jeu"],["accueil","Accueil"],["calme","Retour au calme"]];
   return `<div class="sheetmodal" id="ov2"><div class="modal" role="dialog" aria-modal="true" aria-label="Créer un atelier">
-    <div class="mhead"><div class="grab"></div><h3>✚ Mon atelier</h3>
-      <p class="hint">Il rejoint ta liste : tu pourras le reprendre dans toutes tes séances.</p></div>
+    <div class="mhead"><div class="grab"></div><h3>✚ Ma situation</h3>
+      <p class="hint">Elle rejoint la banque du club : tu pourras la reprendre dans toutes tes séances, et les autres éducateurs aussi.</p></div>
     <div class="mlist" style="gap:0">
       <div class="field" style="margin-top:0"><label for="gname">Nom</label><input id="gname" type="text" value="${esc(d.name)}" placeholder="ex. Le carré magique"></div>
       <div class="field"><label>Type</label><div class="chips" id="gkind">${KINDS.map(([k,l])=>`<button class="chip" data-k="${k}" aria-pressed="${d.kind===k}">${l}</button>`).join("")}</div></div>
@@ -999,7 +1136,7 @@ function bindGameEditor(){const q=id=>document.getElementById(id);
   const sd=q("gsch");if(sd)sd.addEventListener("toggle",()=>{if(sd.open)setTimeout(()=>{skRepaint();sd.scrollIntoView({behavior:"smooth",block:"nearest"})},40)});
   q("gcancel").addEventListener("click",()=>{GED=null;GDRAFT=null;renderModal()});
   q("gsave").addEventListener("click",()=>{
-    if(!GDRAFT.name.trim()){toast("Donne un nom à ton atelier");q("gname").focus();return}
+    if(!GDRAFT.name.trim()){toast("Donne un nom à ta situation");q("gname").focus();return}
     const id="m"+Date.now().toString(36);
     const g={id,name:GDRAFT.name.trim(),kind:GDRAFT.kind,dur:+GDRAFT.dur||15,desc:GDRAFT.desc.trim(),cats:SES.cats.slice(),
       fin:"jeu",fam:GDRAFT.kind==="match"?"match":(GDRAFT.kind==="accueil"||GDRAFT.kind==="calme")?"rituel":"technique",
@@ -1011,7 +1148,7 @@ function bindGameEditor(){const q=id=>document.getElementById(id);
     const at=GED.at,mode=GED.mode;GED=null;GDRAFT=null;
     if(mode==="replace")SES.blocks[at]={g:id,dur:g.dur};
     else SES.blocks.splice(Math.max(0,Math.min(at,SES.blocks.length)),0,{g:id,dur:g.dur});
-    equalizeRots(normRot(SES.blocks));persist();renderModal();render();toast("Atelier créé et ajouté")})}
+    equalizeRots(normRot(SES.blocks));persist();renderModal();render();toast("Créée et ajoutée à la séance")})}
 
 /* ---------- partage ---------- */
 function waIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c1.7.7 2.1.6 2.8.5a2.4 2.4 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c0-.1-.2-.2-.4-.3Z"/></svg>`}
