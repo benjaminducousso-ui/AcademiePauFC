@@ -225,6 +225,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .blk:hover .reroll,.reroll:focus-visible{opacity:1;border-color:var(--navy-2);color:var(--navy-2);transform:rotate(-90deg)}
 @media (hover:none){.reroll{opacity:.9}}
 .pill.by{background:var(--yellow);border-color:var(--yellow);color:#3B2E00;font-weight:700}
+
+.srow{display:flex;align-items:stretch;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.srow:hover{border-color:var(--navy-2)}
+.sopen{flex:1;display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:center;text-align:left;background:none;border:0;padding:12px;min-width:0}
+.srm{flex:none;width:52px;border:0;border-left:1px solid var(--line);background:none;color:var(--faint);font-size:16px;display:grid;place-items:center}
+.srm:hover{background:#FBEDED;color:var(--danger)}
+.srm.armed{width:auto;padding:0 14px;background:var(--danger);color:#fff;font-size:14px;font-weight:700}
+@media (hover:none){.srm{color:var(--muted)}}
+.sopen .t{display:block;font-weight:700;font-size:16.5px;line-height:1.2}
+.sopen .s{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
+.sopen .d{text-align:center;font-family:var(--display);line-height:1}
 </style>
 <header class="top"><div class="topin" id="topbar"></div></header>
 <main class="app" id="app"></main>
@@ -544,6 +555,8 @@ async function pullSes(){try{const had=!!SES;const r=await fetch(`${API}?seances
     if(i<0){store.sessions=store.sessions||[];store.sessions.push(s);ch=true}
     else if((x.ts||0)>(store.sessions[i].ts||0)){store.sessions[i]=s;ch=true}});
   if(ch){save();if(VIEW==="home")render()}}catch(e){}}
+/* supprimer pour tout le monde : on vide la ligne du classeur, elle ne revient plus */
+async function delSes(id){try{await fetch(API,{method:"POST",body:JSON.stringify({seances:1,cat:"ASSIST-SEANCES",id,data:null,by:store.who||"",ts:Date.now()}),headers:{"Content-Type":"text/plain;charset=utf-8"}})}catch(e){}}
 async function pushSes(s){try{await fetch(API,{method:"POST",body:JSON.stringify({seances:1,cat:"ASSIST-SEANCES",id:s.id,data:s,by:s.by||store.who||"",ts:Date.now()}),headers:{"Content-Type":"text/plain;charset=utf-8"}})}catch(e){}}
 async function pushClub(id,g){try{await fetch(API,{method:"POST",body:JSON.stringify({seances:1,cat:"ASSIST-LIB",id,data:g,by:g.by||store.who||"",ts:Date.now()}),headers:{"Content-Type":"text/plain;charset=utf-8"}});
   toast("Atelier partagé avec le club")}catch(e){toast("Atelier gardé ici ; le partage réessaiera")}}
@@ -665,10 +678,10 @@ function askName(){const host=document.getElementById("modal");document.body.sty
 function viewHome(){
   const ss=(store.sessions||[]).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
   const mine=ss.filter(isMine).slice(0,12),autres=ss.filter(s=>!isMine(s)).slice(0,12);
-  const row=s=>`<button class="srow" data-open="${s.id}">
+  const row=s=>`<div class="srow"><button class="sopen" data-open="${s.id}">
         <span class="d"><b>${D(s.date).getDate()}</b><span>${MOIS[D(s.date).getMonth()]}</span></span>
-        <span><span class="t">${esc(s.title)}</span><span class="s">${s.cats.join(" · ")} · ${totalOf(s)} min${!isMine(s)?" · <b>"+esc(s.by)+"</b>":s.from?" · reprise de "+esc(s.from):""}</span></span>
-        <span class="go" aria-hidden="true">›</span></button>`;
+        <span><span class="t">${esc(s.title)}</span><span class="s">${s.cats.join(" · ")} · ${totalOf(s)} min${!isMine(s)?" · <b>"+esc(s.by)+"</b>":s.from?" · reprise de "+esc(s.from):""}</span></span></button>
+        <button class="srm" data-rm="${s.id}" title="${isMine(s)?"Supprimer cette séance":"Retirer de ma liste"}" aria-label="${isMine(s)?"Supprimer la séance "+esc(s.title):"Retirer de ma liste"}">🗑</button></div>`;
   return `<section class="card hero">
       <h2>Ta séance en deux minutes</h2>
       <p>Dis-moi pour qui et combien de temps : l'assistant compose la séance avec les ateliers du guide FFF et ceux du club. Tu ajustes, tu partages.</p>
@@ -686,7 +699,16 @@ function viewHome(){
 function bindHome(){
   document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,dur:60,fins:[],n:3,match:true,theme:false,rot:false},store.last||{},{date:today()});go("brief")});
   document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{SES=store.sessions.find(x=>x.id===b.dataset.open);EDIT=false;go("sheet")}));
-  const wb=document.getElementById("whoBtn");if(wb)wb.addEventListener("click",askName)}
+  const wb=document.getElementById("whoBtn");if(wb)wb.addEventListener("click",askName);
+  /* corbeille : deux appuis, pour ne rien perdre par mégarde */
+  document.querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();
+    const id=b.dataset.rm;const s=(store.sessions||[]).find(x=>x.id===id);if(!s)return;
+    if(b.dataset.armed!=="1"){b.dataset.armed="1";b.classList.add("armed");b.textContent="Confirmer ?";
+      setTimeout(()=>{if(b.isConnected&&b.dataset.armed==="1"){b.dataset.armed="";b.classList.remove("armed");b.textContent="🗑"}},5000);return}
+    const mine=isMine(s);
+    store.sessions=(store.sessions||[]).filter(x=>x.id!==id);save();
+    if(mine)delSes(id);
+    render();toast(mine?"Séance supprimée":"Séance retirée de ta liste")}))}
 
 /* =====================  ÉCRAN 2 · LE BRIEF  ===================== */
 function viewBrief(){
@@ -852,7 +874,8 @@ function bindSheet(){
     document.getElementById("done").addEventListener("click",()=>{SES.blocks.forEach(b=>delete b._open);EDIT=false;persist();render();window.scrollTo({top:0,behavior:"smooth"})});
     document.getElementById("del").addEventListener("click",e=>{const b=e.currentTarget;
       if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirmer ?";b.style.width="auto";b.style.color="var(--danger)";return}
-      store.sessions=(store.sessions||[]).filter(x=>x.id!==SES.id);save();SES=null;EDIT=false;go("home")});
+      const mine=isMine(SES);store.sessions=(store.sessions||[]).filter(x=>x.id!==SES.id);save();
+      if(mine)delSes(SES.id);SES=null;EDIT=false;go("home");toast(mine?"Séance supprimée":"Séance retirée de ta liste")});
     return}
   document.querySelectorAll("[data-roll]").forEach(b=>b.addEventListener("click",()=>{ensureMine();reroll(+b.dataset.roll)}));
   document.getElementById("edit").addEventListener("click",()=>{ensureMine();EDIT=true;persist();render()});
