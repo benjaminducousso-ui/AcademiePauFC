@@ -532,6 +532,15 @@ async function pullClub(){try{const r=await fetch(`${API}?seances=ASSIST-LIB`,{c
   arr.forEach(x=>{if(!x||!x.id||!x.data||!x.data.name)return;const cur=(store.club||{})[x.id];
     if(!cur||(x.ts||0)>(cur.ts||0)){store.club=store.club||{};store.club[x.id]=Object.assign({},x.data,{id:x.id,by:x.by||"",ts:x.ts||0});ch=true}});
   if(ch){save();GAMES=allGames();render()}}catch(e){}}
+async function pullSes(){try{const r=await fetch(`${API}?seances=ASSIST-SEANCES`,{cache:"no-store"});const arr=await r.json();
+  if(!Array.isArray(arr))return;let ch=false;
+  arr.forEach(x=>{if(!x||!x.id||!x.data||!x.data.title)return;
+    const s=Object.assign({},x.data,{id:x.id,by:x.by||"",ts:x.ts||0});
+    const i=(store.sessions||[]).findIndex(y=>y.id===x.id);
+    if(i<0){store.sessions=store.sessions||[];store.sessions.push(s);ch=true}
+    else if((x.ts||0)>(store.sessions[i].ts||0)){store.sessions[i]=s;ch=true}});
+  if(ch){save();if(VIEW==="home")render()}}catch(e){}}
+async function pushSes(s){try{await fetch(API,{method:"POST",body:JSON.stringify({seances:1,cat:"ASSIST-SEANCES",id:s.id,data:s,by:s.by||store.who||"",ts:Date.now()}),headers:{"Content-Type":"text/plain;charset=utf-8"}})}catch(e){}}
 async function pushClub(id,g){try{await fetch(API,{method:"POST",body:JSON.stringify({seances:1,cat:"ASSIST-LIB",id,data:g,by:g.by||store.who||"",ts:Date.now()}),headers:{"Content-Type":"text/plain;charset=utf-8"}});
   toast("Atelier partagé avec le club")}catch(e){toast("Atelier gardé ici ; le partage réessaiera")}}
 
@@ -625,6 +634,19 @@ let VIEW="home",SES=null,BRIEF=null,EDIT=false,PICK=null,GED=null,GDRAFT=null,FO
 const root=()=>document.getElementById("app");
 function go(v){VIEW=v;render();window.scrollTo({top:0,behavior:"instant"})}
 
+/* ---------- qui es-tu ? (une fois, pas un compte) ---------- */
+function askName(){const host=document.getElementById("modal");document.body.style.overflow="hidden";
+  host.innerHTML=`<div class="sheetmodal" id="ovn"><div class="modal" role="dialog" aria-modal="true" aria-label="Ton prénom">
+    <div class="mhead"><div class="grab"></div><h3>Bienvenue 👋</h3>
+      <p class="hint">Ton prénom, simplement : il signe les séances et les ateliers que tu partages avec le club. Pas de compte, pas de mot de passe.</p></div>
+    <div class="mlist" style="gap:0"><div class="field" style="margin-top:0"><label for="nwho">Ton prénom</label>
+      <input id="nwho" type="text" placeholder="ex. Benjamin" autocomplete="given-name"></div></div>
+    <div class="mfoot"><button class="btn primary" id="nok">C'est parti</button></div></div></div>`;
+  const i=document.getElementById("nwho");setTimeout(()=>i.focus(),150);
+  const done=()=>{const v=(i.value||"").trim();if(!v){i.focus();return}store.who=v;save();host.innerHTML="";document.body.style.overflow="";render();toast("Bonjour "+v+" !")};
+  document.getElementById("nok").addEventListener("click",done);
+  i.addEventListener("keydown",e=>{if(e.key==="Enter")done()})}
+
 /* =====================  ÉCRAN 1 · ACCUEIL  ===================== */
 function viewHome(){
   const ss=(store.sessions||[]).slice().sort((a,b)=>b.ts-a.ts).slice(0,12);
@@ -633,15 +655,19 @@ function viewHome(){
       <p>Dis-moi pour qui et combien de temps : l'assistant compose la séance avec les ateliers du guide FFF et ceux du club. Tu ajustes, tu partages.</p>
       <button class="big" id="start">➕ Créer une séance</button>
     </section>
-    <h3 style="margin-top:26px">Mes séances</h3>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:26px">
+      <h3>Mes séances</h3>
+      <button class="ghostlink" id="whoBtn" style="margin:0">${store.who?esc(store.who):"Mon prénom"}</button>
+    </div>
     ${ss.length?`<div class="list">${ss.map(s=>`<button class="srow" data-open="${s.id}">
         <span class="d"><b>${D(s.date).getDate()}</b><span>${MOIS[D(s.date).getMonth()]}</span></span>
-        <span><span class="t">${esc(s.title)}</span><span class="s">${s.cats.join(" · ")} · ${totalOf(s)} min · ${s.blocks.length} blocs</span></span>
+        <span><span class="t">${esc(s.title)}</span><span class="s">${s.cats.join(" · ")} · ${totalOf(s)} min${s.by&&s.by!==store.who?" · "+esc(s.by):""}</span></span>
         <span class="go" aria-hidden="true">›</span></button>`).join("")}</div>`
       :`<p class="empty">Aucune séance pour l'instant.<br>Appuie sur « Créer une séance » : ça prend deux minutes.</p>`}`}
 function bindHome(){
   document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,dur:60,fins:[],n:3,match:true,theme:false,rot:false},store.last||{},{date:today()});go("brief")});
-  document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{SES=store.sessions.find(x=>x.id===b.dataset.open);EDIT=false;go("sheet")}))}
+  document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{SES=store.sessions.find(x=>x.id===b.dataset.open);EDIT=false;go("sheet")}));
+  const wb=document.getElementById("whoBtn");if(wb)wb.addEventListener("click",askName)}
 
 /* =====================  ÉCRAN 2 · LE BRIEF  ===================== */
 function viewBrief(){
@@ -820,10 +846,11 @@ function bindSheet(){
     const txt=encodeURIComponent(waMessage(SES));window.open("https://wa.me/?text="+txt,"_blank","noopener")});
   document.getElementById("pdf").addEventListener("click",()=>{persist();fichePdf(SES)})}
 
-function persist(){if(!SES)return;SES.ts=Date.now();store.sessions=store.sessions||[];
+function persist(){if(!SES)return;SES.ts=Date.now();SES.by=SES.by||store.who||"";store.sessions=store.sessions||[];
   const i=store.sessions.findIndex(x=>x.id===SES.id);const clean=JSON.parse(JSON.stringify(SES));clean.blocks.forEach(b=>delete b._open);
   if(i<0)store.sessions.unshift(clean);else store.sessions[i]=clean;
-  if(store.sessions.length>60)store.sessions=store.sessions.slice(0,60);save()}
+  if(store.sessions.length>200)store.sessions=store.sessions.slice(0,200);save();
+  clearTimeout(persist._t);persist._t=setTimeout(()=>pushSes(clean),1200)}
 
 /* ---------- glisser-déposer ---------- */
 function bindDrag(){const list=document.querySelector(".elist");if(!list)return;
@@ -974,5 +1001,8 @@ function render(){
   applyFocus();
 }
 render();
+if(!store.who)askName();
+pullClub();pullSes();
+window.addEventListener("online",()=>{pullClub();pullSes()});
 </script>
 </body></html>
