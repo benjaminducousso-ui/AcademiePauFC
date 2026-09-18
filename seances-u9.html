@@ -1386,10 +1386,11 @@ async function fichePdfDoc(s){
     if(hasS){const png=await svgToPng(renderSchema(b.schema),Math.round(SW*9),Math.round(sh*9));
       if(png){try{doc.addImage(png,"PNG",MX+3,y+3.5,SW,sh)}catch(e){}}}
     let ty=y+3.6;
-    doc.setFillColor(KIND_PDF[b.kind]||FC.navy2);doc.roundedRect(tx0,ty,14,4.8,1,1,"F");
-    doc.setTextColor("#FFFFFF");doc.setFont("Poppins","bold");doc.setFontSize(5.8);
-    doc.text((KIND_LABEL[b.kind]||"").toUpperCase(),tx0+7,ty+3.3,{align:"center"});
-    doc.setTextColor(FC.navy2);doc.setFontSize(9.5);doc.text(`${b.dur}'`,tx0+16.5,ty+3.8);
+    doc.setFont("Poppins","bold");doc.setFontSize(5.8);
+    const lab=(KIND_LABEL[b.kind]||"").toUpperCase();const bw=Math.max(14,doc.getTextWidth(lab)+5);
+    doc.setFillColor(KIND_PDF[b.kind]||FC.navy2);doc.roundedRect(tx0,ty,bw,4.8,1,1,"F");
+    doc.setTextColor("#FFFFFF");doc.text(lab,tx0+bw/2,ty+3.3,{align:"center"});
+    doc.setTextColor(FC.navy2);doc.setFontSize(9.5);doc.text(`${b.dur}'`,tx0+bw+2.5,ty+3.8);
     doc.setTextColor(FC.gray);doc.setFont("Poppins","normal");doc.setFontSize(6.4);
     doc.text(clock?`+${clock} min`:"départ",tx0+tw-2,ty+3.8,{align:"right"});clock+=b.dur||0;
     ty+=9.4;doc.setTextColor(FC.ink);doc.setFont("Poppins","bold");doc.setFontSize(10.5);
@@ -1448,7 +1449,7 @@ const fmtDay=s=>{const d=D(s);return `${d.getDate()}${d.getDate()===1?"er":""} $
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const today=new Date();today.setHours(0,0,0,0);
-const KIND_LABEL={accueil:"Accueil",eveil:"Éveil",atelier:"Atelier",defi:"Défi",match:"Match",calme:"Calme"};
+const KIND_LABEL={accueil:"Accueil",eveil:"Mise en train",atelier:"Situation",defi:"Défi technique",match:"Jeu",calme:"Retour au calme"};
 const KIND_COLOR={accueil:"#6B7A90",eveil:"#C77700",atelier:"#1E56C9",defi:"#8E44AD",match:"#2E8B57",calme:"#6B7A90"};
 /* Finalités des jeux (bibliothèque) */
 const FINALITES=[

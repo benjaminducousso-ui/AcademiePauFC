@@ -727,10 +727,11 @@ async function fichePdfDoc(s){
     if(hasS){const png=await svgToPngS(renderSchema(b.schema),Math.round(SW*9),Math.round(sh*9));
       if(png){try{doc.addImage(png,"PNG",MX+3,y+3.5,SW,sh)}catch(e){}}}
     let ty=y+3.6;
-    doc.setFillColor(KIND_PDFS[b.kind]||FCS.navy2);doc.roundedRect(tx0,ty,14,4.8,1,1,"F");
-    doc.setTextColor("#FFFFFF");doc.setFont("Poppins","bold");doc.setFontSize(5.8);
-    doc.text((KIND_LABEL[b.kind]||"").toUpperCase(),tx0+7,ty+3.3,{align:"center"});
-    doc.setTextColor(FCS.navy2);doc.setFontSize(9.5);doc.text(`${b.dur}'`,tx0+16.5,ty+3.8);
+    doc.setFont("Poppins","bold");doc.setFontSize(5.8);
+    const lab=(KIND_LABEL[b.kind]||"").toUpperCase();const bw=Math.max(14,doc.getTextWidth(lab)+5);
+    doc.setFillColor(KIND_PDFS[b.kind]||FCS.navy2);doc.roundedRect(tx0,ty,bw,4.8,1,1,"F");
+    doc.setTextColor("#FFFFFF");doc.text(lab,tx0+bw/2,ty+3.3,{align:"center"});
+    doc.setTextColor(FCS.navy2);doc.setFontSize(9.5);doc.text(`${b.dur}'`,tx0+bw+2.5,ty+3.8);
     doc.setTextColor(FCS.gray);doc.setFont("Poppins","normal");doc.setFontSize(6.4);
     doc.text(clock?`+${clock} min`:"départ",tx0+tw-2,ty+3.8,{align:"right"});clock+=b.dur||0;
     ty+=9.4;doc.setTextColor(FCS.ink);doc.setFont("Poppins","bold");doc.setFontSize(10.5);
@@ -813,7 +814,7 @@ const st=()=>STAGE[gid];
 const durLabel=m=>m>=90&&m%60===30?(m/60|0)+" h 30":m>=60&&m%60===0?(m/60)+" h":m+" min";
 function durTxt(){const S=st();const d=[...new Set(S.sessions.filter(x=>!x.dup&&!x.tournoi).map(s=>s.blocks.reduce((a,b)=>a+(b.dur||(S.lib[b.g]||{dur:0}).dur),0)))].sort((a,b)=>a-b);
   if(!d.length)return "";const f=durLabel;return d.length>1?`de ${f(d[0])} à ${f(d[d.length-1])}`:`de ${f(d[0])}`}
-const KIND_LABEL={accueil:"Accueil",eveil:"Éveil",atelier:"Atelier",defi:"Défi",match:"Match / jeu",calme:"Calme"};
+const KIND_LABEL={accueil:"Accueil",eveil:"Mise en train",atelier:"Situation",defi:"Défi technique",match:"Jeu",calme:"Retour au calme"};
 const KIND_COLOR={accueil:"#6B7A90",eveil:"#C77700",atelier:"#1E56C9",defi:"#8E44AD",match:"#2E8B57",calme:"#6B7A90"};
 const LEGEND=`<div class="legend"><span><i style="background:#1E56C9"></i>équipe bleue</span><span><i style="background:#D64545"></i>équipe rouge</span><span><i style="background:#F2C200"></i>équipe jaune</span><span><i style="background:#8E44AD"></i>G = gardien</span><span><i style="background:#14213D"></i>E = éducateur</span><span>▲ coupelle / plot</span><span>○ ballon</span><span>— conduite</span><span>- - course sans ballon</span><span style="color:#B08A00">— passe</span><span style="color:#D64545">— tir</span></div>`;
 let curS=QS.get("s")||get("s:"+gid,null);
