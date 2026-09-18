@@ -527,7 +527,7 @@ function filteredSes(){
 function chipRow(){
   const fins=FINALITES.filter(f=>!/bilan|f[êe]te/i.test(f.name));
   return `<div class="fbar">
-    <div class="fline"><input id="q" type="search" value="${esc(Q)}" placeholder="Rechercher un atelier, une séance, un éducateur…" aria-label="Rechercher"></div>
+    <div class="fline"><input id="q" type="search" value="${esc(Q)}" placeholder="Rechercher une situation, une séance, un éducateur…" aria-label="Rechercher"></div>
     <div class="frow" role="group" aria-label="Catégorie">
       <button class="f" data-cat="" aria-pressed="${!FCAT}">Toutes</button>
       ${CATS.map(c=>`<button class="f" data-cat="${c}" aria-pressed="${FCAT===c}">${c}</button>`).join("")}</div>
@@ -544,7 +544,7 @@ function chipRow(){
 function viewAteliers(){
   const list=filtered();
   return `${chipRow()}
-  <p class="count">${list.length} atelier${list.length>1?"s":""}${FCAT?" en "+FCAT:""}${FFIN?" · "+finName(FFIN):""}</p>
+  <p class="count">${list.length} situation${list.length>1?"s":""}${FCAT?" en "+FCAT:""}${FFIN?" · "+finName(FFIN):""}</p>
   <div class="cards">${list.map(g=>{const o=OPEN===g.id;
     return `<article class="ac${o?" open":""}" id="a-${g.id}">
       <button class="ahead" data-open="${g.id}" aria-expanded="${o}">
@@ -563,7 +563,7 @@ function viewAteliers(){
         <div class="arow"><button class="btn" data-pdf="${g.id}">📄 Fiche PDF</button>
           <a class="btn" href="assistant.html" >⚡ Composer une séance</a></div>
       </div>`:""}
-    </article>`}).join("")||`<p class="empty">Aucun atelier ne correspond à ces filtres.</p>`}</div>`}
+    </article>`}).join("")||`<p class="empty">Rien ne correspond à ces filtres.</p>`}</div>`}
 function viewSeances(){
   const list=filteredSes();
   return `${chipRow()}
@@ -585,10 +585,10 @@ function viewSeances(){
 
 function render(){
   document.getElementById("topbar").innerHTML=`<img src="${CREST_PNG}" alt="">
-    <div style="min-width:0"><div class="t1">Bibliothèque</div><div class="t2">Pau FC Academy · ateliers et séances du club</div></div>
+    <div style="min-width:0"><div class="t1">Bibliothèque</div><div class="t2">Pau FC Academy · situations, jeux et séances du club</div></div>
     <div class="sp"><a class="tbtn" href="assistant.html">⚡ Assistant</a></div>`;
   const app=document.getElementById("app");
-  app.innerHTML=`<div class="tabs2"><button data-tab="ateliers" aria-pressed="${TAB==="ateliers"}">Ateliers</button><button data-tab="seances" aria-pressed="${TAB==="seances"}">Séances</button></div>
+  app.innerHTML=`<div class="tabs2"><button data-tab="ateliers" aria-pressed="${TAB==="ateliers"}">Situations & jeux</button><button data-tab="seances" aria-pressed="${TAB==="seances"}">Séances</button></div>
     ${TAB==="ateliers"?viewAteliers():viewSeances()}`;
   const q=document.getElementById("q");
   q.addEventListener("input",()=>{Q=q.value;clearTimeout(render._t);render._t=setTimeout(()=>{render();const n=document.getElementById("q");n.focus();n.setSelectionRange(n.value.length,n.value.length)},220)});
@@ -604,7 +604,7 @@ function render(){
   app.querySelectorAll("[data-spdf]").forEach(b=>b.addEventListener("click",()=>{const s=store.sessions.find(x=>x.id===b.dataset.spdf);if(s)fichePdf(s)}));
   app.querySelectorAll("[data-swa]").forEach(b=>b.addEventListener("click",()=>{const s=store.sessions.find(x=>x.id===b.dataset.swa);if(s)window.open("https://wa.me/?text="+encodeURIComponent(waMessage(s)),"_blank","noopener")}));
 }
-/* un atelier seul : on le présente comme une mini-séance pour réutiliser la fiche A4 */
+/* une situation seule : on la présente comme une mini-séance pour réutiliser la fiche A4 */
 function atelierSheet(id){const g=gameOf(id);
   return {id:"a"+id,title:g.name,date:today(),cats:g.cats||CATS,eff:12,fins:g.fin?[g.fin]:[],blocks:[{g:id,dur:g.dur}]}}
 function waMessage(s){
