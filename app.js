@@ -8,7 +8,7 @@ const EVENTS_API='https://script.google.com/macros/s/AKfycbw_lyvwhgyF-4i9jM-mNnH
 const MODE=document.documentElement.dataset.mode||'jeunes'; // 'jeunes' | 'global'
 const LS_KEY=MODE==='global'?'paufc_global_calendar_v1':'paufc_rtj_calendar_v1';
 const SEASON_START=new Date('2026-08-01T00:00:00'), SEASON_END=new Date('2027-07-05T00:00:00');
-const CAT_COLORS={SEN:'#0E2A5C',SENF:'#7A2A6B',U7:'#8E6BBE',U9:'#5C8BD6',U11:'#2BA4A6',U13:'#3B9E5A',U14:'#7AA334',U15:'#D89B1C',U15F:'#C2731C',U14F:'#9C8A2A',U16:'#E07A2C',U17:'#C9484A',U18:'#8F2D56',U18F:'#B8368E',LOISIR:'#5B7A8C',AUTRE:'#6B7280'};
+const CAT_COLORS={SEN:'#0E2A5C',SENF:'#7A2A6B',U7:'#8E6BBE',U9:'#5C8BD6',U11:'#2BA4A6',U10:'#3E9FC9',U13:'#3B9E5A',U13F:'#5FA88A',U14:'#7AA334',U15:'#D89B1C',U15F:'#C2731C',U14F:'#9C8A2A',U16:'#E07A2C',U17:'#C9484A',U18:'#8F2D56',U18F:'#B8368E',LOISIR:'#5B7A8C',AUTRE:'#6B7280'};
 const CAT_LABEL={SEN:'Seniors',SENF:'Seniors F',U14F:'U14 F',U15F:'U15 F',U18F:'U18 F',LOISIR:'Seniors loisir'};
 const FORMAT_PITCH={11:1,8:.5,5:1/3,4:.25,3:.25};
 const FORMAT_MIN={11:110,8:90,5:75,4:60,3:60};
@@ -28,14 +28,19 @@ const TEAM_DEFAULTS={
  '2026_1066_U13_12':{label:'U13 Élite',cat:'U13',format:8,vans:1,order:60},
  '2026_1066_U13_13':{label:'U13 Excellence (éq. 2)',cat:'U13',format:8,vans:1,order:61},
  '2026_1066_U13_14':{label:'U13 Excellence (éq. 3)',cat:'U13',format:8,vans:1,order:62},
+ '2026_1066_U13_15':{label:'U13 Niveau 1 (éq. 4)',cat:'U13',format:8,vans:1,order:63},
+ '2026_1066_U13_16':{label:'U14 F (U13 Niveau 2, éq. 5)',cat:'U14F',format:8,vans:1,order:52,gender:'F'},
+ '2026_1066_U13F_18':{label:'U13 F',cat:'U13F',format:8,vans:1,order:64,gender:'F'},
 };
 // Foot Animation (U7/U9/U11) : équipes alimentées automatiquement par la plateforme FAL du district dès publication des plateaux
 const MANUAL_DEFAULT_TEAMS=[
- {id:'fal_U11',label:'U11 (plateaux)',cat:'U11',format:8,vans:1,order:70,fal:true,gender:'H'},
+ {id:'fal_U11',label:'U10/U11 · Niveau 1',cat:'U11',format:8,vans:1,order:70,fal:true,gender:'H'},
+ {id:'fal_U11_2',label:'U10/U11 · Niveau 2',cat:'U11',format:8,vans:1,order:71,fal:true,gender:'H'},
+ {id:'fal_U11_3',label:'U10/U11 · Niveau 3',cat:'U11',format:8,vans:1,order:72,fal:true,gender:'H'},
  {id:'fal_U9',label:'U9 (plateaux)',cat:'U9',format:5,vans:1,order:80,fal:true,gender:'H'},
  {id:'fal_U7',label:'U7 (plateaux)',cat:'U7',format:4,vans:1,order:90,fal:true,gender:'H'},
 ];
-const CAT_ORDER=['SEN','SENF','U18','U18F','U17','U16','U15','U15F','U14','U14F','U13','U11','U9','U7','LOISIR','AUTRE'];
+const CAT_ORDER=['SEN','SENF','U18','U18F','U17','U16','U15','U15F','U14','U14F','U13','U13F','U11','U10','U9','U7','LOISIR','AUTRE'];
 const GIRLS_IN_BOYS_COMP=['2026_1066_U15_11']; // équipes féminines engagées en compétition masculine (U15 D2 = filles)
 const GIRLS_BY_LABEL=[/^U13 - U12 5$/i]; // ex. U14 F engagées en U13 garçons (équipe 5)
 function teamGender(t){const st=S&&S.teamSettings&&S.teamSettings[t.id];if(st&&st.gender)return st.gender;const d=TEAM_DEFAULTS[t.id];if(d&&d.gender)return d.gender;if(GIRLS_IN_BOYS_COMP.includes(t.id))return 'F';if(GIRLS_BY_LABEL.some(re=>re.test(t.libelle||'')))return 'F';if(/F_\d+$/.test(t.id||'')||/ F\b/.test(t.lcLib||''))return 'F';if((t.comps||[]).some(c=>c.genre==='F'))return 'F';return 'H'}
@@ -47,7 +52,7 @@ function inScope(t){if(MODE==='global')return true;return teamGender(t)==='H'&&!
 let S=load();
 function defaultState(){return {snapshot:{fetchedAt:FFF.fetchedAt,teams:FFF.teams,rows:FFF.rows},teamSettings:{},customTeams:MANUAL_DEFAULT_TEAMS.map(t=>({...t})),events:[],overrides:{},alerts:[],seen:{},filters:{ha:'all',type:'all',when:'upcoming',teams:null,gender:'all'},pitches:3,vans:4,newIds:{}};}
 function load(){try{const raw=localStorage.getItem(LS_KEY);if(raw){const s=JSON.parse(raw);const d=defaultState();for(const k of Object.keys(d))if(s[k]===undefined)s[k]=d[k];
- const MIG={man_u11:'fal_U11',man_u9:'fal_U9',man_u7:'fal_U7'};s.customTeams=(s.customTeams||[]).filter(t=>!MIG[t.id]);for(const t of MANUAL_DEFAULT_TEAMS)if(!s.customTeams.some(x=>x.id===t.id))s.customTeams.push({...t});for(const e of s.events||[])if(MIG[e.teamId])e.teamId=MIG[e.teamId];if(s.filters&&s.filters.teams)s.filters.teams=s.filters.teams.map(x=>MIG[x]||x);
+ const MIG={man_u11:'fal_U11',man_u9:'fal_U9',man_u7:'fal_U7',fal_U10:'fal_U11_2'};s.customTeams=(s.customTeams||[]).filter(t=>!MIG[t.id]);for(const t of MANUAL_DEFAULT_TEAMS){const x=s.customTeams.find(x=>x.id===t.id);if(!x)s.customTeams.push({...t});else if(/\(plateaux\)$|U11\/U10 mixte|^U10 · |^U9 · Niveau/.test(x.label||''))Object.assign(x,{label:t.label,cat:t.cat,order:t.order})}for(const e of s.events||[])if(MIG[e.teamId])e.teamId=MIG[e.teamId];if(s.filters&&s.filters.teams)s.filters.teams=s.filters.teams.map(x=>MIG[x]||x);
  // If the embedded data is newer than the stored snapshot, merge it as a sync
  if(FFF.fetchedAt&&(!s.snapshot.fetchedAt||FFF.fetchedAt>s.snapshot.fetchedAt)){const res=applySnapshot(s,{fetchedAt:FFF.fetchedAt,teams:FFF.teams,rows:FFF.rows},true);}
  return s;}}catch(e){console.warn('load',e)}return defaultState();}
@@ -195,7 +200,7 @@ function renderStrip(){
   host.appendChild(c)}
  // cale la bande sur ce que la liste affiche : dernier week-end passé à gauche, puis les suivants
  const cells=[...host.children];let i=cells.findIndex(c=>!c.classList.contains('past'));if(i<0)i=cells.length-1;const t=cells[Math.max(0,i-1)];
- if(t){const prev=host.style.scrollBehavior;host.style.scrollBehavior='auto';host.scrollLeft=Math.max(0,t.offsetLeft-host.offsetLeft-4);host.style.scrollBehavior=prev}
+ if(t){const prev=host.style.scrollBehavior;host.style.scrollBehavior='auto';host.scrollLeft=Math.max(0,t.offsetLeft-host.offsetLeft);host.style.scrollBehavior=prev}
  if(window.__updStrip)setTimeout(window.__updStrip,50)}
 
 function scoreHtml(it,cls){if(it.kind!=='match'||!it.joue||it.bd==null||it.be==null)return '';const us=it.home?it.bd:it.be,them=it.home?it.be:it.bd;const res=us>them?'win':us<them?'loss':'draw';return `<span class="score ${res}${cls?' '+cls:''}" title="Résultat (${it.home?'domicile':'extérieur'})"><span class="num">${it.bd}</span> – <span class="num">${it.be}</span></span>`}
