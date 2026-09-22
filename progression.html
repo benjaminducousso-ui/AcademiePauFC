@@ -16,6 +16,10 @@ p{margin:0}button{font-family:inherit;font-size:inherit;cursor:pointer}button:fo
 .cat[aria-pressed="true"]{background:var(--yellow);color:#3B2E00;border-color:var(--yellow)}
 .cat small{display:block;font-family:var(--body);font-size:11px;font-weight:600;opacity:.8;letter-spacing:0}
 main{padding-block:20px 60px}
+.whobar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:8px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.whobar .wlab{font-weight:700;font-size:14px}.whobar input{font:inherit;font-weight:700;font-size:15px;padding:6px 10px;border:1.5px solid var(--line);border-radius:8px;min-width:160px;background:var(--bg,#fff);color:var(--ink)}
+.whobar.empty{border-color:var(--yellow);box-shadow:inset 0 0 0 1px var(--yellow)}.whobar.empty input{border-color:var(--yellow)}
+.addp{display:flex;gap:6px;align-items:center}.addp input{font:inherit;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;min-width:230px;background:var(--surface);color:var(--ink)}
 .perbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin:14px 0 6px}
 .perchip{flex:none;display:flex;flex-direction:column;gap:1px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink);min-width:150px;text-align:left}
 .perchip b{font-family:var(--display);font-size:18px;line-height:1}.perchip span{font-size:13px;font-weight:600}.perchip small{font-size:11px;color:var(--muted)}
@@ -325,7 +329,7 @@ function testsPanel(){
     <input type="text" data-k="unit" data-i="${i}" value="${esc(t.unit||"")}" list="unitlist" placeholder="unité" aria-label="Unité">
     <input type="number" step="0.1" data-k="target" data-i="${i}" value="${t.target??""}" placeholder="objectif" aria-label="Objectif">
     <span class="mv"><button class="btn small" data-up="${i}" title="Monter" ${i===0?"disabled":""}>↑</button><button class="btn small" data-down="${i}" title="Descendre" ${i===tDraft.length-1?"disabled":""}>↓</button><button class="btn small" data-del="${i}" title="Retirer ce repère">✕</button></span></div>`).join("");
-  return `<div class="testbox"><b>⚙️ Repères mesurés de la catégorie ${cat}</b>
+  return `<div class="testbox"><b>⚙️ Les critères chiffrés de la catégorie ${cat}</b>
     <span class="note">Ce qu'on chiffre à côté des étoiles. Une ligne par repère : son nom, son unité, l'objectif visé (facultatif). Les valeurs déjà saisies pour les joueurs sont conservées. Pour un temps (unité « s »), l'objectif se lit « en dessous de ».</span>
     <datalist id="unitlist">${UNITS.map(u=>`<option value="${u}">`).join("")}</datalist>
     ${tDraft.length?`<div class="trow thead"><span></span><span>Nom du repère</span><span>Unité</span><span>Objectif</span><span></span></div>`:""}
@@ -352,24 +356,32 @@ function bindTestsPanel(v){const q=id=>document.getElementById(id);
 function renderEval(){const v=document.getElementById("view-eval");const g=grp();const P=PERIODS[per-1];const list=players(cat);
   const head=`<tr><th>Joueur</th>${g.facets.map(f=>`<th title="${esc(f.desc)}">${esc(f.name)}</th>`).join("")}${TESTS().map(t=>`<th title="${esc(t.name)}">${esc(t.name)}<br><small>${esc(t.unit)}${t.target?` · obj. ${t.target}`:""}</small></th>`).join("")}<th>Mot de l'éducateur</th><th></th></tr>`;
   const rows=list.map(p=>{const r=rec(cat,p,per);return `<tr data-p="${esc(p)}"><td class="name">${esc(p)}</td>${g.facets.map(f=>`<td data-l="${esc(f.name)}">${stars(r.f[f.id],`data-f="${f.id}"`)}</td>`).join("")}${TESTS().map(t=>`<td data-l="${esc(t.name)} (${esc(t.unit)}${t.target?`, obj. ${t.target}`:""})"><input class="num" type="number" step="${/^(s|km\/h)$/.test(t.unit||"")?"0.1":"1"}" inputmode="${/^(s|km\/h)$/.test(t.unit||"")?"decimal":"numeric"}" data-t="${t.id}" value="${r.t[t.id]??""}" aria-label="${esc(t.name)}"></td>`).join("")}<td data-l="Mot de l'éducateur" class="notecell"><input class="txt" type="text" data-note value="${esc(r.note)}" placeholder="le mot de l'éducateur (carnet)"></td><td data-l="Carnet"><button class="btn" data-carnet="${esc(p)}" title="Carnet de ce joueur" style="padding:5px 8px">📄 Carnet</button></td></tr>`}).join("");
-  v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Appréciation de la période ${per}</h2><p class="note" style="margin-top:6px">${esc(g.age)}</p>${perbar()}
+  const who=get("who","");
+  v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Appréciation de la période ${per}</h2><p class="note" style="margin-top:6px">${esc(g.age)}</p>
+   <div class="whobar${who?"":" empty"}"><span class="wlab">${who?"Rempli par":"Qui remplit ?"}</span><input id="who" type="text" value="${esc(who)}" placeholder="ton prénom" aria-label="Éducateur qui remplit" autocomplete="given-name"><span class="note" style="font-size:12.5px">${who?"— ton prénom signe les carnets et les saisies partagées":"— indispensable : il signe les carnets et les saisies partagées avec le RTJ"}</span></div>
+   ${perbar()}
    <div class="card"><div class="facets">${g.facets.map(f=>`<div class="facet"><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></div>`).join("")}</div>
-   <p class="legend">★ découvre · ★★ réussit souvent · ★★★ réussit vite et en match.${TESTS().length?" Repères mesurés : saisir la valeur du test de la période ; la liste s'adapte avec le bouton « Repères mesurés » sous le tableau.":""} Le message éducatif de la période : <b>${P.pef}</b>. Le <b>mot de l'éducateur</b>, les étoiles et les repères mesurés sont repris sur le <b>carnet de progression</b> (une page A4 par joueur, PDF ou impression) remis aux parents en fin de période.</p>
+   <p class="legend">★ découvre · ★★ réussit souvent · ★★★ réussit vite et en match.${TESTS().length?" Repères mesurés : saisir la valeur du test de la période ; la liste s'adapte avec le bouton « Modifier les critères » sous le tableau.":""} Le message éducatif de la période : <b>${P.pef}</b>. Le <b>mot de l'éducateur</b>, les étoiles et les repères mesurés sont repris sur le <b>carnet de progression</b> (une page A4 par joueur, PDF ou impression) remis aux parents en fin de période.</p>
    ${tEdit?testsPanel():""}
    <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${rows||'<tr><td colspan="9" class="note">Aucun joueur.</td></tr>'}</tbody></table></div>
-   <div class="toolbar" style="margin-top:14px"><div class="field"><label for="who">Éducateur qui remplit</label><input id="who" type="text" value="${esc(get("who",""))}" placeholder="Prénom"></div><button class="btn" id="addP">+ Ajouter un joueur</button><button class="btn" id="tEditBtn" aria-pressed="${tEdit}" title="Modifier, ajouter ou retirer les repères chiffrés">⚙️ Repères mesurés${TESTS().length?` · ${TESTS().length}`:""}</button><span class="status" id="syncStatus" title="État du partage avec le classeur du club"></span></div>
+   <div class="toolbar" style="margin-top:14px"><form id="addPf" class="addp" autocomplete="off"><input id="addPn" type="text" placeholder="NOM Prénom du joueur à ajouter" aria-label="Nom du joueur à ajouter"><button class="btn" type="submit">+ Ajouter</button></form><button class="btn" id="tEditBtn" aria-pressed="${tEdit}" title="Modifier, ajouter ou retirer les critères chiffrés de la catégorie">⚙️ Modifier les critères${TESTS().length?` · ${TESTS().length}`:""}</button><span class="status" id="syncStatus" title="État du partage avec le classeur du club"></span></div>
    <div class="toolbar" style="justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><span class="note" style="flex:1">Carnet de progression : une page A4 par joueur, à remettre aux parents en fin de période.</span><button class="btn primary" id="allCarnets">📄 Carnets de la période ${per} (PDF / impression)</button></div></div>`;
   bindPer(v);setStatus();
   document.getElementById("tEditBtn").addEventListener("click",()=>{tEdit=!tEdit;tDraft=tEdit?TESTS().map(t=>({...t})):null;renderEval();if(tEdit){const b=v.querySelector(".testbox");if(b)b.scrollIntoView({behavior:"smooth",block:"nearest"})}});
   if(tEdit)bindTestsPanel(v);
-  document.getElementById("who").addEventListener("change",e=>set("who",e.target.value.trim()));
+  const wi=document.getElementById("who");wi.addEventListener("input",e=>{set("who",e.target.value.trim());wi.closest(".whobar").classList.toggle("empty",!e.target.value.trim())});
+  wi.addEventListener("blur",()=>{if(get("who","")!==who)renderEval()});
+  if(!who)setTimeout(()=>wi.focus(),200);
   v.querySelectorAll(".stars button").forEach(b=>b.addEventListener("click",()=>{const tr=b.closest("tr"),p=tr.dataset.p,f=b.parentElement.dataset.f;const r=rec(cat,p,per);const n=+b.dataset.n;r.f[f]=r.f[f]===n?0:n;push(cat,p,per);renderEval()}));
   v.querySelectorAll("input.num").forEach(i=>i.addEventListener("change",()=>{const p=i.closest("tr").dataset.p;const r=rec(cat,p,per);const tt=TESTS().find(x=>x.id===i.dataset.t);const dec=/^(s|km\/h)$/.test((tt&&tt.unit)||"");
     r.t[i.dataset.t]=i.value===""?null:(dec?Math.round(+i.value*100)/100:Math.round(+i.value));i.value=r.t[i.dataset.t]??"";push(cat,p,per)}));
   v.querySelectorAll("input.txt").forEach(i=>i.addEventListener("change",()=>{const p=i.closest("tr").dataset.p;rec(cat,p,per).note=i.value;push(cat,p,per)}));
   document.getElementById("allCarnets").addEventListener("click",()=>openCarnets(list));
   v.querySelectorAll("[data-carnet]").forEach(b=>b.addEventListener("click",()=>openCarnets([b.dataset.carnet])));
-  document.getElementById("addP").addEventListener("click",()=>{const n=prompt("NOM Prénom du joueur");if(!n)return;store.extra[cat]=store.extra[cat]||[];store.extra[cat].push(n.trim());save();renderEval();renderCats()});
+  document.getElementById("addPf").addEventListener("submit",e=>{e.preventDefault();const n=document.getElementById("addPn").value.trim();if(!n)return;
+    if(players(cat).some(x=>x.toLowerCase()===n.toLowerCase())){toast("Ce joueur est déjà dans la liste");return}
+    store.extra[cat]=store.extra[cat]||[];store.extra[cat].push(n);save();renderEval();renderCats();toast(n+" ajouté en "+cat);
+    setTimeout(()=>{const tr=document.querySelector(`tr[data-p="${n.replace(/"/g,'\\"')}"]`);if(tr)tr.scrollIntoView({behavior:"smooth",block:"center"})},50)});
 }
 function renderProg(){const v=document.getElementById("view-prog");const g=grp();
   v.innerHTML=`<div class="eyebrow">${esc(g.label)}</div><h2 style="margin-top:4px">${cat} · Le fil de l'année</h2><p class="note" style="margin-top:6px">${esc(g.age)}</p>
