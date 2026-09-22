@@ -65,6 +65,35 @@ input.txt{width:100%;min-width:90px;box-sizing:border-box;border:1px solid trans
 .tbl-wrap{position:relative;scrollbar-width:thin;scrollbar-color:#B9C4D6 transparent;padding-bottom:2px}.tbl-wrap::-webkit-scrollbar{height:10px;-webkit-appearance:none}.tbl-wrap::-webkit-scrollbar-track{background:var(--surface-2);border-radius:6px}.tbl-wrap::-webkit-scrollbar-thumb{background:#8F9FB8;border-radius:6px}
 .tbl-wrap.has-more:not(.at-end){-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent)}
 .scrollhint{font-size:13px;color:var(--muted);margin:6px 0 2px}.scrollhint span{display:inline-block;font-weight:700;margin-right:4px}
+
+/* ===== Mobile : la grille devient une carte par joueur ===== */
+@media (max-width:700px){
+  .top{padding-block:12px 8px}.brand{flex-wrap:nowrap;align-items:flex-start;gap:10px}.crest{width:44px;height:44px;margin-top:2px}
+  .brand .eyebrow{font-size:11px}h1{font-size:24px}.brand p{font-size:13.5px;line-height:1.35;margin-top:4px;color:#B8C6DA}
+  h2{font-size:21px}.tabs .tab{font-size:15px;padding:8px 10px}
+  .catbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:10px 0 6px;margin:0 -16px;padding-left:16px;padding-right:16px}.catbar::-webkit-scrollbar{display:none}
+  .cat{padding:6px 12px;font-size:16px}.cat small{font-size:11px}
+  .whobar{padding:8px 10px;gap:8px}.whobar .wlab{font-size:13.5px}.whobar input{flex:1;min-width:0;font-size:15px}.whobar .note{flex-basis:100%;font-size:12px!important}
+  .whobar.empty{box-shadow:none;border-color:var(--line)}.whobar.empty input{border-width:2px}
+  .facets{display:grid;grid-template-columns:1fr 1fr;gap:6px}.facet{padding:8px 9px}.facet b{font-size:15px}.facet span{font-size:12.5px;display:block;line-height:1.3}
+  .legend{font-size:13px}
+  /* le tableau d'appréciation en cartes */
+  #view-eval .tbl-wrap{overflow:visible}#view-eval .scrollhint{display:none!important}
+  #view-eval table,#view-eval tbody,#view-eval tr,#view-eval td{display:block;width:auto;white-space:normal}
+  #view-eval thead{display:none}
+  #view-eval tr[data-p]{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px 10px;margin:10px 0;box-shadow:var(--shadow)}
+  #view-eval td{border:0;padding:5px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+  #view-eval td.name{position:static;display:block;font-family:var(--display);font-size:18px;font-weight:700;padding:2px 0 6px;border-bottom:1px solid var(--line);margin-bottom:4px;background:none}
+  #view-eval td[data-l]::before{content:attr(data-l);font-size:13px;color:var(--muted);flex:1;line-height:1.2}
+  #view-eval td>.stars{margin-right:0}.stars button{font-size:22px;padding:2px 3px;min-width:34px;min-height:36px}
+  #view-eval td input.num{width:84px;font-size:16px;padding:8px}
+  #view-eval td.notecell{flex-wrap:wrap}#view-eval td.notecell::before{flex-basis:100%}#view-eval td.notecell input{width:100%}
+  #view-eval td[data-l="Carnet"]{justify-content:flex-end}#view-eval td[data-l="Carnet"]::before{content:""}
+  .addp{width:100%}.addp input{flex:1;min-width:0}.addp .btn{white-space:nowrap}
+  .toolbar .btn{white-space:nowrap}
+  /* bilan : le nom reste lisible, les colonnes serrées */
+  #view-bilan th,#view-bilan td{padding:4px 2px}#view-bilan .tsub .tname{padding-left:8px;font-size:12px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 [hidden]{display:none!important}
 </style>
