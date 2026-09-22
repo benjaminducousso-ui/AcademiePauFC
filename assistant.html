@@ -496,7 +496,7 @@ async function fichePdfDoc(s){
   doc.setTextColor("#C9D6E8");doc.setFont("Poppins","normal");doc.setFontSize(8.2);
   doc.text(doc.splitTextToSize((s.fins||[]).map(finName).join(" · "),W-30).slice(0,2),MX+27,25.5);
   doc.setTextColor(FC.yel);doc.setFont("Poppins","bold");doc.setFontSize(9);
-  doc.text([`${total} min`,`${s.eff} enfants`].join(" · "),PW-MX,12,{align:"right"});
+  doc.text([`${total} min`,`${s.eff} enfants${s.gk?` dont ${s.gk} gardien${s.gk>1?"s":""}`:""}`].join(" · "),PW-MX,12,{align:"right"});
   /* — objectifs / consignes — */
   let y=40;
   const objs=blocks.filter(b=>b.veiller).slice(0,3).map(b=>`${b.name} : ${b.veiller}`);
@@ -664,6 +664,8 @@ function poolFor(cats,kinds,all){return Object.values(GAMES).filter(g=>(all||src
 const finName=id=>(FINALITES.find(f=>f.id===id)||{}).name||"Jeu";
 
 /* ---------- composition d'une séance ---------- */
+/* La fiche fait-elle vraiment jouer un gardien ? (lu dans le texte, jamais « sans gardien ») */
+const gkPlay=g=>{const t=(g.desc||"")+" "+(g.org||"");return /gardien/i.test(t)&&!/sans gardien|gardien facultatif|gardiens facultatifs/i.test(t)};
 /* Mémoire d'usage (persistée) : ce qui a déjà été proposé pèse moins dans les tirages suivants. */
 function usedCount(id){return (store.used&&store.used[id])||0}
 function markUsed(ids){store.used=store.used||{};ids.forEach(id=>{if(id)store.used[id]=(store.used[id]||0)+1});
@@ -672,7 +674,7 @@ function markUsed(ids){store.used=store.used||{};ids.forEach(id=>{if(id)store.us
 if(!store.used){store.used={};(store.sessions||[]).slice(0,20).forEach(s=>(s.blocks||[]).forEach(b=>{store.used[b.g]=(store.used[b.g]||0)+1}))}
 function pickW(list,avoid,prefer){
   const free=list.filter(g=>!(avoid||[]).includes(g.id));const src=free.length?free:list;if(!src.length)return null;
-  const w=src.map(g=>{let x=1/(1+2*usedCount(g.id));if(prefer&&prefer(g))x*=3;return x});
+  const w=src.map(g=>{let x=1/(1+2*usedCount(g.id));if(prefer){const p=prefer(g);x*=typeof p==="number"?p:(p?3:1)}return x});
   let r=Math.random()*w.reduce((a,b)=>a+b,0);
   for(let i=0;i<src.length;i++){r-=w[i];if(r<=0)return src[i]}return src[src.length-1]}
 function pick1(list,avoid){const free=list.filter(g=>!avoid.includes(g.id));const src=free.length?free:list;return src[Math.floor(Math.random()*src.length)]}
@@ -729,6 +731,9 @@ function suggest(b,avoid){
   let prefer=null;
   if(b.fins&&b.fins.length){const f=ats.filter(g=>b.fins.includes(g.fin));
     if(f.length>=Math.max(6,2*b.n))ats=f;else prefer=g=>b.fins.includes(g.fin)}
+  /* gardiens : sans gardien, les fiches qui en exigent un pèsent moitié moins ; avec, elles pèsent un peu plus */
+  const pf=prefer;const gkW=b.gk?1.6:0.5;
+  prefer=g=>(pf&&pf(g)?3:1)*(gkPlay(g)?gkW:1);
   /* on écarte des propositions les temps forts (fête, bilan, plateau) : ils restent dans la liste */
   const evt=g=>!!g.evt;
   const hors=g=>/futsal|hand/i.test((g.name||"")+" "+(g.desc||""));
@@ -754,6 +759,11 @@ function suggest(b,avoid){
     const g=pickW(libre,avoid.concat(used),prefer);
     if(g){chosen.push(g.id);roots.push(rootKey(g.name));add(g,durs[i],i>0&&b.rot?{rot:1}:null)}}
   /* pas de défi imposé : les situations et les défis sont tirés ensemble, au poids de leur fraîcheur */
+  /* un gardien présent : au moins une situation où il joue son rôle, jamais plus d'imposée */
+  if(b.gk&&chosen.length&&!chosen.some(id=>gkPlay(gameOf(id)))){
+    const withGk=ats.filter(g=>gkPlay(g)&&!chosen.includes(g.id)&&!roots.includes(rootKey(g.name)));
+    if(withGk.length){const g=pickW(withGk,avoid,pf);const j=chosen.length-1;const k=blocks.findIndex(x=>x.g===chosen[j]);
+      if(k>=0){blocks[k].g=g.id;chosen[j]=g.id;roots[j]=rootKey(g.name);used.push(g.id)}}}
   const th=themeFor(b.fins);
   const themeBlock=g=>({name:"Jeu à thème · "+th[0],desc:"Consigne du jour : "+th[1]+"\n"+(g.desc||"")});
   if(mtTh&&mtLib){
@@ -771,7 +781,7 @@ function titleOf(b,blocks){
   const top=Object.entries(c).sort((a,b2)=>b2[1]-a[1])[0];
   return top?finName(top[0]):"Séance du jour"}
 function newSession(b,blocks){
-  return {id:uid(),date:b.date,cats:b.cats.slice(),eff:b.eff,dur:b.dur,fins:(b.fins||[]).slice(),fam:b.fam||null,rot:!!b.rot,
+  return {id:uid(),date:b.date,cats:b.cats.slice(),eff:b.eff,gk:b.gk||0,dur:b.dur,fins:(b.fins||[]).slice(),fam:b.fam||null,rot:!!b.rot,
     gTheme:!!b.theme,gLibre:!!b.match,
     title:titleOf(b,blocks),blocks,by:store.who||"",ts:Date.now()}}
 
@@ -857,7 +867,7 @@ function viewHome(){
       <p class="hint" style="margin-top:4px">Celles des autres éducateurs. Ouvre-en une et « Reprendre » pour t'en faire une copie à ton nom.</p>
       <div class="list">${autres.map(row).join("")}</div>`:""}`}
 function bindHome(){
-  document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,dur:60,fins:[],fam:null,n:3,match:true,theme:false,rot:false},store.last||{},{date:today()});go("brief")});
+  document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,gk:0,dur:60,fins:[],fam:null,n:3,match:true,theme:false,rot:false},store.last||{},{date:today()});go("brief")});
   document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{SES=store.sessions.find(x=>x.id===b.dataset.open);EDIT=false;go("sheet")}));
   const wb=document.getElementById("whoBtn");if(wb)wb.addEventListener("click",askName);
   /* corbeille : deux appuis, pour ne rien perdre par mégarde */
@@ -886,7 +896,9 @@ function viewBrief(){
       <div class="chips" id="qdur">${DUREES.map(d=>`<button class="chip" data-dur="${d}" aria-pressed="${b.dur===d}">${d} min</button>`).join("")}</div></div>
 
     <div class="q"><span class="qlab">Combien d'enfants ?</span>
-      <div class="stepper"><button id="effm" aria-label="Moins" ${b.eff<=4?"disabled":""}>−</button><span class="v num" id="effv">${b.eff}</span><button id="effp" aria-label="Plus" ${b.eff>=30?"disabled":""}>+</button><span class="u">enfants</span></div></div>
+      <div class="stepper"><button id="effm" aria-label="Moins" ${b.eff<=4?"disabled":""}>−</button><span class="v num" id="effv">${b.eff}</span><button id="effp" aria-label="Plus" ${b.eff>=30?"disabled":""}>+</button><span class="u">enfants</span></div>
+      <div class="stepper" style="margin-top:8px"><button id="gkm" aria-label="Moins de gardiens" ${!b.gk?"disabled":""}>−</button><span class="v num" id="gkv">${b.gk||0}</span><button id="gkp" aria-label="Plus de gardiens" ${(b.gk||0)>=3?"disabled":""}>+</button><span class="u">dont gardien${(b.gk||0)>1?"s":""} 🧤</span></div>
+      <p class="hint" style="margin-top:6px">${b.gk?"Avec un gardien présent, la séance glisse une situation où il joue vraiment son rôle — sans en faire le thème.":"Sans gardien, les situations qui en demandent un passent au second plan (un enfant peut toujours tenir le but)."}</p></div>
   </section>
 
   <section class="card">
@@ -927,7 +939,7 @@ function bindBrief(){
   document.getElementById("qdate").addEventListener("change",e=>{b.date=e.target.value||today()});
   const step=(id,key,min,max)=>{document.getElementById(id+"m").addEventListener("click",()=>{b[key]=Math.max(min,b[key]-1);re()});
     document.getElementById(id+"p").addEventListener("click",()=>{b[key]=Math.min(max,b[key]+1);re()})};
-  step("eff","eff",4,30);step("n","n",1,5);
+  step("eff","eff",4,30);step("n","n",1,5);step("gk","gk",0,3);
   document.getElementById("iKinds").addEventListener("click",showKinds);
   document.getElementById("qmatch").addEventListener("click",()=>{b.match=!b.match;re()});
   document.getElementById("qtheme").addEventListener("click",()=>{b.theme=!b.theme;re()});
@@ -949,7 +961,7 @@ function viewSheet(){
       ${["atelier","defi","eveil","match"].includes(b.kind)?`<button class="reroll" data-roll="${i}" title="Une autre proposition" aria-label="Une autre proposition pour « ${esc(b.name)} »">↻</button>`:""}
       <button class="edblk" data-edb="${i}" title="Modifier ce bloc" aria-label="Modifier « ${esc(b.name)} »">✎</button>
       ${["atelier","defi","match","eveil"].includes(b.kind)?`<button class="rmblk" data-rmb="${i}" title="Retirer de la séance" aria-label="Retirer « ${esc(b.name)} » de la séance">✕</button>`:""}
-      <div><div class="top"><span class="dstep"><button data-dm="${i}" aria-label="5 minutes de moins" ${b.dur<=5?"disabled":""}>−</button><span class="d num">${b.dur}'</span><button data-dp="${i}" aria-label="5 minutes de plus">+</button></span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${b.auteur==="autre"?`<span class="fam" title="${esc(b.src||"")}">◎ ${esc(b.orig||"Autre académie")}</span>`:""}${grp[i]>=0?`<span class="kind" style="background:var(--yellow);color:#3B2E00">⟳ ${grp.slice(0,i+1).filter(x=>x===grp[i]).length}/${rotSize(grp,grp[i])}</span>`:""}</div>
+      <div><div class="top"><span class="dstep"><button data-dm="${i}" aria-label="5 minutes de moins" ${b.dur<=5?"disabled":""}>−</button><span class="d num">${b.dur}'</span><button data-dp="${i}" aria-label="5 minutes de plus">+</button></span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${b.auteur==="autre"?`<span class="fam" title="${esc(b.src||"")}">◎ ${esc(b.orig||"Autre académie")}</span>`:""}${gkPlay(b)?`<span class="fam" title="Le gardien joue son rôle">🧤</span>`:""}${grp[i]>=0?`<span class="kind" style="background:var(--yellow);color:#3B2E00">⟳ ${grp.slice(0,i+1).filter(x=>x===grp[i]).length}/${rotSize(grp,grp[i])}</span>`:""}</div>
         <h3>${esc(b.name)}</h3>
         <p class="desc">${esc(b.desc||"")}</p>
         ${(b.org||b.var||b.veiller)?`<details><summary>Organisation, variantes, points de coaching</summary><div class="more">
@@ -962,7 +974,7 @@ function viewSheet(){
     <div class="shead">
       <div class="eyebrow">${cap(fmtLong(s.date))}</div>
       <h2 id="stitle">${esc(s.title)}</h2>
-      <div class="meta"><span class="pill">${s.cats.join(" · ")}</span><span class="pill num">${tot} min</span><span class="pill num">${s.eff} enfants</span>${!isMine(s)?`<span class="pill by">✎ ${esc(s.by)}</span>`:s.from?`<span class="pill by">reprise de ${esc(s.from)}</span>`:""}</div>
+      <div class="meta"><span class="pill">${s.cats.join(" · ")}</span><span class="pill num">${tot} min</span><span class="pill num">${s.eff} enfants${s.gk?` · ${s.gk} gardien${s.gk>1?"s":""} 🧤`:""}</span>${!isMine(s)?`<span class="pill by">✎ ${esc(s.by)}</span>`:s.from?`<span class="pill by">reprise de ${esc(s.from)}</span>`:""}</div>
     </div>
     <div class="blocks">
       <div style="padding:12px 16px 0"><div class="tl">${tl}</div>
@@ -1045,7 +1057,9 @@ function reroll(i){const b=SES.blocks[i];const g0=gameOf(b.g);
   const vus=SEEN[i]||[];
   let neufs=tri.filter(g=>!vus.includes(g.id));
   if(!neufs.length){SEEN[i]=[];neufs=tri}
-  const g=pickW(neufs,[],atelier&&SES.fins&&SES.fins.length?x=>SES.fins.includes(x.fin):null);
+  /* le ↻ tourne sur tout le registre : le gardien n'est qu'une légère préférence, jamais une condition */
+  const gkW=SES.gk?1.4:0.7;
+  const g=pickW(neufs,[],x=>((atelier&&SES.fins&&SES.fins.length&&SES.fins.includes(x.fin))?3:1)*(atelier&&gkPlay(x)?gkW:1));
   SEEN[i]=(SEEN[i]||[]).concat(g.id);markUsed([g.id]);
   SES.blocks[i]={g:g.id,dur:b.dur,rot:b.rot,k0};
   if(theme){const th=themeFor(SES.fins,themeLabel(b));SES.blocks[i].name="Jeu à thème · "+th[0];
@@ -1106,7 +1120,7 @@ function bindSheet(){
   document.getElementById("edit").addEventListener("click",()=>{ensureMine();EDIT=true;persist();render()});
   document.getElementById("again").addEventListener("click",()=>{ensureMine();
     AVOID=AVOID.concat(SES.blocks.map(b=>b.g));if(AVOID.length>60)AVOID=AVOID.slice(-40);
-    const b={cats:SES.cats,date:SES.date,eff:SES.eff,dur:SES.dur,fins:SES.fins,fam:SES.fam||null,n:Math.max(1,SES.blocks.filter(x=>["atelier","defi"].includes(gameOf(x.g).kind)).length),
+    const b={cats:SES.cats,date:SES.date,eff:SES.eff,gk:SES.gk||0,dur:SES.dur,fins:SES.fins,fam:SES.fam||null,n:Math.max(1,SES.blocks.filter(x=>["atelier","defi"].includes(gameOf(x.g).kind)).length),
       match:!!SES.gLibre,theme:!!SES.gTheme,rot:SES.rot};
     const blocks=suggest(b,AVOID);SES.blocks=blocks;SES.title=titleOf(b,blocks);persist();render();toast("Une autre proposition")});
   document.getElementById("wa").addEventListener("click",()=>{persist();
@@ -1258,7 +1272,7 @@ function waIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill
 function waMessage(s){
   const bl=blocksOf(s);const grp=rotGroups(s.blocks);const L=[];
   L.push(`★ *PAU FC ${s.cats.join("/")} · ${cap(fmtLong(s.date))}*`);
-  L.push(`◆ *${s.title}* — ${totalOf(s)} min · ${s.eff} enfants${s.by?` · ${s.by}`:""}`);
+  L.push(`◆ *${s.title}* — ${totalOf(s)} min · ${s.eff} enfants${s.gk?` dont ${s.gk} gardien${s.gk>1?"s":""}`:""}${s.by?` · ${s.by}`:""}`);
   L.push(`➜ La séance en détail : ${sessionUrl(s)}`);
   L.push("");
   bl.forEach((b,i)=>{if(grp[i]===i){const n=rotSize(grp,i);L.push(`⟳ _${n} ateliers tournants, ${n} sous-groupes_`)}
