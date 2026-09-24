@@ -227,6 +227,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .skbar .btn{min-height:40px;font-size:14px;padding:0 12px}
 .fam{font-size:11.5px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 8px;white-space:nowrap}
 /* réglage direct de la durée et retrait d'un atelier, sans passer par le mode Modifier */
+.draftbar{margin:12px 16px 0;padding:10px 12px;border-radius:10px;background:#FFF6D1;border:1.5px solid var(--yellow);color:#3B2E00;font-size:14px;line-height:1.4}
+.draftbar .dnote{margin-top:6px;font-size:13px;opacity:.85;white-space:pre-line}
 .dstep{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--line);border-radius:999px;padding:1px;background:var(--surface)}
 .dstep button{width:38px;height:38px;border-radius:999px;border:0;background:none;color:var(--navy-2);font-size:17px;font-weight:700;line-height:1;display:grid;place-items:center}
 .dstep button:disabled{color:var(--line)}
@@ -349,21 +351,21 @@ function renderSchema(sc){
     o+=`<path d="${d}" fill="none" ${st} stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${id}${a.k||"c"})"/>`});
   (sc.cups||[]).forEach(c=>{o+=`<path d="M${X(c.x)} ${(+Y(c.y)-3.6).toFixed(1)} l4.2 6.8 h-8.4z" fill="#FFB020" stroke="#7A4B00" stroke-width=".7"/>`});
   (sc.cones||[]).forEach(c=>{o+=`<path d="M${X(c.x)} ${(+Y(c.y)-6.5).toFixed(1)} l5.2 10.5 h-10.4z" fill="#FF7A1A" stroke="#7A2E00" stroke-width=".8"/><rect x="${(+X(c.x)-6).toFixed(1)}" y="${(+Y(c.y)+3.2).toFixed(1)}" width="12" height="2" fill="#7A2E00"/>`});
-  (sc.players||[]).forEach(p=>{const col={b:"#1E56C9",r:"#D64545",y:"#F2C200",g:"#8E44AD",e:"#14213D"}[p.c]||"#1E56C9";const tx=p.c==="y"?"#3B2E00":"#fff";
-    o+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${M(0.95)}" fill="${col}" stroke="#fff" stroke-width="1.6"/>`;
-    const lab=p.l||(p.c==="e"?"E":"");if(lab)o+=`<text x="${X(p.x)}" y="${Y(p.y)}" text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="800" fill="${tx}" font-family="Barlow Condensed, Arial Narrow, sans-serif">${esc(lab)}</text>`});
+  (sc.players||[]).forEach(p=>{const col={b:"#1E56C9",r:"#D64545",y:"#F2C200",j:"#F07D00",g:"#8E44AD",e:"#14213D"}[p.c]||"#1E56C9";const tx=p.c==="y"?"#3B2E00":"#fff";
+    if(p.c==="j")o+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${M(1.35)}" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="3 2"/>`;o+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${M(0.95)}" fill="${col}" stroke="#fff" stroke-width="1.6"/>`;
+    const lab=p.l||(p.c==="e"?"E":p.c==="j"?"J":"");if(lab)o+=`<text x="${X(p.x)}" y="${Y(p.y)}" text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="800" fill="${tx}" font-family="Barlow Condensed, Arial Narrow, sans-serif">${esc(lab)}</text>`});
   (sc.balls||[]).forEach(b=>{o+=`<circle cx="${X(b.x)}" cy="${Y(b.y)}" r="${M(0.5)}" fill="#fff" stroke="#14213D" stroke-width="1.3"/><circle cx="${X(b.x)}" cy="${Y(b.y)}" r="${M(0.2)}" fill="#14213D"/>`});
   (sc.labels||[]).forEach(t=>{o+=`<text x="${X(t.x)}" y="${Y(t.y)}" text-anchor="middle" dominant-baseline="middle" font-size="9.5" font-weight="700" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.55)" stroke-width="2.5" font-family="Source Sans 3, Arial, sans-serif">${esc(t.t)}</text>`});
   o+=`</svg>`;return o;
 }
-const LEGEND=`<div class="legend"><span><i style="background:#1E56C9"></i>équipe bleue</span><span><i style="background:#D64545"></i>équipe rouge</span><span><i style="background:#F2C200"></i>équipe jaune</span><span><i style="background:#8E44AD"></i>G = gardien</span><span><i style="background:#14213D"></i>E = éducateur</span><span>▲ coupelle / plot</span><span>○ ballon</span><span>— conduite</span><span>- - course sans ballon</span><span style="color:#B08A00">— passe</span><span style="color:#D64545">— tir</span></div>`;
+const LEGEND=`<div class="legend"><span><i style="background:#1E56C9"></i>équipe bleue</span><span><i style="background:#D64545"></i>équipe rouge</span><span><i style="background:#F2C200"></i>équipe jaune</span><span><i style="background:#F07D00"></i>J = joker (joue avec l'équipe qui a le ballon)</span><span><i style="background:#8E44AD"></i>G = gardien</span><span><i style="background:#14213D"></i>E = éducateur</span><span>▲ coupelle / plot</span><span>○ ballon</span><span>— conduite</span><span>- - course sans ballon</span><span style="color:#B08A00">— passe</span><span style="color:#D64545">— tir</span></div>`;
 
 
 </script>
 <script>
 /* ---------- Éditeur de schéma (terrain virtuel) ---------- */
 const SK_PAD=2.6,SK_S=10;
-const TOOLS=[["sel","✥ Déplacer"],["cone","▲ Plot"],["cup","△ Coupelle"],["pb","● Bleu"],["pr","● Rouge"],["py","● Jaune"],["pg","● Gardien"],["pe","● Éducateur"],["ball","○ Ballon"],["goal","▭ But"],["hoop","◎ Cerceau"],["zone","▢ Zone"],["label","T Texte"],["ac","→ Conduite"],["am","⇢ Course"],["ap","→ Passe"],["as","→ Tir"]];
+const TOOLS=[["sel","✥ Déplacer"],["cone","▲ Plot"],["cup","△ Coupelle"],["pb","● Bleu"],["pr","● Rouge"],["py","● Jaune"],["pj","● Joker"],["pg","● Gardien"],["pe","● Éducateur"],["ball","○ Ballon"],["goal","▭ But"],["hoop","◎ Cerceau"],["zone","▢ Zone"],["label","T Texte"],["ac","→ Conduite"],["am","⇢ Course"],["ap","→ Passe"],["as","→ Tir"]];
 const ARROW_TOOLS={ac:"c",am:"m",ap:"p",as:"s"};
 let skTool="sel",skSel=null,skPend=null;   /* skSel={k,i} ; skPend = 1er point d'une flèche */
 const skEmpty=()=>({f:[30,20],cups:[],cones:[],players:[],balls:[],goals:[],hoops:[],zones:[],arrows:[],labels:[]});
@@ -445,7 +447,7 @@ function bindSkHits(){const svg=document.querySelector(".sked .skhit");if(!svg)r
     else if(skTool==="goal")sc.goals.push({x:p.x,y:p.y,o:"v",s:3});
     else if(skTool==="zone")sc.zones.push({x:p.x-3,y:p.y-3,w:6,h:6,t:""});
     else if(skTool==="label")sc.labels.push({x:p.x,y:p.y,t:"Texte"});
-    else if(skTool[0]==="p"){const c={pb:"b",pr:"r",py:"y",pg:"g",pe:"e"}[skTool];sc.players.push({x:p.x,y:p.y,c,l:c==="g"?"G":c==="e"?"E":""})}
+    else if(skTool[0]==="p"){const c={pb:"b",pr:"r",py:"y",pj:"j",pg:"g",pe:"e"}[skTool];sc.players.push({x:p.x,y:p.y,c,l:c==="g"?"G":c==="e"?"E":c==="j"?"J":""})}
     GDRAFT.schema=sc;skSel=null;skRepaint()})}
 function bindInspector(){const q=id=>document.getElementById(id);const sc=()=>skNorm(GDRAFT.schema);
   const lab=q("skLab");if(lab)lab.addEventListener("input",()=>{const s=sc();const it=s[skSel.k][skSel.i];if(skSel.k==="players")it.l=lab.value.toUpperCase();else it.t=lab.value;GDRAFT.schema=s;skPaintView()});
@@ -789,6 +791,7 @@ function newSession(b,blocks){
 function blocksOf(s){return s.blocks.map(b=>{const g=gameOf(b.g);
   return Object.assign({},g,{id:b.g,dur:b.dur||g.dur,rot:!!b.rot,
     name:b.name||g.name,desc:b.desc===undefined?g.desc:b.desc,var:b.var===undefined?g.var:b.var,
+    veiller:b.veiller===undefined?g.veiller:b.veiller,org:b.org===undefined?g.org:b.org,schema:b.schema||g.schema,
     edited:!!(b.name||b.desc||b.var)})})}
 function totalOf(s){return s.blocks.reduce((a,b)=>a+(b.dur||gameOf(b.g).dur||0),0)}
 function rotGroups(bl){const g=bl.map(()=>-1);
@@ -897,8 +900,8 @@ function viewBrief(){
 
     <div class="q"><span class="qlab">Combien d'enfants ?</span>
       <div class="stepper"><button id="effm" aria-label="Moins" ${b.eff<=4?"disabled":""}>−</button><span class="v num" id="effv">${b.eff}</span><button id="effp" aria-label="Plus" ${b.eff>=30?"disabled":""}>+</button><span class="u">enfants</span></div>
-      <div class="stepper" style="margin-top:8px"><button id="gkm" aria-label="Moins de gardiens" ${!b.gk?"disabled":""}>−</button><span class="v num" id="gkv">${b.gk||0}</span><button id="gkp" aria-label="Plus de gardiens" ${(b.gk||0)>=3?"disabled":""}>+</button><span class="u">dont gardien${(b.gk||0)>1?"s":""} 🧤</span></div>
-      <p class="hint" style="margin-top:6px">${b.gk?"Avec un gardien présent, la séance glisse une situation où il joue vraiment son rôle — sans en faire le thème.":"Sans gardien, les situations qui en demandent un passent au second plan (un enfant peut toujours tenir le but)."}</p></div>
+      ${b.cats.some(c=>!["U7","U8"].includes(c))?`<div class="stepper" style="margin-top:8px"><button id="gkm" aria-label="Moins de gardiens" ${!b.gk?"disabled":""}>−</button><span class="v num" id="gkv">${b.gk||0}</span><button id="gkp" aria-label="Plus de gardiens" ${(b.gk||0)>=3?"disabled":""}>+</button><span class="u">dont gardien${(b.gk||0)>1?"s":""} 🧤</span></div>
+      <p class="hint" style="margin-top:6px">${b.gk?"Avec un gardien présent, la séance glisse une situation où il joue vraiment son rôle — sans en faire le thème.":"Sans gardien, les situations qui en demandent un passent au second plan (un enfant peut toujours tenir le but)."}</p>`:""}</div>
   </section>
 
   <section class="card">
@@ -939,7 +942,8 @@ function bindBrief(){
   document.getElementById("qdate").addEventListener("change",e=>{b.date=e.target.value||today()});
   const step=(id,key,min,max)=>{document.getElementById(id+"m").addEventListener("click",()=>{b[key]=Math.max(min,b[key]-1);re()});
     document.getElementById(id+"p").addEventListener("click",()=>{b[key]=Math.min(max,b[key]+1);re()})};
-  step("eff","eff",4,30);step("n","n",1,5);step("gk","gk",0,3);
+  step("eff","eff",4,30);step("n","n",1,5);
+  if(document.getElementById("gkm"))step("gk","gk",0,3);else b.gk=0;
   document.getElementById("iKinds").addEventListener("click",showKinds);
   document.getElementById("qmatch").addEventListener("click",()=>{b.match=!b.match;re()});
   document.getElementById("qtheme").addEventListener("click",()=>{b.theme=!b.theme;re()});
@@ -956,6 +960,7 @@ function viewSheet(){
   const tl=bl.map(b=>`<span style="width:${(b.dur/tot*100).toFixed(1)}%;background:${KCOL[b.kind]}"></span>`).join("");
   const band=i=>{if(grp[i]!==i)return "";const ids=grp.map((x,j)=>x===i?j:-1).filter(j=>j>=0);
     return `<div class="rotband"><b>⟳ Ateliers tournants</b> · les ${ids.length} ateliers qui suivent tournent en même temps : partage le groupe en <b>${ids.length} sous-groupes</b>, un par atelier, et fais changer tout le monde toutes les ${bl[i].dur} min.</div>`};
+  const draftBar=s.draft?`<div class="draftbar"><b>📷 Brouillon lu depuis ${esc(s.draft)}</b> — vérifie chaque bloc, corrige ce qui a été mal lu, puis « ✓ Terminé » : la séance ne sera partagée qu'à ce moment-là.${s.draftNote?`<div class="dnote">${esc(s.draftNote)}</div>`:""}</div>`:"";
   const body=EDIT?editList():bl.map((b,i)=>`${band(i)}<article class="blk${grp[i]>=0?" inrot":""}">
       <div class="sch">${b.schema?renderSchema(b.schema):`<span style="color:var(--muted);font-size:26px">${b.kind==="accueil"?"🤝":"🙌"}</span>`}</div>
       ${["atelier","defi","eveil","match"].includes(b.kind)?`<button class="reroll" data-roll="${i}" title="Une autre proposition" aria-label="Une autre proposition pour « ${esc(b.name)} »">↻</button>`:""}
@@ -977,7 +982,7 @@ function viewSheet(){
       <div class="meta"><span class="pill">${s.cats.join(" · ")}</span><span class="pill num">${tot} min</span><span class="pill num">${s.eff} enfants${s.gk?` · ${s.gk} gardien${s.gk>1?"s":""} 🧤`:""}</span>${!isMine(s)?`<span class="pill by">✎ ${esc(s.by)}</span>`:s.from?`<span class="pill by">reprise de ${esc(s.from)}</span>`:""}</div>
     </div>
     <div class="blocks">
-      <div style="padding:12px 16px 0"><div class="tl">${tl}</div>
+      ${draftBar}<div style="padding:12px 16px 0"><div class="tl">${tl}</div>
         ${!EDIT?`<div class="tbar${s.dur&&tot!==s.dur?" off":""}" style="margin-top:10px"><span><b class="num">${tot} min</b>${s.dur&&tot!==s.dur?` — ${Math.abs(tot-s.dur)} de ${tot>s.dur?"plus":"moins"} que les ${s.dur} prévues`:""}</span><button class="btn sm" id="reb">Répartir le temps</button></div>`:""}</div>
       ${body}
       ${!EDIT?`<button class="addblk" id="addb">+ Ajouter un atelier ou un jeu</button>`:""}
@@ -992,7 +997,7 @@ function viewSheet(){
    :`<div class="actionbar"><div class="in">
       <button class="btn icon" id="again" title="Une autre proposition" aria-label="Une autre proposition">↻</button>
       <button class="btn" id="edit">${isMine(s)?"✏️ Modifier":"⧉ Reprendre"}</button>
-      <button class="btn wa" id="wa">${waIcon()} Partager</button>
+      ${s.draft?`<button class="btn primary" id="validate">✓ Valider le brouillon</button>`:`<button class="btn wa" id="wa">${waIcon()} Partager</button>`}
       <button class="btn icon" id="pdf" title="Fiche PDF" aria-label="Fiche PDF">📄</button>
     </div></div>`}`}
 
@@ -1092,7 +1097,9 @@ function bindSheet(){
     document.querySelectorAll("[data-txtreset]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txtreset;
       ["name","desc","var"].forEach(k=>delete SES.blocks[i][k]);persist();render()}));
     bindDrag();
-    document.getElementById("done").addEventListener("click",()=>{SES.blocks.forEach(b=>delete b._open);EDIT=false;persist();render();window.scrollTo({top:0,behavior:"smooth"})});
+    document.getElementById("done").addEventListener("click",()=>{SES.blocks.forEach(b=>delete b._open);
+      validateDraft();
+      EDIT=false;persist();render();window.scrollTo({top:0,behavior:"smooth"})});
     document.getElementById("del").addEventListener("click",e=>{const b=e.currentTarget;
       if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirmer ?";b.style.width="auto";b.style.color="var(--danger)";return}
       const mine=isMine(SES);store.sessions=(store.sessions||[]).filter(x=>x.id!==SES.id);save();
@@ -1123,7 +1130,8 @@ function bindSheet(){
     const b={cats:SES.cats,date:SES.date,eff:SES.eff,gk:SES.gk||0,dur:SES.dur,fins:SES.fins,fam:SES.fam||null,n:Math.max(1,SES.blocks.filter(x=>["atelier","defi"].includes(gameOf(x.g).kind)).length),
       match:!!SES.gLibre,theme:!!SES.gTheme,rot:SES.rot};
     const blocks=suggest(b,AVOID);SES.blocks=blocks;SES.title=titleOf(b,blocks);persist();render();toast("Une autre proposition")});
-  document.getElementById("wa").addEventListener("click",()=>{persist();
+  const vb=document.getElementById("validate");if(vb)vb.addEventListener("click",()=>{validateDraft();render()});
+  if(document.getElementById("wa"))document.getElementById("wa").addEventListener("click",()=>{persist();
     const txt=encodeURIComponent(waMessage(SES));window.open("https://wa.me/?text="+txt,"_blank","noopener")});
   document.getElementById("pdf").addEventListener("click",()=>{persist();fichePdf(SES)})}
 
@@ -1131,7 +1139,7 @@ function persist(){if(!SES)return;SES.ts=Date.now();SES.by=SES.by||store.who||""
   const i=store.sessions.findIndex(x=>x.id===SES.id);const clean=JSON.parse(JSON.stringify(SES));clean.blocks.forEach(b=>delete b._open);
   if(i<0)store.sessions.unshift(clean);else store.sessions[i]=clean;
   if(store.sessions.length>200)store.sessions=store.sessions.slice(0,200);save();
-  if(isMine(SES)){clearTimeout(persist._t);persist._t=setTimeout(()=>pushSes(clean),1200)}}
+  if(isMine(SES)&&!SES.draft){clearTimeout(persist._t);persist._t=setTimeout(()=>pushSes(clean),1200)}}
 
 /* Les durées se règlent une par une ; ce bouton refait le partage d'un coup,
    en gardant l'accueil, la mise en train, les jeux et le retour au calme tels quels. */
@@ -1293,7 +1301,22 @@ function render(){
   if(VIEW==="home")bindHome();else if(VIEW==="brief")bindBrief();else bindSheet();
   applyFocus();
 }
-function openFromUrl(){const id=new URLSearchParams(location.search).get("s");if(!id)return false;
+function validateDraft(){if(!SES||!SES.draft)return;
+  (SES.draftGames||[]).forEach(id=>{const g=(store.custom||{})[id];if(g){delete g.draft;pushClub(id,g)}});
+  delete SES.draft;delete SES.draftNote;delete SES.draftGames;GAMES=allGames();persist();save();toast("Séance validée et partagée au club")}
+function importFromUrl(){const raw=new URLSearchParams(location.search).get("import");if(!raw)return false;
+  try{const txt=decodeURIComponent(escape(atob(raw.replace(/-/g,"+").replace(/_/g,"/"))));const d=JSON.parse(txt);
+    const s=d.session;if(!s||!Array.isArray(s.blocks))throw new Error("séance");
+    const map={};store.custom=store.custom||{};
+    Object.entries(d.games||{}).forEach(([k,g])=>{const id="c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);map[k]=id;
+      store.custom[id]=Object.assign({},g,{by:store.who||"",draft:true})});
+    s.blocks.forEach(b=>{if(map[b.g])b.g=map[b.g]});
+    s.id=uid();s.by=store.who||"";s.ts=Date.now();s.draftGames=Object.values(map);
+    GAMES=allGames();s.dur=totalOf(s);
+    SES=s;EDIT=false;VIEW="sheet";persist();save();
+    history.replaceState(null,"",pageUrl());render();toast("Brouillon importé : vérifie-le avant de valider");return true}
+  catch(e){toast("Lien d'import illisible");return false}}
+function openFromUrl(){if(importFromUrl())return true;const id=new URLSearchParams(location.search).get("s");if(!id)return false;
   const s=(store.sessions||[]).find(x=>x.id===id);if(!s)return false;
   SES=s;EDIT=false;VIEW="sheet";render();return true}
 render();
