@@ -306,6 +306,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 .f.fph.off[aria-pressed="true"]{background:#0B4F9C;border-color:#0B4F9C;color:#fff}.f.fph.def[aria-pressed="true"]{background:#9C2A2A;border-color:#9C2A2A;color:#fff}
 .mfilt.mph button.sub{border-style:solid}
+.robar{margin:12px 16px 0;padding:10px 12px;border-radius:12px;background:var(--surface-2);color:var(--ink);font-size:14px;line-height:1.4}
+.dstep.ro{padding:0 10px}
 </style>
 <style>.mfilt.mph{flex-wrap:wrap;overflow:visible}</style>
 <header class="top"><div class="topin" id="topbar"></div></header>
@@ -1015,17 +1017,17 @@ function bindBrief(){
 
 /* =====================  ÉCRAN 3 · LA SÉANCE  ===================== */
 function viewSheet(){
-  const s=SES;const bl=blocksOf(s);const tot=totalOf(s);const grp=rotGroups(s.blocks);
+  const s=SES;const ro=!isMine(s);const bl=blocksOf(s);const tot=totalOf(s);const grp=rotGroups(s.blocks);
   const tl=bl.map(b=>`<span style="width:${(b.dur/tot*100).toFixed(1)}%;background:${KCOL[b.kind]}"></span>`).join("");
   const band=i=>{if(grp[i]!==i)return "";const ids=grp.map((x,j)=>x===i?j:-1).filter(j=>j>=0);
     return `<div class="rotband"><b>⟳ Ateliers tournants</b> · les ${ids.length} ateliers qui suivent tournent en même temps : partage le groupe en <b>${ids.length} sous-groupes</b>, un par atelier, et fais changer tout le monde toutes les ${bl[i].dur} min.</div>`};
   const draftBar=s.draft?`<div class="draftbar"><b>📷 Brouillon lu depuis ${esc(s.draft)}</b> — vérifie chaque bloc, corrige ce qui a été mal lu, puis « ✓ Terminé » : la séance ne sera partagée qu'à ce moment-là.${s.draftNote?`<div class="dnote">${esc(s.draftNote)}</div>`:""}</div>`:"";
   const body=EDIT?editList():bl.map((b,i)=>`${band(i)}<article class="blk${grp[i]>=0?" inrot":""}">
       <div class="sch">${b.schema?renderSchema(b.schema):`<span style="color:var(--muted);font-size:26px">${b.kind==="accueil"?"🤝":"🙌"}</span>`}</div>
-      ${["atelier","defi","eveil","match"].includes(b.kind)?`<button class="reroll" data-roll="${i}" title="Une autre proposition" aria-label="Une autre proposition pour « ${esc(b.name)} »">↻</button>`:""}
-      <button class="edblk" data-edb="${i}" title="Modifier ce bloc" aria-label="Modifier « ${esc(b.name)} »">✎</button>
-      ${["atelier","defi","match","eveil"].includes(b.kind)?`<button class="rmblk" data-rmb="${i}" title="Retirer de la séance" aria-label="Retirer « ${esc(b.name)} » de la séance">✕</button>`:""}
-      <div><div class="top"><span class="dstep"><button data-dm="${i}" aria-label="${["accueil","calme"].includes(b.kind)?"1 minute":"5 minutes"} de moins" ${b.dur<=(["accueil","calme"].includes(b.kind)?1:5)?"disabled":""}>−</button><span class="d num">${b.dur}'</span><button data-dp="${i}" aria-label="${["accueil","calme"].includes(b.kind)?"1 minute":"5 minutes"} de plus">+</button></span><span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${b.auteur==="autre"?`<span class="fam" title="${esc(b.src||"")}">◎ ${esc(b.orig||"Autre académie")}</span>`:""}${gkPlay(b)?`<span class="fam" title="Le gardien joue son rôle">🧤</span>`:""}${grp[i]>=0?`<span class="kind" style="background:var(--yellow);color:#3B2E00">⟳ ${grp.slice(0,i+1).filter(x=>x===grp[i]).length}/${rotSize(grp,grp[i])}</span>`:""}</div>
+      ${!ro&&["atelier","defi","eveil","match"].includes(b.kind)?`<button class="reroll" data-roll="${i}" title="Une autre proposition" aria-label="Une autre proposition pour « ${esc(b.name)} »">↻</button>`:""}
+      ${ro?"":`<button class="edblk" data-edb="${i}" title="Modifier ce bloc" aria-label="Modifier « ${esc(b.name)} »">✎</button>`}
+      ${!ro&&["atelier","defi","match","eveil"].includes(b.kind)?`<button class="rmblk" data-rmb="${i}" title="Retirer de la séance" aria-label="Retirer « ${esc(b.name)} » de la séance">✕</button>`:""}
+      <div><div class="top">${ro?`<span class="dstep ro"><span class="d num">${b.dur}'</span></span>`:`<span class="dstep"><button data-dm="${i}" aria-label="${["accueil","calme"].includes(b.kind)?"1 minute":"5 minutes"} de moins" ${b.dur<=(["accueil","calme"].includes(b.kind)?1:5)?"disabled":""}>−</button><span class="d num">${b.dur}'</span><button data-dp="${i}" aria-label="${["accueil","calme"].includes(b.kind)?"1 minute":"5 minutes"} de plus">+</button></span>`}<span class="kind k-${b.kind}">${KIND_LABEL[b.kind]}</span>${b.auteur==="autre"?`<span class="fam" title="${esc(b.src||"")}">◎ ${esc(b.orig||"Autre académie")}</span>`:""}${gkPlay(b)?`<span class="fam" title="Le gardien joue son rôle">🧤</span>`:""}${grp[i]>=0?`<span class="kind" style="background:var(--yellow);color:#3B2E00">⟳ ${grp.slice(0,i+1).filter(x=>x===grp[i]).length}/${rotSize(grp,grp[i])}</span>`:""}</div>
         <h3>${esc(b.name)}</h3>
         ${phOf(b).length?`<div class="phs" style="margin:2px 0 6px">${phBadges(b)}</div>`:""}
         <p class="desc">${esc(b.desc||"")}</p>
@@ -1042,10 +1044,10 @@ function viewSheet(){
       <div class="meta"><span class="pill">${s.cats.join(" · ")}</span><span class="pill num">${tot} min</span><span class="pill num">${s.eff} enfants${s.gk?` · ${s.gk} gardien${s.gk>1?"s":""} 🧤`:""}</span>${!isMine(s)?`<span class="pill by">✎ ${esc(s.by)}</span>`:s.from?`<span class="pill by">reprise de ${esc(s.from)}</span>`:""}</div>
     </div>
     <div class="blocks">
-      ${draftBar}<div style="padding:12px 16px 0"><div class="tl">${tl}</div>
-        ${!EDIT?`<div class="tbar${s.dur&&tot!==s.dur?" off":""}" style="margin-top:10px"><span><b class="num">${tot} min</b>${s.dur&&tot!==s.dur?` — ${Math.abs(tot-s.dur)} de ${tot>s.dur?"plus":"moins"} que les ${s.dur} prévues`:""}</span><button class="btn sm" id="reb">Répartir le temps</button></div>`:""}</div>
+      ${draftBar}${ro?`<div class="robar">👀 Séance de <b>${esc(s.by)}</b> : tu peux la consulter, la partager ou l'imprimer, pas la modifier. « ⧉ Reprendre » t'en fait une copie à ton nom, que tu adaptes comme tu veux.</div>`:""}<div style="padding:12px 16px 0"><div class="tl">${tl}</div>
+        ${!EDIT?`<div class="tbar${s.dur&&tot!==s.dur?" off":""}" style="margin-top:10px"><span><b class="num">${tot} min</b>${s.dur&&tot!==s.dur?` — ${Math.abs(tot-s.dur)} de ${tot>s.dur?"plus":"moins"} que les ${s.dur} prévues`:""}</span>${ro?"":`<button class="btn sm" id="reb">Répartir le temps</button>`}</div>`:""}</div>
       ${body}
-      ${!EDIT?`<button class="addblk" id="addb">+ Ajouter un atelier ou un jeu</button>`:""}
+      ${!EDIT&&!ro?`<button class="addblk" id="addb">+ Ajouter un atelier ou un jeu</button>`:""}
       ${!EDIT&&mat.length?`<div class="mat"><span class="eyebrow" style="align-self:center;margin-right:4px">Matériel</span>${mat.map(m=>`<span>${esc(m)}</span>`).join("")}</div>`:""}
       ${!EDIT?`<div class="legend">${LEGEND.replace(/<\/?div[^>]*>/g,"")}</div>`:""}
     </div>
@@ -1055,7 +1057,7 @@ function viewSheet(){
       <button class="btn icon" id="del" title="${isMine(SES)?"Supprimer cette séance":"Retirer de ma liste"}" aria-label="${isMine(SES)?"Supprimer cette séance":"Retirer de ma liste"}">🗑</button>
     </div></div>`
    :`<div class="actionbar"><div class="in">
-      <button class="btn icon" id="again" title="Une autre proposition" aria-label="Une autre proposition">↻</button>
+      ${ro?"":`<button class="btn icon" id="again" title="Une autre proposition" aria-label="Une autre proposition">↻</button>`}
       <button class="btn" id="edit">${isMine(s)?"✏️ Modifier":"⧉ Reprendre"}</button>
       ${s.draft?`<button class="btn primary" id="validate">✓ Valider le brouillon</button>`:`<button class="btn wa" id="wa">${waIcon()} Partager</button>`}
       <button class="btn icon" id="pdf" title="Fiche PDF" aria-label="Fiche PDF">📄</button>
@@ -1185,8 +1187,8 @@ function bindSheet(){
     const k=SES.blocks.findIndex(x=>["match","calme"].includes(gameOf(x.g).kind));
     openPicker("insert",k<0?SES.blocks.length:k)});
   const rb2=document.getElementById("reb");if(rb2)rb2.addEventListener("click",()=>{ensureMine();rebalance()});
-  document.getElementById("edit").addEventListener("click",()=>{ensureMine();EDIT=true;persist();render()});
-  document.getElementById("again").addEventListener("click",()=>{ensureMine();
+  document.getElementById("edit").addEventListener("click",()=>{if(ensureMine()){EDIT=false;render();window.scrollTo({top:0,behavior:"smooth"});return}EDIT=true;persist();render()});
+  const agn=document.getElementById("again");if(agn)agn.addEventListener("click",()=>{ensureMine();
     AVOID=AVOID.concat(SES.blocks.map(b=>b.g));if(AVOID.length>60)AVOID=AVOID.slice(-40);
     const b={cats:SES.cats,date:SES.date,eff:SES.eff,gk:SES.gk||0,dur:SES.dur,fins:SES.fins,fam:SES.fam||null,n:Math.max(1,SES.blocks.filter(x=>["atelier","defi"].includes(gameOf(x.g).kind)).length),
       match:!!SES.gLibre,theme:!!SES.gTheme,rot:SES.rot};
