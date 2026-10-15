@@ -289,7 +289,7 @@ const PERIODS=[
   {n:4,name:"Retour sur les terrains",from:"2027-03-01",to:"2027-04-10",pef:"TOLÉRANCE"},
   {n:5,name:"Derniers crochets avant l'été",from:"2027-04-26",to:"2027-06-19",pef:"SOLIDARITÉ"}
 ];
-const CATS=["U7","U8","U9","U10","U11","U12","U13","U14","U15","U16","U17","U18"];
+const CATS=["U7","U8","U9","U10","U11","U12","U13","U14","U15"];
 const GROUP_OF={U7:"u7",U8:"u89",U9:"u89",U10:"u1011",U11:"u1011",U12:"u1213",U13:"u1213",U14:"u1415",U15:"u1415",U16:"u1618",U17:"u1618",U18:"u1618"};
 /* Étoiles : 1 = découvre / 2 = réussit souvent / 3 = réussit vite et en match */
 const GROUPS={
@@ -328,7 +328,7 @@ const CARNET_ITEMS={"u7": [["Conduire son ballon et le ramener dans sa maison (l
 </script>
 <script>
 /* ===== Progression RTJ — référentiel enrichi par le responsable technique jeunes =====
-   Grille d'évaluation technique individuelle U7 → U11 (foot animation) : 5 domaines × 3 observations,
+   Grille d'évaluation technique individuelle U7 → U11 (foot animation), puis grille préformation U12 → U15 (RTJ_PRE_DOMAINS) : 5 domaines × 3 observations,
    barème à 4 étoiles, un commentaire de l'éducateur par ligne. Au-delà des U11 : les compétences du guide FFF
    du groupe, sur le même barème. Les repères mesurés (jonglerie, vitesse…) sont ceux de l'outil actuel. */
 const SEASONS=["2026-2027"];const SEASON=SEASONS[SEASONS.length-1];
@@ -359,6 +359,28 @@ const RTJ_DOMAINS=[
     {id:"c1",short:"Règles et consignes",name:"Respect des règles du jeu et des consignes de l'éducateur"},
     {id:"c2",short:"Plaisir, autonomie",name:"Plaisir de jouer et autonomie (accepte de jouer sans ses parents)"},
     {id:"c3",short:"Fair-play, entraide",name:"Respect des partenaires et adversaires (fair-play, entraide)"}]}];
+
+/* Grille du RTJ pour la préformation (U12 → U15) : 4 domaines, 14 critères, même barème à 4 niveaux */
+const RTJ_PRE_CATS=["U12","U13","U14","U15"];
+const RTJ_PRE_DOMAINS=[
+  {id:"mbs",name:"Maîtrise de balle & sens décisionnel",lines:[
+    {id:"pm1",short:"Premier contrôle",name:"Qualité du premier contrôle (pied arrière, orienté dans le sens du jeu)"},
+    {id:"pm2",short:"Les deux pieds",name:"Utilisation des deux pieds (pied faible fonctionnel pour contrôler et passer)"},
+    {id:"pm3",short:"Conduite tête levée",name:"Conduite de balle tête levée (prise d'information permanente sur l'espace)"},
+    {id:"pm4",short:"Éliminer en 1 contre 1",name:"Capacité à éliminer en 1 contre 1 (feintes, changements de rythme et d'appuis)"}]},
+  {id:"jpt",name:"Jeu de passes & transition",lines:[
+    {id:"pp1",short:"Passes courtes",name:"Précision et dosage des passes courtes (au sol, dans la course du partenaire)"},
+    {id:"pp2",short:"Jeu long",name:"Maîtrise du jeu long (passes claquées, transversales, passes sautant une ligne)"},
+    {id:"pp3",short:"Vitesse d'exécution",name:"Vitesse d'exécution (enchaînement contrôle-passe fluide, réduction des touches)"},
+    {id:"pp4",short:"Information avant de recevoir",name:"Prise d'information avant de recevoir le ballon (savoir où jouer avant le contrôle)"}]},
+  {id:"fja",name:"Finition & jeu aérien",lines:[
+    {id:"pf1",short:"Efficacité devant le but",name:"Efficacité devant le but (frappes cadrées des deux pieds, précision des zones visées)"},
+    {id:"pf2",short:"Frappes variées",name:"Technique de frappe variée (cou-de-pied, enroulé, volée, demi-volée)"},
+    {id:"pf3",short:"Jeu de tête",name:"Jeu de tête (timing, orientation offensive ou dégagement défensif)"}]},
+  {id:"tdd",name:"Technique défensive & duels",lines:[
+    {id:"pd1",short:"Posture de cadrage",name:"Posture de cadrage (appuis fléchis, recul-frein, orientation du corps)"},
+    {id:"pd2",short:"Efficacité dans le duel",name:"Efficacité dans le duel (timing d'intervention, tacle debout, interception)"},
+    {id:"pd3",short:"Protection de balle",name:"Protection de balle (utilisation du corps pour faire écran face à l'adversaire)"}]}];
 /* Les deux rencontres familiales de la saison */
 /* les mêmes niveaux, dits pour l'enfant dans son carnet */
 const KID_STARS=["Je découvre","Je progresse","Je sais faire","Je maîtrise"];
@@ -376,135 +398,152 @@ const BILAN_ASPECTS=[{id:"tt",name:"Technico-tactique"},{id:"at",name:"Athlétiq
 </script>
 <script>
 /* =====================================================================
-   RÉFÉRENTIEL V2 — croisement de la grille du RTJ et des guides FFF
-   Les grandes familles changent avec l'âge (celles du guide FFF de la
-   catégorie), le détail reste ligne par ligne avec un commentaire.
-   Moins de lignes chez les petits, plus à partir des U10 — avec la
-   prise d'information en tête. Repères mesurés seulement quand ils ont
-   du sens pour l'âge.
+   RÉFÉRENTIEL V5 (15/10) — choix du RTJ : on repart de la V2 (première proposition,
+   « voir le jeu » mis en valeur au bon niveau). U7 à U11 : familles adaptées aux
+   enfants (V2 telle quelle). U12 à U15 : les grandes familles FFF (Tactique,
+   Technique, Psychologique / Mental, Athlétique / Physique), le contenu de la V2
+   reclassé dedans ; la technique est en deux blocs : « voir le jeu » et « gestes ».
    ===================================================================== */
 const V2_DOMAINS={
-  /* U7 — 5-6 ans : 9 observations, on observe en jouant, rien à chiffrer */
   u7:[
     {id:"mot",name:"Bouger avec aisance",lines:[
-      {id:"u7m1",short:"Courir, sauter, tourner",name:"Court, saute, change de direction sans tomber"},
-      {id:"u7m2",short:"Coordination",name:"Coordonne ses gestes : lancer, attraper, sauter à cloche-pied"}]},
+      {id:"w7m1",src:"RF",short:"Courir, sauter, tourner",name:"Court, saute, change de direction sans tomber"},
+      {id:"w7m2",src:"RF",short:"Coordination",name:"Coordonne ses gestes : lancer, attraper, sauter à cloche-pied"}]},
     {id:"cib",name:"Aller vers le but",lines:[
-      {id:"u7c1",short:"Sait où attaquer",name:"Sait vers quel but attaquer et y va avec le ballon"},
-      {id:"u7c2",short:"Tire pour marquer",name:"Tire pour marquer dès qu'il le peut"}]},
+      {id:"w7c1",src:"F",short:"Sait où attaquer",name:"Sait vers quel but attaquer et y va avec le ballon"},
+      {id:"w7c2",src:"RF",short:"Tire pour marquer",name:"Tire pour marquer dès qu'il le peut"}]},
     {id:"adv",name:"Face à l'adversaire",lines:[
-      {id:"u7a1",short:"Garde son ballon",name:"Garde le ballon près de lui et change de direction pour éviter l'adversaire"},
-      {id:"u7a2",short:"Va chercher le ballon",name:"Essaie de reprendre le ballon quand il ne l'a pas"}]},
+      {id:"w7a1",src:"RF",short:"Garde son ballon",name:"Garde le ballon près de lui et change de direction pour éviter l'adversaire"},
+      {id:"w7a2",src:"RF",short:"Va chercher le ballon",name:"Essaie de reprendre le ballon quand il ne l'a pas"}]},
     {id:"par",name:"Avec les copains",lines:[
-      {id:"u7p1",short:"Passe à un copain",name:"Joue avec un copain : passe au sol, reçoit le ballon"}]},
+      {id:"w7p1",src:"RF",short:"Passe à un copain",name:"Joue avec un copain : passe au sol, reçoit le ballon"}]},
     {id:"pla",name:"Plaisir et attitude",lines:[
-      {id:"u7e1",short:"Plaisir, autonomie",name:"Prend plaisir, reste dans le jeu, accepte de jouer sans ses parents"},
-      {id:"u7e2",short:"Écoute et respect",name:"Écoute la consigne et respecte les autres"}]}],
-  /* U8-U9 — 7-8 ans : 13 observations, la prise d'information apparaît */
+      {id:"w7e1",src:"R",short:"Plaisir, autonomie",name:"Prend plaisir, reste dans le jeu, accepte de jouer sans ses parents"},
+      {id:"w7e2",src:"R",short:"Écoute et respect",name:"Écoute la consigne et respecte les autres"}]}],
   u89:[
-    {id:"inf",name:"Voir le jeu",lines:[
-      {id:"u8i1",short:"Lève la tête",name:"Lève la tête pour voir un copain libre ou le but"},
-      {id:"u8i2",short:"Occupe l'espace",name:"S'écarte pour agrandir l'espace, évite de se regrouper autour du ballon"},
-      {id:"u8i3",short:"Se replace",name:"À la perte, se replace entre le ballon et son but"}]},
+    {id:"vdj",name:"Voir le jeu",lines:[
+      {id:"w8v1",src:"F",vj:1,short:"Lève la tête",name:"Lève la tête pour voir ses partenaires et le but avant d'agir"},
+      {id:"w8v2",src:"RF",vj:1,short:"Occupe l'espace",name:"S'écarte et occupe l'espace au lieu de suivre le ballon"},
+      {id:"w8v3",src:"F",vj:1,short:"Se replace",name:"Se replace entre le ballon et son but quand l'équipe perd le ballon"}]},
     {id:"tec",name:"Technique",lines:[
-      {id:"u8t1",short:"Conduite deux pieds",name:"Conduit le ballon des deux pieds en changeant de rythme"},
-      {id:"u8t2",short:"Contrôle-enchaînement",name:"Contrôle le ballon et enchaîne sans le laisser s'arrêter"},
-      {id:"u8t3",short:"Passe intérieur",name:"Passe avec l'intérieur du pied vers un partenaire proche"},
-      {id:"u8t4",short:"Frappe pour marquer",name:"Frappe vers le but avec puissance et direction"}]},
+      {id:"w8t1",src:"RF",short:"Conduite deux pieds",name:"Conduit le ballon des deux pieds, près du pied"},
+      {id:"w8t2",src:"RF",short:"Contrôle-enchaînement",name:"Contrôle le ballon et enchaîne vite"},
+      {id:"w8t3",src:"RF",short:"Passe intérieur",name:"Passe de l'intérieur du pied vers un partenaire"},
+      {id:"w8t4",src:"RF",short:"Frappe pour marquer",name:"Frappe de l'intérieur du pied pour marquer"}]},
     {id:"due",name:"Duels",lines:[
-      {id:"u8d1",short:"Ose le 1 contre 1",name:"Ose le 1 contre 1 : feinte, accélère pour éliminer"},
-      {id:"u8d2",short:"Récupère le ballon",name:"S'engage pour récupérer le ballon"}]},
+      {id:"w8d1",src:"R",short:"Ose le 1 contre 1",name:"Ose défier l'adversaire en 1 contre 1 pour l'éliminer"},
+      {id:"w8d2",src:"RF",short:"Récupère le ballon",name:"Va récupérer le ballon quand il ne l'a pas"}]},
     {id:"mot",name:"Motricité",lines:[
-      {id:"u8m1",short:"Coordination, rythmes",name:"Coordination et rythmes sur les parcours"},
-      {id:"u8m2",short:"Vitesse de réaction",name:"Réagit vite au signal ou à la perte du ballon"}]},
-    {id:"cpt",name:"Comportement",lines:[
-      {id:"u8c1",short:"Concentré, persévérant",name:"Reste concentré et persévère quand c'est difficile"},
-      {id:"u8c2",short:"Respect, fair-play",name:"Respecte partenaires, adversaires et consignes"}]}],
-  /* U10-U11 — 9-10 ans, l'âge d'or : 19 observations, la prise d'information en tête */
+      {id:"w8m1",src:"RF",short:"Coordination, rythmes",name:"Coordination, équilibre et sens du rythme"},
+      {id:"w8m2",src:"F",short:"Vitesse de réaction",name:"Réagit vite à un signal ou à une perte de balle"}]},
+    {id:"com",name:"Comportement",lines:[
+      {id:"w8e1",src:"F",short:"Concentré, persévérant",name:"Reste concentré et persévère quand c'est difficile"},
+      {id:"w8e2",src:"RF",short:"Respect, fair-play",name:"Respecte les consignes, ses partenaires et ses adversaires"}]}],
   u1011:[
     {id:"inf",name:"Prise d'information",lines:[
-      {id:"u10i1",short:"Regarde avant de recevoir",name:"Regarde autour de lui avant de recevoir le ballon (épaule, tête haute)"},
-      {id:"u10i2",short:"Contrôle orienté",name:"Oriente son contrôle vers l'espace libre qu'il a vu"},
-      {id:"u10i3",short:"Choisit la solution",name:"Choisit la bonne solution selon ce qu'il voit : passe, conduite ou tir"},
-      {id:"u10i4",short:"Voit entre les lignes",name:"Voit et trouve le partenaire placé entre les lignes"}]},
+      {id:"u10i1",src:"F",vj:1,short:"Regarde avant de recevoir",name:"Regarde autour de lui avant de recevoir le ballon (épaule, tête haute)"},
+      {id:"u10i2",src:"RF",vj:1,short:"Contrôle orienté",name:"Oriente son contrôle vers l'espace libre qu'il a vu"},
+      {id:"u10i3",src:"F",vj:1,short:"Choisit la solution",name:"Choisit la bonne solution selon ce qu'il voit : passe, conduite ou tir"},
+      {id:"u10i4",src:"F",vj:1,short:"Voit entre les lignes",name:"Voit et trouve le partenaire placé entre les lignes"}]},
     {id:"tec",name:"Technique",lines:[
-      {id:"u10t1",short:"Contrôle deux pieds",name:"Contrôle et enchaîne vite, des deux pieds"},
-      {id:"u10t2",short:"Passe deux pieds",name:"Passe précise de l'intérieur des deux pieds"},
-      {id:"u10t3",short:"Conduite tête haute",name:"Conduit sans regarder le ballon, en changeant de rythme"},
-      {id:"u10t4",short:"Protège son ballon",name:"Conserve le ballon en se servant de son corps"},
-      {id:"u10t5",short:"Conduite-feinte-dribble",name:"Enchaîne conduite, feinte et dribble pour éliminer"},
-      {id:"u10t6",short:"Finition 1 contre 1",name:"Marque en 1 contre 1 face au gardien"}]},
-    {id:"tac",name:"Jeu collectif",lines:[
-      {id:"u10c1",short:"Se démarque",name:"Se démarque pour agrandir l'espace et offrir une solution"},
-      {id:"u10c2",short:"Joue vers l'avant",name:"Cherche à jouer vers l'avant dès que c'est possible"},
-      {id:"u10c3",short:"Réagit à la perte",name:"Réagit tout de suite à la perte du ballon"},
-      {id:"u10c4",short:"Se replace en bloc",name:"Se replace avec ses partenaires pour reformer le bloc"}]},
+      {id:"u10t1",src:"F",short:"Contrôle deux pieds",name:"Contrôle et enchaîne vite, des deux pieds"},
+      {id:"u10t2",src:"RF",short:"Passe deux pieds",name:"Passe précise de l'intérieur des deux pieds"},
+      {id:"u10t3",src:"RF",short:"Conduite tête haute",name:"Conduit sans regarder le ballon, en changeant de rythme"},
+      {id:"u10t4",src:"F",short:"Protège son ballon",name:"Conserve le ballon en se servant de son corps"},
+      {id:"u10t5",src:"RF",short:"Conduite-feinte-dribble",name:"Enchaîne conduite, feinte et dribble pour éliminer"},
+      {id:"u10t6",src:"F",short:"Finition 1 contre 1",name:"Marque en 1 contre 1 face au gardien"}]},
+    {id:"col",name:"Jeu collectif",lines:[
+      {id:"u10c1",src:"RF",short:"Se démarque",name:"Se démarque pour agrandir l'espace et offrir une solution"},
+      {id:"u10c2",src:"F",short:"Joue vers l'avant",name:"Cherche à jouer vers l'avant dès que c'est possible"},
+      {id:"u10c3",src:"F",short:"Réagit à la perte",name:"Réagit tout de suite à la perte du ballon"},
+      {id:"u10c4",src:"F",short:"Se replace en bloc",name:"Se replace avec ses partenaires pour reformer le bloc"},
+      {id:"u10c5",src:"F",short:"Sécurise la possession",name:"Garde le ballon pour l'équipe quand le jeu vers l'avant est fermé"}]},
     {id:"men",name:"Mental",lines:[
-      {id:"u10e1",short:"Engagement",name:"S'engage pleinement à l'entraînement comme en match"},
-      {id:"u10e2",short:"Concentration",name:"Reste concentré sur la consigne et le jeu"},
-      {id:"u10e3",short:"Confiance, persévérance",name:"Garde confiance et persévère après une erreur"}]},
+      {id:"u10e1",src:"F",short:"Engagement",name:"S'engage totalement dans les duels et dans le jeu"},
+      {id:"u10e2",src:"F",short:"Concentration",name:"Reste concentré sur toute la séance"},
+      {id:"u10e3",src:"F",short:"Confiance, persévérance",name:"Joue avec confiance et persévère après une erreur"}]},
     {id:"ath",name:"Athlétique",lines:[
-      {id:"u10a1",short:"Vitesse d'exécution",name:"Exécute vite : contrôle, passe, frappe sans temps mort"},
-      {id:"u10a2",short:"Coordination, appuis",name:"Appuis et coordination dans les changements de direction"}]}],
-  /* U12-U13 */
+      {id:"u10a1",src:"F",short:"Vitesse d'exécution",name:"Vitesse d'exécution : agit vite avec le ballon"},
+      {id:"u10a2",src:"RF",short:"Coordination, appuis",name:"Coordination, équilibre et appuis dans les changements de direction"}]}],
   u1213:[
-    {id:"inf",name:"Prise d'information",lines:[
-      {id:"u12i1",short:"Scanne avant de recevoir",name:"Prend l'information avant de recevoir (partenaires, adversaires, espaces)"},
-      {id:"u12i2",short:"Joue en une ou deux touches",name:"Joue en une ou deux touches quand la situation le demande"},
-      {id:"u12i3",short:"Fixe pour jouer ailleurs",name:"Fixe dans une zone pour jouer dans une autre"}]},
-    {id:"tec",name:"Technique",lines:[
-      {id:"u12t1",short:"Contrôle sol et aérien",name:"Contrôle au sol et aérien des deux pieds et enchaîne vite"},
-      {id:"u12t2",short:"Frappe cou-de-pied",name:"Frappe du cou-de-pied des deux pieds"},
-      {id:"u12t3",short:"Jeu long",name:"Jeu long précis, des deux pieds"},
-      {id:"u12t4",short:"Jeu de tête",name:"Jeu de tête offensif et défensif"}]},
     {id:"tac",name:"Tactique",lines:[
-      {id:"u12c1",short:"Change de rythme",name:"Change de rythme pour déséquilibrer"},
-      {id:"u12c2",short:"Réagit à la perte",name:"Réagit à la perte et récupère en bloc"},
-      {id:"u12c3",short:"Protège son but",name:"Protège son but en infériorité numérique"}]},
-    {id:"men",name:"Mental",lines:[
-      {id:"u12e1",short:"Gestion des émotions",name:"Gère ses émotions en match"},
-      {id:"u12e2",short:"Exigence",name:"Exigeant avec lui-même dans la répétition"}]},
+      {id:"w12c1",src:"F",short:"Fixe pour jouer ailleurs",name:"Fixe l'adversaire dans une zone pour jouer dans une autre"},
+      {id:"w12c2",src:"F",short:"Change de rythme",name:"Change le rythme du jeu au bon moment"},
+      {id:"w12c3",src:"F",short:"Réagit à la perte",name:"Réagit tout de suite à la perte et récupère en bloc"},
+      {id:"w12c4",src:"F",short:"Protège son but",name:"Se replace pour protéger son but quand l'équipe est en déséquilibre"}]},
+    {id:"tvj",name:"Technique · voir le jeu",lines:[
+      {id:"w12v1",src:"RF",vj:1,short:"Scanne avant de recevoir",name:"Prend l'information avant de recevoir : sait où jouer avant le contrôle"},
+      {id:"w12v2",src:"F",vj:1,short:"Joue en une ou deux touches",name:"Joue en une ou deux touches parce qu'il a déjà vu la solution"}]},
+    {id:"tec",name:"Technique · gestes",lines:[
+      {id:"w12t1",src:"RF",short:"Premier contrôle",name:"Premier contrôle orienté, au sol ou aérien, des deux pieds, et enchaîne vite"},
+      {id:"w12t5",src:"RF",short:"Passes courtes, remises",name:"Passes courtes précises et dosées, dans la course ; remises et déviations"},
+      {id:"w12t3",src:"R",short:"Jeu long",name:"Jeu long : passes claquées, transversales, passes qui sautent une ligne"},
+      {id:"w12t6",src:"RF",short:"Conduite tête levée",name:"Conduit le ballon tête levée, en regardant autour de lui"},
+      {id:"w12t7",src:"R",short:"Éliminer en 1 contre 1",name:"Élimine en 1 contre 1 : feintes, changements de rythme et d'appuis"},
+      {id:"w12t2",src:"RF",short:"Finition",name:"Finition : frappes cadrées et variées des deux pieds (cou-de-pied, enroulé, volée)"},
+      {id:"w12t4",src:"R",short:"Jeu de tête",name:"Jeu de tête offensif et défensif"},
+      {id:"w12t8",src:"R",short:"Défendre, gagner ses duels",name:"Défend : posture de cadrage, timing d'intervention, interception"},
+      {id:"w12t9",src:"RF",short:"Protection de balle",name:"Protège son ballon en se servant du corps"}]},
+    {id:"psy",name:"Psychologique",lines:[
+      {id:"w12e1",src:"F",short:"Gestion des émotions",name:"Gère ses émotions, garde son calme après une erreur ou une décision"},
+      {id:"w12e2",src:"F",short:"Exigence",name:"Exigeant avec lui-même à chaque séance"},
+      {id:"w12e3",src:"F",short:"État d'esprit, engagement",name:"État d'esprit, concentration et engagement à chaque séance"},
+      {id:"w12e4",src:"F",short:"Capitaine, leadership",name:"Capacité à être capitaine : entraîne et aide ses partenaires"}]},
     {id:"ath",name:"Athlétique",lines:[
-      {id:"u12a1",short:"Vitesse",name:"Vitesse d'exécution et de déplacement"},
-      {id:"u12a2",short:"Gainage, souplesse",name:"Gainage et souplesse (prévention pendant la croissance)"}]}],
-  /* U14-U15 */
+      {id:"w12a1",src:"F",short:"Vitesse",name:"Vitesse et vitesse d'exécution"},
+      {id:"w12a2",src:"F",short:"Gainage, souplesse",name:"Gainage et souplesse"}]}],
   u1415:[
-    {id:"inf",name:"Prise d'information",lines:[
-      {id:"u14i1",short:"Scanne en continu",name:"Prend l'information en continu, avant et pendant l'action"},
-      {id:"u14i2",short:"Anticipe",name:"Anticipe la suite du jeu (deuxième ballon, couverture)"}]},
-    {id:"tec",name:"Technique sous pression",lines:[
-      {id:"u14t1",short:"Contrôle-enchaînement",name:"Contrôle-enchaînement en vitesse sous pression"},
-      {id:"u14t2",short:"Jeu long deux pieds",name:"Jeu long des deux pieds"},
-      {id:"u14t3",short:"Finition",name:"Finition : frappes, centres, jeu de tête"}]},
-    {id:"tac",name:"Tactique à 11",lines:[
-      {id:"u14c1",short:"Jeu de position",name:"Tient son poste dans le jeu de position par ligne"},
-      {id:"u14c2",short:"Transitions",name:"Transitions : réaction à la perte, contre-attaque"},
-      {id:"u14c3",short:"Bloc défensif",name:"Pressing et couverture dans le bloc"}]},
+    {id:"tac",name:"Tactique",lines:[
+      {id:"w14c1",src:"F",short:"Jeu de position",name:"Tient sa place dans le jeu de position à 11"},
+      {id:"w14c2",src:"F",short:"Transitions",name:"Réagit vite dans les transitions offensives et défensives"},
+      {id:"w14c3",src:"F",short:"Bloc défensif",name:"Défend en bloc avec ses partenaires"}]},
+    {id:"tvj",name:"Technique · voir le jeu",lines:[
+      {id:"w14v1",src:"RF",vj:1,short:"Scanne en continu",name:"Prend l'information en permanence, avant et pendant l'action"},
+      {id:"w14v2",src:"F",vj:1,short:"Anticipe",name:"Anticipe le jeu : voit la solution avant ses adversaires"}]},
+    {id:"tec",name:"Technique · gestes sous pression",lines:[
+      {id:"w14t1",src:"RF",short:"Contrôle-enchaînement",name:"Premier contrôle orienté et enchaînement sous pression, à vitesse de match"},
+      {id:"w14t4",src:"R",short:"Passes courtes",name:"Passes courtes précises et dosées, dans la course du partenaire"},
+      {id:"w14t2",src:"RF",short:"Jeu long deux pieds",name:"Jeu long précis des deux pieds"},
+      {id:"w14t5",src:"R",short:"Conduite tête levée",name:"Conduit le ballon tête levée"},
+      {id:"w14t6",src:"RF",short:"Éliminer en 1 contre 1",name:"Élimine en 1 contre 1 à vitesse de match"},
+      {id:"w14t3",src:"RF",short:"Finition",name:"Finition : frappes cadrées et variées des deux pieds"},
+      {id:"w14t7",src:"RF",short:"Jeu de tête",name:"Jeu de tête offensif et défensif"},
+      {id:"w14t8",src:"RF",short:"Défendre, gagner ses duels",name:"Défend : cadrage, timing d'intervention, duels gagnés"},
+      {id:"w14t9",src:"R",short:"Protection de balle",name:"Protège son ballon en se servant du corps"}]},
     {id:"men",name:"Mental",lines:[
-      {id:"u14e1",short:"Communication, leadership",name:"Communique et entraîne les autres"},
-      {id:"u14e2",short:"Concentration 90 min",name:"Reste concentré tout le match"}]},
-    {id:"ath",name:"Athlétique",lines:[
-      {id:"u14a1",short:"Vitesse, puissance",name:"Vitesse et puissance"},
-      {id:"u14a2",short:"Endurance",name:"Endurance et récupération"}]}],
-  /* U16-U18 */
+      {id:"w14e1",src:"F",short:"Communication, leadership",name:"Communique et entraîne ses partenaires (leadership)"},
+      {id:"w14e2",src:"F",short:"Concentration 90 min",name:"Reste concentré sur tout le match"},
+      {id:"w14e3",src:"F",short:"Gestion des émotions",name:"Gère ses émotions dans les moments difficiles du match"},
+      {id:"w14e4",src:"F",short:"Arbitre, projet collectif",name:"Respecte l'arbitre et adhère au projet collectif"}]},
+    {id:"ath",name:"Physique",lines:[
+      {id:"w14a1",src:"F",short:"Vitesse, puissance",name:"Vitesse et puissance"},
+      {id:"w14a2",src:"F",short:"Endurance",name:"Endurance"}]}],
   u1618:[
     {id:"inf",name:"Prise d'information",lines:[
-      {id:"u16i1",short:"Lecture du jeu",name:"Lit le jeu et prend les bonnes décisions à haute intensité"},
-      {id:"u16i2",short:"Anticipation",name:"Anticipe les intentions adverses"}]},
+      {id:"u16i1",src:"F",short:"Lecture du jeu",name:"Lit le jeu et prend les bonnes décisions à haute intensité"},
+      {id:"u16i2",src:"F",short:"Anticipation",name:"Anticipe les intentions adverses"}]},
     {id:"tec",name:"Technique",lines:[
-      {id:"u16t1",short:"Maîtrise sous pression",name:"Maîtrise technique sous pression et à haute intensité"},
-      {id:"u16t2",short:"Spécificités du poste",name:"Gestes spécifiques à son poste"}]},
+      {id:"u16t1",src:"F",short:"Maîtrise sous pression",name:"Maîtrise technique sous pression et à haute intensité"},
+      {id:"u16t3",src:"F",short:"Jeu long",name:"Jeu long des deux pieds"},
+      {id:"u16t4",src:"F",short:"Jeu de tête",name:"Jeu de tête offensif et défensif"},
+      {id:"u16t5",src:"F",short:"Finition",name:"Finition"},
+      {id:"u16t2",src:"F",short:"Spécificités du poste",name:"Gestes spécifiques à son poste"}]},
     {id:"tac",name:"Tactique",lines:[
-      {id:"u16c1",short:"Système de jeu",name:"Respecte les principes du système de jeu"},
-      {id:"u16c2",short:"Coups de pied arrêtés",name:"Tient son rôle sur les coups de pied arrêtés"},
-      {id:"u16c3",short:"Transitions",name:"Transitions défense-attaque et attaque-défense"}]},
+      {id:"u16c1",src:"F",short:"Système de jeu",name:"Comprend et respecte les principes du système de jeu"},
+      {id:"u16c4",src:"F",short:"Animation par lignes",name:"Animation offensive et défensive par lignes"},
+      {id:"u16c3",src:"F",short:"Transitions",name:"Transitions défense-attaque et attaque-défense"},
+      {id:"u16c2",src:"F",short:"Coups de pied arrêtés",name:"Tient son rôle sur les coups de pied arrêtés"}]},
     {id:"men",name:"Mental",lines:[
-      {id:"u16e1",short:"Leadership, résilience",name:"Leadership et résilience"},
-      {id:"u16e2",short:"Hygiène de vie",name:"Hygiène de vie : sommeil, alimentation, récupération"}]},
-    {id:"ath",name:"Athlétique",lines:[
-      {id:"u16a1",short:"Puissance, vitesse",name:"Puissance et vitesse (10 m, 30 m, détente)"},
-      {id:"u16a2",short:"VMA, endurance",name:"VMA et endurance"}]}]};
-/* Repères mesurés en V2 : aucun en U7 et U8, la jonglerie à partir des U9, les tests du guide ensuite */
+      {id:"u16e3",src:"F",short:"Exigence",name:"Exigence avec lui-même"},
+      {id:"u16e1",src:"F",short:"Résilience",name:"Résilience face à l'échec et à la difficulté"},
+      {id:"u16e4",src:"F",short:"Leadership",name:"Leadership"},
+      {id:"u16e5",src:"F",short:"Communication",name:"Communication sur le terrain et avec le staff"},
+      {id:"u16e2",src:"F",short:"Hygiène de vie",name:"Hygiène de vie : sommeil, alimentation, récupération"}]},
+    {id:"ath",name:"Physique",lines:[
+      {id:"u16a1",src:"F",short:"Vitesse, puissance",name:"Vitesse et puissance (10 m, 30 m, détente)"},
+      {id:"u16a2",src:"F",short:"Endurance",name:"Endurance (VMA)"},
+      {id:"u16a3",src:"F",short:"Prévention, récupération",name:"Prévention des blessures et récupération"}]}]};
+/* Repères mesurés en V2 : ceux du guide FFF dès les U8 (jonglerie) ; aucun en U7, comme le guide */
 const V2_NO_TESTS=["U7","U8"];
 </script>
 <script>
@@ -660,7 +699,7 @@ let per=get("per",(PERIODS.find(p=>today<=D(p.to))||PERIODS[4]).n);
 const grp=(c)=>GROUPS[GROUP_OF[c||cat]];
 const prenom=p=>{const w=String(p).trim().split(/\s+/);const f=w.filter(x=>x!==x.toUpperCase()||x.length<=2);return f.length?f.join(" "):w[w.length-1]};
 /* ----- ce qu'on observe : la grille du RTJ en U7-U11, les compétences FFF au-delà ----- */
-function domains(c){c=c||cat;if(REF==="v2")return V2_DOMAINS[GROUP_OF[c]];if(RTJ_CATS.includes(c))return RTJ_DOMAINS;const g=grp(c);return [{id:"fff",name:"Compétences du guide FFF",lines:g.facets.map(f=>({id:f.id,short:f.name,name:f.desc}))}]}
+function domains(c){c=c||cat;if(REF==="v2")return V2_DOMAINS[GROUP_OF[c]];if(RTJ_CATS.includes(c))return RTJ_DOMAINS;if(RTJ_PRE_CATS.includes(c))return RTJ_PRE_DOMAINS;const g=grp(c);return [{id:"fff",name:"Compétences du guide FFF",lines:g.facets.map(f=>({id:f.id,short:f.name,name:f.desc}))}]}
 const allLines=c=>domains(c).flatMap(d=>d.lines);
 /* ----- repères mesurés : les mêmes que l'outil actuel (clé PROG-<cat> partagée) ----- */
 store.tests=store.tests||{};
@@ -971,8 +1010,8 @@ function showTab(id){restoreMain();document.querySelector("header.top").hidden=f
 function render(){renderCats();renderWho();const id=get("tab","view-eval");if(!document.getElementById(id)){restoreMain()}
   if(id==="view-eval")renderEval();else if(id==="view-ent")renderEnt();else if(id==="view-carnet")renderCarnet();else renderBilan()}
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.getAttribute("aria-controls"))));
-{const d=document.getElementById("bdesc");if(d)d.textContent=REF==="v2"?"V2 · les grandes familles du guide FFF adaptées à chaque catégorie (moins de lignes chez les petits, la prise d'information à partir des U8), 4 étoiles et un commentaire par ligne, les repères mesurés quand ils ont du sens, deux rencontres avec la famille.":"V1 · la grille du responsable technique : 15 observations sur 4 étoiles, un commentaire par ligne, les repères mesurés, deux rencontres avec la famille. Le carnet suit l'enfant de catégorie en catégorie."}
-if(REF==="v2"){document.title="Progression RTJ V2 · Pau FC";const e=document.querySelector(".essai");if(e)e.textContent="V2 · proposition d'essai"}
+{const d=document.getElementById("bdesc");if(d)d.textContent=REF==="v2"?"V5 · de U7 à U11, des familles adaptées aux enfants avec le « voir le jeu » mis en avant ; de U12 à U15, les grandes familles du guide FFF (tactique, technique, psychologique, athlétique) : 9 à 19 observations sur 4 étoiles (les critères techniques de la grille préformation du RTJ à partir de U12), un commentaire par ligne, les repères mesurés du guide, deux rencontres avec la famille.":"V1 · les grilles du responsable technique : 15 observations en foot d'animation (U7-U11), 14 en préformation (U12-U15), sur 4 étoiles, un commentaire par ligne, les repères mesurés, deux rencontres avec la famille. Le carnet suit l'enfant de catégorie en catégorie."}
+if(REF==="v2"){document.title="Progression V5 · Pau FC";const e=document.querySelector(".essai");if(e)e.textContent="V5 · proposition d'essai"}
 showTab(["view-eval","view-ent","view-carnet","view-bilan"].includes(get("tab",""))?get("tab"):"view-eval");
 loadRemote(cat).then(()=>loadAll().then(()=>{if(get("tab")==="view-carnet")render()}));loadTests(cat);flush();
 function addScrollArrows(){document.querySelectorAll('.tbl-wrap').forEach(el=>{const over=el.scrollWidth>el.clientWidth+4;let bar=el.nextElementSibling;if(!(bar&&bar.classList.contains('scrollhint')))bar=null;el.classList.toggle('has-more',over);
