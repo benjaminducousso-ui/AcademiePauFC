@@ -299,6 +299,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .mfilt.mph button.off[aria-pressed="true"],.mfilt.mph button.sub.off[aria-pressed="true"]{background:#0B4F9C;border-color:#0B4F9C;color:#fff}
 .mfilt.mph button.def[aria-pressed="true"],.mfilt.mph button.sub.def[aria-pressed="true"]{background:#9C2A2A;border-color:#9C2A2A;color:#fff}
 .mfilt.mph button.sub{border-style:dashed}
+.phside{margin-top:10px}.phsl{display:block;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px}.phsl.off{color:#0B4F9C}.phsl.def{color:#9C2A2A}
+.ateliers .arow{display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line,#DDE2EA);border-radius:12px;padding:8px;cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit}.ateliers .arow+.arow{margin-top:8px}.ateliers .ath{width:120px;height:80px;border-radius:8px;overflow:hidden;background:#2F6B43;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px}.ateliers .ath svg{width:100%;height:100%}.ateliers .an{font-weight:700}.ateliers .as{font-size:13px;color:var(--muted)}.top3{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.top3 span{background:#FFF4CC;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700}
+.big.alt{background:#fff;color:var(--navy,#0B2A4A)}
 .chip.phc.off[aria-pressed="true"]{background:#0B4F9C;border-color:#0B4F9C;color:#fff}.chip.phc.def[aria-pressed="true"]{background:#9C2A2A;border-color:#9C2A2A;color:#fff}
 
 .ph.ph2{background:transparent;border-style:dashed;font-weight:600;opacity:.85}
@@ -799,7 +802,7 @@ function suggest(b,avoid){
     if(f.length>=Math.max(6,2*b.n))ats=f;else prefer=g=>b.fins.includes(g.fin)}
   /* gardiens : sans gardien, les fiches qui en exigent un pèsent moitié moins ; avec, elles pèsent un peu plus */
   const pf=prefer;const gkW=b.gk?1.6:0.5;
-  const phW=g=>!b.ph?1:phMain(g)===b.ph?6:phOf(g)[1]===b.ph?2.5:1;
+  const phW=g=>!b.ph?1:b.ph.includes(phMain(g)||"#")?6:b.ph.includes(phOf(g)[1]||"#")?2.5:1;
   prefer=g=>(pf&&pf(g)?3:1)*(gkPlay(g)?gkW:1)*phW(g);
   /* on écarte des propositions les temps forts (fête, bilan, plateau) : ils restent dans la liste */
   const evt=g=>!!g.evt;
@@ -824,7 +827,7 @@ function suggest(b,avoid){
     let libre=ats.filter(x=>!chosen.includes(x.id)&&!roots.includes(rootKey(x.name)));
     if(!libre.length)libre=ats.filter(x=>!chosen.includes(x.id));
     /* phase choisie : au moins la moitié des ateliers dans cette phase, si le registre le permet — jamais bloquant */
-    if(b.ph&&i<Math.ceil(b.n/2)){const lp=libre.filter(x=>phMain(x)===b.ph);if(lp.length)libre=lp}
+    if(b.ph&&i<Math.ceil(b.n/2)){const lp=libre.filter(x=>b.ph.includes(phMain(x)||"#"));if(lp.length)libre=lp}
     /* ordre choisi (progression ou construction BMF), jamais bloquant ; un exercice adaptatif manquant est remplacé par un analytique */
     if(ordOf(b)){const want=ordSeq(ordOf(b),b.n)[i];let lp=libre.filter(x=>typeOf(x)===want);if(!lp.length&&want==="adaptatif")lp=libre.filter(x=>typeOf(x)==="analytique");if(lp.length)libre=lp}
     const g=pickW(libre,avoid.concat(used),prefer);
@@ -847,7 +850,7 @@ function suggest(b,avoid){
   return planDur(blocks,b.dur)}
 function titleOf(b,blocks){
   if(b.fins&&b.fins.length)return b.fins.map(finName).join(" · ");
-  if(b.ph){const p=PHASES.find(x=>x.id===b.ph);if(p)return p.name}
+  if(b.ph){const ps=PHASES.filter(x=>b.ph.includes(x.id));if(ps.length)return ps.map(p=>p.name).join(" · ")}
   const ats=blocks.filter(x=>{const g=gameOf(x.g);return g.kind==="atelier"||g.kind==="defi"});
   const c={};ats.forEach(x=>{const f=gameOf(x.g).fin;if(f)c[f]=(c[f]||0)+1});
   const top=Object.entries(c).sort((a,b2)=>b2[1]-a[1])[0];
@@ -941,6 +944,8 @@ function viewHome(){
       <h2>Ta séance en deux minutes</h2>
       <p>Dis-moi pour qui et combien de temps : l'assistant compose la séance avec les exercices, situations et jeux du guide FFF, ceux du club et celles des grandes académies et fédérations européennes. Tu ajustes, tu partages.</p>
       <button class="big" id="start">➕ Créer une séance</button>
+      <button class="big alt" id="newAt">✚ Créer un atelier</button>
+      <p style="margin-top:10px;font-size:14px">Ton propre atelier, avec son schéma : il rejoint la banque du club à ton nom.</p>
     </section>
     ${HEDU?`<div class="hedu" style="margin-top:26px"><span>Les séances de <b>${esc(HEDU)}</b> · ${autres.length}</span><button class="ghostlink" id="hclr" style="margin:0;color:var(--muted)">✕ Toutes les séances</button></div>`:""}
     ${HEDU?"":`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:26px">
@@ -952,8 +957,26 @@ function viewHome(){
     ${HEDU?"":`<h3 style="margin-top:26px">Les séances du club</h3>
       <p class="hint" style="margin-top:4px">Celles des autres éducateurs. Touche un prénom pour voir toutes ses séances ; ouvre-en une et « Reprendre » pour t'en faire une copie à ton nom.</p>${eduChips}`}
     ${autres.length?`<div class="list" style="margin-top:10px">${autres.map(row).join("")}</div>`:filt?`<p class="hint" style="margin-top:10px">Aucune séance du club ne correspond.</p>`:""}
-    ${HEDU?`<p style="margin-top:14px"><a class="ghostlink" style="color:var(--muted)" href="bibliotheque.html?edu=${encodeURIComponent(HEDU)}">Voir ses séances dans la bibliothèque ›</a></p>`:""}`}
+    ${HEDU?`<p style="margin-top:14px"><a class="ghostlink" style="color:var(--muted)" href="bibliotheque.html?edu=${encodeURIComponent(HEDU)}">Voir ses séances dans la bibliothèque ›</a></p>`:""}
+    ${clubAteliersHtml(hit)}`}
+function clubAteliers(){const o={};Object.entries(store.club||{}).forEach(([id,g])=>{if(g&&g.name&&!g.deleted)o[id]=Object.assign({},g,{id,club:true},store.who&&g.by===store.who?{mine:true}:{})});Object.entries(store.custom||{}).forEach(([id,g])=>{if(g&&g.name)o[id]=Object.assign({},g,{id,mine:true,by:g.by||store.who||""})});
+  return Object.values(o).sort((a,b)=>(b.ts||b.created||0)-(a.ts||a.created||0))}
+function clubAteliersHtml(){const all=clubAteliers();const hq=norm(HQ||"");
+  const list=all.filter(g=>(!HAT||g.by===HAT)&&(!hq||norm(g.name+" "+(g.by||"")+" "+(g.cats||[]).join(" ")).includes(hq)));
+  const by={};all.forEach(g=>{if(g.by)by[g.by]=(by[g.by]||0)+1});const rank=Object.entries(by).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"fr"));
+  const show=HAT||hq?list:list.slice(0,8);
+  return `<h3 style="margin-top:30px">Les ateliers créés au Pau FC <span class="hint" style="font-weight:400">· ${all.length}</span></h3>
+    <p class="hint" style="margin-top:4px">Les ateliers inventés par les éducateurs du club. Ouvre-en un pour en faire ta version, ou pour modifier le tien.</p>
+    ${rank.length?`<div class="top3">${rank.slice(0,3).map(([n,k],i)=>`<span>${["🥇","🥈","🥉"][i]} ${esc(n)} · ${k} atelier${k>1?"s":""}</span>`).join("")}</div>
+    <div class="chips" style="margin-top:8px">${rank.map(([n,k])=>`<button class="chip" data-hat="${esc(n)}" aria-pressed="${HAT===n}">${esc(n)} · ${k}</button>`).join("")}</div>`:""}
+    ${show.length?`<div class="ateliers" style="margin-top:10px">${show.map(g=>`<button class="arow" data-at="${g.id}"><span class="ath">${g.schema?renderSchema(skNorm(g.schema)):"pas de schéma"}</span><span><span class="an">${esc(g.name)}</span><br><span class="as">${TYPE_LABEL[typeOf(g)]||""} · ${(g.cats||[]).join(" · ")}${g.by?" · <b>"+esc(g.by)+"</b>":""}${g.from?" · d'après "+esc(g.from):""}</span></span><span class="as">${g.mine?"✎ modifier":"✎ ma version"}</span></button>`).join("")}</div>
+      ${!HAT&&!hq&&list.length>show.length?`<p class="hint" style="margin-top:8px">${list.length-show.length} autres : touche un prénom ou cherche un nom.</p>`:""}`
+      :`<p class="empty">Aucun atelier créé pour l'instant. Sois le premier : « Créer un atelier ».</p>`}`}
+let HAT=null;
 function bindHome(){
+  {const na=document.getElementById("newAt");if(na)na.addEventListener("click",()=>openGameEditor(0,"lib"))}
+  document.querySelectorAll("[data-hat]").forEach(b=>b.addEventListener("click",()=>{HAT=HAT===b.dataset.hat?null:b.dataset.hat;render()}));
+  document.querySelectorAll("[data-at]").forEach(b=>b.addEventListener("click",()=>{const g=clubAteliers().find(x=>x.id===b.dataset.at);if(g)openGameEditor(0,g.mine?"edit":"copy",g)}));
   document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,gk:0,dur:60,fins:[],fam:null,n:3,match:true,theme:false,rot:false},store.last||{},{date:today(),ph:null});go("brief")});
   document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{SES=store.sessions.find(x=>x.id===b.dataset.open);EDIT=false;go("sheet")}));
   const wb=document.getElementById("whoBtn");if(wb)wb.addEventListener("click",askName);
@@ -992,12 +1015,12 @@ function viewBrief(){
   </section>
 
   <section class="card">
-    <div class="q" style="margin-top:0"><span class="qlab">Travailler quoi ? <span style="font-weight:400;text-transform:none;letter-spacing:0">(facultatif)</span></span>
-      <div class="chips" id="qfins">${APPR.filter(f=>poolFor(b.cats,["atelier","defi"]).some(g=>g.fin===f.id)).map(f=>`<button class="chip" data-fin="${f.id}" aria-pressed="${b.fins.includes(f.id)}">${esc(f.name)}</button>`).join("")||`<span class="hint">Choisis d'abord une catégorie.</span>`}</div></div>
+    <div class="q" style="margin-top:0"><span class="qlab">D'abord la phase de jeu et le principe <span style="font-weight:400;text-transform:none;letter-spacing:0">(facultatif · un ou plusieurs)</span></span>
+      ${["off","def"].map(sd=>`<div class="phside"><span class="phsl ${sd}">${SIDE_LABEL[sd]}</span><div class="chips">${PHASES.filter(p=>p.side===sd).map(p=>`<button class="chip phc ${sd}" data-bph="${p.id}" aria-pressed="${(b.ph||"").includes(p.id)}">${p.n} · ${esc(p.name)}</button>`).join("")}</div></div>`).join("")}
+      <p class="hint" style="margin-top:8px">${b.ph?`Les ateliers de ${b.ph.length>1?"ces principes":"ce principe"} passent en priorité ; s'il n'y en a pas assez pour ${b.cats.length?b.cats.join(", "):"la catégorie"}, l'assistant complète avec d'autres. La mise en train, le jeu et le retour au calme restent libres.`:"Comme dans le guide FFF : mon équipe a le ballon (1-2), mon équipe n'a pas le ballon (3-4). Sans choix, l'assistant pioche dans toutes les phases."}</p></div>
 
-    <div class="q"><span class="qlab">Une phase de jeu ? <span style="font-weight:400;text-transform:none;letter-spacing:0">(facultatif)</span></span>
-      <div class="chips" id="qph">${PHASES.map(p=>`<button class="chip" data-bph="${p.id}" aria-pressed="${b.ph===p.id}">${p.n} · ${esc(p.name)}</button>`).join("")}</div>
-      <p class="hint" style="margin-top:8px">${b.ph?`Les ateliers de cette phase passent en priorité ; s'il n'y en a pas assez pour ${b.cats.length?b.cats.join(", "):"la catégorie"}, l'assistant complète avec d'autres. La mise en train, le jeu et le retour au calme restent libres.`:"Sans phase choisie, l'assistant pioche dans toutes les phases."}</p></div>
+    <div class="q"><span class="qlab">Puis le geste technique à travailler <span style="font-weight:400;text-transform:none;letter-spacing:0">(facultatif)</span></span>
+      <div class="chips" id="qfins">${APPR.filter(f=>poolFor(b.cats,["atelier","defi"]).some(g=>g.fin===f.id)).map(f=>`<button class="chip" data-fin="${f.id}" aria-pressed="${b.fins.includes(f.id)}">${esc(f.name)}</button>`).join("")||`<span class="hint">Choisis d'abord une catégorie.</span>`}</div></div>
 
     <div class="q"><span class="qlab">Combien d'ateliers ?<button class="info" id="iKinds" aria-label="Les types de blocs, expliqués">i</button></span>
       <div class="stepper"><button id="nm" aria-label="Moins" ${b.n<=1?"disabled":""}>−</button><span class="v num" id="nv">${b.n}</span><button id="np" aria-label="Plus" ${b.n>=5?"disabled":""}>+</button><span class="u">ateliers</span></div>
@@ -1032,7 +1055,7 @@ function bindBrief(){
   document.querySelectorAll("[data-dur]").forEach(el=>el.addEventListener("click",()=>{b.dur=+el.dataset.dur;re()}));
   document.querySelectorAll("[data-src]").forEach(el=>el.addEventListener("click",()=>{store.srcSel=el.dataset.src||"";
     b.fins=b.fins.filter(f=>poolFor(b.cats,["atelier","defi"]).some(g=>g.fin===f));re()}));
-  document.querySelectorAll("[data-bph]").forEach(el=>el.addEventListener("click",()=>{b.ph=b.ph===el.dataset.bph?null:el.dataset.bph;re()}));
+  document.querySelectorAll("[data-bph]").forEach(el=>el.addEventListener("click",()=>{const c=el.dataset.bph;let v=b.ph||"";v=v.includes(c)?v.replace(c,""):PHASES.map(p=>p.id).filter(x=>v.includes(x)||x===c).join("");b.ph=v||null;re()}));
   document.querySelectorAll("[data-fin]").forEach(el=>el.addEventListener("click",()=>{const f=el.dataset.fin;const i=b.fins.indexOf(f);if(i<0)b.fins.push(f);else b.fins.splice(i,1);re()}));
   document.querySelectorAll("[data-rot]").forEach(el=>el.addEventListener("click",()=>{b.rot=el.dataset.rot==="1";re()}));
   document.querySelectorAll("[data-ord]").forEach(el=>el.addEventListener("click",()=>{b.ord=el.dataset.ord||"";b.bmf=false;re()}));
@@ -1112,6 +1135,7 @@ function editList(){
         <button class="btn sm" data-chg="${i}">⇄ Changer</button>
         <label class="dur"><input type="number" min="1" max="90" data-dur="${i}" value="${b.dur||g.dur}" aria-label="Durée en minutes"> min</label>
         <button class="btn sm" data-txt="${i}" aria-expanded="${!!b._open}">✎ Texte${b.name||b.desc||b.var?" ·":""}</button>
+        <button class="btn sm" data-fork="${i}" title="Modifier le schéma, le type, la phase… : crée ta version de l'atelier, partagée avec le club">✎ Schéma et atelier</button>
         <button class="btn sm" data-rm="${i}" aria-label="Retirer de la séance" style="color:var(--danger)">✕</button>
       </div>
       ${b._open?`<div class="etxt">
@@ -1162,7 +1186,7 @@ function reroll(i){const b=SES.blocks[i];const g0=gameOf(b.g);
   if(!neufs.length){SEEN[i]=[];neufs=tri}
   /* le ↻ tourne sur tout le registre : le gardien n'est qu'une légère préférence, jamais une condition */
   const gkW=SES.gk?1.4:0.7;
-  const phW=x=>!(atelier&&SES.ph)?1:phMain(x)===SES.ph?6:phOf(x)[1]===SES.ph?2.5:1;
+  const phW=x=>!(atelier&&SES.ph)?1:SES.ph.includes(phMain(x)||"#")?6:SES.ph.includes(phOf(x)[1]||"#")?2.5:1;
   const g=pickW(neufs,[],x=>((atelier&&SES.fins&&SES.fins.length&&SES.fins.includes(x.fin))?3:1)*(atelier&&gkPlay(x)?gkW:1)*phW(x));
   SEEN[i]=(SEEN[i]||[]).concat(g.id);markUsed([g.id]);
   SES.blocks[i]={g:g.id,dur:b.dur,rot:b.rot,k0};
@@ -1191,6 +1215,7 @@ function bindSheet(){
       const chg=SES.blocks.some((x,j)=>x.dur!==before[j]);persist();render();
       if(chg)toast("Même durée pour tous les ateliers du groupe : c'est ce qui les fait tourner ensemble")}));
     document.querySelectorAll("[data-txt]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txt;SES.blocks[i]._open=!SES.blocks[i]._open;render()}));
+    document.querySelectorAll("[data-fork]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.fork;const bl=SES.blocks[i];const g=gameOf(bl.g);openGameEditor(i,g.mine&&g.by===store.who?"editblock":"fork",Object.assign({},g,{name:bl.name||g.name,desc:bl.desc===undefined?g.desc:bl.desc,var:bl.var===undefined?g.var:bl.var,dur:bl.dur||g.dur}))}));
     document.querySelectorAll("[data-tk]").forEach(el=>el.addEventListener("input",()=>{const i=+el.dataset.i,k=el.dataset.tk,g=gameOf(SES.blocks[i].g);
       const v=el.value;SES.blocks[i][k]=(v.trim()&&v!==(g[k]||""))?v:undefined;persist()}));
     document.querySelectorAll("[data-txtreset]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.txtreset;
@@ -1329,13 +1354,16 @@ function applyFocus(){if(!FOCUS)return;const f=FOCUS;FOCUS=null;
     if(inp){inp.closest(".erow").scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{inp.focus();inp.select()},260)}}}
 
 /* ---------- créer son atelier ---------- */
-function openGameEditor(at,mode){GED={at,mode};GDRAFT={name:"",kind:"atelier",proc:"situation",dur:15,desc:"",org:"",var:"",veiller:"",mat:"",schema:skEmpty()};skSel=null;skPend=null;skTool="sel";skStack=[];renderModal();
+function openGameEditor(at,mode,src){GED={at,mode,src:src?{id:src.id,name:src.name,by:src.by||"",mine:!!src.mine}:null};
+  const cats0=(typeof SES!=="undefined"&&SES&&SES.cats&&mode!=="lib"&&mode!=="copy"&&mode!=="edit")?SES.cats.slice():(src&&src.cats?src.cats.slice():((store.last&&store.last.cats)||[]).slice());
+  GDRAFT={name:"",kind:"atelier",proc:"situation",dur:15,desc:"",org:"",var:"",veiller:"",mat:"",schema:skEmpty(),cats:cats0,fin:null};
+  if(src){const k=typeOf(src);Object.assign(GDRAFT,{name:mode==="edit"||mode==="editblock"?src.name:src.name+" (ma version)",kind:src.kind||"atelier",proc:src.proc||(src.kind==="atelier"?"situation":null),rf:src.rf||"",rt:src.rt||"",ph:src.ph||"",dur:+src.dur||15,desc:src.desc||"",org:src.org||"",var:src.var||"",veiller:src.veiller||"",mat:Array.isArray(src.mat)?src.mat.join(", "):(src.mat||""),schema:src.schema?JSON.parse(JSON.stringify(skNorm(src.schema))):skEmpty(),fin:src.fin&&src.fin!=="jeu"?src.fin:null});if(k==="traditionnel"||k==="analytique"||k==="adaptatif"||k==="situation"||k==="jeu"){GDRAFT.kind="atelier";GDRAFT.proc=k}}skSel=null;skPend=null;skTool="sel";skStack=[];renderModal();
   setTimeout(()=>{const n=document.getElementById("gname");if(n)n.focus()},150)}
 function gameEditorHtml(){const d=GDRAFT;
   const t=typeOf(d);
   return `<div class="sheetmodal" id="ov2"><div class="modal" role="dialog" aria-modal="true" aria-label="Créer un atelier">
-    <div class="mhead"><div class="grab"></div><h3>✚ Mon atelier</h3>
-      <p class="hint">Il rejoint la banque du club : tu pourras le reprendre dans toutes tes séances, et les autres éducateurs aussi.</p></div>
+    <div class="mhead"><div class="grab"></div><h3>${GED.mode==="edit"||GED.mode==="editblock"?"✎ Modifier mon atelier":GED.src?"✎ Ma version de l'atelier":"✚ Créer un atelier"}</h3>
+      <p class="hint">${GED.src&&GED.mode!=="edit"&&GED.mode!=="editblock"?`D'après « ${esc(GED.src.name)} »${GED.src.by?" de "+esc(GED.src.by):""}. L'original n'est pas touché : ta version rejoint la banque du club, à ton nom.`:"Il rejoint la banque du club à ton nom : tu pourras le reprendre dans toutes tes séances, et les autres éducateurs aussi."} Dis à quoi il correspond : type, phase, geste travaillé.</p></div>
     <div class="mlist" style="gap:0">
       <div class="field" style="margin-top:0"><label for="gname">Nom</label><input id="gname" type="text" value="${esc(d.name)}" placeholder="ex. Le carré magique"></div>
       <div class="field"><label>Type</label><div class="chips" id="gkind">${TYPE_ORDER.map(k=>`<button class="chip" data-k="${k}" aria-pressed="${t===k}">${TYPE_LABEL[k]}</button>`).join("")}</div>
@@ -1345,6 +1373,8 @@ function gameEditorHtml(){const d=GDRAFT;
         ${t==="situation"?`<div class="chips" id="grt" style="margin-top:8px">${[["sup","Supériorité"],["egal","Égalité"],["inf","Infériorité"],["var","Évolutif"]].map(([k,l])=>`<button class="chip" data-grt="${k}" aria-pressed="${d.rt===k}">${l}</button>`).join("")}</div>`:""}</div>`:""}
       <div class="field"><label>Phase de jeu <span class="hint" style="font-weight:400">(facultatif · la première cochée est la phase principale, une seconde possible)</span></label><div class="chips" id="gph">
         ${PHASES.map(p=>`<button class="chip phc ${p.side}" data-gph="${p.id}" aria-pressed="${(d.ph||"").includes(p.id)}">${p.n} · ${esc(p.name)}</button>`).join("")}</div></div>
+      <div class="field"><label>Geste technique travaillé <span class="hint" style="font-weight:400">(facultatif)</span></label><div class="chips" id="gfin">${APPR.map(f=>`<button class="chip" data-gfin="${f.id}" aria-pressed="${d.fin===f.id}">${esc(f.name)}</button>`).join("")}</div></div>
+      <div class="field"><label>Pour quelles catégories ?</label><div class="chips" id="gcats">${CATS.map(c=>`<button class="chip" data-gcat="${c}" aria-pressed="${(d.cats||[]).includes(c)}">${c}</button>`).join("")}</div></div>
       <div class="field"><label for="gdur">Durée (min)</label><input id="gdur" type="number" min="2" max="60" value="${d.dur}" style="max-width:120px"></div>
       <div class="field" id="gsch" style="margin-top:14px"><label>Le terrain</label>
         <p class="hint" style="margin:0 0 6px">Place les joueurs, les coupelles et les flèches : c'est ce que l'éducateur regarde en premier.</p>
@@ -1357,7 +1387,7 @@ function gameEditorHtml(){const d=GDRAFT;
         <div class="field"><label for="gmat">Matériel (séparé par des virgules)</label><input id="gmat" type="text" value="${esc(d.mat)}" placeholder="8 coupelles, 4 ballons"></div>
       </details>
     </div>
-    <div class="mfoot"><button class="btn primary" id="gsave">✚ Créer et ajouter</button><button class="btn" id="gcancel">Annuler</button></div>
+    <div class="mfoot"><button class="btn primary" id="gsave">${GED.mode==="edit"?"✓ Enregistrer":GED.mode==="lib"||GED.mode==="copy"?"✚ Créer l'atelier":GED.mode==="fork"||GED.mode==="editblock"?"✓ Enregistrer et utiliser dans la séance":"✚ Créer et ajouter"}</button><button class="btn" id="gcancel">Annuler</button></div>
   </div></div>`}
 function bindGameEditor(){const q=id=>document.getElementById(id);
   ({gname:"name",gdesc:"desc",gorg:"org",gvar:"var",gveil:"veiller",gmat:"mat"}) ;
@@ -1369,6 +1399,8 @@ function bindGameEditor(){const q=id=>document.getElementById(id);
   document.querySelectorAll("[data-grt]").forEach(b=>b.addEventListener("click",()=>{GDRAFT.rt=b.dataset.grt;renderModal()}));
   {const rf=q("grf");if(rf)rf.addEventListener("input",e=>{GDRAFT.rf=e.target.value;if(GDRAFT.proc==="situation"){const m=e.target.value.match(/(\d+)\s*(?:\+\s*(\d+)\s*)?c\s*(\d+)/i);if(m){const a=(+m[1])+(+(m[2]||0)),dd=+m[3];const rt=a>dd?"sup":a<dd?"inf":"egal";if(GDRAFT.rt!==rt){GDRAFT.rt=rt;document.querySelectorAll("[data-grt]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.grt===rt))}}}})}
   document.querySelectorAll("[data-gph]").forEach(b=>b.addEventListener("click",()=>{const c=b.dataset.gph;let v=GDRAFT.ph||"";v=v.includes(c)?v.replace(c,""):(v+c).slice(-2);GDRAFT.ph=v;document.querySelectorAll("[data-gph]").forEach(x=>x.setAttribute("aria-pressed",v.includes(x.dataset.gph)))}));
+  document.querySelectorAll("[data-gfin]").forEach(b=>b.addEventListener("click",()=>{GDRAFT.fin=GDRAFT.fin===b.dataset.gfin?null:b.dataset.gfin;document.querySelectorAll("[data-gfin]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.gfin===GDRAFT.fin))}));
+  document.querySelectorAll("[data-gcat]").forEach(b=>b.addEventListener("click",()=>{const c=b.dataset.gcat;const a=GDRAFT.cats||[];GDRAFT.cats=a.includes(c)?a.filter(x=>x!==c):CATS.filter(x=>a.includes(x)||x===c);b.setAttribute("aria-pressed",GDRAFT.cats.includes(c))}));
   bindSchemaEditor();
   setTimeout(skRepaint,40);
   q("gcancel").addEventListener("click",()=>{GED=null;GDRAFT=null;renderModal()});
@@ -1376,17 +1408,25 @@ function bindGameEditor(){const q=id=>document.getElementById(id);
     if(!GDRAFT.name.trim()){toast("Donne un nom à ton atelier");q("gname").focus();return}
     const needP=GDRAFT.kind==="atelier";
     if(needP&&GDRAFT.proc==="situation"&&!(GDRAFT.rf||"").trim()){toast("Une situation a un rapport de force : 3 c 2, 4 c 1…");const r=q("grf");if(r)r.focus();return}
-    const id="m"+Date.now().toString(36);
-    const g={id,name:GDRAFT.name.trim(),kind:GDRAFT.kind,dur:+GDRAFT.dur||15,desc:GDRAFT.desc.trim(),cats:SES.cats.slice(),
-      fin:"jeu",fam:GDRAFT.kind==="match"?"match":(GDRAFT.kind==="accueil"||GDRAFT.kind==="calme")?"rituel":"technique",
+    if(!(GDRAFT.cats||[]).length){toast("Choisis au moins une catégorie");const c=q("gcats");if(c)c.scrollIntoView({behavior:"smooth",block:"center"});return}
+    if(!store.who){askName();toast("Ton prénom d'abord : l'atelier est enregistré à ton nom");return}
+    const edit=(GED.mode==="edit"||GED.mode==="editblock")&&GED.src&&GED.src.mine;
+    const id=edit?GED.src.id:"m"+Date.now().toString(36);
+    const g={id,name:GDRAFT.name.trim(),kind:GDRAFT.kind,dur:+GDRAFT.dur||15,desc:GDRAFT.desc.trim(),cats:GDRAFT.cats.slice(),
+      fin:GDRAFT.fin||"jeu",fam:GDRAFT.kind==="match"?"match":(GDRAFT.kind==="accueil"||GDRAFT.kind==="calme")?"rituel":"technique",
       src:"Atelier d'éducateur",by:store.who||""};
     if(GDRAFT.ph)g.ph=GDRAFT.ph;
+    if(GED.src&&!edit)g.from=GED.src.name+(GED.src.by?" · "+GED.src.by:"");
+    else if(edit&&store.custom&&store.custom[id]&&store.custom[id].from)g.from=store.custom[id].from;
+    g.created=edit&&store.custom&&store.custom[id]&&store.custom[id].created||Date.now();
     if(needP&&GDRAFT.proc){g.proc=GDRAFT.proc;if((GDRAFT.rf||"").trim())g.rf=GDRAFT.rf.trim();if(GDRAFT.rt)g.rt=GDRAFT.rt}
     if(typeof skHas==="function"&&skHas(GDRAFT.schema))g.schema=skNorm(GDRAFT.schema);
     ["org","var","veiller"].forEach(k=>{if((GDRAFT[k]||"").trim())g[k]=GDRAFT[k].trim()});
     const mat=(GDRAFT.mat||"").split(",").map(x=>x.trim()).filter(Boolean);if(mat.length)g.mat=mat;
     store.custom=store.custom||{};store.custom[id]=g;save();GAMES=allGames();pushClub(id,g);
     const at=GED.at,mode=GED.mode;GED=null;GDRAFT=null;
+    if(mode==="lib"||mode==="copy"||mode==="edit"){renderModal();render();toast(edit?"Atelier mis à jour pour tout le club":"Atelier créé et partagé avec le club");return}
+    if(mode==="fork"||mode==="editblock"){ensureMine();SES.blocks[at]=Object.assign({},SES.blocks[at],{g:id,dur:g.dur,name:undefined,desc:undefined,var:undefined});equalizeRots(normRot(SES.blocks));persist();renderModal();render();toast(edit?"Atelier mis à jour":"Ta version remplace l'atelier dans la séance");return}
     if(mode==="replace")SES.blocks[at]={g:id,dur:g.dur};
     else SES.blocks.splice(Math.max(0,Math.min(at,SES.blocks.length)),0,{g:id,dur:g.dur});
     equalizeRots(normRot(SES.blocks));persist();renderModal();render();toast("Créée et ajoutée à la séance")})}

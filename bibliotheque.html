@@ -292,6 +292,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 .f.fph.off[aria-pressed="true"]{background:#0B4F9C;border-color:#0B4F9C;color:#fff}.f.fph.def[aria-pressed="true"]{background:#9C2A2A;border-color:#9C2A2A;color:#fff}
 .mfilt.mph button.sub{border-style:solid}
+.clubhead{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.ckpi{background:#fff;border:1px solid var(--line,#DDE2EA);border-radius:12px;padding:12px;text-align:center}.ckpi b{display:block;font-size:28px;color:var(--navy,#0B2A4A)}.ckpi span{font-size:13px;color:var(--muted,#5B6577)}.podium{display:flex;flex-wrap:wrap;gap:8px}.pod{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line,#DDE2EA);border-radius:999px;padding:6px 14px;cursor:pointer;font:inherit}.pod.on{background:#F2C200;border-color:#F2C200}.pod .rk{font-weight:800}.pod .pn{font-weight:700}.pod .pk{font-size:13px;color:var(--muted,#5B6577)}@media(max-width:560px){.clubhead{grid-template-columns:1fr 1fr 1fr}.ckpi b{font-size:22px}}
 </style>
 <style>.frow.phrow{flex-wrap:wrap;overflow:visible}.mfilt.mph{flex-wrap:wrap;overflow:visible}</style>
 <header class="top"><div class="topin" id="topbar"></div></header>
@@ -694,6 +695,21 @@ function themesHtml(){
     <b>${esc(finName(f))}</b>
     <ul style="margin:6px 0 0;padding-left:18px">${THEMES[f].map(t=>`<li style="margin:4px 0"><b>${esc(t[0])}</b> — ${esc(t[1])}</li>`).join("")}</ul>
   </div></article>`).join("")}</div>`}
+let FCONT=null;
+function viewClub(){const q=norm(Q);
+  const all=Object.values(GAMES).filter(g=>g.auteur==="club").sort((a,b)=>(b.ts||b.created||0)-(a.ts||a.created||0));
+  const by={};all.forEach(g=>{const n=g.by||"un éducateur";by[n]=(by[n]||0)+1});
+  const rank=Object.entries(by).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"fr"));
+  const list=all.filter(g=>(!FCONT||(g.by||"un éducateur")===FCONT)&&(!FCAT||(g.cats||CATS0).includes(FCAT))&&(!q||norm(g.name+" "+(g.desc||"")+" "+(g.by||"")).includes(q)));
+  const mois=Date.now()-30*864e5;const recents=all.filter(g=>(g.ts||g.created||0)>mois).length;
+  return `<div class="clubhead">
+    <div class="ckpi"><b>${all.length}</b><span>ateliers créés par les éducateurs</span></div>
+    <div class="ckpi"><b>${rank.length}</b><span>contributeurs</span></div>
+    <div class="ckpi"><b>${recents}</b><span>ces 30 derniers jours</span></div></div>
+  ${rank.length?`<h3 class="grp">Les contributeurs</h3><div class="podium">${rank.map(([n,k],i)=>`<button class="pod${FCONT===n?" on":""}" data-cont="${esc(n)}"><span class="rk">${i<3?["🥇","🥈","🥉"][i]:i+1}</span><span class="pn">${esc(n)}</span><span class="pk">${k} atelier${k>1?"s":""}</span></button>`).join("")}</div>`:""}
+  <div class="chips" style="margin:12px 0 4px"><button class="chip" data-cat="" aria-pressed="${!FCAT}">Toutes</button>${CATS.map(c=>`<button class="chip" data-cat="${c}" aria-pressed="${FCAT===c}">${c}</button>`).join("")}</div>
+  <p class="count">${list.length} atelier${list.length>1?"s":""}${FCONT?" de "+esc(FCONT):""}${FCAT?" · "+FCAT:""} · pour en créer un : <a href="assistant.html">Assistant › Créer un atelier</a></p>
+  ${list.length?`<div class="cards">${list.map(cardHtml).join("")}</div>`:`<p class="empty">Aucun atelier créé pour l'instant. Ils apparaissent ici dès qu'un éducateur en crée un dans l'assistant.</p>`}`}
 function viewSeances(){
   const list=filteredSes();
   const edus={};(store.sessions||[]).forEach(s=>{if(s.by)edus[s.by]=(edus[s.by]||0)+1});
@@ -725,9 +741,9 @@ function render(){
     <div style="min-width:0"><div class="t1">Bibliothèque</div><div class="t2">Pau FC Academy · exercices, situations, jeux et séances du club</div></div>
     <div class="sp"><a class="tbtn" href="assistant.html">⚡ Assistant</a></div>`;
   const app=document.getElementById("app");
-  app.innerHTML=`<div class="tabs2"><button data-tab="ateliers" aria-pressed="${TAB==="ateliers"}">Ateliers</button><button data-tab="seances" aria-pressed="${TAB==="seances"}">Séances</button></div>
+  app.innerHTML=`<div class="tabs2"><button data-tab="ateliers" aria-pressed="${TAB==="ateliers"}">Ateliers</button><button data-tab="seances" aria-pressed="${TAB==="seances"}">Séances</button><button data-tab="club" aria-pressed="${TAB==="club"}">Créés au Pau FC</button></div>
     <div class="fline" style="margin:12px 0 4px"><input id="q" type="search" value="${esc(Q)}" placeholder="🔍 Atelier, séance, éducateur…" aria-label="Rechercher"></div>
-    ${TAB==="ateliers"?viewAteliers():viewSeances()}`;
+    ${TAB==="ateliers"?viewAteliers():TAB==="club"?viewClub():viewSeances()}`;
   /* les filtres défilent avec la page ; un bandeau compact reste en haut pour les rappeler et y revenir */
   {const fb=app.querySelector(".fbar");if(fb){const c=app.querySelector(".count");const mini=document.createElement("div");mini.className="fmini";
     mini.innerHTML=`<span class="ft">${esc(c?c.textContent:"")}</span><button type="button">Filtres ▲</button>`;fb.after(mini);
@@ -737,6 +753,7 @@ function render(){
   const q=document.getElementById("q");
   q.addEventListener("input",()=>{Q=q.value;clearTimeout(render._t);render._t=setTimeout(()=>{render();const n=document.getElementById("q");n.focus();n.setSelectionRange(n.value.length,n.value.length)},220)});
   app.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{TAB=b.dataset.tab;OPEN=null;render();window.scrollTo({top:0,behavior:"smooth"})}));
+  app.querySelectorAll("[data-cont]").forEach(b=>b.addEventListener("click",()=>{FCONT=FCONT===b.dataset.cont?null:b.dataset.cont;render()}));
   app.querySelectorAll("[data-cat]").forEach(b=>b.addEventListener("click",()=>{FCAT=b.dataset.cat||null;render()}));
   app.querySelectorAll("[data-fin]").forEach(b=>b.addEventListener("click",()=>{FFIN=b.dataset.fin||null;render()}));
   app.querySelectorAll("[data-fam]").forEach(b=>b.addEventListener("click",()=>{FFAM=b.dataset.fam||null;FRT=null;render()}));
