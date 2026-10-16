@@ -59,7 +59,7 @@ function lines(c){let n=0;return DATA[c].map(f=>({f,ls:f.lines.map(l=>({...l,n:+
 function renderVote(){const c=st.cat;const fams=lines(c);const tot=fams.reduce((a,x)=>a+x.ls.length,0);const done=fams.reduce((a,x)=>a+x.ls.filter(l=>st.v[l.id]).length,0);
   return `<div class="intro"><b>Pour chaque critère, une couleur.</b> On garde les verts, on retravaille les oranges, on enlève les rouges. Une phrase en orange aide à corriger le critère.
   <div class="legend"><span class="pill pg">V · je garde, il est pertinent</span><span class="pill po">O · j'hésite, à reformuler</span><span class="pill pr">R · à enlever</span></div>
-  <div class="who"><input id="name" class="${st.name?"":"need"}" placeholder="Ton prénom (obligatoire pour voter)" value="${esc(st.name)}" autocomplete="given-name">${st.name?"":`<span class="needt">← à remplir avant de voter</span>`}</div></div>
+  <div class="who"><input id="name" class="${st.name?"":"need"}" placeholder="Ton prénom (obligatoire pour voter)" value="${esc(st.name)}" autocomplete="given-name">${st.name?"":`<span class="needt">↑ à remplir avant de voter</span>`}</div></div>
   ${catBar()}<div class="stat">${done} / ${tot} critères votés dans cette catégorie · tu peux voter pour toutes les catégories</div>
   ${fams.map(({f,ls})=>`<div class="fam"><div class="fh">${esc(f.name)}</div>${ls.map(l=>`<div class="row" data-id="${l.id}"><div><b><span class="num">${l.n}</span>${esc(l.short)}</b><div class="d">${esc(l.name)}</div></div>
   <div class="vb">${["g","o","r"].map(k=>`<button data-c="${k}" class="${st.v[l.id]===k?"on":""}" aria-label="${{g:"vert",o:"orange",r:"rouge"}[k]}">${{g:"V",o:"O",r:"R"}[k]}</button>`).join("")}</div>
