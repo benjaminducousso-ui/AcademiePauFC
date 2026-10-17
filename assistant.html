@@ -1049,6 +1049,8 @@ function bindPhaseFlow(host,o,pre,cb){
     if(cur===sd){o.side=null;o.ph=null;o.pr=null}else{o.side=sd;o.ph=null;o.pr=null}cb()}));
   host.querySelectorAll(`[data-${pre}ph]`).forEach(b=>b.addEventListener("click",()=>{const v=b.getAttribute(`data-${pre}ph`);if(o.ph===v){o.ph=null;o.pr=null}else{o.ph=v;o.pr=PRINC[v].length===1?PRINC[v][0].id:null}cb()}));
   host.querySelectorAll(`[data-${pre}pr]`).forEach(b=>b.addEventListener("click",()=>{const v=b.getAttribute(`data-${pre}pr`);o.pr=o.pr===v?null:v;cb()}))}
+/* Question « gestes / apprentissages » de l'écran de départ : masquée pour l'instant (décision RTJ 17/10), réactivable en passant à true */
+const SHOW_FINS=false;
 const bmfN=d=>d<=45?2:d>=90?4:3;
 const PETITS=c=>["U7","U8","U9"].includes(c);
 const PH_SHORT={A:"Conserver, progresser",E:"Déséquilibrer, finir",O:"Empêcher de progresser",B:"Protéger son but"};
@@ -1067,12 +1069,12 @@ function viewBrief(){
       <div class="steps2"><div class="stepper"><button id="effm" aria-label="Moins" ${b.eff<=4?"disabled":""}>−</button><span class="v num" id="effv">${b.eff}</span><button id="effp" aria-label="Plus" ${b.eff>=30?"disabled":""}>+</button><span class="u">enfants</span></div>
       ${ok&&!["U7","U8"].includes(c)?`<div class="stepper"><button id="gkm" aria-label="Moins de gardiens" ${!b.gk?"disabled":""}>−</button><span class="v num" id="gkv">${b.gk||0}</span><button id="gkp" aria-label="Plus de gardiens" ${(b.gk||0)>=3?"disabled":""}>+</button><span class="u">gardien${(b.gk||0)>1?"s":""} 🧤</span></div>`:""}</div></div>
   </section>
-  <section class="card">
+  ${ok||SHOW_FINS?`<section class="card">
     ${ok&&!ANIM(c)?`<div class="q" style="margin-top:0"><span class="qlab">Thème de la séance <span class="opt">facultatif</span></span>
       ${phaseFlow(b,"b")}<p class="hint" style="margin-top:8px">Comme le préconise la FFF en préformation : une phase et un principe pour toute la séance.</p></div>`:ok?`<p class="hint" style="margin:0 0 4px">Foot d'animation : la séance mélange les apprentissages, comme le préconise la FFF. La phase de jeu se choisit atelier par atelier, avec ⇄.</p>`:""}
-    <div class="q"><span class="qlab">Gestes techniques à privilégier <span class="opt">facultatif · plusieurs choix possibles</span></span>
-      ${ok?`<div class="chips hs" id="qfins">${fins.map(f=>`<button class="chip" data-fin="${f.id}" aria-pressed="${b.fins.includes(f.id)}">${esc(f.name)}</button>`).join("")}</div><p class="hint" style="margin-top:8px">${b.fins.length?"L'assistant choisit en priorité des ateliers sur ces gestes.":"Rien de coché : l'assistant varie les gestes."}</p>`:`<p class="hint">Choisis d'abord la catégorie.</p>`}</div>
-  </section>
+    ${SHOW_FINS?`<div class="q"><span class="qlab">Gestes techniques à privilégier <span class="opt">facultatif · plusieurs choix possibles</span></span>
+      ${ok?`<div class="chips hs" id="qfins">${fins.map(f=>`<button class="chip" data-fin="${f.id}" aria-pressed="${b.fins.includes(f.id)}">${esc(f.name)}</button>`).join("")}</div><p class="hint" style="margin-top:8px">${b.fins.length?"L'assistant choisit en priorité des ateliers sur ces gestes.":"Rien de coché : l'assistant varie les gestes."}</p>`:`<p class="hint">Choisis d'abord la catégorie.</p>`}</div>`:""}
+  </section>`:""}
   ${ok?`<section class="card bmfcard"><span class="qlab">Ta séance type ${c} · ${b.dur} min</span>
     <ol class="bmfl">${bmfSteps(c,b.dur).map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
     <p class="hint" style="margin-top:8px">La construction de séance du BMF, adaptée à ${c}. L'assistant choisit les ateliers ; tu pourras tout changer ensuite.</p><div class="q"><span class="qlab">Les ateliers</span><div class="seg" id="qrot"><button data-brot="0" aria-pressed="${!b.rot}">L'un après l'autre</button><button data-brot="1" aria-pressed="${!!b.rot}">⟳ Tournants</button></div><p class="hint" style="margin-top:8px">${b.rot?`Le groupe est partagé en ${bmfN(b.dur)} sous-groupes, chacun passe par les ${bmfN(b.dur)} ateliers.`:"Tout le groupe fait le même atelier en même temps."}</p></div></section>`:""}
@@ -1086,7 +1088,7 @@ function bindBrief(){
     b.fins=b.fins.filter(f=>poolFor(b.cats,["atelier","defi"],true).some(g=>g.fin===f));re()}));
   document.querySelectorAll("[data-dur]").forEach(el=>el.addEventListener("click",()=>{b.dur=+el.dataset.dur;re()}));
   bindPhaseFlow(document,b,"b",re);
-  document.querySelectorAll("[data-fin]").forEach(el=>el.addEventListener("click",()=>{const f=el.dataset.fin;const i=b.fins.indexOf(f);if(i<0)b.fins.push(f);else b.fins.splice(i,1);re()}));
+  if(SHOW_FINS)document.querySelectorAll("[data-fin]").forEach(el=>el.addEventListener("click",()=>{const f=el.dataset.fin;const i=b.fins.indexOf(f);if(i<0)b.fins.push(f);else b.fins.splice(i,1);re()}));
   document.querySelectorAll("[data-brot]").forEach(el=>el.addEventListener("click",()=>{b.rot=el.dataset.brot==="1";re()}));
   document.getElementById("qdate").addEventListener("change",e=>{b.date=e.target.value||today()});
   const step=(id,key,min,max)=>{document.getElementById(id+"m").addEventListener("click",()=>{b[key]=Math.max(min,(b[key]||0)-1);re()});
@@ -1094,7 +1096,7 @@ function bindBrief(){
   step("eff","eff",4,30);
   if(document.getElementById("gkm"))step("gk","gk",0,3);else b.gk=0;
   /* la construction BMF est la règle : nombre d'ateliers selon la durée, jeu de fin selon l'âge, toutes les sources */
-  const cfg=()=>{b.n=bmfN(b.dur);b.ord="bmf";b.bmf=false;b.rot=!!b.rot;const p=PETITS(b.cats[0]);b.match=p;b.theme=!p;store.srcSel="";if(ANIM(b.cats[0])){b.ph=null;b.pr=null;b.side=null}};
+  const cfg=()=>{b.n=bmfN(b.dur);b.ord="bmf";b.bmf=false;b.rot=!!b.rot;if(!SHOW_FINS)b.fins=[];const p=PETITS(b.cats[0]);b.match=p;b.theme=!p;store.srcSel="";if(ANIM(b.cats[0])){b.ph=null;b.pr=null;b.side=null}};
   document.getElementById("build").addEventListener("click",()=>{if(!b.cats.length)return;cfg();
     AVOID=[];const blocks=suggest(b,[]);SES=newSession(b,blocks);EDIT=false;store.last=Object.assign({},b);persist();save();go("sheet")});
   document.getElementById("blank").addEventListener("click",()=>{if(!b.cats.length){toast("Choisis d'abord la catégorie");return}cfg();
