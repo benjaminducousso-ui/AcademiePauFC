@@ -314,7 +314,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .robar{margin:12px 16px 0;padding:10px 12px;border-radius:12px;background:var(--surface-2);color:var(--ink);font-size:14px;line-height:1.4}
 .dstep.ro{padding:0 10px}
 </style>
-<style>.mfilt.mph{flex-wrap:wrap;overflow:visible}</style>
+<style>.mfilt.mph{flex-wrap:wrap;overflow:visible}.skhit{touch-action:none}.opt{font-weight:400;text-transform:none;letter-spacing:0;font-size:13px;margin-left:6px}.steps2{display:flex;flex-wrap:wrap;gap:8px}.bmore{margin-top:16px}.bmore summary{font-size:15px}.bmfl{margin:4px 0 0;padding-left:22px;display:grid;gap:4px;font-weight:600}.bmfl li::marker{color:var(--muted);font-weight:700}.etxtb{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}@media(max-width:640px){.chips.hs,.sktools{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding:2px 16px 4px 0}.chips.hs::-webkit-scrollbar,.sktools::-webkit-scrollbar{display:none}.chips.hs .chip,.sktool{flex:none}.etools{gap:4px}.etools .btn.sm{padding:0 10px}.tbtn .tlab{display:none}}.pside{margin-top:2px}.qsub{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.05em}.moy p{margin:2px 0}.moy{margin-top:10px;font-size:14px;line-height:1.4;background:#F5F3EC;border-radius:10px;padding:8px 12px;color:var(--ink)}.pline{margin:6px 0 4px;font-size:14px;font-weight:700;color:#F2C200}.pline .pmo{display:block;font-weight:500;color:#C9D6E8;font-size:13px;margin-top:2px}.crumbs{display:flex;flex-wrap:wrap;gap:6px}.crumb{min-height:36px;border-radius:999px;border:1.5px solid var(--navy);background:var(--navy);color:#fff;font-weight:700;font-size:14px;padding:0 12px}.crumb span{opacity:.6;margin-left:4px}.crumb.phc.off{background:#1E56C9;border-color:#1E56C9}.crumb.phc.def{background:#A12A2A;border-color:#A12A2A}.crumb.on{background:#F2C200;border-color:#F2C200;color:#3B2E00}.pflow .pchips{margin-top:10px}.pchips .chip{min-height:40px;font-size:15px;padding:0 14px}.mflow .pchips .chip{min-height:36px;font-size:14px}.mflow .qsub{margin-top:8px}.mflow{padding:0 16px 10px}.mflow .seg button{min-height:38px;font-size:14px}</style>
 <header class="top"><div class="topin" id="topbar"></div></header>
 <main class="app" id="app"></main>
 <div id="modal"></div>
@@ -349,6 +349,8 @@ const PROC_LABEL={traditionnel:"Jeu traditionnel",analytique:"Exercice analytiqu
 const RT_LABEL={egal:"égalité",sup:"supériorité",inf:"infériorité",sans:"sans opposition",lim:"opposition limitée",var:"évolutif",roles:"rôles attaque / défense"};
 /* Un seul type affiché par fiche, dans l'ordre de la séance : accueil, mise en train, exercice analytique, exercice adaptatif, situation, jeu, retour au calme. Le « kind » reste interne (place du bloc dans la séance). */
 const TYPE_ORDER=["accueil","eveil","traditionnel","analytique","adaptatif","situation","jeu","calme"];
+const TF=g=>{const x=typeOf(g);return x==="analytique"||x==="adaptatif"?"ex":x==="traditionnel"?"jeu":x};
+const TF_LABEL={ex:"Exercices",situation:"Situations",jeu:"Jeux",eveil:"Mises en train",accueil:"Accueil",calme:"Retour au calme"};
 const TYPE_LABEL={accueil:"Accueil",eveil:"Mise en train",analytique:"Exercice analytique",adaptatif:"Exercice adaptatif",situation:"Situation",jeu:"Jeu",traditionnel:"Jeu traditionnel",calme:"Retour au calme"};
 const typeOf=g=>!g?"":["accueil","calme","eveil"].includes(g.kind)?g.kind:g.kind==="match"?"jeu":(g.proc==="exercice"?"analytique":g.proc)||(g.kind==="defi"?"analytique":"situation");
 const rfChip=g=>{const t=typeOf(g);return g&&g.rf&&(t==="jeu"||t==="situation"||(t==="adaptatif"&&g.rt!=="sans"))?`<span class="rfc" title="${g.rt&&RT_LABEL[g.rt]?RT_LABEL[g.rt]:"rapport de force"}">${g.rf}${g.rt==="sup"?" +":g.rt==="inf"?" −":""}</span>`:""};
@@ -422,7 +424,7 @@ const LEGEND=`<div class="legend"><span><i style="background:#1E56C9"></i>équip
 <script>
 /* ---------- Éditeur de schéma (terrain virtuel) ---------- */
 const SK_PAD=2.6,SK_S=10;
-const TOOLS=[["sel","✥ Déplacer"],["cone","▲ Plot"],["cup","△ Coupelle"],["pb","● Bleu"],["pr","● Rouge"],["py","● Jaune"],["pj","● Joker"],["pg","● Gardien"],["pe","● Éducateur"],["ball","○ Ballon"],["goal","▭ But"],["hoop","◎ Cerceau"],["zone","▢ Zone"],["label","T Texte"],["ac","→ Conduite"],["am","⇢ Course"],["ap","→ Passe"],["as","→ Tir"]];
+const TOOLS=[["sel","✥ Déplacer"],["del","⌫ Gommer"],["pb","● Bleu"],["pr","● Rouge"],["pj","● Joker"],["pg","● Gardien"],["cup","△ Coupelle"],["cone","▲ Plot"],["ball","○ Ballon"],["goal","▭ But"],["zone","▢ Zone"],["ac","→ Conduite"],["am","⇢ Course"],["ap","→ Passe"],["as","→ Tir"]];
 const ARROW_TOOLS={ac:"c",am:"m",ap:"p",as:"s"};
 let skTool="sel",skSel=null,skPend=null;   /* skSel={k,i} ; skPend = 1er point d'une flèche */
 const skEmpty=()=>({f:[30,20],cups:[],cones:[],players:[],balls:[],goals:[],hoops:[],zones:[],arrows:[],labels:[]});
@@ -444,9 +446,10 @@ function skHitLayer(sc){const [L,W]=sc.f;const vw=(L+2*SK_PAD)*SK_S,vh=(W+2*SK_P
     return `<circle class="skh${on?" on":""}" data-k="${k}" data-i="${i}" ${j!=null?`data-j="${j}"`:""} cx="${X(x)}" cy="${Y(y)}" r="11"/>`}).join("")}</svg>`}
 function skInspectorHtml(){const sc=skNorm(GDRAFT.schema);
   const sel=skSel&&(sc[skSel.k]||[])[skSel.i];
-  if(skPend)return `<span class="note"><b>Flèche commencée</b> — clique maintenant le point d'arrivée (sur un joueur, un plot ou n'importe où).</span>`;
-  if(ARROW_TOOLS[skTool])return `<span class="note"><b>Flèche ${({ac:"conduite",am:"course sans ballon",ap:"passe",as:"tir"})[skTool]}</b> — clique le point de départ, puis le point d'arrivée.</span>`;
-  return !sel?`<span class="note">Choisis un élément dans la palette puis clique sur le terrain. Pour déplacer : fais glisser. Pour modifier ou retirer un élément : clique dessus.</span>`:
+  if(skPend)return `<span class="note"><b>Flèche commencée</b> — touche maintenant le point d'arrivée.</span>`;
+  if(skTool==="del")return `<span class="note"><b>Gomme</b> — touche un élément pour l'effacer.</span>`;
+  if(ARROW_TOOLS[skTool])return `<span class="note"><b>Flèche ${({ac:"conduite",am:"course sans ballon",ap:"passe",as:"tir"})[skTool]}</b> — trace-la du doigt, du départ à l'arrivée.</span>`;
+  return !sel?`<span class="note">Choisis un élément dans la palette puis touche le terrain. ✥ pour déplacer, ⌫ pour effacer.</span>`:
     `<b>${({cones:"Plot",cups:"Coupelle",players:"Joueur",balls:"Ballon",goals:"But",hoops:"Cerceau",zones:"Zone",labels:"Texte",arrows:"Flèche"})[skSel.k]}</b>
      ${skSel.k==="players"?`<label>Numéro / lettre <input type="text" id="skLab" maxlength="2" value="${esc(sel.l||"")}"></label>`:""}
      ${skSel.k==="labels"?`<label>Texte <input type="text" id="skLab" value="${esc(sel.t||"")}"></label>`:""}
@@ -478,14 +481,28 @@ function skPoint(ev,svg){const r=svg.getBoundingClientRect();const vb=svg.viewBo
   const x=(ev.clientX-r.left)/r.width*vb.width/SK_S-SK_PAD,y=(ev.clientY-r.top)/r.height*vb.height/SK_S-SK_PAD;
   const [L,W]=skNorm(GDRAFT.schema).f;const cl=(v,m)=>Math.max(-1.5,Math.min(m+1.5,Math.round(v*2)/2));
   return {x:cl(x,L),y:cl(y,W)}}
+/* élément le plus proche d'un point (en mètres), flèches comprises */
+function skNearest(sc,p){let best=null,bd=2.2;
+  skHandles(sc).forEach(([k,i,x,y])=>{if(k==="arrows")return;const d=Math.hypot(x-p.x,y-p.y);if(d<bd){bd=d;best={k,i}}});
+  (sc.zones||[]).forEach((z,i)=>{if(!best&&p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h)best={k:"zones",i}});
+  (sc.arrows||[]).forEach((a,i)=>{const ps=a.p||[];for(let j=0;j<ps.length-1;j++){const [x1,y1]=ps[j],[x2,y2]=ps[j+1];const dx=x2-x1,dy=y2-y1,L=dx*dx+dy*dy||1;
+    const u=Math.max(0,Math.min(1,((p.x-x1)*dx+(p.y-y1)*dy)/L));const d=Math.hypot(p.x-(x1+u*dx),p.y-(y1+u*dy));if(d<bd){bd=d;best={k:"arrows",i}}}});
+  return best}
 function bindSkHits(){const svg=document.querySelector(".sked .skhit");if(!svg)return;
   svg.addEventListener("pointerdown",e=>{
     const h=e.target.closest(".skh");const sc=skNorm(GDRAFT.schema);const p=skPoint(e,svg);
     /* flèche en cours : un clic sur un élément accroche la flèche à cet élément */
     const snap=h?(()=>{const hs=skHandles(sc);const f=hs.find(([k,i,x,y,j])=>k===h.dataset.k&&i===+h.dataset.i&&(h.dataset.j==null||j===+h.dataset.j));return f?{x:f[2],y:f[3]}:p})():p;
+    if(skTool==="del"){const n=skNearest(sc,p);if(n){skPush();sc[n.k].splice(n.i,1);GDRAFT.schema=sc;skSel=null;skRepaint()}return}
     if(ARROW_TOOLS[skTool]){
-      if(!skPend){skPend={x:snap.x,y:snap.y,k:ARROW_TOOLS[skTool]};skInspector();return}
-      skPush();sc.arrows.push({p:[[skPend.x,skPend.y],[snap.x,snap.y]],k:skPend.k});skPend=null;GDRAFT.schema=sc;skRepaint();return}
+      if(skPend){skPush();sc.arrows.push({p:[[skPend.x,skPend.y],[snap.x,snap.y]],k:skPend.k});skPend=null;GDRAFT.schema=sc;skRepaint();return}
+      /* tracé au doigt : on appuie au départ, on glisse, on lâche à l'arrivée ; un simple appui démarre une flèche en deux touches */
+      e.preventDefault();skPush();const k=ARROW_TOOLS[skTool];sc.arrows.push({p:[[snap.x,snap.y],[snap.x,snap.y]],k});GDRAFT.schema=sc;const ai=sc.arrows.length-1;let far=false;
+      const mv=ev=>{const q=skPoint(ev,svg);const a=GDRAFT.schema.arrows[ai];if(!a)return;a.p[1]=[q.x,q.y];if(Math.hypot(q.x-a.p[0][0],q.y-a.p[0][1])>1.2)far=true;skPaintView()};
+      const up=()=>{window.removeEventListener("pointermove",mv);window.removeEventListener("pointerup",up);
+        if(!far){GDRAFT.schema.arrows.splice(ai,1);skStack.pop();skPend={x:snap.x,y:snap.y,k};skRepaint();return}
+        skRepaint()};
+      window.addEventListener("pointermove",mv);window.addEventListener("pointerup",up);return}
     if(h){skSel={k:h.dataset.k,i:+h.dataset.i,j:h.dataset.j!=null?+h.dataset.j:null};
       e.preventDefault();let moved=false;skPush();
       const move=ev=>{const q=skPoint(ev,svg);const it=(skNorm(GDRAFT.schema)[skSel.k]||[])[skSel.i];if(!it)return;moved=true;
@@ -794,7 +811,7 @@ function suggest(b,avoid){
   avoid=avoid||[];
   const acc=poolFor(b.cats,["accueil"]),cal=poolFor(b.cats,["calme"]);
   const evs=poolWide(b.cats,["eveil"],8);
-  let ats=poolFor(b.cats,["atelier","defi"]);
+  let ats=poolFor(b.cats,["atelier","defi"]);const ats0=ats.slice();
   const mts=poolFor(b.cats,["match"]);
   if(b.fam){const f=ats.filter(g=>g.fam===b.fam);if(f.length>=b.n)ats=f;else ats=f.concat(ats.filter(g=>g.fam!==b.fam))}
   let prefer=null;
@@ -803,7 +820,7 @@ function suggest(b,avoid){
   /* gardiens : sans gardien, les fiches qui en exigent un pèsent moitié moins ; avec, elles pèsent un peu plus */
   const pf=prefer;const gkW=b.gk?1.6:0.5;
   const phW=g=>!b.ph?1:b.ph.includes(phMain(g)||"#")?6:b.ph.includes(phOf(g)[1]||"#")?2.5:1;
-  prefer=g=>(pf&&pf(g)?3:1)*(gkPlay(g)?gkW:1)*phW(g);
+  prefer=g=>(pf&&pf(g)?3:1)*(gkPlay(g)?gkW:1)*phW(g)*(b.pr&&prHit(g,b.pr)?3:1);
   /* on écarte des propositions les temps forts (fête, bilan, plateau) : ils restent dans la liste */
   const evt=g=>!!g.evt;
   const hors=g=>/futsal|hand/i.test((g.name||"")+" "+(g.desc||""));
@@ -827,9 +844,16 @@ function suggest(b,avoid){
     let libre=ats.filter(x=>!chosen.includes(x.id)&&!roots.includes(rootKey(x.name)));
     if(!libre.length)libre=ats.filter(x=>!chosen.includes(x.id));
     /* phase choisie : au moins la moitié des ateliers dans cette phase, si le registre le permet — jamais bloquant */
-    if(b.ph&&i<Math.ceil(b.n/2)){const lp=libre.filter(x=>b.ph.includes(phMain(x)||"#"));if(lp.length)libre=lp}
-    /* ordre choisi (progression ou construction BMF), jamais bloquant ; un exercice adaptatif manquant est remplacé par un analytique */
-    if(ordOf(b)){const want=ordSeq(ordOf(b),b.n)[i];let lp=libre.filter(x=>typeOf(x)===want);if(!lp.length&&want==="adaptatif")lp=libre.filter(x=>typeOf(x)==="analytique");if(lp.length)libre=lp}
+    /* construction BMF : le type de chaque atelier est imposé (jeu → situation → exercice) ; on le cherche d'abord dans le thème,
+       puis dans toute la catégorie, puis dans les catégories voisines — le thème ne fait jamais sauter la structure */
+    if(ordOf(b)){const want=ordSeq(ordOf(b),b.n)[i];const ok=x=>!chosen.includes(x.id)&&!roots.includes(rootKey(x.name))&&!x.evt&&!/futsal|hand/i.test((x.name||"")+" "+(x.desc||""));
+      const ofT=(l,w)=>l.filter(x=>typeOf(x)===w&&ok(x));
+      let lp=ofT(libre,want);if(!lp.length)lp=ofT(ats0,want);if(!lp.length)lp=ofT(poolWide(b.cats,["atelier","defi"],60),want);
+      if(!lp.length&&want==="adaptatif"){lp=ofT(libre,"analytique");if(!lp.length)lp=ofT(ats0,"analytique")}
+      if(lp.length)libre=lp}
+    /* phase et principe choisis : préférés à l'intérieur du type, jamais bloquants */
+    if(b.ph){const lp=libre.filter(x=>b.ph.includes(phMain(x)||"#"));if(lp.length)libre=lp}
+    if(b.pr){const lp=libre.filter(x=>prHit(x,b.pr));if(lp.length)libre=lp}
     const g=pickW(libre,avoid.concat(used),prefer);
     if(g){chosen.push(g.id);roots.push(rootKey(g.name));add(g,durs[i],i>0&&b.rot?{rot:1}:null)}}
   /* pas de défi imposé : les situations et les défis sont tirés ensemble, au poids de leur fraîcheur */
@@ -849,6 +873,7 @@ function suggest(b,avoid){
   markUsed(blocks.map(x=>x.g).filter(id=>!["accueil","calme"].includes(gameOf(id).kind)));
   return planDur(blocks,b.dur)}
 function titleOf(b,blocks){
+  if(b.pr&&prOf(b.pr))return prOf(b.pr).n;
   if(b.fins&&b.fins.length)return b.fins.map(finName).join(" · ");
   if(b.ph){const ps=PHASES.filter(x=>b.ph.includes(x.id));if(ps.length)return ps.map(p=>p.name).join(" · ")}
   const ats=blocks.filter(x=>{const g=gameOf(x.g);return g.kind==="atelier"||g.kind==="defi"});
@@ -856,7 +881,7 @@ function titleOf(b,blocks){
   const top=Object.entries(c).sort((a,b2)=>b2[1]-a[1])[0];
   return top?finName(top[0]):"Séance du jour"}
 function newSession(b,blocks){
-  return {id:uid(),date:b.date,cats:b.cats.slice(),eff:b.eff,gk:b.gk||0,dur:b.dur,fins:(b.fins||[]).slice(),fam:b.fam||null,ph:b.ph||null,rot:!!b.rot,ord:ordOf(b),
+  return {id:uid(),date:b.date,cats:b.cats.slice(),eff:b.eff,gk:b.gk||0,dur:b.dur,fins:(b.fins||[]).slice(),fam:b.fam||null,ph:b.ph||null,pr:b.pr||null,rot:!!b.rot,ord:ordOf(b),
     gTheme:!!b.theme,gLibre:!!b.match,
     title:titleOf(b,blocks),blocks,by:store.who||"",ts:Date.now()}}
 
@@ -942,10 +967,8 @@ function viewHome(){
         <button class="srm" data-rm="${s.id}" title="${isMine(s)?"Supprimer cette séance":"Retirer de ma liste"}" aria-label="${isMine(s)?"Supprimer la séance "+esc(s.title):"Retirer de ma liste"}">🗑</button></div>`;
   return `<section class="card hero">
       <h2>Ta séance en deux minutes</h2>
-      <p>Dis-moi pour qui et combien de temps : l'assistant compose la séance avec les exercices, situations et jeux du guide FFF, ceux du club et celles des grandes académies et fédérations européennes. Tu ajustes, tu partages.</p>
+      <p>Choisis la catégorie et la durée : l'assistant compose une séance type, construite comme au BMF, avec les ateliers du guide FFF, du club et des grandes académies. Tu ajustes, tu partages.</p>
       <button class="big" id="start">➕ Créer une séance</button>
-      <button class="big alt" id="newAt">✚ Créer un atelier</button>
-      <p style="margin-top:10px;font-size:14px">Ton propre atelier, avec son schéma : il rejoint la banque du club à ton nom.</p>
     </section>
     ${HEDU?`<div class="hedu" style="margin-top:26px"><span>Les séances de <b>${esc(HEDU)}</b> · ${autres.length}</span><button class="ghostlink" id="hclr" style="margin:0;color:var(--muted)">✕ Toutes les séances</button></div>`:""}
     ${HEDU?"":`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:26px">
@@ -966,18 +989,18 @@ function clubAteliersHtml(){const all=clubAteliers();const hq=norm(HQ||"");
   const by={};all.forEach(g=>{if(g.by)by[g.by]=(by[g.by]||0)+1});const rank=Object.entries(by).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"fr"));
   const show=HAT||hq?list:list.slice(0,8);
   return `<h3 style="margin-top:30px">Les ateliers créés au Pau FC <span class="hint" style="font-weight:400">· ${all.length}</span></h3>
-    <p class="hint" style="margin-top:4px">Les ateliers inventés par les éducateurs du club. Ouvre-en un pour en faire ta version, ou pour modifier le tien.</p>
+    <p class="hint" style="margin-top:4px">Ceux inventés par les éducateurs du club. Touche-en un pour le modifier ou en faire ta version.</p>
     ${rank.length?`<div class="top3">${rank.slice(0,3).map(([n,k],i)=>`<span>${["🥇","🥈","🥉"][i]} ${esc(n)} · ${k} atelier${k>1?"s":""}</span>`).join("")}</div>
     <div class="chips" style="margin-top:8px">${rank.map(([n,k])=>`<button class="chip" data-hat="${esc(n)}" aria-pressed="${HAT===n}">${esc(n)} · ${k}</button>`).join("")}</div>`:""}
     ${show.length?`<div class="ateliers" style="margin-top:10px">${show.map(g=>`<button class="arow" data-at="${g.id}"><span class="ath">${g.schema?renderSchema(skNorm(g.schema)):"pas de schéma"}</span><span><span class="an">${esc(g.name)}</span><br><span class="as">${TYPE_LABEL[typeOf(g)]||""} · ${(g.cats||[]).join(" · ")}${g.by?" · <b>"+esc(g.by)+"</b>":""}${g.from?" · d'après "+esc(g.from):""}</span></span><span class="as">${g.mine?"✎ modifier":"✎ ma version"}</span></button>`).join("")}</div>
       ${!HAT&&!hq&&list.length>show.length?`<p class="hint" style="margin-top:8px">${list.length-show.length} autres : touche un prénom ou cherche un nom.</p>`:""}`
-      :`<p class="empty">Aucun atelier créé pour l'instant. Sois le premier : « Créer un atelier ».</p>`}`}
+      :`<p class="empty">Aucun atelier créé pour l'instant. Dans une séance, « + Ajouter » puis « Créer mon atelier ».</p>`}`}
 let HAT=null;
 function bindHome(){
   {const na=document.getElementById("newAt");if(na)na.addEventListener("click",()=>openGameEditor(0,"lib"))}
   document.querySelectorAll("[data-hat]").forEach(b=>b.addEventListener("click",()=>{HAT=HAT===b.dataset.hat?null:b.dataset.hat;render()}));
   document.querySelectorAll("[data-at]").forEach(b=>b.addEventListener("click",()=>{const g=clubAteliers().find(x=>x.id===b.dataset.at);if(g)openGameEditor(0,g.mine?"edit":"copy",g)}));
-  document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,gk:0,dur:60,fins:[],fam:null,n:3,match:true,theme:false,rot:false},store.last||{},{date:today(),ph:null});go("brief")});
+  document.getElementById("start").addEventListener("click",()=>{BRIEF=Object.assign({cats:[],date:today(),eff:12,gk:0,dur:60,fins:[],fam:null,n:3,match:true,theme:false,rot:false},store.last||{},{date:today(),ph:null});BRIEF.cats=(BRIEF.cats||[]).slice(0,1);BRIEF.fins=(BRIEF.fins||[]).slice(0,1);go("brief")});
   document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{SES=store.sessions.find(x=>x.id===b.dataset.open);EDIT=false;go("sheet")}));
   const wb=document.getElementById("whoBtn");if(wb)wb.addEventListener("click",askName);
   document.querySelectorAll("[data-hedu]").forEach(b=>b.addEventListener("click",()=>{HEDU=HEDU===b.dataset.hedu?null:b.dataset.hedu;render();window.scrollTo({top:0,behavior:"smooth"})}));
@@ -994,82 +1017,85 @@ function bindHome(){
     render();toast(mine?"Séance supprimée":"Séance retirée de ta liste")}))}
 
 /* =====================  ÉCRAN 2 · LE BRIEF  ===================== */
+/* principes de jeu : guide du formateur FFF, « La connaissance du jeu » (comportements collectifs / individuels, moyens d'action) */
+const MO_OFF="prise de balle et enchaînements, conduites, dribbles, passes, remises-déviations, jeu de corps, tirs, jeu de volée, jeu de tête";
+const MO_DEF="interceptions, tacles, jeu de volée, jeu de tête, contre";
+const PRINC={
+ A:[{id:"A1",n:"Créer et utiliser des espaces",co:"Agrandir l'espace de jeu effectif (largeur et profondeur) · voir et être vu, offrir des solutions au porteur",po:"Jouer sur un partenaire démarqué, qui a du temps et de l'espace pour enchaîner",np:"Prendre de la distance avec le porteur, ses partenaires et ses adversaires directs",mo:"passes, prise de balle et enchaînements, conduites",kw:/espace|largeur|profondeur|démarqu|écart|solution|appui|soutien|conserv|rondo|possession/i},
+    {id:"A2",n:"Jouer dans les intervalles et entre les lignes",co:"Jouer vers l'avant, collectivement ou individuellement, entre les lignes adverses",po:"Progresser quand l'espace est libre, déplacer le jeu quand il est bloqué",np:"Se démarquer entre les lignes en étant orienté",mo:"prise de balle orientée, passes, remises-déviations, conduites",kw:/intervalle|entre les lignes|vers l'avant|progress|traverser|franchir|casser la ligne|porte/i}],
+ E:[{id:"E1",n:"Jouer à l'opposé après avoir fixé collectivement",co:"Fixer dans une zone pour jouer dans une autre",po:"Créer des points de fixation par la conduite, le jeu court ; renverser par du jeu mi-long ou long",np:"Être disponible dans la zone du ballon ; prendre de la vitesse, lancé à l'opposé",mo:"passes longues, conduites, prise de balle et enchaînements",kw:/opposé|renvers|fixer|changer de côté|transvers|autre zone|autre moitié/i},
+    {id:"E2",n:"Jouer combiné pour créer un surnombre",co:"Augmenter le nombre de joueurs disponibles dans la zone de jeu",po:"Fixer l'adversaire pour décaler un partenaire ; changer de rythme (vitesse, nombre de touches, nature de la passe)",np:"Jeu à 2, à 3, une-deux, dédoublement ; changer de direction et de rythme ; permuter",mo:"passes courtes, remises-déviations, conduites",kw:/combin|surnombre|une-deux|dédoubl|2 contre 1|3 contre 2|2 c 1|3 c 2|décaler/i},
+    {id:"E3",n:"Se démarquer pour fixer et éliminer, passer ou finir",co:"Être en nombre devant le but",po:"Prendre ou garder un temps d'avance ; jouer dans le dos des défenseurs ; masquer ses intentions",np:"Sortir du champ visuel des défenseurs ; arriver lancé devant le but",mo:"dribbles, tirs, jeu de volée, jeu de tête",kw:/élimin|dribbl|feinte|tir|frapp|finir|finition|marqu|1 contre 1|1 c 1|centre|dans le dos/i}],
+ O:[{id:"O1",n:"Freiner la progression, organiser et réorganiser les alignements",co:"Empêcher l'adversaire de prendre de la vitesse, de voir et de jouer vers l'avant · constituer et reconstituer les lignes, le bloc",ind:"Presser, harceler le porteur ; marquer les receveurs potentiels ; se replacer dans sa ligne",mo:"interceptions, tacles, contre",kw:/press|harcel|freiner|récup|perte|intercept|replac|bloc|chasseur|chat|attraper/i}],
+ B:[{id:"B1",n:"S'organiser en déséquilibre",co:"Freiner, gagner du temps, se replacer",ind:"Ne pas se faire éliminer ; utiliser le recul-frein",mo:"tacles, interceptions, contre",kw:/infériorité|déséquilibre|recul|tempor|gagner du temps|1 contre 2|2 contre 3|1 c 2|2 c 3|contre-attaque/i},
+    {id:"B2",n:"Densifier et être actif dans l'axe ballon-but",co:"Créer de la densité entre le ballon et le but ; agir sur le porteur · couvrir, marquer",ind:"Cadrer et orienter le porteur ; couvrir son partenaire proche",mo:"interceptions, tacles, contre",kw:/cadr|couvert|couvrir|orient|axe|densit|fermer|marquage/i},
+    {id:"B3",n:"Défendre son but, récupérer ou dégager le ballon",co:"Donner la priorité à la densité dans l'axe du but",ind:"Empêcher ou gêner la dernière passe, le tir",mo:"contre, jeu de tête, jeu de volée, tacles",kw:/défendre (son|le|sa)|protég|château|dégag|contrer|empêch|gardien|surface|dernière passe/i}]};
+const prOf=id=>id?(PRINC[id[0]]||[]).find(p=>p.id===id)||null:null;
+const prHit=(g,pr)=>{const p=prOf(pr);return !!p&&p.kw.test((g.name||"")+" "+(g.desc||"")+" "+(g.var||"")+" "+(g.veiller||"")+" "+(g.org||""))};
+const ANIM=c=>["U7","U8","U9","U10","U11"].includes(c);
+const PH_SHORT2={A:"1 · Conserver, progresser",E:"2 · Déséquilibrer, finir",O:"3 · Empêcher de progresser",B:"4 · Protéger son but"};
+/* bloc « phase → principe → moyens » : on ne montre que ce qui découle du choix précédent */
+function phaseFlow(o,pre){const side=o.side||(o.ph?PHASES.find(p=>p.id===o.ph).side:null);const ph=o.ph?PHASES.find(p=>p.id===o.ph):null;const pr=prOf(o.pr);
+  const crumb=(attr,val,lab,cls)=>`<button class="crumb ${cls||""}" data-${pre}${attr}="${val}" title="Changer">${lab} <span aria-hidden="true">✕</span></button>`;
+  if(!side)return `<div class="pflow"><div class="seg pside">${["off","def"].map(sd=>`<button data-${pre}side="${sd}" aria-pressed="false">${sd==="off"?"⚽ Avec le ballon":"🛡 Sans le ballon"}</button>`).join("")}</div></div>`;
+  return `<div class="pflow"><div class="crumbs">${crumb("side",side,side==="off"?"⚽ Avec le ballon":"🛡 Sans le ballon")}${ph?crumb("ph",ph.id,`${ph.n} · ${esc(PH_SHORT[ph.id]||ph.name)}`,"phc "+ph.side):""}${pr?crumb("pr",pr.id,esc(pr.n),"on"):""}</div>
+    ${!ph?`<div class="chips pchips">${PHASES.filter(p=>p.side===side).map(p=>`<button class="chip phc ${p.side}" data-${pre}ph="${p.id}" aria-pressed="false">${p.n} · ${esc(PH_SHORT[p.id]||p.name)}</button>`).join("")}</div>`
+     :!pr?`<span class="qsub">Quel principe ?</span><div class="chips pchips">${PRINC[ph.id].map(p=>`<button class="chip" data-${pre}pr="${p.id}" aria-pressed="false">${esc(p.n)}</button>`).join("")}</div>`
+     :pre!=="p"?prBox(pr):""}</div>`}
+function prBox(pr){return `<div class="moy"><p><b>Collectif</b> · ${esc(pr.co)}</p>${pr.po?`<p><b>Porteur</b> · ${esc(pr.po)}</p><p><b>Non-porteur</b> · ${esc(pr.np)}</p>`:`<p><b>Individuel</b> · ${esc(pr.ind)}</p>`}<p><b>Moyens d'action</b> · ${esc(pr.mo)}</p></div>`}
+function bindPhaseFlow(host,o,pre,cb){
+  host.querySelectorAll(`[data-${pre}side]`).forEach(b=>b.addEventListener("click",()=>{const sd=b.getAttribute(`data-${pre}side`);const cur=o.side||(o.ph?PHASES.find(p=>p.id===o.ph).side:null);
+    if(cur===sd){o.side=null;o.ph=null;o.pr=null}else{o.side=sd;o.ph=null;o.pr=null}cb()}));
+  host.querySelectorAll(`[data-${pre}ph]`).forEach(b=>b.addEventListener("click",()=>{const v=b.getAttribute(`data-${pre}ph`);if(o.ph===v){o.ph=null;o.pr=null}else{o.ph=v;o.pr=PRINC[v].length===1?PRINC[v][0].id:null}cb()}));
+  host.querySelectorAll(`[data-${pre}pr]`).forEach(b=>b.addEventListener("click",()=>{const v=b.getAttribute(`data-${pre}pr`);o.pr=o.pr===v?null:v;cb()}))}
+const bmfN=d=>d<=45?2:d>=90?4:3;
+const PETITS=c=>["U7","U8","U9"].includes(c);
+const PH_SHORT={A:"Conserver, progresser",E:"Déséquilibrer, finir",O:"Empêcher de progresser",B:"Protéger son but"};
+function bmfSteps(c,d){return ["Accueil","Mise en train"].concat(ordSeq("bmf",bmfN(d)).map(x=>TYPE_LABEL[x])).concat([PETITS(c)?"Match libre":"Jeu à thème","Retour au calme"])}
 function viewBrief(){
-  const b=BRIEF;const ok=b.cats.length>0;
-  const nS=k=>Object.values(GAMES).filter(g=>(!k||srcOf(g)===k)&&(!b.cats.length||!g.cats||g.cats.some(c=>b.cats.includes(c)))).length;
+  const b=BRIEF;const c=b.cats[0];const ok=!!c;
+  const fins=ok?APPR.filter(f=>poolFor(b.cats,["atelier","defi"],true).some(g=>g.fin===f.id)):[];
   return `<section class="card">
-    <div class="q" style="margin-top:0"><span class="qlab">Pour qui ?</span>
-      <div class="chips" id="qcats">${CATS.map(c=>`<button class="chip" data-cat="${c}" aria-pressed="${b.cats.includes(c)}">${c}</button>`).join("")}</div>
-      <p class="hint" style="margin-top:8px">${b.cats.length?`${poolFor(b.cats,["atelier","defi"]).length} ateliers et défis disponibles pour ${b.cats.join(", ")}.${srcSel()&&poolFor(b.cats,["atelier","defi"],true).length>poolFor(b.cats,["atelier","defi"]).length?` (${poolFor(b.cats,["atelier","defi"],true).length} avec toutes les sources)`:""}`:"Choisis une ou plusieurs catégories."}</p></div>
-
+    <div class="q" style="margin-top:0"><span class="qlab">Pour quelle catégorie ?</span>
+      <div class="chips hs" id="qcats">${CATS.map(x=>`<button class="chip" data-cat="${x}" aria-pressed="${c===x}">${x}</button>`).join("")}</div></div>
     <div class="q"><span class="qlab">Quel jour ?</span>
       <input class="datein" type="date" id="qdate" value="${b.date}"></div>
-
     <div class="q"><span class="qlab">Combien de temps ?</span>
-      <div class="chips" id="qdur">${DUREES.map(d=>`<button class="chip" data-dur="${d}" aria-pressed="${b.dur===d}">${d} min</button>`).join("")}</div></div>
-
+      <div class="chips hs" id="qdur">${DUREES.map(d=>`<button class="chip" data-dur="${d}" aria-pressed="${b.dur===d}">${d} min</button>`).join("")}</div></div>
     <div class="q"><span class="qlab">Combien d'enfants ?</span>
-      <div class="stepper"><button id="effm" aria-label="Moins" ${b.eff<=4?"disabled":""}>−</button><span class="v num" id="effv">${b.eff}</span><button id="effp" aria-label="Plus" ${b.eff>=30?"disabled":""}>+</button><span class="u">enfants</span></div>
-      ${b.cats.some(c=>!["U7","U8"].includes(c))?`<div class="stepper" style="margin-top:8px"><button id="gkm" aria-label="Moins de gardiens" ${!b.gk?"disabled":""}>−</button><span class="v num" id="gkv">${b.gk||0}</span><button id="gkp" aria-label="Plus de gardiens" ${(b.gk||0)>=3?"disabled":""}>+</button><span class="u">dont gardien${(b.gk||0)>1?"s":""} 🧤</span></div>
-      <p class="hint" style="margin-top:6px">${b.gk?"Avec un gardien présent, la séance glisse un atelier où il joue vraiment son rôle — sans en faire le thème.":"Sans gardien, les ateliers qui en demandent un passent au second plan (un enfant peut toujours tenir le but)."}</p>`:""}</div>
+      <div class="steps2"><div class="stepper"><button id="effm" aria-label="Moins" ${b.eff<=4?"disabled":""}>−</button><span class="v num" id="effv">${b.eff}</span><button id="effp" aria-label="Plus" ${b.eff>=30?"disabled":""}>+</button><span class="u">enfants</span></div>
+      ${ok&&!["U7","U8"].includes(c)?`<div class="stepper"><button id="gkm" aria-label="Moins de gardiens" ${!b.gk?"disabled":""}>−</button><span class="v num" id="gkv">${b.gk||0}</span><button id="gkp" aria-label="Plus de gardiens" ${(b.gk||0)>=3?"disabled":""}>+</button><span class="u">gardien${(b.gk||0)>1?"s":""} 🧤</span></div>`:""}</div></div>
   </section>
-
   <section class="card">
-    <div class="q" style="margin-top:0"><span class="qlab">D'abord la phase de jeu et le principe <span style="font-weight:400;text-transform:none;letter-spacing:0">(facultatif · un ou plusieurs)</span></span>
-      ${["off","def"].map(sd=>`<div class="phside"><span class="phsl ${sd}">${SIDE_LABEL[sd]}</span><div class="chips">${PHASES.filter(p=>p.side===sd).map(p=>`<button class="chip phc ${sd}" data-bph="${p.id}" aria-pressed="${(b.ph||"").includes(p.id)}">${p.n} · ${esc(p.name)}</button>`).join("")}</div></div>`).join("")}
-      <p class="hint" style="margin-top:8px">${b.ph?`Les ateliers de ${b.ph.length>1?"ces principes":"ce principe"} passent en priorité ; s'il n'y en a pas assez pour ${b.cats.length?b.cats.join(", "):"la catégorie"}, l'assistant complète avec d'autres. La mise en train, le jeu et le retour au calme restent libres.`:"Comme dans le guide FFF : mon équipe a le ballon (1-2), mon équipe n'a pas le ballon (3-4). Sans choix, l'assistant pioche dans toutes les phases."}</p></div>
-
-    <div class="q"><span class="qlab">Puis le geste technique à travailler <span style="font-weight:400;text-transform:none;letter-spacing:0">(facultatif)</span></span>
-      <div class="chips" id="qfins">${APPR.filter(f=>poolFor(b.cats,["atelier","defi"]).some(g=>g.fin===f.id)).map(f=>`<button class="chip" data-fin="${f.id}" aria-pressed="${b.fins.includes(f.id)}">${esc(f.name)}</button>`).join("")||`<span class="hint">Choisis d'abord une catégorie.</span>`}</div></div>
-
-    <div class="q"><span class="qlab">Combien d'ateliers ?<button class="info" id="iKinds" aria-label="Les types de blocs, expliqués">i</button></span>
-      <div class="stepper"><button id="nm" aria-label="Moins" ${b.n<=1?"disabled":""}>−</button><span class="v num" id="nv">${b.n}</span><button id="np" aria-label="Plus" ${b.n>=5?"disabled":""}>+</button><span class="u">ateliers</span></div>
-      <p class="hint" style="margin-top:8px">Le cœur de la séance : des <b>exercices techniques</b> (analytiques ou adaptatifs), des <b>situations</b> et des <b>jeux</b>. L'accueil, la mise en train, le jeu de fin et le retour au calme s'ajoutent tout seuls.</p></div>
-
-    <div class="q"><span class="qlab">Dans quel ordre ?</span>
-      <div class="seg" id="qbmf"><button data-ord="" aria-pressed="${!ordOf(b)}">Au choix</button><button data-ord="prog" aria-pressed="${ordOf(b)==="prog"}">Du simple au complexe</button><button data-ord="bmf" aria-pressed="${ordOf(b)==="bmf"}">Construction BMF</button></div>
-      <p class="hint" style="margin-top:8px">${ordOf(b)?`${ordOf(b)==="prog"?"Du plus guidé au plus proche du match":"La construction de séance de la formation FFF (BMF)"} : ${ordSeq(ordOf(b),b.n).map(p=>TYPE_LABEL[p].toLowerCase()).join(" → ")}, puis le jeu de fin. S'il manque une fiche d'un type pour ${b.cats.length?b.cats.join(", "):"la catégorie"}, l'assistant complète avec ce qu'il a.`:"L'assistant mélange exercices, situations et jeux selon ce que la bibliothèque propose."}</p></div>
-
-    <div class="q"><span class="qlab">Comment les mener ?</span>
-      <div class="seg" id="qrot"><button data-rot="0" aria-pressed="${!b.rot}">L'une après l'autre</button><button data-rot="1" aria-pressed="${b.rot}">⟳ En ateliers tournants</button></div>
-      <p class="hint" style="margin-top:8px">${b.rot?`Le groupe est partagé en ${b.n} sous-groupes qui tournent d'un atelier à l'autre.`:"Tout le groupe fait le même atelier en même temps."}</p></div>
-
-    <div class="q"><span class="qlab">Et pour finir ?</span>
-      <button class="switch" id="qtheme" aria-pressed="${b.theme}"><span><b>Un jeu à thème</b><span class="sub">Le match avec une consigne de la séance à respecter pour que le but compte</span></span><span class="tog" aria-hidden="true"></span></button>
-      <button class="switch" id="qmatch" aria-pressed="${b.match}"><span><b>Un jeu libre</b><span class="sub">On joue, on ne coupe pas : festi-foot, jeu réduit</span></span><span class="tog" aria-hidden="true"></span></button>
-      ${!b.match&&!b.theme?`<p class="hint" style="margin-top:8px">Aucun des deux : la séance s'arrête après le dernier atelier.</p>`:b.match&&b.theme?`<p class="hint" style="margin-top:8px">Les deux : on joue d'abord avec la consigne, puis on lâche tout.</p>`:""}</div>
-
-    <div class="q"><span class="qlab">Dans quoi puiser ?</span>
-      <div class="seg src" id="qsrc">${SRC_KEYS.map(k=>`<button data-src="${k}" aria-pressed="${srcSel()===k}">${SRC_LABEL[k]} <span class="n">${nS(k)}</span></button>`).join("")}</div>
-      <p class="hint" style="margin-top:8px">${{"":"Tout ce que la bibliothèque contient : le guide fédéral, les fiches du club et celles inspirées des autres académies.",fff:"Uniquement le guide fédéral.",club:"Uniquement les fiches créées par les éducateurs du club.",autre:"Uniquement les fiches inspirées de la FA, du DFB, de La Masia, de la FIGC, de l'Ajax…"}[srcSel()]}</p></div>
+    ${ok&&!ANIM(c)?`<div class="q" style="margin-top:0"><span class="qlab">Thème de la séance <span class="opt">facultatif</span></span>
+      ${phaseFlow(b,"b")}<p class="hint" style="margin-top:8px">Comme le préconise la FFF en préformation : une phase et un principe pour toute la séance.</p></div>`:ok?`<p class="hint" style="margin:0 0 4px">Foot d'animation : la séance mélange les apprentissages, comme le préconise la FFF. La phase de jeu se choisit atelier par atelier, avec ⇄.</p>`:""}
+    <div class="q"><span class="qlab">Un geste technique ? <span class="opt">facultatif</span></span>
+      ${ok?`<div class="chips hs" id="qfins">${fins.map(f=>`<button class="chip" data-fin="${f.id}" aria-pressed="${b.fins.includes(f.id)}">${esc(f.name)}</button>`).join("")}</div>`:`<p class="hint">Choisis d'abord la catégorie.</p>`}</div>
   </section>
-
+  ${ok?`<section class="card bmfcard"><span class="qlab">Ta séance type ${c} · ${b.dur} min</span>
+    <ol class="bmfl">${bmfSteps(c,b.dur).map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
+    <p class="hint" style="margin-top:8px">La construction de séance du BMF, adaptée à ${c}. L'assistant choisit les ateliers ; tu pourras tout changer ensuite.</p></section>`:""}
   <div class="actionbar"><div class="in">
     <button class="btn gold" id="build" ${ok?"":"disabled"} style="${ok?"":"opacity:.45"}">⚡ Composer ma séance</button>
     <button class="btn icon" id="blank" title="Partir d'une feuille vide" aria-label="Partir d'une feuille vide">✎</button>
   </div></div>`}
 function bindBrief(){
   const b=BRIEF;const re=()=>{store.last=Object.assign({},b);save();render()};
-  document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>{const c=el.dataset.cat;const i=b.cats.indexOf(c);if(i<0)b.cats.push(c);else b.cats.splice(i,1);
-    b.fins=b.fins.filter(f=>poolFor(b.cats,["atelier","defi"]).some(g=>g.fin===f));re()}));
+  document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>{const c=el.dataset.cat;b.cats=[c];if(["U7","U8"].includes(c))b.gk=0;
+    b.fins=b.fins.filter(f=>poolFor(b.cats,["atelier","defi"],true).some(g=>g.fin===f));re()}));
   document.querySelectorAll("[data-dur]").forEach(el=>el.addEventListener("click",()=>{b.dur=+el.dataset.dur;re()}));
-  document.querySelectorAll("[data-src]").forEach(el=>el.addEventListener("click",()=>{store.srcSel=el.dataset.src||"";
-    b.fins=b.fins.filter(f=>poolFor(b.cats,["atelier","defi"]).some(g=>g.fin===f));re()}));
-  document.querySelectorAll("[data-bph]").forEach(el=>el.addEventListener("click",()=>{const c=el.dataset.bph;let v=b.ph||"";v=v.includes(c)?v.replace(c,""):PHASES.map(p=>p.id).filter(x=>v.includes(x)||x===c).join("");b.ph=v||null;re()}));
-  document.querySelectorAll("[data-fin]").forEach(el=>el.addEventListener("click",()=>{const f=el.dataset.fin;const i=b.fins.indexOf(f);if(i<0)b.fins.push(f);else b.fins.splice(i,1);re()}));
-  document.querySelectorAll("[data-rot]").forEach(el=>el.addEventListener("click",()=>{b.rot=el.dataset.rot==="1";re()}));
-  document.querySelectorAll("[data-ord]").forEach(el=>el.addEventListener("click",()=>{b.ord=el.dataset.ord||"";b.bmf=false;re()}));
+  bindPhaseFlow(document,b,"b",re);
+  document.querySelectorAll("[data-fin]").forEach(el=>el.addEventListener("click",()=>{const f=el.dataset.fin;b.fins=b.fins.includes(f)?[]:[f];re()}));
   document.getElementById("qdate").addEventListener("change",e=>{b.date=e.target.value||today()});
-  const step=(id,key,min,max)=>{document.getElementById(id+"m").addEventListener("click",()=>{b[key]=Math.max(min,b[key]-1);re()});
-    document.getElementById(id+"p").addEventListener("click",()=>{b[key]=Math.min(max,b[key]+1);re()})};
-  step("eff","eff",4,30);step("n","n",1,5);
+  const step=(id,key,min,max)=>{document.getElementById(id+"m").addEventListener("click",()=>{b[key]=Math.max(min,(b[key]||0)-1);re()});
+    document.getElementById(id+"p").addEventListener("click",()=>{b[key]=Math.min(max,(b[key]||0)+1);re()})};
+  step("eff","eff",4,30);
   if(document.getElementById("gkm"))step("gk","gk",0,3);else b.gk=0;
-  document.getElementById("iKinds").addEventListener("click",showKinds);
-  document.getElementById("qmatch").addEventListener("click",()=>{b.match=!b.match;re()});
-  document.getElementById("qtheme").addEventListener("click",()=>{b.theme=!b.theme;re()});
-  document.getElementById("build").addEventListener("click",()=>{if(!b.cats.length)return;
+  /* la construction BMF est la règle : nombre d'ateliers selon la durée, jeu de fin selon l'âge, toutes les sources */
+  const cfg=()=>{b.n=bmfN(b.dur);b.ord="bmf";b.bmf=false;b.rot=false;const p=PETITS(b.cats[0]);b.match=p;b.theme=!p;store.srcSel="";if(ANIM(b.cats[0])){b.ph=null;b.pr=null;b.side=null}};
+  document.getElementById("build").addEventListener("click",()=>{if(!b.cats.length)return;cfg();
     AVOID=[];const blocks=suggest(b,[]);SES=newSession(b,blocks);EDIT=false;store.last=Object.assign({},b);persist();save();go("sheet")});
-  document.getElementById("blank").addEventListener("click",()=>{if(!b.cats.length){toast("Choisis au moins une catégorie");return}
+  document.getElementById("blank").addEventListener("click",()=>{if(!b.cats.length){toast("Choisis d'abord la catégorie");return}cfg();
     const acc=poolFor(b.cats,["accueil"])[0],cal=poolFor(b.cats,["calme"])[0];
     const blocks=[];if(acc)blocks.push({g:acc.id,dur:5});if(cal)blocks.push({g:cal.id,dur:5});
     SES=newSession(b,blocks);SES.title="Ma séance";EDIT=true;store.last=Object.assign({},b);persist();save();go("sheet")})}
@@ -1100,7 +1126,7 @@ function viewSheet(){
     <div class="shead">
       <div class="eyebrow">${cap(fmtLong(s.date))}</div>
       <h2 id="stitle">${esc(s.title)}</h2>
-      <div class="meta"><span class="pill">${s.cats.join(" · ")}</span><span class="pill num">${tot} min</span><span class="pill num">${s.eff} enfants${s.gk?` · ${s.gk} gardien${s.gk>1?"s":""} 🧤`:""}</span>${!isMine(s)?`<span class="pill by">✎ ${esc(s.by)}</span>`:s.from?`<span class="pill by">reprise de ${esc(s.from)}</span>`:""}</div>
+      ${s.ph?`<div class="pline">${esc(PH_SHORT2[s.ph]||"")}${prOf(s.pr)?`${s.title!==prOf(s.pr).n?" › "+esc(prOf(s.pr).n):""}<span class="pmo">${esc(prOf(s.pr).co.split(" · ")[0])} · moyens : ${esc(prOf(s.pr).mo)}</span>`:""}</div>`:""}<div class="meta"><span class="pill">${s.cats.join(" · ")}</span><span class="pill num">${tot} min</span><span class="pill num">${s.eff} enfants${s.gk?` · ${s.gk} gardien${s.gk>1?"s":""} 🧤`:""}</span>${!isMine(s)?`<span class="pill by">✎ ${esc(s.by)}</span>`:s.from?`<span class="pill by">reprise de ${esc(s.from)}</span>`:""}</div>
     </div>
     <div class="blocks">
       ${draftBar}${ro?`<div class="robar">👀 Séance de <b>${esc(s.by)}</b> : tu peux la consulter, la partager ou l'imprimer, pas la modifier. « ⧉ Reprendre » t'en fait une copie à ton nom, que tu adaptes comme tu veux.</div>`:""}<div style="padding:12px 16px 0"><div class="tl">${tl}</div>
@@ -1125,31 +1151,30 @@ function viewSheet(){
 function editList(){
   const bl=SES.blocks;const grp=rotGroups(bl);
   const slot=i=>{const b=bl[i];const mid=i>0&&i<bl.length;
-    return `${PICK&&PICK.at===i?"":""}<div class="slot"><button class="plus" data-add="${i}" aria-label="Ajouter ici">+</button>${mid?`<button class="rotpill${b.rot?" on":""}" data-rot="${i}" aria-pressed="${!!b.rot}">⟳ ${b.rot?"tournent ensemble":"faire tourner ensemble"}</button>`:""}</div>`};
+    return `${PICK&&PICK.at===i?"":""}<div class="slot"><button class="plus" data-add="${i}" aria-label="Ajouter ici">+</button></div>`};
   const rows=bl.map((b,i)=>{const g=gameOf(b.g);const nm=b.name||g.name;
     return `${slot(i)}<div class="erow${grp[i]>=0?" inrot":""}" data-i="${i}">
       <button class="grip" data-grip="${i}" aria-label="Déplacer le bloc ${i+1}"><span aria-hidden="true">⠿</span><span class="n num">${i+1}</span></button>
       <div class="ename">${typeBadge(g)}<b>${esc(nm)}</b></div>
       <div class="etools">
         ${["atelier","defi","eveil","match"].includes(g.kind)?`<button class="btn sm" data-roll="${i}" title="Une autre proposition">↻</button>`:""}
-        <button class="btn sm" data-chg="${i}">⇄ Changer</button>
+        <button class="btn sm" data-chg="${i}" aria-label="Changer d'atelier">⇄</button>
         <label class="dur"><input type="number" min="1" max="90" data-dur="${i}" value="${b.dur||g.dur}" aria-label="Durée en minutes"> min</label>
-        <button class="btn sm" data-txt="${i}" aria-expanded="${!!b._open}">✎ Texte${b.name||b.desc||b.var?" ·":""}</button>
-        <button class="btn sm" data-fork="${i}" title="Modifier le schéma, le type, la phase… : crée ta version de l'atelier, partagée avec le club">✎ Schéma et atelier</button>
+        <button class="btn sm" data-txt="${i}" aria-expanded="${!!b._open}" aria-label="Modifier le texte">✎</button>
         <button class="btn sm" data-rm="${i}" aria-label="Retirer de la séance" style="color:var(--danger)">✕</button>
       </div>
       ${b._open?`<div class="etxt">
         <label>Nom de l'atelier<input type="text" data-tk="name" data-i="${i}" value="${esc(nm)}"></label>
         <label>Déroulé et consignes<textarea data-tk="desc" data-i="${i}" rows="4">${esc(b.desc===undefined?(g.desc||""):b.desc)}</textarea></label>
         <label>Variantes<textarea data-tk="var" data-i="${i}" rows="2">${esc(b.var===undefined?(g.var||""):b.var)}</textarea></label>
-        <button class="btn sm" data-txtreset="${i}">Revenir au texte d'origine</button></div>`:""}
+        <div class="etxtb"><button class="btn sm" data-fork="${i}">✎ Modifier le schéma (ma version)</button><button class="btn sm" data-txtreset="${i}">Revenir au texte d'origine</button></div></div>`:""}
     </div>`}).join("");
   const tot=totalOf(SES),cible=SES.dur||tot,ecart=tot-cible;
   return `<div style="padding:14px 16px 18px">
     <div class="field" style="margin-top:0"><label for="etitle">Titre de la séance</label><input id="etitle" type="text" value="${esc(SES.title)}"></div>
     <div class="tbar${ecart?" off":""}"><span><b class="num">${tot} min</b> ${ecart===0?"— pile ce qui était prévu":ecart>0?`— ${ecart} de plus que les ${cible} prévues`:`— ${-ecart} de moins que les ${cible} prévues`}</span>${ecart?`<button class="btn sm" id="reb">Rééquilibrer</button>`:""}</div>
     <div class="elist">${rows}${slot(bl.length)}</div>
-    <p class="hint" style="margin-top:12px">Glisse un bloc par sa poignée pour changer l'ordre. Le <b>+</b> ajoute un exercice, une situation ou un jeu à cet endroit.</p>
+    <p class="hint" style="margin-top:12px">⠿ déplacer · ↻ autre proposition du même type · ⇄ choisir un autre atelier · ✎ texte et schéma · <b>+</b> ajouter ici.</p>
   </div>`}
 
 /* Remplace un seul bloc par une autre proposition du même registre. */
@@ -1166,6 +1191,8 @@ function reroll(i){const b=SES.blocks[i];const g0=gameOf(b.g);
   if(atelier){const dfs=poolWide(SES.cats,["defi"],4).filter(g=>g.id!==b.g&&!SES.blocks.some((x,j)=>j!==i&&x.g===g.id)&&!usedRoots.includes(rootKey(g.name))&&!g.evt);
     const ids=new Set(pool.map(g=>g.id));dfs.forEach(g=>{if(!ids.has(g.id))pool.push(g)})}
   pool=pool.filter(g=>!/futsal|hand/i.test(g.name+" "+(g.desc||"")));
+  /* même typologie que le bloc : un exercice reste un exercice, une situation une situation, un jeu un jeu */
+  if(atelier){const tf=b.tf0||TF(g0);b.tf0=tf;const same=pool.filter(g=>TF(g)===tf);if(same.length)pool=same}
   /* les temps forts (fête, plateau, tournoi, bilan) ne sont jamais proposés automatiquement */
   const evt=g=>!!g.evt;
   pool=pool.filter(g=>!evt(g));
@@ -1187,9 +1214,9 @@ function reroll(i){const b=SES.blocks[i];const g0=gameOf(b.g);
   /* le ↻ tourne sur tout le registre : le gardien n'est qu'une légère préférence, jamais une condition */
   const gkW=SES.gk?1.4:0.7;
   const phW=x=>!(atelier&&SES.ph)?1:SES.ph.includes(phMain(x)||"#")?6:SES.ph.includes(phOf(x)[1]||"#")?2.5:1;
-  const g=pickW(neufs,[],x=>((atelier&&SES.fins&&SES.fins.length&&SES.fins.includes(x.fin))?3:1)*(atelier&&gkPlay(x)?gkW:1)*phW(x));
+  const g=pickW(neufs,[],x=>((atelier&&SES.fins&&SES.fins.length&&SES.fins.includes(x.fin))?3:1)*(atelier&&gkPlay(x)?gkW:1)*phW(x)*(atelier&&SES.pr&&prHit(x,SES.pr)?3:1));
   SEEN[i]=(SEEN[i]||[]).concat(g.id);markUsed([g.id]);
-  SES.blocks[i]={g:g.id,dur:b.dur,rot:b.rot,k0};
+  SES.blocks[i]={g:g.id,dur:b.dur,rot:b.rot,k0,tf0:b.tf0};
   if(theme){const th=themeFor(SES.fins,themeLabel(b));SES.blocks[i].name="Jeu à thème · "+th[0];
     SES.blocks[i].desc="Consigne du jour : "+th[1]+"\n"+(g.desc||"")}
   persist();render();
@@ -1251,7 +1278,7 @@ function bindSheet(){
   document.getElementById("edit").addEventListener("click",()=>{if(ensureMine()){EDIT=false;render();window.scrollTo({top:0,behavior:"smooth"});return}EDIT=true;persist();render()});
   const agn=document.getElementById("again");if(agn)agn.addEventListener("click",()=>{ensureMine();
     AVOID=AVOID.concat(SES.blocks.map(b=>b.g));if(AVOID.length>60)AVOID=AVOID.slice(-40);
-    const b={cats:SES.cats,date:SES.date,eff:SES.eff,gk:SES.gk||0,dur:SES.dur,fins:SES.fins,fam:SES.fam||null,n:Math.max(1,SES.blocks.filter(x=>["atelier","defi"].includes(gameOf(x.g).kind)).length),
+    const b={cats:SES.cats,date:SES.date,eff:SES.eff,gk:SES.gk||0,dur:SES.dur,fins:SES.fins,fam:SES.fam||null,ph:SES.ph||null,pr:SES.pr||null,n:Math.max(1,SES.blocks.filter(x=>["atelier","defi"].includes(gameOf(x.g).kind)).length),
       match:!!SES.gLibre,theme:!!SES.gTheme,rot:SES.rot,ord:SES.ord||(SES.bmf?"bmf":"")};
     const blocks=suggest(b,AVOID);SES.blocks=blocks;SES.title=titleOf(b,blocks);persist();render();toast("Une autre proposition")});
   const vb=document.getElementById("validate");if(vb)vb.addEventListener("click",()=>{validateDraft();render()});
@@ -1291,7 +1318,7 @@ function bindDrag(){const list=document.querySelector(".elist");if(!list)return;
       window.addEventListener("pointermove",move);window.addEventListener("pointerup",up,{once:true});window.addEventListener("pointercancel",up,{once:true})})})}
 
 /* ---------- sélecteur d'ateliers (feuille modale) ---------- */
-function openPicker(mode,i){PICK={mode,at:i,q:"",fin:null,side:null,ph:null};renderModal();
+function openPicker(mode,i){const cur=mode==="replace"&&SES.blocks[i]?gameOf(SES.blocks[i].g):null;PICK={mode,at:i,q:"",cat:(SES.cats||[])[0]||"U9",tf:cur?TF(cur):"",club:false,cur:cur?cur.name:"",ph:SES.ph||null,pr:SES.pr||null,side:null,more:!!SES.ph};renderModal();
   setTimeout(()=>{const s=document.getElementById("pq");if(s&&window.innerWidth>720)s.focus()},120)}
 function closePicker(){PICK=null;renderModal()}
 function renderModal(){
@@ -1299,49 +1326,50 @@ function renderModal(){
   if(!PICK&&!GED){host.innerHTML="";document.body.style.overflow="";return}
   document.body.style.overflow="hidden";
   if(GED){host.innerHTML=gameEditorHtml();bindGameEditor();return}
-  const cats=SES.cats;const q=(PICK.q||"").toLowerCase();
-  let list=Object.values(GAMES).filter(g=>!g.cats||g.cats.some(c=>cats.includes(c)));
-  list=list.filter(g=>srcOn(g)||PICK.q);
-  if(PICK.fin&&PICK.fin.startsWith("t:"))list=list.filter(g=>typeOf(g)===PICK.fin.slice(2));
-  else if(PICK.fin)list=list.filter(g=>g.fin===PICK.fin);
-  let secN=0;if(PICK.side||PICK.ph){const main=list.filter(g=>phMatch(g,PICK.side,PICK.ph));
-    const sec=list.filter(g=>!main.includes(g)&&phOf(g)[1]&&(PICK.ph?phOf(g)[1]===PICK.ph:PHASES.find(p=>p.id===phOf(g)[1]).side===PICK.side));secN=sec.length;list=main.concat(sec.map(g=>Object.assign(Object.create(g),{_sec:1})))}
-  if(q)list=list.filter(g=>(g.name+" "+(g.desc||"")+" "+(g.src||"")+" "+(g.rf||"")).toLowerCase().includes(q));
-  list.sort((a,b)=>((a._sec||0)-(b._sec||0))||(TYPE_ORDER.indexOf(typeOf(a))-TYPE_ORDER.indexOf(typeOf(b)))||a.name.localeCompare(b.name,"fr"));
-  const nMine=Object.keys(store.custom||{}).length+Object.keys(store.club||{}).length;
-  const fins=APPR.filter(f=>Object.values(GAMES).some(g=>g.fin===f.id&&(!g.cats||g.cats.some(c=>cats.includes(c)))));
+  const q=norm(PICK.q||"");const cat=PICK.cat;
+  let list=Object.values(GAMES).filter(g=>!g.cats||g.cats.includes(cat));
+  const tfs=["ex","situation","jeu","eveil"].filter(k=>list.some(g=>TF(g)===k));
+  if(PICK.tf)list=list.filter(g=>TF(g)===PICK.tf);
+  if(PICK.club)list=list.filter(g=>g.mine||g.club);
+  const sideOf=PICK.side||(PICK.ph?PHASES.find(p=>p.id===PICK.ph).side:null);
+  if(PICK.ph)list=list.filter(g=>phOf(g).includes(PICK.ph));else if(sideOf)list=list.filter(g=>phOf(g).some(x=>(PHASES.find(p=>p.id===x)||{}).side===sideOf));
+  let prNone=false;if(PICK.pr){const l2=list.filter(g=>prHit(g,PICK.pr));if(l2.length)list=l2;else prNone=true}
+  if(q)list=list.filter(g=>norm(g.name+" "+(g.desc||"")+" "+(g.by||"")).includes(q));
+  const rk=g=>g.mine?0:g.club?1:2;
+  list.sort((a,b)=>(rk(a)-rk(b))||(TYPE_ORDER.indexOf(typeOf(a))-TYPE_ORDER.indexOf(typeOf(b)))||a.name.localeCompare(b.name,"fr"));
+  const nClub=list.filter(g=>g.mine||g.club).length;
+  const row=g=>`<button class="mrow" data-pick="${g.id}">
+        <span class="mini">${g.schema?renderSchema(g.schema):`<span style="font-size:22px">${g.kind==="accueil"?"🤝":g.kind==="calme"?"🙌":"⚽"}</span>`}</span>
+        <span><b>${esc(g.name)}</b><span class="meta">${typeBadge(g)}${g.dur}'${g.mine?" · le mien":g.club?" · "+esc(g.by||"un éducateur"):g.auteur==="autre"?" · ◎ "+esc(g.orig||"autre académie"):""}</span></span>
+        <span class="go" aria-hidden="true">${PICK.mode==="insert"?"+":"›"}</span></button>`;
   host.innerHTML=`<div class="sheetmodal" id="ov"><div class="modal" role="dialog" aria-modal="true" aria-label="Choisir un atelier">
     <div class="mhead"><div class="grab"></div>
-      <h3>${PICK.mode==="insert"?"Ajouter à la séance":"Remplacer"}</h3>
-      <p class="hint">${cats.join(", ")} · un clic et c'est fait.</p>
-      <div class="msearch"><input id="pq" type="search" placeholder="Rechercher…" value="${esc(PICK.q)}" aria-label="Rechercher un atelier"></div>
+      <h3>${PICK.mode==="insert"?"Ajouter un atelier":"Changer d'atelier"}</h3>
+      ${PICK.cur?`<p class="hint">À la place de « ${esc(PICK.cur)} »</p>`:""}
+      <div class="msearch"><input id="pq" type="search" placeholder="Rechercher un atelier, un éducateur…" value="${esc(PICK.q)}" aria-label="Rechercher un atelier"></div>
     </div>
-    <div class="mfilt msrc">
-      ${SRC_KEYS.map(k=>`<button data-s="${k}" aria-pressed="${srcSel()===k}">${SRC_LABEL[k]}</button>`).join("")}
-    </div>
-    <div class="mfilt mph">
-      <button data-ph="" aria-pressed="${!PICK.ph}">Toutes les phases</button>
-      ${PHASES.map(p=>`${p.n===1||p.n===3?`<span class="sidelab ${p.side}">${SIDE_LABEL[p.side]}</span>`:""}<button class="sub ${p.side}" data-ph="${p.id}" aria-pressed="${PICK.ph===p.id}">${p.n} · ${esc(p.name)}</button>`).join("")}
-    </div>
+    <div class="mfilt">${CATS.map(c=>`<button data-pc="${c}" aria-pressed="${cat===c}">${c}</button>`).join("")}</div>
     <div class="mfilt">
-      <button data-f="" aria-pressed="${!PICK.fin}">Tous</button>
-      ${TYPE_ORDER.filter(t=>!["accueil","calme"].includes(t)).filter(t=>!PICK.ph||PICK.fin==="t:"+t||Object.values(GAMES).some(g=>typeOf(g)===t&&phMatch(g,null,PICK.ph))).map(t=>`<button data-f="t:${t}" aria-pressed="${PICK.fin==="t:"+t}"${PROC_HELP[t]?` title="${esc(PROC_HELP[t])}"`:""}>${TYPE_LABEL[t]}</button>`).join("")}
-      ${fins.map(f=>`<button data-f="${f.id}" aria-pressed="${PICK.fin===f.id}">${esc(f.name)}</button>`).join("")}
+      <button data-tf="" aria-pressed="${!PICK.tf}">Tous</button>
+      ${tfs.map(k=>`<button data-tf="${k}" aria-pressed="${PICK.tf===k}">${TF_LABEL[k]}</button>`).join("")}
+      <button data-club="1" aria-pressed="${PICK.club}">★ Du club</button>
+      <button data-pmore="1" aria-pressed="${PICK.more||!!PICK.ph}">Phase de jeu ${PICK.more||PICK.ph?"▴":"▾"}</button>
     </div>
-    <div class="mlist"><button class="mrow mnew" id="pnew"><span class="mini" style="font-size:24px">✚</span><span><b>Créer mon propre atelier</b><span class="meta">Nom, déroulé, terrain dessiné · elle rejoint la banque du club</span></span><span class="go" aria-hidden="true">›</span></button>
-    ${list.length?list.map((g,i)=>`${g._sec&&!(list[i-1]||{})._sec?`<p class="msec">Aussi travaillé en phase secondaire · ${secN}</p>`:""}<button class="mrow" data-pick="${g.id}">
-        <span class="mini">${g.schema?renderSchema(g.schema):`<span style="font-size:22px">${g.kind==="accueil"?"🤝":g.kind==="calme"?"🙌":"⚽"}</span>`}</span>
-        <span><b>${esc(g.name)}</b><span class="meta">${typeBadge(g)}${g.dur}'${g.mine?" · le mien":g.club?" · "+esc(g.by||"un éducateur"):g.auteur==="autre"?" · ◎ "+esc(g.orig||"autre académie"):g.fin?" · "+esc(finName(g.fin)):""}</span>${phOf(g).length?`<span class="meta phs">${phBadges(g)}</span>`:""}</span>
-        <span class="go" aria-hidden="true">${PICK.mode==="insert"?"+":"›"}</span></button>`).join(""):`<p class="empty">Aucun atelier ne correspond.</p>`}</div>
+    ${PICK.more||PICK.ph?`<div class="mflow">${phaseFlow(PICK,"p")}${prNone?`<p class="hint">Aucun atelier ne correspond exactement à ce principe : voici ceux de la phase.</p>`:""}</div>`:""}
+    <div class="mlist">
+    ${list.length?list.map((g,i)=>`${i===0&&rk(g)<2?`<p class="msec">Du club · ${nClub}</p>`:""}${i>0&&rk(g)===2&&rk(list[i-1])<2?`<p class="msec">Guide FFF et académies</p>`:""}${row(g)}`).join(""):`<p class="empty">Aucun atelier ne correspond.</p>`}
+    <button class="mrow mnew" id="pnew"><span class="mini" style="font-size:24px">✚</span><span><b>Créer mon atelier</b><span class="meta">Il rejoint la banque du club à ton nom</span></span><span class="go" aria-hidden="true">›</span></button></div>
     <div class="mfoot"><button class="btn" id="pclose">Fermer</button></div>
   </div></div>`;
+  host.querySelectorAll("[data-pc]").forEach(b=>b.addEventListener("click",()=>{PICK.cat=b.dataset.pc;renderModal()}));
+  host.querySelectorAll("[data-tf]").forEach(b=>b.addEventListener("click",()=>{PICK.tf=b.dataset.tf;renderModal()}));
+  host.querySelectorAll("[data-club]").forEach(b=>b.addEventListener("click",()=>{PICK.club=!PICK.club;renderModal()}));
+  host.querySelectorAll("[data-pmore]").forEach(b=>b.addEventListener("click",()=>{PICK.more=!(PICK.more||PICK.ph);if(!PICK.more){PICK.side=null;PICK.ph=null;PICK.pr=null}renderModal()}));
+  bindPhaseFlow(host,PICK,"p",renderModal);
   const q2=document.getElementById("pq");
   q2.addEventListener("input",()=>{PICK.q=q2.value;clearTimeout(renderModal._t);renderModal._t=setTimeout(()=>{renderModal();const n=document.getElementById("pq");if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}},200)});
-  host.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>{PICK.fin=b.dataset.f||null;renderModal()}));
-  host.querySelectorAll(".mph [data-ph]").forEach(b=>b.addEventListener("click",()=>{const v=b.dataset.ph||null;PICK.ph=PICK.ph===v?null:v;renderModal()}));
-  host.querySelectorAll("[data-s]").forEach(b=>b.addEventListener("click",()=>{store.srcSel=b.dataset.s||"";save();renderModal()}));
   host.querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.pick;const at=PICK.at;
-    if(PICK.mode==="replace"){SES.blocks[at]={g:id,dur:SES.blocks[at].dur,rot:SES.blocks[at].rot}}
+    if(PICK.mode==="replace"){SES.blocks[at]={g:id,dur:SES.blocks[at].dur,rot:SES.blocks[at].rot,tf0:TF(gameOf(id))}}
     else{SES.blocks.splice(Math.max(0,Math.min(at,SES.blocks.length)),0,{g:id,dur:gameOf(id).dur})}
     PICK=null;equalizeRots(normRot(SES.blocks));persist();renderModal();render();
     FOCUS={dur:PICK?0:at};applyFocus()}));
@@ -1359,35 +1387,31 @@ function openGameEditor(at,mode,src){GED={at,mode,src:src?{id:src.id,name:src.na
   GDRAFT={name:"",kind:"atelier",proc:"situation",dur:15,desc:"",org:"",var:"",veiller:"",mat:"",schema:skEmpty(),cats:cats0,fin:null};
   if(src){const k=typeOf(src);Object.assign(GDRAFT,{name:mode==="edit"||mode==="editblock"?src.name:src.name+" (ma version)",kind:src.kind||"atelier",proc:src.proc||(src.kind==="atelier"?"situation":null),rf:src.rf||"",rt:src.rt||"",ph:src.ph||"",dur:+src.dur||15,desc:src.desc||"",org:src.org||"",var:src.var||"",veiller:src.veiller||"",mat:Array.isArray(src.mat)?src.mat.join(", "):(src.mat||""),schema:src.schema?JSON.parse(JSON.stringify(skNorm(src.schema))):skEmpty(),fin:src.fin&&src.fin!=="jeu"?src.fin:null});if(k==="traditionnel"||k==="analytique"||k==="adaptatif"||k==="situation"||k==="jeu"){GDRAFT.kind="atelier";GDRAFT.proc=k}}skSel=null;skPend=null;skTool="sel";skStack=[];renderModal();
   setTimeout(()=>{const n=document.getElementById("gname");if(n)n.focus()},150)}
+const ED_TYPES=["eveil","analytique","adaptatif","situation","jeu"];
 function gameEditorHtml(){const d=GDRAFT;
-  const t=typeOf(d);
+  const t=typeOf(d);const types=ED_TYPES.includes(t)?ED_TYPES:ED_TYPES.concat([t]);
   return `<div class="sheetmodal" id="ov2"><div class="modal" role="dialog" aria-modal="true" aria-label="Créer un atelier">
     <div class="mhead"><div class="grab"></div><h3>${GED.mode==="edit"||GED.mode==="editblock"?"✎ Modifier mon atelier":GED.src?"✎ Ma version de l'atelier":"✚ Créer un atelier"}</h3>
-      <p class="hint">${GED.src&&GED.mode!=="edit"&&GED.mode!=="editblock"?`D'après « ${esc(GED.src.name)} »${GED.src.by?" de "+esc(GED.src.by):""}. L'original n'est pas touché : ta version rejoint la banque du club, à ton nom.`:"Il rejoint la banque du club à ton nom : tu pourras le reprendre dans toutes tes séances, et les autres éducateurs aussi."} Dis à quoi il correspond : type, phase, geste travaillé.</p></div>
+      <p class="hint">${GED.src&&GED.mode!=="edit"&&GED.mode!=="editblock"?`D'après « ${esc(GED.src.name)} »${GED.src.by?" de "+esc(GED.src.by):""} · l'original n'est pas touché.`:"Il rejoint la banque du club à ton nom."}</p></div>
     <div class="mlist" style="gap:0">
       <div class="field" style="margin-top:0"><label for="gname">Nom</label><input id="gname" type="text" value="${esc(d.name)}" placeholder="ex. Le carré magique"></div>
-      <div class="field"><label>Type</label><div class="chips" id="gkind">${TYPE_ORDER.map(k=>`<button class="chip" data-k="${k}" aria-pressed="${t===k}">${TYPE_LABEL[k]}</button>`).join("")}</div>
-        ${PROC_HELP[t]?`<p class="hint" style="margin:6px 0 0">${esc(PROC_HELP[t])}</p>`:""}</div>
-      ${t==="jeu"||t==="situation"||t==="adaptatif"?`<div class="field"><label for="grf">${t==="adaptatif"?"Opposition":"Rapport de force"}${t==="situation"?"":" <span class=\"hint\" style=\"font-weight:400\">(facultatif)</span>"}</label>
-        <input id="grf" type="text" value="${esc(d.rf||"")}" placeholder="${t==="situation"?"ex. 3 c 2, 4 c 1, 6 c 5":t==="adaptatif"?"ex. face au gardien, 1 c 1 en couloir":"ex. 4 c 4, 5 c 5 + 2 jokers"}" style="max-width:260px">
-        ${t==="situation"?`<div class="chips" id="grt" style="margin-top:8px">${[["sup","Supériorité"],["egal","Égalité"],["inf","Infériorité"],["var","Évolutif"]].map(([k,l])=>`<button class="chip" data-grt="${k}" aria-pressed="${d.rt===k}">${l}</button>`).join("")}</div>`:""}</div>`:""}
-      <div class="field"><label>Phase de jeu <span class="hint" style="font-weight:400">(facultatif · la première cochée est la phase principale, une seconde possible)</span></label><div class="chips" id="gph">
-        ${PHASES.map(p=>`<button class="chip phc ${p.side}" data-gph="${p.id}" aria-pressed="${(d.ph||"").includes(p.id)}">${p.n} · ${esc(p.name)}</button>`).join("")}</div></div>
-      <div class="field"><label>Geste technique travaillé <span class="hint" style="font-weight:400">(facultatif)</span></label><div class="chips" id="gfin">${APPR.map(f=>`<button class="chip" data-gfin="${f.id}" aria-pressed="${d.fin===f.id}">${esc(f.name)}</button>`).join("")}</div></div>
-      <div class="field"><label>Pour quelles catégories ?</label><div class="chips" id="gcats">${CATS.map(c=>`<button class="chip" data-gcat="${c}" aria-pressed="${(d.cats||[]).includes(c)}">${c}</button>`).join("")}</div></div>
+      <div class="field"><label>Type</label><div class="chips hs" id="gkind">${types.map(k=>`<button class="chip" data-k="${k}" aria-pressed="${t===k}">${TYPE_LABEL[k]||k}</button>`).join("")}</div></div>
+      <div class="field"><label>Catégories</label><div class="chips hs" id="gcats">${CATS.map(c=>`<button class="chip" data-gcat="${c}" aria-pressed="${(d.cats||[]).includes(c)}">${c}</button>`).join("")}</div></div>
       <div class="field"><label for="gdur">Durée (min)</label><input id="gdur" type="number" min="2" max="60" value="${d.dur}" style="max-width:120px"></div>
       <div class="field" id="gsch" style="margin-top:14px"><label>Le terrain</label>
-        <p class="hint" style="margin:0 0 6px">Place les joueurs, les coupelles et les flèches : c'est ce que l'éducateur regarde en premier.</p>
         ${schemaEditorHtml(d.schema)}</div>
       <div class="field"><label for="gdesc">Déroulé et consignes</label><textarea id="gdesc" rows="5" placeholder="Ce que font les enfants, les règles, le but du jeu…">${esc(d.desc)}</textarea></div>
-      <details style="margin-top:14px"><summary style="font-weight:700;color:var(--navy-2);cursor:pointer">Détails (facultatif)</summary>
+      <details style="margin-top:14px"><summary style="font-weight:700;color:var(--navy-2);cursor:pointer">Plus de détails (facultatif)</summary>
+        <div class="field"><label>Geste travaillé</label><div class="chips hs" id="gfin">${APPR.map(f=>`<button class="chip" data-gfin="${f.id}" aria-pressed="${d.fin===f.id}">${esc(f.name)}</button>`).join("")}</div></div>
+        ${t==="jeu"||t==="situation"||t==="adaptatif"?`<div class="field"><label for="grf">${t==="adaptatif"?"Opposition":"Rapport de force"}</label>
+          <input id="grf" type="text" value="${esc(d.rf||"")}" placeholder="${t==="situation"?"ex. 3 c 2":t==="adaptatif"?"ex. face au gardien":"ex. 4 c 4"}" style="max-width:260px"></div>`:""}
         <div class="field"><label for="gorg">Organisation</label><input id="gorg" type="text" value="${esc(d.org)}" placeholder="ex. terrain 20 × 15 m, 1 ballon pour 2"></div>
         <div class="field"><label for="gvar">Variantes</label><input id="gvar" type="text" value="${esc(d.var)}"></div>
         <div class="field"><label for="gveil">À veiller</label><input id="gveil" type="text" value="${esc(d.veiller)}" placeholder="le point de coaching"></div>
         <div class="field"><label for="gmat">Matériel (séparé par des virgules)</label><input id="gmat" type="text" value="${esc(d.mat)}" placeholder="8 coupelles, 4 ballons"></div>
       </details>
     </div>
-    <div class="mfoot"><button class="btn primary" id="gsave">${GED.mode==="edit"?"✓ Enregistrer":GED.mode==="lib"||GED.mode==="copy"?"✚ Créer l'atelier":GED.mode==="fork"||GED.mode==="editblock"?"✓ Enregistrer et utiliser dans la séance":"✚ Créer et ajouter"}</button><button class="btn" id="gcancel">Annuler</button></div>
+    <div class="mfoot"><button class="btn primary" id="gsave">${GED.mode==="edit"?"✓ Enregistrer":GED.mode==="lib"||GED.mode==="copy"?"✚ Créer l'atelier":GED.mode==="fork"||GED.mode==="editblock"?"✓ Enregistrer":"✚ Créer et ajouter"}</button><button class="btn" id="gcancel">Annuler</button></div>
   </div></div>`}
 function bindGameEditor(){const q=id=>document.getElementById(id);
   ({gname:"name",gdesc:"desc",gorg:"org",gvar:"var",gveil:"veiller",gmat:"mat"}) ;
@@ -1407,7 +1431,7 @@ function bindGameEditor(){const q=id=>document.getElementById(id);
   q("gsave").addEventListener("click",()=>{
     if(!GDRAFT.name.trim()){toast("Donne un nom à ton atelier");q("gname").focus();return}
     const needP=GDRAFT.kind==="atelier";
-    if(needP&&GDRAFT.proc==="situation"&&!(GDRAFT.rf||"").trim()){toast("Une situation a un rapport de force : 3 c 2, 4 c 1…");const r=q("grf");if(r)r.focus();return}
+    
     if(!(GDRAFT.cats||[]).length){toast("Choisis au moins une catégorie");const c=q("gcats");if(c)c.scrollIntoView({behavior:"smooth",block:"center"});return}
     if(!store.who){askName();toast("Ton prénom d'abord : l'atelier est enregistré à ton nom");return}
     const edit=(GED.mode==="edit"||GED.mode==="editblock")&&GED.src&&GED.src.mine;
@@ -1452,7 +1476,7 @@ function render(){
   const [t1,t2]=titles[VIEW];
   top.innerHTML=`${VIEW!=="home"?`<button class="back" id="back" aria-label="Retour">‹</button>`:`<img src="${CREST_PNG}" alt="">`}
     <div style="min-width:0"><div class="t1">${esc(t1)}</div><div class="t2">${esc(t2)}</div></div>
-    <div class="sp"><a class="tbtn" href="bibliotheque.html" title="Consulter tous les ateliers, jeux et séances du club">📚 Tous les ateliers</a></div>`;
+    <div class="sp"><a class="tbtn" href="bibliotheque.html" title="Consulter tous les ateliers, jeux et séances du club">📚<span class="tlab"> Tous les ateliers</span></a></div>`;
   const b=document.getElementById("back");if(b)b.addEventListener("click",()=>{if(VIEW==="sheet"&&EDIT){EDIT=false;persist();render();return}go(VIEW==="sheet"?"home":"home")});
   root().innerHTML=VIEW==="home"?viewHome():VIEW==="brief"?viewBrief():viewSheet();
   if(VIEW==="home")bindHome();else if(VIEW==="brief")bindBrief();else bindSheet();
