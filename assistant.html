@@ -52,7 +52,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .hint{color:var(--muted);font-size:15px}
 .hero{background:linear-gradient(160deg,var(--navy),var(--navy-2));color:#fff;border:0;padding:24px 20px;margin-top:16px}
 .hero h2{color:#fff}
-.hero p{color:#C9D6E8;margin-top:8px;max-width:46ch}
+.hero p{color:#C9D6E8;margin-top:8px}
 .big{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;margin-top:18px;border-radius:999px;border:0;background:var(--yellow);color:#3B2E00;font-family:var(--display);text-transform:uppercase;font-size:22px;font-weight:800;letter-spacing:.02em;box-shadow:0 6px 18px rgba(242,194,0,.35);transition:transform .12s}
 .big:active{transform:scale(.98)}
 .hsearch{display:block;width:100%;margin-top:22px;height:48px;border-radius:14px;border:1px solid var(--line,#D5DCE6);padding:0 16px;font-size:16px;background:var(--surface);color:var(--ink)}
@@ -1032,7 +1032,7 @@ const PRINC={
     {id:"B2",n:"Densifier et être actif dans l'axe ballon-but",co:"Créer de la densité entre le ballon et le but ; agir sur le porteur · couvrir, marquer",ind:"Cadrer et orienter le porteur ; couvrir son partenaire proche",mo:"interceptions, tacles, contre",kw:/cadr|couvert|couvrir|orient|axe|densit|fermer|marquage/i},
     {id:"B3",n:"Défendre son but, récupérer ou dégager le ballon",co:"Donner la priorité à la densité dans l'axe du but",ind:"Empêcher ou gêner la dernière passe, le tir",mo:"contre, jeu de tête, jeu de volée, tacles",kw:/défendre (son|le|sa)|protég|château|dégag|contrer|empêch|gardien|surface|dernière passe/i}]};
 const prOf=id=>id?(PRINC[id[0]]||[]).find(p=>p.id===id)||null:null;
-const prHit=(g,pr)=>{if(g.pr)return g.pr===pr;if(g.ph&&g.ph.length)return false;const p=prOf(pr);return !!p&&p.kw.test((g.name||"")+" "+(g.desc||"")+" "+(g.var||"")+" "+(g.veiller||"")+" "+(g.org||""))};
+const prHit=(g,pr)=>{if(g.pr)return g.pr===pr;if(g.auteur!=="club")return false;const p=prOf(pr);return !!p&&p.kw.test((g.name||"")+" "+(g.desc||"")+" "+(g.var||"")+" "+(g.veiller||"")+" "+(g.org||""))};
 const ANIM=c=>["U7","U8","U9","U10","U11"].includes(c);
 const PH_SHORT2={A:"1 · Conserver, progresser",E:"2 · Déséquilibrer, finir",O:"3 · Empêcher de progresser",B:"4 · Protéger son but"};
 /* bloc « phase → principe → moyens » : on ne montre que ce qui découle du choix précédent */
