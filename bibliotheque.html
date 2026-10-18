@@ -680,7 +680,7 @@ function cardHtml(g){const o=OPEN===g.id;
         ${(g.mat||[]).length?`<p class="det"><b>Matériel</b> · ${g.mat.map(esc).join(", ")}</p>`:""}
         ${g.src?`<p class="det" style="opacity:.75"><b>Source</b> · ${esc(g.src)}</p>`:""}
         <div class="arow"><button class="btn" data-pdf="${g.id}">📄 Fiche PDF</button>
-          <a class="btn" href="assistant.html" >⚡ Composer une séance</a></div>
+          <a class="btn" href="assistant.html?atelier=${encodeURIComponent(g.id)}">⚡ Composer une séance avec cet atelier</a></div>
       </div>`:""}
     </article>`}
 function viewAteliers(){
