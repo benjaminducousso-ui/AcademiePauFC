@@ -1174,7 +1174,7 @@ function viewSheet(){
       ${s.tmp?`<div class="tmpbar"><span>C'est une proposition. Elle est gardée dès que tu la modifies ou que tu télécharges le PDF.</span><button class="btn sm primary" id="keep">✓ Garder cette séance</button></div>`:""}${draftBar}${ro?`<div class="robar">👀 Séance de <b>${esc(s.by)}</b> : tu peux la consulter, la partager ou l'imprimer, pas la modifier. « ⧉ Reprendre » t'en fait une copie à ton nom, que tu adaptes comme tu veux.</div>`:""}<div style="padding:12px 16px 0"><div class="tl">${tl}</div>
         ${!EDIT?`<div class="tbar${s.dur&&tot!==s.dur?" off":""}" style="margin-top:10px"><span><b class="num">${tot} min</b>${s.dur&&tot!==s.dur?` — ${Math.abs(tot-s.dur)} de ${tot>s.dur?"plus":"moins"} que les ${s.dur} prévues`:""}</span>${ro?"":`<button class="btn sm" id="reb">Répartir le temps</button>`}</div>`:""}</div>
       ${body}
-      ${!EDIT&&!ro?`<div class="add2"><button class="addblk" id="addb">+ Ajouter un atelier</button><button class="addblk addnew" id="addn">✚ Créer mon atelier</button></div><button class="linkplain reord" id="reord">⠿ Changer l'ordre des blocs</button>`:""}
+      ${!EDIT&&!ro?`<button class="addblk addnew" id="addb">+ Ajouter un atelier</button><button class="linkplain reord" id="reord">⠿ Changer l'ordre des blocs</button>`:""}
       ${!EDIT&&mat.length?`<div class="mat"><span class="eyebrow" style="align-self:center;margin-right:4px">Matériel</span>${mat.map(m=>`<span>${esc(m)}</span>`).join("")}</div>`:""}
       ${!EDIT?`<div class="legend">${LEGEND.replace(/<\/?div[^>]*>/g,"")}</div>`:""}
     </div>
@@ -1204,7 +1204,7 @@ function editList(){
     <div class="field"><label>Durée de la séance</label><div class="chips hs" id="edurs">${[...new Set(DUREES.concat(SES.dur?[SES.dur]:[]))].sort((a,b)=>a-b).map(d=>`<button class="chip" data-sdur="${d}" aria-pressed="${(SES.dur||tot)===d}">${d} min</button>`).join("")}</div></div>
     <div class="tbar${ecart?" off":""}"><span><b class="num">${tot} min</b> ${ecart===0?"— pile ce qui était prévu":ecart>0?`— ${ecart} de plus que les ${cible} prévues`:`— ${-ecart} de moins que les ${cible} prévues`}</span>${ecart?`<button class="btn sm" id="reb">Rééquilibrer</button>`:""}</div>
     <div class="elist">${rows}${slot(bl.length)}</div>
-    <div class="add2" style="margin:12px 0 0"><button class="addblk" id="eadd">+ Ajouter un atelier</button><button class="addblk addnew" id="eaddn">✚ Créer mon atelier</button></div>
+    <button class="addblk addnew" id="eadd" style="width:100%;margin:12px 0 0">+ Ajouter un atelier</button>
     <p class="hint" style="margin-top:12px">Touche un bloc pour le modifier · ⠿ pour le déplacer · <b>+</b> pour ajouter.</p>
   </div>`}
 
