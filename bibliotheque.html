@@ -294,7 +294,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .mfilt.mph button.sub{border-style:solid}
 .clubhead{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.ckpi{background:#fff;border:1px solid var(--line,#DDE2EA);border-radius:12px;padding:12px;text-align:center}.ckpi b{display:block;font-size:28px;color:var(--navy,#0B2A4A)}.ckpi span{font-size:13px;color:var(--muted,#5B6577)}.podium{display:flex;flex-wrap:wrap;gap:8px}.pod{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line,#DDE2EA);border-radius:999px;padding:6px 14px;cursor:pointer;font:inherit}.pod.on{background:#F2C200;border-color:#F2C200}.pod .rk{font-weight:800}.pod .pn{font-weight:700}.pod .pk{font-size:13px;color:var(--muted,#5B6577)}@media(max-width:560px){.clubhead{grid-template-columns:1fr 1fr 1fr}.ckpi b{font-size:22px}}
 </style>
-<style>.frow.phrow{flex-wrap:wrap;overflow:visible}.mfilt.mph{flex-wrap:wrap;overflow:visible}.grp2.prh{text-transform:none;letter-spacing:0;font-size:15px;color:var(--navy);margin:16px 0 6px}</style>
+<style>.frow.phrow{flex-wrap:wrap;overflow:visible}.mfilt.mph{flex-wrap:wrap;overflow:visible}.grp2.prh{text-transform:none;letter-spacing:0;font-size:15px;color:var(--navy);margin:16px 0 6px}.ac{position:relative}.pickb{position:absolute;top:10px;right:10px;z-index:2;width:34px;height:34px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--navy-2);font-size:18px;font-weight:800;display:grid;place-items:center;cursor:pointer}.pickb[aria-pressed="true"]{background:var(--yellow);border-color:var(--yellow);color:#3B2E00}.ac.picked{border-color:var(--yellow);box-shadow:0 0 0 2px var(--yellow)}.ac:has(.pickb) .ahead{padding-right:52px}.atxt .meta{min-width:0}.atxt .meta:last-child span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.pickbar{display:none}.pickbar.on{display:block;position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(11,42,74,.12);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}.pickbar .in{max-width:760px;margin:0 auto;display:flex;gap:8px;align-items:center}.pickbar .in span{flex:1;font-size:14.5px}.pickbar .btn{min-height:46px}.pickbar .btn.primary{background:var(--yellow);border-color:var(--yellow);color:#3B2E00;font-weight:800;text-decoration:none}body:has(.pickbar.on) #app{padding-bottom:90px}.ftoggle{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font:inherit;font-weight:700;color:var(--navy);text-align:left;cursor:pointer}.ftoggle .fsum{flex:1;min-width:0;font-weight:500;color:var(--muted);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fnb{background:var(--navy);color:#fff;border-radius:999px;padding:1px 8px;font-size:12px;margin-left:4px}.fmore{display:none}.fmore.on{display:block}.fdone{display:inline-flex}@media(max-width:640px){.fmore .frow[aria-label="Catégorie"],.fmore .frow[aria-label="Apprentissage"]{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}.fmore .frow[aria-label="Catégorie"]::-webkit-scrollbar,.fmore .frow[aria-label="Apprentissage"]::-webkit-scrollbar{display:none}.fmore .frow .f{flex:none}}@media(max-width:640px){.clubhead+h3+.podium+.chips,.podium+.chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}.podium+.chips .chip{flex:none}.clubhead{gap:8px}.ckpi{padding:10px 6px!important}.ckpi b{font-size:26px}.ckpi span{font-size:12.5px;line-height:1.25!important;display:block}}#app>.fbar,#app>.fline{margin-top:14px}.podium{margin-top:10px}</style>
 <header class="top"><div class="topin" id="topbar"></div></header>
 <main class="app" id="app"></main>
 <div id="modal"></div>
@@ -439,13 +439,13 @@ async function fichePdfDoc(s){
   doc.setFillColor(FC.navy);doc.rect(0,0,PW,34,"F");
   try{doc.addImage(CREST_PNG,"PNG",MX,6,22,22)}catch(e){}
   doc.setTextColor(FC.yel);doc.setFont("Poppins","bold");doc.setFontSize(8.5);
-  doc.text(`PAU FC ACADEMY · ${s.cats.join(" / ")} · ${cap(fmtLong(s.date))}`,MX+27,12);
+  doc.text(s.atelier?`PAU FC ACADEMY · FICHE ATELIER · ${s.cats.join(" / ")}`:`PAU FC ACADEMY · ${s.cats.join(" / ")} · ${cap(fmtLong(s.date))}`,MX+27,12);
   doc.setTextColor("#FFFFFF");const ts=fitText(doc,s.title,W-30,19,"bold",1);
   doc.setFontSize(ts);doc.text(s.title,MX+27,20.5);
   doc.setTextColor("#C9D6E8");doc.setFont("Poppins","normal");doc.setFontSize(8.2);
   doc.text(doc.splitTextToSize((s.fins||[]).map(finName).join(" · "),W-30).slice(0,2),MX+27,25.5);
   doc.setTextColor(FC.yel);doc.setFont("Poppins","bold");doc.setFontSize(9);
-  doc.text([`${total} min`,`${s.eff} enfants${s.gk?` dont ${s.gk} gardien${s.gk>1?"s":""}`:""}`].join(" · "),PW-MX,12,{align:"right"});
+  doc.text(s.atelier?`${total} min`:[`${total} min`,`${s.eff} enfants${s.gk?` dont ${s.gk} gardien${s.gk>1?"s":""}`:""}`].join(" · "),PW-MX,12,{align:"right"});
   /* — objectifs / consignes — */
   let y=40;
   const objs=blocks.filter(b=>b.veiller).slice(0,3).map(b=>`${b.name} : ${b.veiller}`);
@@ -465,7 +465,7 @@ async function fichePdfDoc(s){
   /* — ateliers les uns sous les autres, dans l'ordre de la séance — */
   const SW=Math.min(58,W*0.33);
   const foot=()=>{doc.setTextColor(FC.gray);doc.setFont("Poppins","italic");doc.setFontSize(6.2);
-    doc.text("Pau FC Academy · fiche de séance — beaucoup de ballon, peu de parole, un bravo à chacun.",MX,292);
+    doc.text(s.atelier?"Pau FC Academy · fiche atelier":"Pau FC Academy · fiche de séance — beaucoup de ballon, peu de parole, un bravo à chacun.",MX,292);
     doc.text(`${s.cats.join(" / ")} · ${cap(fmtLong(s.date))}`,PW-MX,292,{align:"right"})};
   let clock=0;
   const rgrp=typeof rotGroups==="function"?rotGroups(blocks):blocks.map(()=>-1);
@@ -529,10 +529,10 @@ async function fichePdfDoc(s){
     doc.setFont("Poppins","normal");doc.setTextColor(FC.ink);doc.setFontSize(7);
     doc.text(doc.splitTextToSize(mat.join(" · "),W-22).slice(0,2),MX+18,y+4)}
   doc.setTextColor(FC.gray);doc.setFont("Poppins","italic");doc.setFontSize(6.2);
-  doc.text("Pau FC Academy · fiche de séance — beaucoup de ballon, peu de parole, un bravo à chacun.",MX,292);
+  doc.text(s.atelier?"Pau FC Academy · fiche atelier":"Pau FC Academy · fiche de séance — beaucoup de ballon, peu de parole, un bravo à chacun.",MX,292);
   doc.text(`${s.cats.join(" / ")} · ${cap(fmtLong(s.date))}`,PW-MX,292,{align:"right"});
   return doc}
-const ficheName=s=>`seance-${s.cats.join("-").toLowerCase()}-${s.date}.pdf`;
+const ficheName=s=>s.atelier?`atelier-${norm(s.title).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,50)}.pdf`:`seance-${s.cats.join("-").toLowerCase()}-${s.date}.pdf`;
 /* Un seul geste : sur téléphone le partage natif (WhatsApp y figure), sinon le téléchargement.
    Dans l'aperçu Claude, le téléchargement passe par la capacité « downloads » de la page publiée. */
 async function savePdfFile(doc,name){
@@ -543,9 +543,9 @@ async function fichePdf(s){
   toast("Préparation de la fiche PDF…");
   try{const doc=await fichePdfDoc(s);const name=ficheName(s);
     try{if(navigator.canShare){const file=new File([doc.output("blob")],name,{type:"application/pdf"});
-      if(navigator.canShare({files:[file]})){await navigator.share({files:[file],title:`Séance ${s.cats.join("/")}`,text:`${s.title} — ${s.cats.join("/")}`});return "shared"}}}catch(e){if(e&&e.name==="AbortError")return "shared"}
+      if(navigator.canShare({files:[file]})){await navigator.share({files:[file],title:s.atelier?`Atelier · ${s.title}`:`Séance ${s.cats.join("/")}`,text:`${s.title} — ${s.cats.join("/")}`});return "shared"}}}catch(e){if(e&&e.name==="AbortError")return "shared"}
     await savePdfFile(doc,name);toast("Fiche PDF enregistrée");return "saved"}
-  catch(e){toast("Fiche PDF indisponible (connexion ?) — le message texte reste possible");return "error"}}
+  catch(e){toast("Fiche PDF indisponible (connexion ?) : réessaie dans un instant");return "error"}}
 </script>
 <script>
 /* =====================================================================
@@ -605,7 +605,8 @@ async function pull(){
   save();GAMES=allGames();SYNC=n?"à jour":"hors ligne";render()}
 
 /* ---------- filtres ---------- */
-let FEDU=null;let TAB="ateliers",Q="",FCAT=null,FFIN=null,FFAM=null,FPROC=null,FRT=null,FAUT=null,OPEN=null,FSIDE=null,FPH=null,FPR=null;
+/* filtre « apprentissage » masqué pour le moment (décision 19/10), réactivable */
+const SHOW_APPR=false;let FEDU=null;const nmB=s=>(s||"un éducateur").trim().replace(/\s+/g," ").replace(/(^|[\s-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());let TAB="ateliers",Q="",FCAT=null,FFIN=null,FFAM=null,FPROC=null,FRT=null,FAUT=null,OPEN=null,FSIDE=null,FPH=null,FPR=null;FAUT="club";let FOPEN=false;
 const norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 function filtered(allAut){
   const q=norm(Q);
@@ -613,7 +614,7 @@ function filtered(allAut){
     (!FCAT||(g.cats||CATS0).includes(FCAT))&&
     (!FFIN||g.fin===FFIN)&&
     (!FFAM||typeOf(g)===FFAM)&&(!FRT||g.rt===FRT)&&
-    (allAut||!FAUT||g.auteur===FAUT)&&
+    (allAut||!FAUT||g.auteur===FAUT)&&(!FCONT||FAUT!=="club"||nmB(g.by)===FCONT)&&
     phMatch(g,FSIDE,FPH)&&(!FPR||prHit(g,FPR))&&
     (!q||norm(g.name+" "+(g.desc||"")+" "+(g.src||"")+" "+(g.by||"")+" "+(g.rf||"")).includes(q)))
    .sort((a,b)=>(TYPE_ORDER.indexOf(typeOf(a))-TYPE_ORDER.indexOf(typeOf(b)))||a.name.localeCompare(b.name,"fr"))}
@@ -636,38 +637,41 @@ function chipRow(){
   const nbP=id=>{const k=FPR;FPR=null;const n=filtered().filter(g=>prHit(g,id)).length;FPR=k;return n};const nbT=t=>{const k=[FFAM,FRT];FFAM=null;FRT=null;const n=filtered().filter(g=>typeOf(g)===t).length;[FFAM,FRT]=k;return n};const nb=k=>TAB==="seances"?"":base.filter(g=>!k||g.auteur===k).length;
   return `<div class="fbar">
     <div class="seg src" role="tablist" aria-label="Source">
-      <button data-aut="" aria-pressed="${!FAUT}">Tout <span class="n">${nb()}</span></button>
-      <button data-aut="fff" aria-pressed="${FAUT==="fff"}">Guide FFF <span class="n">${nb("fff")}</span></button>
       <button data-aut="club" aria-pressed="${FAUT==="club"}">Club Pau FC <span class="n">${nb("club")}</span></button>
+      <button data-aut="fff" aria-pressed="${FAUT==="fff"}">Guide FFF <span class="n">${nb("fff")}</span></button>
       <button data-aut="autre" aria-pressed="${FAUT==="autre"}">Autres académies <span class="n">${nb("autre")}</span></button>
+      <button data-aut="" aria-pressed="${!FAUT}">Tout <span class="n">${nb()}</span></button>
     </div>
+    ${(()=>{const n=[FCAT,FPH,FPR,FFIN,FFAM,FRT].filter(Boolean).length;return `<button class="ftoggle" id="ftog" aria-expanded="${FOPEN}"><span>⚙ Filtres${n?` <b class="fnb">${n}</b>`:""}</span><span class="fsum">${[FCAT,FPH?PHASES.find(x=>x.id===FPH).n+" · "+phName(FPH):null,FFIN?finName(FFIN):null,FFAM?TYPE_LABEL[FFAM]:null].filter(Boolean).map(esc).join(" · ")||"catégorie, phase, type…"}</span><span aria-hidden="true">${FOPEN?"▲":"▼"}</span></button>`})()}
+    <div class="fmore${FOPEN?" on":""}">
     <div class="frow phrow" role="group" aria-label="Catégorie">
       <button class="f" data-cat="" aria-pressed="${!FCAT}">Toutes</button>
       ${CATS.map(c=>`<button class="f" data-cat="${c}" aria-pressed="${FCAT===c}">${c}</button>`).join("")}</div>
     ${TAB==="ateliers"?`<div class="frow phrow" role="group" aria-label="Phase de jeu">
       <button class="f" data-ph="" aria-pressed="${!FPH}">Toutes les phases</button>
       ${PHASES.map(p=>`${p.n===1||p.n===3?`<span class="sidelab ${p.side}">${SIDE_LABEL[p.side]}</span>`:""}<button class="f fph ${p.side}" data-ph="${p.id}" aria-pressed="${FPH===p.id}">${p.n} · ${esc(p.name)}</button>`).join("")}</div>${FPH&&PRINC[FPH].length>1?`<div class="frow phrow" role="group" aria-label="Principe de jeu"><button class="f" data-pr="" aria-pressed="${!FPR}">Tous les principes</button>${PRINC[FPH].map(p=>`<button class="f sub" data-pr="${p.id}" aria-pressed="${FPR===p.id}">${esc(p.n)} <span class="n">${nbP(p.id)}</span></button>`).join("")}</div>`:""}`:""}
-    <div class="frow phrow" role="group" aria-label="Apprentissage">
+    ${SHOW_APPR?`<div class="frow phrow" role="group" aria-label="Apprentissage">
       <button class="f" data-fin="" aria-pressed="${!FFIN}">Tous apprentissages</button>
-      ${fins.map(f=>`<button class="f" data-fin="${f.id}" aria-pressed="${FFIN===f.id}">${esc(f.name)}</button>`).join("")}</div>
+      ${fins.map(f=>`<button class="f" data-fin="${f.id}" aria-pressed="${FFIN===f.id}">${esc(f.name)}</button>`).join("")}</div>`:""}
     <div class="frow phrow" role="group" aria-label="Type">
       ${TAB==="ateliers"?`<button class="f" data-fam="" aria-pressed="${!FFAM}">Tous</button>
-      ${TYPE_ORDER.filter(t=>!["accueil","calme"].includes(t)&&hasK(t)).map(t=>`<button class="f" data-fam="${t}" aria-pressed="${FFAM===t}"${PROC_TIP[t]?` title="${esc(PROC_TIP[t])}"`:""}>${TYPE_LABEL[t]} <span class="n">${nbT(t)}</span></button>`).join("")}`:""}</div>
+      ${TYPE_ORDER.filter(t=>!["accueil","calme"].includes(t)&&hasK(t)&&(FFAM===t||nbT(t)>0)).map(t=>`<button class="f" data-fam="${t}" aria-pressed="${FFAM===t}"${PROC_TIP[t]?` title="${esc(PROC_TIP[t])}"`:""}>${TYPE_LABEL[t]} <span class="n">${nbT(t)}</span></button>`).join("")}`:""}</div>
     ${TAB==="ateliers"&&FFAM==="situation"?`<div class="frow phrow" role="group" aria-label="Rapport de force">
       <button class="f" data-rt="" aria-pressed="${!FRT}">Tous les rapports de force</button>
       ${[["sup","Supériorité"],["egal","Égalité"],["inf","Infériorité"],["var","Évolutif"]].map(([k,l])=>`<button class="f sub" data-rt="${k}" aria-pressed="${FRT===k}">${l}</button>`).join("")}</div>`:""}
     <div class="frow phrow">
-      ${(FCAT||FFIN||FFAM||FPH||Q)?`<button class="f ghost" id="reset">Effacer les filtres</button>`:""}</div>
-  </div>`}
+      ${(FCAT||FFIN||FFAM||FPH||Q||FCONT)?`<button class="f ghost" id="reset">Effacer les filtres</button>`:""}<button class="f fdone" id="fdone">Voir les fiches ▲</button></div>
+  </div></div>`}
 const KORDER=TYPE_ORDER;
-function cardHtml(g){const o=OPEN===g.id;
-    return `<article class="ac${o?" open":""}" id="a-${g.id}">
+let PICKS=[];
+function cardHtml(g){const o=OPEN===g.id;const sel=PICKS.includes(g.id);
+    return `<article class="ac${o?" open":""}${sel?" picked":""}" id="a-${g.id}">${["atelier","defi","eveil","match"].includes(g.kind)?`<button class="pickb" data-pick="${g.id}" aria-pressed="${sel}" title="${sel?"Retirer de ma séance":"Ajouter à ma séance"}" aria-label="${sel?"Retirer de ma séance":"Ajouter à ma séance"}">${sel?"✓":"+"}</button>`:""}
       <button class="ahead" data-open="${g.id}" aria-expanded="${o}">
         <span class="mini">${g.schema?renderSchema(g.schema):`<span class="noimg">${g.kind==="accueil"?"🤝":g.kind==="calme"?"🙌":"⚽"}</span>`}</span>
         <span class="atxt"><b>${esc(g.name)}</b>
-          <span class="meta">${typeBadge(g)}${g.evt?`<span class="fam">★ Temps fort</span>`:""}<span class="num">${g.dur}'</span>${g.fin?`<span>${esc(finName(g.fin))}</span>`:""}</span>
+          <span class="meta">${typeBadge(g)}${g.evt?`<span class="fam">★ Temps fort</span>`:""}<span class="num">${g.dur}'</span>${SHOW_APPR&&g.fin&&g.fin!=="jeu"?`<span>${esc(finName(g.fin))}</span>`:""}</span>
           ${phOf(g).length?`<span class="meta phs">${phBadges(g)}</span>`:""}
-          <span class="meta"><span class="who">${g.auteur==="club"?"✎ "+esc(g.by||"éducateur"):g.auteur==="autre"?"◎ "+esc(g.orig||"Autre académie"):"Guide FFF"}</span><span>${(g.cats||CATS0).join(" · ")}</span></span></span>
+          <span class="meta"><span class="who">${g.auteur==="club"?"✎ "+esc(nmB(g.by)):g.auteur==="autre"?"◎ "+esc(g.orig||"Autre académie"):"Guide FFF"}</span><span>${(g.cats||CATS0).join(" · ")}</span></span></span>
         <span class="caret" aria-hidden="true">${o?"▲":"▼"}</span></button>
       ${o?`<div class="abody">
         ${g.schema?`<div class="bigsch">${renderSchema(g.schema)}</div>`:""}
@@ -680,7 +684,7 @@ function cardHtml(g){const o=OPEN===g.id;
         ${(g.mat||[]).length?`<p class="det"><b>Matériel</b> · ${g.mat.map(esc).join(", ")}</p>`:""}
         ${g.src?`<p class="det" style="opacity:.75"><b>Source</b> · ${esc(g.src)}</p>`:""}
         <div class="arow"><button class="btn" data-pdf="${g.id}">📄 Fiche PDF</button>
-          <a class="btn" href="assistant.html?atelier=${encodeURIComponent(g.id)}">⚡ Composer une séance avec cet atelier</a></div>
+          <button class="btn" data-pick="${g.id}">${PICKS.includes(g.id)?"✓ Dans ma séance":"＋ Ajouter à ma séance"}</button></div>
       </div>`:""}
     </article>`}
 function viewAteliers(){
@@ -696,10 +700,15 @@ function viewAteliers(){
   /* fiches où la phase n'est que secondaire : proposées sous la liste principale */
   const secOf=pid=>{const base=Object.values(GAMES).filter(g=>(!FCAT||(g.cats||CATS0).includes(FCAT))&&(!FFIN||g.fin===FFIN)&&(!FFAM||typeOf(g)===FFAM)&&(!FAUT||g.auteur===FAUT)&&phOf(g)[1]===pid);
     const q=norm(Q);return q?base.filter(g=>norm(g.name+" "+(g.desc||"")).includes(q)):base};
-  return `${chipRow()}
-  <p class="count">${list.length===tot?`Les ${tot} fiches ${perim}`:`${list.length} fiche${list.length>1?"s":""} sur ${tot} ${perim}`}${filtres.length?" · "+filtres.join(" · "):""}</p>
+  const clubHead=FAUT==="club"?(()=>{const all=Object.values(GAMES).filter(g=>g.auteur==="club");const by={};all.forEach(g=>{const n=nmB(g.by);by[n]=(by[n]||0)+1});
+    const rank=Object.entries(by).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"fr"));const mois=Date.now()-30*864e5;const rec=all.filter(g=>(g.ts||g.created||0)>mois).length;
+    return all.length?`<div class="clubhead"><div class="ckpi"><b>${all.length}</b><span>ateliers créés</span></div><div class="ckpi"><b>${rank.length}</b><span>contributeurs</span></div><div class="ckpi"><b>${rec}</b><span>ces 30 jours</span></div></div>
+      <div class="podium">${rank.map(([n,k],i)=>`<button class="pod${FCONT===n?" on":""}" data-cont="${esc(n)}"><span class="rk">${i<3?["🥇","🥈","🥉"][i]:i+1}</span><span class="pn">${esc(n)}</span><span class="pk">${k} atelier${k>1?"s":""}</span></button>`).join("")}</div>
+      <p class="hint" style="margin:8px 0 0">Pour en créer un : dans une séance de l'<a href="assistant.html">assistant</a>, « + Ajouter » puis « Créer mon atelier ».</p>`:""})():"";
+  return `${chipRow()}${clubHead}
+  <p class="count">${FCONT&&FAUT==="club"?`Les ateliers de <b>${esc(FCONT)}</b> · `:""}${list.length===tot?`Les ${tot} fiches ${perim}`:`${list.length} fiche${list.length>1?"s":""} sur ${tot} ${perim}`}${filtres.length?" · "+filtres.join(" · "):""}</p>
   ${PRS&&groupes.length?`<h3 class="grp"><span class="ph ph-${PHASES.find(x=>x.id===FPH).side} phbig">${PHASES.find(x=>x.id===FPH).n} · ${esc(phName(FPH))}</span> <span class="num">${list.length}</span></h3>`:""}${groupes.map(([k,gs])=>k.startsWith("pr:")?`<h4 class="grp2 prh">${k.length>3?esc(prOf(k.slice(3)).n):"Autres fiches de la phase"} <span class="num">${gs.length}</span></h4><div class="cards">${gs.map(cardHtml).join("")}</div>`:`<h3 class="grp">${k.startsWith("ph:")?`<span class="ph ph-${PHASES.find(x=>x.id===k.slice(3)).side} phbig">${PHASES.find(x=>x.id===k.slice(3)).n} · ${esc(phName(k.slice(3)))}</span>`:`<span class="kind k-${k}">${TYPE_LABEL[k]}</span>`} <span class="num">${gs.length}</span></h3>
-  <div class="cards">${gs.map(cardHtml).join("")}</div>${k.startsWith("ph:")&&secOf(k.slice(3)).length?`<h4 class="grp2">Aussi travaillé en phase secondaire <span class="num">${secOf(k.slice(3)).length}</span></h4><div class="cards sec">${secOf(k.slice(3)).map(cardHtml).join("")}</div>`:""}`).join("")||`<p class="empty">Rien ne correspond à ces filtres.</p>`}
+  <div class="cards">${gs.map(cardHtml).join("")}</div>${k.startsWith("ph:")&&secOf(k.slice(3)).length?`<h4 class="grp2">Aussi travaillé en phase secondaire <span class="num">${secOf(k.slice(3)).length}</span></h4><div class="cards sec">${secOf(k.slice(3)).map(cardHtml).join("")}</div>`:""}`).join("")||`<p class="empty">${FAUT==="club"&&!Object.values(GAMES).some(g=>g.auteur==="club")?"Pas encore d'atelier créé par le club. Choisis « Tout » pour voir toute la bibliothèque.":"Rien ne correspond à ces filtres."}</p>`}
   ${PRS&&secOf(FPH).length?`<h4 class="grp2">Aussi travaillé en phase secondaire <span class="num">${secOf(FPH).length}</span></h4><div class="cards sec">${secOf(FPH).map(cardHtml).join("")}</div>`:""}
   ${FPH?"":themesHtml()}`}
 /* Un jeu à thème n'est pas une fiche : c'est un format de jeu + une consigne. Les voici. */
@@ -716,17 +725,17 @@ function themesHtml(){
 let FCONT=null;
 function viewClub(){const q=norm(Q);
   const all=Object.values(GAMES).filter(g=>g.auteur==="club").sort((a,b)=>(b.ts||b.created||0)-(a.ts||a.created||0));
-  const by={};all.forEach(g=>{const n=g.by||"un éducateur";by[n]=(by[n]||0)+1});
+  const by={};all.forEach(g=>{const n=nmB(g.by);by[n]=(by[n]||0)+1});
   const rank=Object.entries(by).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"fr"));
-  const list=all.filter(g=>(!FCONT||(g.by||"un éducateur")===FCONT)&&(!FCAT||(g.cats||CATS0).includes(FCAT))&&(!q||norm(g.name+" "+(g.desc||"")+" "+(g.by||"")).includes(q)));
+  const list=all.filter(g=>(!FCONT||nmB(g.by)===FCONT)&&(!FCAT||(g.cats||CATS0).includes(FCAT))&&(!q||norm(g.name+" "+(g.desc||"")+" "+(g.by||"")).includes(q)));
   const mois=Date.now()-30*864e5;const recents=all.filter(g=>(g.ts||g.created||0)>mois).length;
   return `<div class="clubhead">
-    <div class="ckpi"><b>${all.length}</b><span>ateliers créés par les éducateurs</span></div>
+    <div class="ckpi"><b>${all.length}</b><span>ateliers créés</span></div>
     <div class="ckpi"><b>${rank.length}</b><span>contributeurs</span></div>
-    <div class="ckpi"><b>${recents}</b><span>ces 30 derniers jours</span></div></div>
+    <div class="ckpi"><b>${recents}</b><span>ces 30 jours</span></div></div>
   ${rank.length?`<h3 class="grp">Les contributeurs</h3><div class="podium">${rank.map(([n,k],i)=>`<button class="pod${FCONT===n?" on":""}" data-cont="${esc(n)}"><span class="rk">${i<3?["🥇","🥈","🥉"][i]:i+1}</span><span class="pn">${esc(n)}</span><span class="pk">${k} atelier${k>1?"s":""}</span></button>`).join("")}</div>`:""}
   <div class="chips" style="margin:12px 0 4px"><button class="chip" data-cat="" aria-pressed="${!FCAT}">Toutes</button>${CATS.map(c=>`<button class="chip" data-cat="${c}" aria-pressed="${FCAT===c}">${c}</button>`).join("")}</div>
-  <p class="count">${list.length} atelier${list.length>1?"s":""}${FCONT?" de "+esc(FCONT):""}${FCAT?" · "+FCAT:""} · pour en créer un : <a href="assistant.html">Assistant › Créer un atelier</a></p>
+  <p class="count">${list.length} atelier${list.length>1?"s":""}${FCONT?" de "+esc(FCONT):""}${FCAT?" · "+FCAT:""} · pour en créer un : dans une séance de l'<a href="assistant.html">assistant</a>, « + Ajouter » puis « Créer mon atelier »</p>
   ${list.length?`<div class="cards">${list.map(cardHtml).join("")}</div>`:`<p class="empty">Aucun atelier créé pour l'instant. Ils apparaissent ici dès qu'un éducateur en crée un dans l'assistant.</p>`}`}
 function viewSeances(){
   const list=filteredSes();
@@ -756,11 +765,11 @@ function viewSeances(){
 
 function render(){
   document.getElementById("topbar").innerHTML=`<img src="${CREST_PNG}" alt="">
-    <div style="min-width:0"><div class="t1">Bibliothèque</div><div class="t2">Pau FC Academy · exercices, situations, jeux et séances du club</div></div>
+    <div style="min-width:0"><div class="t1">Bibliothèque</div><div class="t2">Pau FC Academy · exercices, situations et jeux</div></div>
     <div class="sp"><a class="tbtn" href="assistant.html">⚡ Assistant</a></div>`;
   const app=document.getElementById("app");
-  app.innerHTML=`<div class="tabs2"><button data-tab="ateliers" aria-pressed="${TAB==="ateliers"}">Ateliers</button><button data-tab="seances" aria-pressed="${TAB==="seances"}">Séances</button><button data-tab="club" aria-pressed="${TAB==="club"}">Créés au Pau FC</button></div>
-    <div class="fline" style="margin:12px 0 4px"><input id="q" type="search" value="${esc(Q)}" placeholder="🔍 Atelier, séance, éducateur…" aria-label="Rechercher"></div>
+  app.innerHTML=`
+    <div class="fline" style="margin:12px 0 4px"><input id="q" type="search" value="${esc(Q)}" placeholder="🔍 Atelier, éducateur…" aria-label="Rechercher"></div>
     ${TAB==="ateliers"?viewAteliers():TAB==="club"?viewClub():viewSeances()}`;
   /* les filtres défilent avec la page ; un bandeau compact reste en haut pour les rappeler et y revenir */
   {const fb=app.querySelector(".fbar");if(fb){const c=app.querySelector(".count");const mini=document.createElement("div");mini.className="fmini";
@@ -778,11 +787,17 @@ function render(){
   app.querySelectorAll("[data-rt]").forEach(b=>b.addEventListener("click",()=>{const v=b.dataset.rt||null;FRT=FRT===v?null:v;render()}));
   app.querySelectorAll("[data-ph]").forEach(b=>b.addEventListener("click",()=>{const v=b.dataset.ph||null;FPH=FPH===v?null:v;FPR=null;render()}));
   app.querySelectorAll("[data-pr]").forEach(b=>b.addEventListener("click",()=>{const v=b.dataset.pr||null;FPR=FPR===v?null:v;render()}));
-  app.querySelectorAll("[data-aut]").forEach(b=>b.addEventListener("click",()=>{FAUT=b.dataset.aut||null;render()}));
+  {const ft=document.getElementById("ftog");if(ft)ft.addEventListener("click",()=>{FOPEN=!FOPEN;render()});
+   const fd=document.getElementById("fdone");if(fd)fd.addEventListener("click",()=>{FOPEN=false;render();const c=document.querySelector(".count");if(c)c.scrollIntoView({behavior:"smooth",block:"start"})})}
+  app.querySelectorAll("[data-aut]").forEach(b=>b.addEventListener("click",()=>{FAUT=b.dataset.aut||null;if(FAUT!=="club")FCONT=null;render()}));
   app.querySelectorAll("[data-edu]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();FEDU=b.dataset.edu||null;OPEN=null;render();window.scrollTo({top:0,behavior:"smooth"})}));
-  const rs=document.getElementById("reset");if(rs)rs.addEventListener("click",()=>{Q="";FCAT=FFIN=FFAM=FSIDE=FPH=FPR=FEDU=FRT=null;render()});
+  const rs=document.getElementById("reset");if(rs)rs.addEventListener("click",()=>{Q="";FCAT=FFIN=FFAM=FSIDE=FPH=FPR=FEDU=FRT=FCONT=null;render()});
   app.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{OPEN=OPEN===b.dataset.open?null:b.dataset.open;render();
     const el=document.querySelector(".ac.open");if(el)el.scrollIntoView({behavior:"smooth",block:"nearest"})}));
+  app.querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const id=b.dataset.pick;const i=PICKS.indexOf(id);if(i<0)PICKS.push(id);else PICKS.splice(i,1);render()}));
+  {let bar=document.getElementById("pickbar");if(!bar){bar=document.createElement("div");bar.id="pickbar";document.body.appendChild(bar)}
+    if(PICKS.length){bar.className="pickbar on";bar.innerHTML=`<div class="in"><span><b>${PICKS.length} atelier${PICKS.length>1?"s":""}</b> choisi${PICKS.length>1?"s":""}</span><button class="btn" id="pkx" aria-label="Vider la sélection">✕</button><a class="btn primary" href="assistant.html?${PICKS.length>1?"ateliers="+PICKS.map(encodeURIComponent).join(","):"atelier="+encodeURIComponent(PICKS[0])}">⚡ Composer la séance</a></div>`;
+      document.getElementById("pkx").addEventListener("click",()=>{PICKS=[];render()})}else{bar.className="pickbar";bar.innerHTML=""}}
   app.querySelectorAll("[data-pdf]").forEach(b=>b.addEventListener("click",()=>fichePdf(atelierSheet(b.dataset.pdf))));
   app.querySelectorAll("[data-spdf]").forEach(b=>b.addEventListener("click",()=>{const s=store.sessions.find(x=>x.id===b.dataset.spdf);if(s)fichePdf(s)}));
   app.querySelectorAll("[data-sdel]").forEach(b=>b.addEventListener("click",e=>{const el=e.currentTarget;
@@ -794,7 +809,7 @@ function render(){
 }
 /* un atelier seul : on la présente comme une mini-séance pour réutiliser la fiche A4 */
 function atelierSheet(id){const g=gameOf(id);
-  return {id:"a"+id,title:g.name,date:today(),cats:g.cats||CATS0,eff:12,fins:g.fin?[g.fin]:[],blocks:[{g:id,dur:g.dur}]}}
+  return {id:"a"+id,atelier:true,title:g.name,date:today(),cats:g.cats||CATS0,eff:12,fins:g.fin?[g.fin]:[],blocks:[{g:id,dur:g.dur}]}}
 function waMessage(s){
   const bl=blocksOf(s);const grp=rotGroups(s.blocks);const L=[];
   L.push(`★ *PAU FC ${(s.cats||[]).join("/")} · ${cap(fmtLong(s.date))}*`);
@@ -804,7 +819,7 @@ function waMessage(s){
     L.push(`${i+1}. ${b.dur}' *${b.name}*`)});
   const mat=matOf(bl);if(mat.length)L.push("",`● *Matériel* : ${mat.join(", ")}`);
   return L.join("\n")}
-try{const u=new URLSearchParams(location.search);if(u.get("tab")==="seances")TAB="seances";if(u.get("edu")){TAB="seances";FEDU=u.get("edu")}}catch(e){}
+try{const u=new URLSearchParams(location.search);if(u.get("src")==="tout")FAUT=null}catch(e){}
 render();pull();
 </script>
 </body></html>
