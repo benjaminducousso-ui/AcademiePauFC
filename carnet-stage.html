@@ -12,9 +12,9 @@ button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 .top{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:12px}
 .top img{width:40px;height:40px;flex:none}
-.top .t1{font-family:var(--display);font-size:24px;font-weight:800;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .t1{font-family:var(--display);font-size:clamp(19px,5.6vw,24px);font-weight:800;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .t2{font-size:14px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .who{margin-left:auto;flex:none;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:700;max-width:40%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .who{margin-left:auto;flex:none;font-size:13px!important;padding:5px 10px!important;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:700;max-width:40%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 main{max-width:760px;margin:0 auto;padding:16px 16px 120px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
 .field{display:flex;flex-direction:column;gap:6px;margin-top:14px}
@@ -74,7 +74,7 @@ textarea{resize:vertical;min-height:84px}
 .sfoot{background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;flex-wrap:wrap}
 .sfoot .btn{flex:1;min-width:0;white-space:nowrap;padding:10px 14px}.sfoot #fcancel,.sfoot #acancel{flex:0 0 auto}
 .valinfo{margin-top:12px;font-size:14px;color:var(--ok);font-weight:700}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 18px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:80;max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));bottom:auto;font-size:15px;padding:10px 16px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 18px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:80;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
 .pending{background:#FDECEA;color:#8A1F1F;border-radius:12px;padding:10px 14px;margin-top:10px;font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .linkbtn{background:none;border:0;color:var(--navy-2);text-decoration:underline;font-weight:700;padding:6px 0}
@@ -108,11 +108,21 @@ textarea{resize:vertical;min-height:84px}
 .dip .dip-foot{position:absolute;left:20mm;right:20mm;top:281mm;text-align:center;font-size:6.8pt;color:#6E7887;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .printbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
 @media print{header.top,.printbar,.toast{display:none!important}main{padding:0}.dips{display:block;margin:0;gap:0}.dipwrap{transform:none!important;height:auto!important;width:210mm}.dip{box-shadow:none;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}.dipwrap:last-child .dip{break-after:auto;page-break-after:auto}@page{size:A4 portrait;margin:0}}
+.dip .dip-foot{font-size:9pt;font-style:italic;color:#0B2A4A;top:280.5mm}
+.dip .dip-mot{top:242mm;height:19.5mm;padding:3.2mm 7mm}.dip .dip-mot p{font-size:11pt;line-height:1.3;max-height:13.5mm}.dip .dip-lines{gap:4.6mm;padding-top:2.6mm}.dip .dip-sig{top:276.5mm}.dip .dip-foot{top:281.6mm}
 
 @media print{main{max-width:none!important;padding:0!important}#modal{display:none!important}body{background:#fff}}
 .printbar{margin:4px 0 14px}.printbar .note{font-size:15px;color:var(--muted);flex:1;min-width:200px}
 .carnbtn{width:100%;margin-top:10px}
 header.top[hidden]{display:none}
+.selbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.selhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.sellist{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px 12px}
+.selit{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:16px;cursor:pointer}.selit input{width:22px;height:22px;flex:none;accent-color:var(--navy)}
+.selact{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}.selact .btn{flex:1;min-width:150px}
+@media print{.selbox,.selact{display:none!important}}
+.onebar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;width:100%;max-width:210mm;align-self:flex-start;margin-top:6px}.btn.sm{min-height:38px;padding:6px 12px;font-size:14px}
+@media print{.onebar{display:none!important}}
 .apprbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-top:12px}
 .apprbox summary{cursor:pointer;font-size:15px;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
 .apprbox ul{margin:8px 0 10px;padding-left:20px;font-size:15px}.apprbox li{margin:3px 0}
@@ -124,15 +134,16 @@ header.top[hidden]{display:none}
 .recap th{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:var(--muted);padding:8px 2px;text-align:center;line-height:1.15;border-bottom:1px solid var(--line);background:var(--surface-2)}
 .recap th.rn,.recap td.rn{text-align:left;width:38%;padding-left:10px}
 .recap td{padding:8px 2px;text-align:center;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}
-.recap tbody tr{cursor:pointer}.recap tbody tr:hover td{background:color-mix(in srgb,var(--yellow) 8%,var(--surface))}
+.recap tbody tr{cursor:pointer}.recap tr.rmh,.recap tr.rmf{display:none}.recap tbody tr:hover td{background:color-mix(in srgb,var(--yellow) 8%,var(--surface))}
 .recap td.rn b{display:block;font-size:15px;line-height:1.2}
 .rsub{display:block;font-size:12px;color:var(--muted);margin-top:2px}.rsub .flag{font-size:10px;padding:1px 5px}
-.rmot{display:block;font-size:12.5px;font-style:italic;color:var(--ink);margin-top:3px;opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rmot{display:block;font-size:13px;font-style:italic;color:var(--ink);margin-top:3px;opacity:.9}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}.dot.d0{background:#B9C3D3}.dot.d1{background:#E0A800}.dot.d2{background:#2E8B57}
 .rs{color:#E0A800;font-size:13px;letter-spacing:-1px;white-space:nowrap}.rs i{font-style:normal;color:#D5DDE8}.rs0{color:var(--muted)}
 .recap tfoot td{font-weight:800;background:var(--surface-2);border-bottom:0;font-size:14px}
 .recap tfoot td.rn{font-size:12px;text-transform:uppercase;color:var(--muted)}
 .recap th .sm2{display:none}.recap th{overflow:hidden;text-overflow:ellipsis}
+@media(max-width:560px){.recap th.rn,.recap td.rn{display:none}.recap tr.rmh{display:table-row}.recap tr.rmh td{text-align:left;padding:10px 10px 2px;border-bottom:0}.recap tr.rrow td{padding-top:2px}.recap tfoot tr.rmf{display:table-row;order:-1}.recap tr.rmf td{text-align:left;padding:8px 10px 0;font-size:12px;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}.recap tr.rmh b{font-size:16px}.rs{font-size:15px}}
 @media(max-width:480px){.recap th .lg2{display:none}.recap th .sm2{display:inline}.recap th{text-transform:none;letter-spacing:0;padding:8px 0;font-size:11.5px}}
 @media(max-width:380px){.recap th{font-size:10.5px!important}.recap th.rn,.recap td.rn{width:34%}.rs{font-size:11px}}
 </style></head><body>
@@ -173,11 +184,11 @@ function ficheHtml(d){const {g,vd,first,stageLine,next}=dipData(d);
   <ul class="dip-list">${(d.appr&&d.appr.length?d.appr:g.apprentissages).map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
   <div class="dip-h" style="top:157mm">Les étoiles de l'éducateur</div>
   <div class="dip-rows">${FACETS.map(f=>`<div class="dip-row"><div><b>${esc(f.name)}</b><small>${esc(g.facets[f.id])}</small></div><div class="dip-stars">${starsHtml(d.f[f.id])}</div></div>`).join("")}</div>
-  <div class="dip-legend">1 étoile : à découvrir · 2 étoiles : en progrès · 3 étoiles : acquis pour son âge — on se compare à soi-même, jamais aux autres.</div>
-  <div class="dip-h" style="top:238mm">Le mot de l'éducateur</div>
-  <div class="dip-mot">${d.m?`<p>« ${esc(d.m)} »</p>`:`<div class="dip-lines"><span></span><span></span><span></span></div>`}<div class="dip-sign">${esc(d.e||"")}</div></div>
-  <div class="dip-sig l"><span></span>L'éducateur</div><div class="dip-sig r"><span></span>Le responsable technique jeunes</div>
-  <div class="dip-foot">${esc(next)} À bientôt au Pau FC !</div></div>`}
+  <div class="dip-legend">1 étoile : je découvre · 2 étoiles : je progresse · 3 étoiles : je maîtrise</div>
+  <div class="dip-h" style="top:236mm">Le mot de l'éducateur</div>
+  <div class="dip-mot">${d.m?`<p>« ${esc(d.m)} »</p>`:`<div class="dip-lines"><span></span><span></span><span></span></div>`}</div>
+  <div class="dip-sig l"><span></span>L'éducateur${d.e?" · "+esc(d.e):""}</div><div class="dip-sig r"><span></span>Le responsable technique jeunes</div>
+  <div class="dip-foot">On se compare à soi-même, jamais aux autres. À bientôt au Pau FC !</div></div>`}
 let fontsReady=false;
 function pdfFonts(doc){if(!fontsReady){doc.addFileToVFS("Poppins-Bold.ttf",FONT_BOLD);doc.addFont("Poppins-Bold.ttf","Poppins","bold");doc.addFileToVFS("Poppins-Regular.ttf",FONT_REGULAR);doc.addFont("Poppins-Regular.ttf","Poppins","normal");doc.addFileToVFS("Poppins-Italic.ttf",FONT_ITALIC);doc.addFont("Poppins-Italic.ttf","Poppins","italic")}}
 function pdfStar(doc,cx,cy,r,on){const pts=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5;const rr=i%2?r*0.45:r;pts.push([cx+rr*Math.cos(a),cy+rr*Math.sin(a)])}
@@ -209,18 +220,18 @@ function pdfFiche(doc,d){const {g,vd,first,stageLine,next}=dipData(d);const PW=2
     doc.setFont("Poppins","bold");doc.setFontSize(11);doc.setTextColor(...ink);doc.text(f.name,MX,y);
     doc.setFont("Poppins","normal");doc.setFontSize(7.5);doc.setTextColor(...gray);doc.text(doc.splitTextToSize(g.facets[f.id],W-48)[0],MX,y+4.3);
     const n=d.f[f.id]||0;for(let k=0;k<3;k++)pdfStar(doc,MX+W-24+k*10.5,y+.4,3.9,k<n);y+=12.5});
-  doc.setFont("Poppins","normal");doc.setFontSize(7.3);doc.setTextColor(...gray);doc.text("1 étoile : à découvrir · 2 étoiles : en progrès · 3 étoiles : acquis pour son âge — on se compare à soi-même, jamais aux autres.",CX,231.5,{align:"center"});
+  doc.setFont("Poppins","normal");doc.setFontSize(7.3);doc.setTextColor(...gray);doc.text("1 étoile : je découvre · 2 étoiles : je progresse · 3 étoiles : je maîtrise",CX,231.5,{align:"center"});
   // mot
-  h("LE MOT DE L'ÉDUCATEUR",240.5);
-  doc.setFillColor(246,247,250);doc.setDrawColor(226,230,236);doc.setLineWidth(.3);doc.roundedRect(MX,244.5,W,25,2.5,2.5,"FD");
-  if(d.m){doc.setFont("Poppins","italic");doc.setFontSize(11.5);doc.setTextColor(...ink);const lines=doc.splitTextToSize(`« ${d.m} »`,W-14).slice(0,3);doc.text(lines,MX+7,251.5)}
-  else{doc.setDrawColor(200,204,212);doc.setLineWidth(.25);[252,258.5,265].forEach(o=>doc.line(MX+7,o,MX+W-7,o))}
-  if(d.e){doc.setFont("Poppins","normal");doc.setFontSize(8);doc.setTextColor(...gray);doc.text(d.e,MX+W-6,267.3,{align:"right"})}
+  h("LE MOT DE L'ÉDUCATEUR",238.5);
+  doc.setFillColor(246,247,250);doc.setDrawColor(226,230,236);doc.setLineWidth(.3);doc.roundedRect(MX,242,W,19.5,2.5,2.5,"FD");
+  if(d.m){doc.setFont("Poppins","italic");doc.setFontSize(11);doc.setTextColor(...ink);const lines=doc.splitTextToSize(`« ${d.m} »`,W-14).slice(0,3);doc.text(lines,MX+7,248.2,{lineHeightFactor:1.25})}
+  else{doc.setDrawColor(200,204,212);doc.setLineWidth(.25);[248.5,254,259.5].forEach(o=>doc.line(MX+7,o,MX+W-7,o))}
+  
   // signatures
-  doc.setDrawColor(...ink);doc.setLineWidth(.3);doc.line(MX,275,MX+62,275);doc.line(MX+W-62,275,MX+W,275);
-  doc.setFont("Poppins","normal");doc.setFontSize(7.5);doc.setTextColor(...gray);doc.text("L'éducateur",MX,278.6);doc.text("Le responsable technique jeunes",MX+W,278.6,{align:"right"});
+  doc.setDrawColor(...ink);doc.setLineWidth(.3);doc.line(MX,276.5,MX+62,276.5);doc.line(MX+W-62,276.5,MX+W,276.5);
+  doc.setFont("Poppins","normal");doc.setFontSize(7.5);doc.setTextColor(...gray);doc.text("L'éducateur"+(d.e?" · "+d.e:""),MX,279.8);doc.text("Le responsable technique jeunes",MX+W,279.8,{align:"right"});
   // pied
-  doc.setFontSize(6.8);doc.text(doc.splitTextToSize(next+" À bientôt au Pau FC !",W)[0],CX,283.2,{align:"center"})}
+  doc.setFont("Poppins","italic");doc.setFontSize(9);doc.setTextColor(...navy);doc.text("On se compare à soi-même, jamais aux autres. À bientôt au Pau FC !",CX,284.6,{align:"center"})}
 function fitTextS(doc,txt,w,size,style,max){doc.setFont("Poppins",style||"normal");
   let s=size;for(;s>6;s-=.5){doc.setFontSize(s);if(doc.splitTextToSize(txt,w).length<=(max||1))break}
   return s}
@@ -296,7 +307,7 @@ function listView(){
   ${store.queue.length?`<div class="pending">⚠ ${store.queue.length} fiche${store.queue.length>1?"s":""} pas encore envoyée${store.queue.length>1?"s":""} (pas de réseau ?)<button class="btn" id="retry" style="min-height:38px">Réessayer</button></div>`:""}
   ${ROLE==="rtj"&&toVal.length?`<div class="rtjbar"><span>${toVal.length} fiche${toVal.length>1?"s":""} ${GRP} à valider</span><button class="btn ok" id="valall">✓ Valider les ${toVal.length}</button></div>`:""}
   <div class="bar"><span class="prog grow">${done} / ${inG.length} carnets remplis</span></div>
-  ${ROLE==="rtj"?`<button class="btn primary carnbtn" id="carnall"${inG.some(p=>statusOf(p)===2)?"":" disabled"}>🖨 Voir et imprimer les carnets ${GRP} (${inG.filter(p=>statusOf(p)===2).length} validé${inG.filter(p=>statusOf(p)===2).length>1?"s":""})</button>`:""}
+  ${ROLE==="rtj"?`<button class="btn carnbtn" id="carnall"${inG.some(p=>statusOf(p)===2)?"":" disabled"}>🖨 Carnets (${inG.filter(p=>statusOf(p)===2).length} validé${inG.filter(p=>statusOf(p)===2).length>1?"s":""})</button>`:""}
   <details class="apprbox"><summary><b>Sur le carnet : « a travaillé »</b> <span class="hint" style="margin:0">${APPR[GRP]&&APPR[GRP].length?"modifié par le RTJ":"liste du programme"}</span></summary>
     <ul>${apprOf(GRP).map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
     ${ROLE==="rtj"?`<button class="btn" id="apred">✎ Modifier pour ce stage</button>`:`<p class="hint">Le RTJ peut l'ajuster selon ce que le groupe a vraiment fait.</p>`}</details>
@@ -317,9 +328,10 @@ const SHORT={motricite:"Motricité",conduite:"Conduite",passe:"Passe",jeu:"Jeu",
 function starCell(n){return n?`<span class="rs">${"★".repeat(n)}<i>${"★".repeat(3-n)}</i></span>`:`<span class="rs0">–</span>`}
 function recapHtml(L){if(!L.length)return `<p class="empty">Personne ici.</p>`;
   const avg=k=>{const v=L.map(p=>p.f&&p.f[k]||0).filter(Boolean);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1).replace(".",","):"–"};
+  const who=p=>{const s=statusOf(p);return `<span class="rsub"><span class="dot d${s}"></span>${ST_LABEL[s]}${p.by?" · "+esc(p.by):""}${p.suivre?` <span class="flag">À suivre</span>`:""}</span>${p.mot?`<span class="rmot">« ${esc(p.mot)} »</span>`:""}`};
   return `<div class="recap"><table><thead><tr><th class="rn">Enfant</th>${FACETS.map(f=>`<th title="${f.name}"><span class="lg2">${SHORT[f.id]}</span><span class="sm2">${TINY[f.id]}</span></th>`).join("")}</tr></thead><tbody>
-  ${L.map(p=>{const s=statusOf(p);return `<tr data-p="${esc(p.id)}" tabindex="0"><td class="rn"><b>${esc(p.name)}</b><span class="rsub"><span class="dot d${s}" title="${ST_LABEL[s]}"></span>${ST_LABEL[s]}${p.by?" · "+esc(p.by):""}${p.suivre?` · <span class="flag">À suivre</span>`:""}</span>${p.mot?`<span class="rmot">« ${esc(p.mot)} »</span>`:""}</td>${FACETS.map(f=>`<td>${starCell(p.f&&p.f[f.id])}</td>`).join("")}</tr>`}).join("")}
-  </tbody><tfoot><tr><td class="rn">Moyenne du groupe</td>${FACETS.map(f=>`<td>${avg(f.id)}</td>`).join("")}</tr></tfoot></table></div>
+  ${L.map(p=>`<tr class="rmh" data-p="${esc(p.id)}"><td colspan="5"><b>${esc(p.name)}</b>${who(p)}</td></tr><tr class="rrow" data-p="${esc(p.id)}" tabindex="0"><td class="rn"><b>${esc(p.name)}</b>${who(p)}</td>${FACETS.map(f=>`<td>${starCell(p.f&&p.f[f.id])}</td>`).join("")}</tr>`).join("")}
+  </tbody><tfoot><tr class="rmf"><td colspan="5">Moyenne du groupe</td></tr><tr><td class="rn">Moyenne du groupe</td>${FACETS.map(f=>`<td>${avg(f.id)}</td>`).join("")}</tr></tfoot></table></div>
   <p class="hint">Touche un enfant pour ouvrir sa fiche. On compare pour harmoniser les étoiles entre éducateurs ; sur le carnet, l'enfant n'est comparé qu'à lui-même.</p>`}
 function ficheView(){const p=PLAYERS.find(x=>x.id===OPEN);if(!p)return "";const d=DRAFT;const g=GROUPS.find(x=>x.id===p.groupe)||GROUPS[0];
   const inG=PLAYERS.filter(x=>x.groupe===p.groupe).sort((a,b)=>a.name.localeCompare(b.name,"fr"));const i=inG.indexOf(p);
@@ -327,12 +339,11 @@ function ficheView(){const p=PLAYERS.find(x=>x.id===OPEN);if(!p)return "";const 
   <div class="shead"><button class="x" id="fx" aria-label="Fermer">✕</button><h2>${esc(p.name)}</h2><div class="sub">${esc(p.cat)} · ${esc(p.groupe)} · ${esc(stName(STAGE))} · ${i+1} / ${inG.length}</div></div>
   <div class="sbody">
     ${FACETS.map(f=>`<div class="fac"><div class="ft"><b>${f.name}</b><small>${esc(g.facets[f.id])}</small></div><div class="stars" role="radiogroup" aria-label="${f.name}">${[1,2,3].map(n=>`<button class="star${(d.f[f.id]||0)>=n?" on":""}" data-s="${f.id}" data-n="${n}" role="radio" aria-checked="${d.f[f.id]===n}" aria-label="${n} étoile${n>1?"s":""}">${STAR}</button>`).join("")}</div></div>`).join("")}
-    <p class="legend">1 étoile : à découvrir · 2 : en progrès · 3 : acquis pour son âge. On compare l'enfant à lui-même, jamais aux autres.</p>
+    <p class="legend">1 étoile : je découvre · 2 étoiles : je progresse · 3 étoiles : je maîtrise. On compare l'enfant à lui-même, jamais aux autres.</p>
     <div class="field"><label for="fmot">Le mot de l'éducateur <span class="hint" style="font-weight:400">(écrit sur le carnet)</span></label><textarea id="fmot" rows="3" placeholder="Ce qu'il a réussi, ce qu'il peut travailler…">${esc(d.mot)}</textarea></div>
-    <div class="field"><label for="fclub">Son club</label><input id="fclub" type="text" value="${esc(d.club)}" placeholder="Pau FC, autre club, ou aucun"></div>
     <label class="check${d.suivre?" on":""}" id="fchk"><input type="checkbox" id="fsuivre"${d.suivre?" checked":""}><span>Joueur extérieur à suivre pour le Pau FC<br><span class="hint" style="font-weight:400;margin:0">Un enfant d'un autre club (ou sans club) à revoir par le RTJ. 🔒 Réservé au club : jamais sur le carnet.</span></span></label>
-    ${d.suivre?`<div class="field"><label for="fwhy">Pourquoi ? <span class="hint" style="font-weight:400">(obligatoire · 🔒 pour le RTJ, jamais sur le carnet)</span></label><textarea id="fwhy" rows="3" placeholder="Ce qui t'a marqué : qualités, attitude, poste…">${esc(d.pourquoi)}</textarea></div>`:""}
-    ${p.statut==="validé"?`<p class="valinfo">✓ Validé${p.valPar?" par "+esc(p.valPar):""}${p.valLe?" le "+esc(p.valLe):""}${ROLE!=="rtj"?" · une modification la renvoie au RTJ":""}</p>${ROLE==="rtj"?`<button class="btn" id="fcarn" style="margin-top:8px">🖨 Voir son carnet</button>`:""}`:p.by?`<p class="hint">Saisi par ${esc(p.by)}${p.ts?" · "+esc(p.ts):""}</p>`:""}
+    ${d.suivre?`<div class="field"><label for="fclub">Son club <span class="hint" style="font-weight:400">(repris de la base des stagiaires, à corriger si besoin)</span></label><input id="fclub" type="text" value="${esc(d.club)}" placeholder="Autre club, ou aucun"></div><div class="field"><label for="fwhy">Pourquoi ? <span class="hint" style="font-weight:400">(obligatoire · 🔒 pour le RTJ, jamais sur le carnet)</span></label><textarea id="fwhy" rows="3" placeholder="Ce qui t'a marqué : qualités, attitude, poste…">${esc(d.pourquoi)}</textarea></div>`:""}
+    ${p.statut==="validé"?`<p class="valinfo">✓ Validé${p.valPar?" par "+esc(p.valPar):""}${p.valLe?" le "+esc(p.valLe):""}${ROLE!=="rtj"?" · une modification la renvoie au RTJ":""}</p>${ROLE==="rtj"?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="fcarn">👁 Voir son carnet</button><button class="btn" id="fcpdf">⬇ Son carnet en PDF</button></div>`:""}`:p.by?`<p class="hint">Saisi par ${esc(p.by)}${p.ts?" · "+esc(p.ts):""}</p>`:""}
   </div>
   <div class="sfoot"><button class="btn" id="fcancel">Annuler</button>${ROLE==="rtj"?`<button class="btn ok" id="fval">✓ Valider</button>`:`<button class="btn primary" id="fsave">✓ Enregistrer${i<inG.length-1?" ›":""}</button>`}</div>
   </div></div>`}
@@ -349,8 +360,8 @@ function addView(){const a=ADD;return `<div class="ov" id="ov"><div class="sheet
   <div class="sfoot"><button class="btn" id="acancel">Annuler</button><button class="btn primary" id="ago">✓ Ajouter</button></div></div></div>`}
 
 function render(){
-  $("t2").textContent="Stages · Pau FC Academy";
-  const w=$("who");if(store.code&&store.who){w.hidden=false;w.textContent=(ROLE==="rtj"?"RTJ · ":"")+store.who}else w.hidden=true;
+  $("t2").textContent=ROLE==="rtj"?"Stages · accès RTJ":"Stages · Pau FC Academy";
+  const w=$("who");if(store.code&&store.who){w.hidden=false;w.textContent=store.who}else w.hidden=true;
   const app=$("app");
   if(ERR==="noapi")app.innerHTML=`<div class="card"><h2 style="font-size:28px">La base n'est pas encore branchée</h2><p class="hint">Il manque l'adresse de l'Apps Script du Google Sheet « Base stagiaires Pau FC » dans la page.</p></div>`;
   else if(!store.code||ERR==="code")app.innerHTML=login();
@@ -406,6 +417,7 @@ function bindFiche(){
   const close=()=>{if(dirty()&&!confirm("Fermer sans enregistrer ?"))return;closeModal()};
   $("fx").onclick=close;$("fcancel").onclick=close;$("ov").onclick=e=>{if(e.target.id==="ov")close()};
   const sv=$("fsave")||$("fval");sv.onclick=()=>commit(!!$("fval"));
+  const fp=$("fcpdf");if(fp)fp.onclick=()=>{if(dirty()){toast("Enregistre d'abord la fiche");return}pdfCarnets([OPEN])};
   const fc=$("fcarn");if(fc)fc.onclick=()=>{if(dirty()&&!confirm("Tu as des changements non enregistrés. Voir le carnet validé quand même ?"))return;const id=OPEN;closeModal();CARN=[id];render();window.scrollTo(0,0)}}
 /* ===== Carnets (RTJ) : le diplôme d'une page de stages.html, uniquement les fiches validées ===== */
 const GMAP={"U6-U7":"u67","U8-U9":"u89","U10-U11":"u1011","U12-U13":"u1213"};
@@ -413,26 +425,38 @@ const vacOf=st=>String(st).split("-")[0];
 // RÈGLE : un carnet ne reprend que les étoiles et le mot — jamais « à suivre » ni le « pourquoi »
 function apprOf(grp){return APPR[grp]&&APPR[grp].length?APPR[grp]:((CARNETS.GROUPS.find(x=>x.id===GMAP[grp])||{}).apprentissages||[])}
 function carnetOf(p){return {n:p.name,g:GMAP[p.groupe]||"u67",v:vacOf(STAGE),f:Object.assign({},p.f||{}),m:p.mot||"",e:p.by||"",appr:apprOf(p.groupe)}}
+let SEL=null;
 function carnetsView(){const list=CARN.map(id=>PLAYERS.find(p=>p.id===id)).filter(Boolean);
+  if(!SEL||SEL.ctx!==CARN.join())SEL={ctx:CARN.join(),ids:new Set(list.map(p=>p.id))};
+  const chosen=list.filter(p=>SEL.ids.has(p.id)),n=chosen.length;
   const notVal=PLAYERS.filter(p=>p.groupe===(list[0]||{}).groupe&&statusOf(p)!==2).length;
-  return `<div class="printbar"><button class="btn" id="cback">← Retour</button><span class="note">${list.length} carnet${list.length>1?"s":""} · ${esc(stName(STAGE))}${list.length?" · "+esc(list[0].groupe):""} · une page A4 par enfant${list.length>1&&notVal?` · ${notVal} fiche${notVal>1?"s":""} pas encore validée${notVal>1?"s":""} (non incluse${notVal>1?"s":""})`:""}</span><span><button class="btn primary" id="cpdf">📄 Télécharger le PDF</button> <button class="btn" id="cprint">🖨 Imprimer</button></span></div>
-  <div class="dips">${list.map(p=>`<div class="dipwrap">${CARNETS.ficheHtml(carnetOf(p))}</div>`).join("")}</div>`}
-function bindCarnets(){$("cback").onclick=()=>{CARN=null;render()};
-  $("cprint").onclick=()=>{try{setTimeout(()=>window.print(),50)}catch(e){toast("Utilise le menu Imprimer du navigateur")}};
-  $("cpdf").onclick=async()=>{const list=CARN.map(id=>PLAYERS.find(p=>p.id===id)).filter(Boolean);toast("Préparation du PDF…");
+  return `<div class="printbar"><button class="btn" id="cback">← Retour</button><span class="note">${esc(stName(STAGE))}${list.length?" · "+esc(list[0].groupe):""} · une page A4 par enfant${list.length>1&&notVal?` · ${notVal} fiche${notVal>1?"s":""} pas encore validée${notVal>1?"s":""} (non incluse${notVal>1?"s":""})`:""}</span></div>
+  ${list.length>1?`<div class="selbox"><div class="selhead"><b>Carnets à imprimer : ${n} / ${list.length}</b><span><button class="linkbtn" id="selall">Tout cocher</button> · <button class="linkbtn" id="selnone">Tout décocher</button></span></div>
+    <div class="sellist">${list.map(p=>`<label class="selit"><input type="checkbox" data-sel="${esc(p.id)}"${SEL.ids.has(p.id)?" checked":""}> ${esc(p.name)}</label>`).join("")}</div></div>`:""}
+  <div class="selact"><button class="btn primary" id="cpdf"${n?"":" disabled"}>📄 PDF ${n>1?`des ${n} carnets`:"du carnet"}</button><button class="btn" id="cprint"${n?"":" disabled"}>🖨 Imprimer${n>1?` les ${n}`:""}</button></div>
+  <div class="dips">${chosen.map(p=>`${list.length>1?`<div class="onebar"><b>${esc(p.name)}</b><button class="btn sm" data-c1pdf="${esc(p.id)}">⬇ Son PDF</button></div>`:""}<div class="dipwrap">${CARNETS.ficheHtml(carnetOf(p))}</div>`).join("")}</div>`}
+async function pdfCarnets(ids){const list=ids.map(id=>PLAYERS.find(p=>p.id===id)).filter(Boolean);toast("Préparation du PDF…");
     try{await CARNETS.loadJsPDF()}catch(e){toast("Impossible de charger le module PDF (réseau)");return}
     const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",compress:true});list.forEach((p,i)=>{if(i)doc.addPage();CARNETS.pdfFiche(doc,carnetOf(p))});
     const slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"");
     const vn=(CARNETS.VACANCES.find(x=>x.id===vacOf(STAGE))||{name:STAGE}).name;
-    try{doc.save(list.length===1?`carnet-stage-${slug(vn)}-${slug(list[0].name)}.pdf`:`carnets-stage-${slug(vn)}-${list[0].groupe}.pdf`);toast("PDF téléchargé")}catch(e){toast("Téléchargement impossible")}};
+    try{doc.save(list.length===1?`carnet-stage-${slug(vn)}-${slug(list[0].name)}.pdf`:`carnets-stage-${slug(vn)}-${list[0].groupe}.pdf`);toast("PDF téléchargé")}catch(e){toast("Téléchargement impossible")}}
+function bindCarnets(){$("cback").onclick=()=>{CARN=null;render()};
+  $("cprint").onclick=()=>{try{setTimeout(()=>window.print(),50)}catch(e){toast("Utilise le menu Imprimer du navigateur")}};
+  const chosen=()=>CARN.filter(id=>SEL.ids.has(id));
+  $("cpdf").onclick=()=>pdfCarnets(chosen());
+  document.querySelectorAll("[data-sel]").forEach(c=>c.onchange=()=>{if(c.checked)SEL.ids.add(c.dataset.sel);else SEL.ids.delete(c.dataset.sel);const y=window.scrollY;render();window.scrollTo(0,y)});
+  const sa=$("selall");if(sa)sa.onclick=()=>{CARN.forEach(id=>SEL.ids.add(id));render()};
+  const sn=$("selnone");if(sn)sn.onclick=()=>{SEL.ids.clear();render()};
+  document.querySelectorAll("[data-c1pdf]").forEach(b=>b.onclick=()=>pdfCarnets([b.dataset.c1pdf]));
   requestAnimationFrame(()=>CARNETS.fitDips())}
 window.addEventListener("resize",()=>{if(CARN)CARNETS.fitDips()});
 function commit(valider){readDraft();const d=DRAFT,p=PLAYERS.find(x=>x.id===OPEN);
   const n=FACETS.filter(f=>d.f[f.id]).length;
   if(n<FACETS.length&&!confirm(`${FACETS.length-n} facette${FACETS.length-n>1?"s":""} sans étoile. Enregistrer quand même ?`))return;
   if(d.suivre&&!d.pourquoi.trim()){toast("Explique pourquoi le suivre");const w=$("fwhy");if(w)w.focus();return}
-  const body={a:"save",stage:STAGE,id:p.id,f:d.f,mot:d.mot.trim(),club:d.club.trim(),suivre:d.suivre,pourquoi:d.suivre?d.pourquoi.trim():"",by:store.who,valider,qts:Date.now()};
-  Object.assign(p,{f:Object.assign({},d.f),mot:body.mot,club:body.club,suivre:body.suivre,pourquoi:body.pourquoi,by:store.who,statut:valider?"validé":"à valider",valPar:valider?store.who:""});
+  const body={a:"save",stage:STAGE,id:p.id,f:d.f,mot:d.mot.trim(),club:d.suivre?d.club.trim():undefined,suivre:d.suivre,pourquoi:d.suivre?d.pourquoi.trim():"",by:store.who,valider,qts:Date.now()};
+  Object.assign(p,{f:Object.assign({},d.f),mot:body.mot,club:d.suivre?body.club:p.club,suivre:body.suivre,pourquoi:body.pourquoi,by:store.who,statut:valider?"validé":"à valider",valPar:valider?store.who:""});
   store.queue=store.queue.filter(x=>!(x.id===p.id&&x.stage===STAGE));store.queue.push(body);save();
   // suivant dans le groupe (éducateur), sinon retour à la liste
   const inG=PLAYERS.filter(x=>x.groupe===p.groupe).sort((a,b)=>a.name.localeCompare(b.name,"fr"));const nx=inG[inG.indexOf(p)+1];
