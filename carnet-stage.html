@@ -30,7 +30,7 @@ textarea{resize:vertical;min-height:84px}
 .hint{color:var(--muted);font-size:15px;margin:6px 0 0}
 .err{color:var(--danger);font-weight:700;margin-top:10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;font-size:15px}
+.chip{min-height:44px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;font-size:15px}
 .chip[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}
 .chip .n{opacity:.7;font-weight:600;margin-left:4px}
 .bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 6px}
@@ -60,12 +60,12 @@ textarea{resize:vertical;min-height:84px}
 .shead .sub{color:var(--muted);font-size:15px}
 .x{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;width:42px;height:42px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:18px;display:grid;place-items:center}
 .sbody{overflow:auto;padding:12px 16px 20px;flex:1;-webkit-overflow-scrolling:touch}
-.fac{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.fac .ft{flex:1;min-width:180px}
+.fac{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 10px 10px 14px;margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.fac .ft{flex:1;min-width:0}
 .fac b{display:block;font-size:16px}.fac small{display:block;color:var(--muted);font-size:14px;line-height:1.3}
 .stars{display:flex;gap:4px}
-.star{width:46px;height:46px;border:0;background:none;padding:0;display:grid;place-items:center}
-.star svg{width:36px;height:36px;fill:var(--surface-2);stroke:#B9C3D3;stroke-width:1}
+.star{width:44px;height:48px;border:0;background:none;padding:0;display:grid;place-items:center}
+.star svg{width:34px;height:34px;fill:var(--surface-2);stroke:#B9C3D3;stroke-width:1}
 .star.on svg{fill:var(--yellow);stroke:#C9A100}
 .legend{font-size:13px;color:var(--muted);margin-top:8px}
 .check{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:14px;font-weight:700}
@@ -74,10 +74,10 @@ textarea{resize:vertical;min-height:84px}
 .sfoot{background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;flex-wrap:wrap}
 .sfoot .btn{flex:1;min-width:0;white-space:nowrap;padding:10px 14px}.sfoot #fcancel,.sfoot #acancel{flex:0 0 auto}
 .valinfo{margin-top:12px;font-size:14px;color:var(--ok);font-weight:700}
-.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));bottom:auto;font-size:15px;padding:10px 16px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 18px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:80;max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));bottom:auto;font-size:15px;padding:10px 16px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 18px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:80;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
 .pending{background:#FDECEA;color:#8A1F1F;border-radius:12px;padding:10px 14px;margin-top:10px;font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.linkbtn{background:none;border:0;color:var(--navy-2);text-decoration:underline;font-weight:700;padding:6px 0}
+.linkbtn{background:none;border:0;color:var(--navy-2);text-decoration:underline;font-weight:700;padding:10px 0;min-height:44px}
 .dips{display:flex;flex-direction:column;gap:18px;align-items:center;margin-top:14px}
 .dipwrap{transform-origin:top left;width:210mm;align-self:flex-start}
 .dip{position:relative;width:210mm;height:297mm;background:#fff;color:#1E2430;font-family:Poppins,"Source Sans 3",Arial,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.14);overflow:hidden}
@@ -116,6 +116,12 @@ textarea{resize:vertical;min-height:84px}
 .printbar{margin:4px 0 14px}.printbar .note{font-size:15px;color:var(--muted);flex:1;min-width:200px}
 .carnbtn{width:100%;margin-top:10px}
 header.top[hidden]{display:none}
+.top .who{min-height:40px}
+@media(max-width:380px){.fac{padding:8px 4px 8px 12px;gap:4px}.star{width:36px;height:46px}.star svg{width:29px;height:29px}.fac b{font-size:15px}.fac small{font-size:13px}}
+.navb{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}.navb .btn{min-height:44px;min-width:44px;padding:4px 14px;font-size:15px}.navb .pos{color:var(--muted);font-size:14px;font-weight:600;margin:0 2px}
+.progbar{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:6px}.progbar i{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .3s}
+.recap th{font-size:12px!important}.rsub .flag{font-size:11px!important}
+.gbt .btn{min-height:40px!important;min-width:40px}
 .sync{color:var(--muted);font-weight:400;animation:pulse 1.2s ease-in-out infinite}@keyframes pulse{50%{opacity:.4}}
 .rtjtools{background:#FFF8DB;border:1px solid #F2D46A;border-radius:14px;padding:12px;margin-top:12px;color:#14213D}.rtjtools .apph{color:#7A5E00}
 .rtjgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}.rtjgrid .btn{background:#fff;min-height:44px;font-size:15px}
@@ -124,7 +130,7 @@ header.top[hidden]{display:none}
 .renbox{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.renbox input{flex:1;min-width:120px;padding:9px 12px;font-size:16px}
 .apph{margin:10px 0 0;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
 .gitem{display:flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;margin-top:8px}
-.gnum{width:24px;text-align:center;font-weight:800;color:var(--muted);flex:none}.gf{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.gf input{padding:8px 10px;font-size:15px}.gf input:first-child{font-weight:700}
+.gnum{width:24px;text-align:center;font-weight:800;color:var(--muted);flex:none}.gf{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.gf input{padding:9px 10px;font-size:16px}.gf input:first-child{font-weight:700}
 .gbt{display:flex;flex-direction:column;gap:4px;flex:none}.gbt .btn{min-height:30px;padding:2px 10px}
 @media(min-width:561px){.gbt{flex-direction:row}}
 .selbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
@@ -139,7 +145,7 @@ header.top[hidden]{display:none}
 .apprbox summary{cursor:pointer;font-size:15px;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
 .apprbox ul{margin:8px 0 10px;padding-left:20px;font-size:15px}.apprbox li{margin:3px 0}
 .seg{display:flex;background:var(--surface-2);border-radius:999px;padding:4px;margin:12px 0 10px}
-.seg button{flex:1;border:0;background:none;border-radius:999px;padding:9px 8px;font-weight:700;font-size:15px;color:var(--muted)}
+.seg button{flex:1;min-height:44px;border:0;background:none;border-radius:999px;padding:9px 8px;font-weight:700;font-size:15px;color:var(--muted)}
 .seg button[aria-selected=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .recap{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .recap table{width:100%;border-collapse:collapse;table-layout:fixed}
@@ -157,7 +163,7 @@ header.top[hidden]{display:none}
 .recap th .sm2{display:none}.recap th{overflow:hidden;text-overflow:ellipsis}
 @media(max-width:560px){.recap th.rn,.recap td.rn{display:none}.recap tr.rmh{display:table-row}.recap tr.rmh td{text-align:left;padding:10px 10px 2px;border-bottom:0}.recap tr.rrow td{padding-top:2px}.recap tfoot tr.rmf{display:table-row;order:-1}.recap tr.rmf td{text-align:left;padding:8px 10px 0;font-size:12px;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}.recap tr.rmh b{font-size:16px}.rs{font-size:15px}}
 @media(max-width:480px){.recap th .lg2{display:none}.recap th .sm2{display:inline}.recap th{text-transform:none;letter-spacing:0;padding:8px 0;font-size:11.5px}}
-@media(max-width:380px){.recap th{font-size:10.5px!important}.recap th.rn,.recap td.rn{width:34%}.rs{font-size:11px}}
+@media(max-width:380px){.recap th{font-size:11.5px!important}.recap th.rn,.recap td.rn{width:34%}.rs{font-size:11px}}
 </style></head><body>
 <header class="top"><img alt="" id="crest"><div style="min-width:0"><div class="t1">Carnet de stage</div><div class="t2" id="t2">Pau FC Academy</div></div><button class="who" id="who" hidden></button></header>
 <main id="app"></main>
@@ -289,7 +295,7 @@ const ST_LABEL=["À saisir","À valider","Validé"];
 async function api(params){const q=new URLSearchParams(Object.assign({code:store.code||""},params));const r=await fetch(API+"?"+q.toString(),{cache:"no-store"});return r.json()}
 async function post(body){const r=await fetch(API,{method:"POST",body:JSON.stringify(Object.assign({code:store.code||""},body)),headers:{"Content-Type":"text/plain;charset=utf-8"}});return r.json()}
 
-const VERSION="20/10 · 14h";
+const VERSION="20/10 · 16h";
 function applyList(j){ROLE=j.role;APPR=j.appr||{};GRID=j.grid||{};PLAYERS=(j.players||[]).filter(p=>allowed(p.groupe));
   // ce qui attend encore d'être envoyé reste affiché tel que saisi
   store.queue.filter(x=>x.stage===STAGE).forEach(x=>{const p=PLAYERS.find(y=>y.id===x.id);if(p)Object.assign(p,{f:x.f,mot:x.mot,suivre:x.suivre,pourquoi:x.pourquoi,statut:"à valider",by:x.by})});
@@ -330,12 +336,9 @@ function listView(){
   <div class="chips" role="group" aria-label="Groupe">${GROUPS.map(g=>{const n=PLAYERS.filter(p=>p.groupe===g.id).length;return n?`<button class="chip" data-g="${g.id}" aria-pressed="${g.id===GRP}">${g.id}<span class="n">${n}</span></button>`:""}).join("")}</div>
   ${store.queue.length?`<div class="pending">⚠ ${store.queue.length} fiche${store.queue.length>1?"s":""} pas encore envoyée${store.queue.length>1?"s":""} (pas de réseau ?)<button class="btn" id="retry" style="min-height:38px">Réessayer</button></div>`:""}
   ${ROLE==="rtj"&&toVal.length?`<div class="rtjbar"><span>${toVal.length} fiche${toVal.length>1?"s":""} ${GRP} à valider</span><button class="btn ok" id="valall">✓ Valider les ${toVal.length}</button></div>`:""}
-  <div class="bar"><span class="prog grow">${done} / ${inG.length} carnets remplis${SYNC?` <span class="sync">· mise à jour…</span>`:""}</span></div>
+  <div class="bar" style="flex-direction:column;align-items:stretch;gap:0"><span class="prog grow">${done} / ${inG.length} carnets remplis${SYNC?` <span class="sync">· mise à jour…</span>`:""}</span><div class="progbar" aria-hidden="true"><i style="width:${inG.length?Math.round(100*done/inG.length):0}%"></i></div></div>
   ${ROLE==="rtj"?`<div class="rtjtools"><p class="apph" style="margin:0 0 8px">Outils du RTJ · ${GRP}</p><div class="rtjgrid"><button class="btn" id="carnall"${inG.length?"":" disabled"}>🖨 Voir / imprimer les carnets</button><button class="btn" id="gred2">✎ Modifier le carnet du groupe</button></div></div>`:""}
-  ${ROLE==="rtj"?"":`<details class="apprbox"><summary><b>Ce qui est sur le carnet</b> <span class="hint" style="margin:0">critères et « a travaillé »</span></summary>
-    <p class="apph">Les critères (${gridFor(GRP).length})</p><ul>${gridFor(GRP).map(f=>`<li><b>${esc(f.name)}</b>${f.desc?` <span class="hint" style="margin:0">· ${esc(f.desc)}</span>`:""}</li>`).join("")}</ul>
-    <p class="apph">« A travaillé »</p><ul>${apprOf(GRP).map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
-    <p class="hint">Le RTJ peut les ajuster pour ce groupe.</p></details>`}
+
   <div class="seg" role="tablist" aria-label="Affichage"><button role="tab" data-v="liste" aria-selected="${VIEW==="liste"}">Les fiches</button><button role="tab" data-v="recap" aria-selected="${VIEW==="recap"}">Récap du groupe</button></div>
   <div class="chips" role="group" aria-label="Filtre">
     <button class="chip" data-f="tous" aria-pressed="${FILTER==="tous"}">Tous</button>
@@ -361,7 +364,8 @@ function recapHtml(L){if(!L.length)return `<p class="empty">Personne ici.</p>`;c
 function ficheView(){const p=PLAYERS.find(x=>x.id===OPEN);if(!p)return "";const d=DRAFT;const g=GROUPS.find(x=>x.id===p.groupe)||GROUPS[0];
   const inG=PLAYERS.filter(x=>x.groupe===p.groupe).sort((a,b)=>a.name.localeCompare(b.name,"fr"));const i=inG.indexOf(p);
   return `<div class="ov" id="ov"><div class="sheet" role="dialog" aria-modal="true" aria-label="Fiche de ${esc(p.name)}">
-  <div class="shead"><button class="x" id="fx" aria-label="Fermer">✕</button><h2>${esc((d.prenom+" "+d.nom).trim()||p.name)}</h2><div class="sub">${esc(p.cat)} · ${esc(p.groupe)} · ${esc(stName(STAGE))} · ${i+1} / ${inG.length} · <button class="linkbtn" id="fren" style="padding:0">✎ ${d.ren?"Fermer":"Corriger le nom"}</button></div>
+  <div class="shead"><button class="x" id="fx" aria-label="Fermer">✕</button><h2>${esc((d.prenom+" "+d.nom).trim()||p.name)}</h2><div class="sub">${esc(p.cat)} · ${esc(p.groupe)} · ${esc(stName(STAGE))}</div>
+  <div class="navb"><button class="btn" id="fprev" aria-label="Enfant précédent"${i?"":" disabled"}>‹</button><span class="pos">${i+1} / ${inG.length}</span><button class="btn" id="fnext" aria-label="Enfant suivant"${i<inG.length-1?"":" disabled"}>›</button><button class="btn" id="fren" aria-label="Corriger le nom" style="margin-left:auto">✎ ${d.ren?"Fermer":"Nom"}</button></div>
   ${d.ren?`<div class="renbox"><input id="fpre" type="text" value="${esc(d.prenom)}" aria-label="Prénom" placeholder="Prénom"><input id="fnom" type="text" value="${esc(d.nom)}" aria-label="Nom" placeholder="Nom"></div>`:""}</div>
   <div class="sbody">
     ${gridFor(p.groupe).map(f=>`<div class="fac"><div class="ft"><b>${esc(f.name)}</b><small>${esc(f.desc||"")}</small></div><div class="stars" role="radiogroup" aria-label="${esc(f.name)}">${[1,2,3].map(n=>`<button class="star${(d.f[f.id]||0)>=n?" on":""}" data-s="${f.id}" data-n="${n}" role="radio" aria-checked="${d.f[f.id]===n}" aria-label="${n} étoile${n>1?"s":""}">${STAR}</button>`).join("")}</div></div>`).join("")}
@@ -372,7 +376,7 @@ function ficheView(){const p=PLAYERS.find(x=>x.id===OPEN);if(!p)return "";const 
     ${p.statut==="validé"?`<p class="valinfo">✓ Validé${p.valPar?" par "+esc(p.valPar):""}${p.valLe?" le "+esc(p.valLe):""}${ROLE!=="rtj"?" · une modification la renvoie au RTJ":""}</p>`:p.by?`<p class="hint">Saisi par ${esc(p.by)}${p.ts?" · "+esc(p.ts):""}</p>`:""}
     ${ROLE==="rtj"?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="fcarn">👁 Voir son carnet</button><button class="btn" id="fcpdf">⬇ Son carnet en PDF</button></div>`:""}
   </div>
-  <div class="sfoot"><button class="btn" id="fcancel">Annuler</button>${ROLE==="rtj"?`<button class="btn ok" id="fval">✓ Valider</button>`:`<button class="btn primary" id="fsave">✓ Enregistrer${i<inG.length-1?" ›":""}</button>`}</div>
+  <div class="sfoot"><button class="btn" id="fcancel">Annuler</button>${ROLE==="rtj"?`<button class="btn yellow" id="fval">${i<inG.length-1?"✓ Valider · suivant ›":"✓ Valider · terminé"}</button>`:`<button class="btn yellow" id="fsave">${i<inG.length-1?"Suivant ›":"✓ Terminé"}</button>`}</div>
   </div></div>`}
 
 function addView(){const a=ADD;return `<div class="ov" id="ov"><div class="sheet" role="dialog" aria-modal="true" aria-label="Ajouter un enfant" style="height:auto;max-height:94vh">
@@ -472,6 +476,8 @@ function bindFiche(){
   document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{readDraft();const k=b.dataset.s,n=+b.dataset.n;DRAFT.f[k]=DRAFT.f[k]===n?0:n;const sb=document.querySelector(".sbody").scrollTop;renderModal();document.querySelector(".sbody").scrollTop=sb});
   $("fsuivre").onchange=e=>{readDraft();DRAFT.suivre=e.target.checked;const sb=document.querySelector(".sbody").scrollTop;renderModal();const s=document.querySelector(".sbody");s.scrollTop=sb;if(DRAFT.suivre){const w=$("fwhy");if(w){w.focus();w.scrollIntoView({block:"center"})}}};
   {const t=$("fmot");if(t)t.oninput=()=>{$("fmotn").textContent=t.value.length+" / "+MOT_MAX+" caractères (3 lignes sur le carnet)"}}
+  {const go=dl=>{const p0=PLAYERS.find(x=>x.id===OPEN);const L=PLAYERS.filter(x=>x.groupe===p0.groupe).sort((a,b)=>a.name.localeCompare(b.name,"fr"));const n=L[L.indexOf(p0)+dl];if(!n)return;if(dirty()&&!confirm("Changer d'enfant sans enregistrer cette fiche ?"))return;openFiche(n.id);document.querySelector(".sbody").scrollTop=0};
+   $("fprev").onclick=()=>go(-1);$("fnext").onclick=()=>go(1)}
   $("fren").onclick=()=>{readDraft();DRAFT.ren=!DRAFT.ren;renderModal();const a=$("fpre");if(a)a.focus()};
   const close=()=>{if(dirty()&&!confirm("Fermer sans enregistrer ?"))return;closeModal()};
   $("fx").onclick=close;$("fcancel").onclick=close;$("ov").onclick=e=>{if(e.target.id==="ov")close()};
@@ -524,7 +530,7 @@ function commit(valider){readDraft();const d=DRAFT,p=PLAYERS.find(x=>x.id===OPEN
   // suivant dans le groupe (éducateur), sinon retour à la liste
   const inG=PLAYERS.filter(x=>x.groupe===p.groupe).sort((a,b)=>a.name.localeCompare(b.name,"fr"));const nx=inG[inG.indexOf(p)+1];
   toast(valider?"Validé ✓":"Enregistré ✓");
-  if(!valider&&nx){openFiche(nx.id);document.querySelector(".sbody").scrollTop=0}else closeModal();
+  if(nx){openFiche(nx.id);document.querySelector(".sbody").scrollTop=0}else{closeModal();toast(valider?"Groupe terminé ✓":"C'était le dernier enfant ✓")}
   flush()}
 function bindAdd(){const close=()=>closeModal();$("ax").onclick=close;$("acancel").onclick=close;$("ov").onclick=e=>{if(e.target.id==="ov")close()};
   $("ago").onclick=async()=>{const a=ADD;a.prenom=$("apre").value.trim();a.nom=$("anom").value.trim();a.cat=$("acat").value;
