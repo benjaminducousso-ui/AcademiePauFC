@@ -115,6 +115,7 @@ textarea{resize:vertical;min-height:84px}
 .printbar{margin:4px 0 14px}.printbar .note{font-size:15px;color:var(--muted);flex:1;min-width:200px}
 .carnbtn{width:100%;margin-top:10px}
 header.top[hidden]{display:none}
+.sync{color:var(--muted);font-weight:400;animation:pulse 1.2s ease-in-out infinite}@keyframes pulse{50%{opacity:.4}}
 .rtjtools{background:#FFF8DB;border:1px solid #F2D46A;border-radius:14px;padding:12px;margin-top:12px;color:#14213D}.rtjtools .apph{color:#7A5E00}
 .rtjgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}.rtjgrid .btn{background:#fff;min-height:44px;font-size:15px}
 .rowwrap{display:flex;gap:6px;align-items:stretch}.rowwrap .row{flex:1;min-width:0}
@@ -287,16 +288,24 @@ const ST_LABEL=["À saisir","À valider","Validé"];
 async function api(params){const q=new URLSearchParams(Object.assign({code:store.code||""},params));const r=await fetch(API+"?"+q.toString(),{cache:"no-store"});return r.json()}
 async function post(body){const r=await fetch(API,{method:"POST",body:JSON.stringify(Object.assign({code:store.code||""},body)),headers:{"Content-Type":"text/plain;charset=utf-8"}});return r.json()}
 
+const VERSION="20/10 · 12h30";
+function applyList(j){ROLE=j.role;APPR=j.appr||{};GRID=j.grid||{};PLAYERS=(j.players||[]).filter(p=>allowed(p.groupe));
+  // ce qui attend encore d'être envoyé reste affiché tel que saisi
+  store.queue.filter(x=>x.stage===STAGE).forEach(x=>{const p=PLAYERS.find(y=>y.id===x.id);if(p)Object.assign(p,{f:x.f,mot:x.mot,suivre:x.suivre,pourquoi:x.pourquoi,statut:"à valider",by:x.by})});
+  if(!GRP||!PLAYERS.some(p=>p.groupe===GRP)){const g=GROUPS.find(g=>PLAYERS.some(p=>p.groupe===g.id));GRP=g?g.id:"U6-U7"}}
+const busy=()=>OPEN||ADD||APED||GED||CARN;
+let SYNC=false;
 async function load(){if(!API||API.indexOf("__")===0){ERR="noapi";render();return}
-  LOADING=true;ERR="";render();
+  ERR="";
+  // affichage immédiat de la dernière liste connue, puis mise à jour en arrière-plan
+  const ck=STAGE+"|"+(store.code||"").toLowerCase();
+  if(!PLAYERS.length&&store.cache&&store.cache.k===ck){applyList(store.cache.j);LOADING=false}else if(!PLAYERS.length)LOADING=true;
+  SYNC=true;if(!busy())render();
   try{const j=await api({a:"list",stage:STAGE});
-    if(!j.ok){if(j.error==="code"){ERR="code";store.code="";save()}else ERR=j.error||"err";LOADING=false;render();return}
-    ROLE=j.role;APPR=j.appr||{};GRID=j.grid||{};PLAYERS=(j.players||[]).filter(p=>allowed(p.groupe));
-    // ce qui attend encore d'être envoyé reste affiché tel que saisi
-    store.queue.filter(x=>x.stage===STAGE).forEach(x=>{const p=PLAYERS.find(y=>y.id===x.id);if(p)Object.assign(p,{f:x.f,mot:x.mot,suivre:x.suivre,pourquoi:x.pourquoi,club:x.club,statut:"à valider",by:x.by})});
-    if(!GRP||!PLAYERS.some(p=>p.groupe===GRP)){const g=GROUPS.find(g=>PLAYERS.some(p=>p.groupe===g.id));GRP=g?g.id:"U6-U7"}
-  }catch(e){ERR="net"}
-  LOADING=false;render();flush()}
+    if(!j.ok){SYNC=false;if(j.error==="code"){ERR="code";store.code="";store.cache=null;save()}else ERR=j.error||"err";LOADING=false;render();return}
+    applyList(j);try{store.cache={k:ck,j};save()}catch(e){}
+  }catch(e){if(!PLAYERS.length)ERR="net"}
+  LOADING=false;SYNC=false;if(!busy())render();flush()}
 
 async function flush(){if(!store.queue.length||flush.busy)return;flush.busy=true;
   for(const x of store.queue.slice()){try{const j=await post(x);if(j&&j.ok){store.queue=store.queue.filter(y=>y!==x);save();const p=PLAYERS.find(y=>y.id===x.id);if(p){p.statut=j.statut;p.ts=j.ts}}else break}catch(e){break}}
@@ -320,13 +329,12 @@ function listView(){
   <div class="chips" role="group" aria-label="Groupe">${GROUPS.map(g=>{const n=PLAYERS.filter(p=>p.groupe===g.id).length;return n?`<button class="chip" data-g="${g.id}" aria-pressed="${g.id===GRP}">${g.id}<span class="n">${n}</span></button>`:""}).join("")}</div>
   ${store.queue.length?`<div class="pending">⚠ ${store.queue.length} fiche${store.queue.length>1?"s":""} pas encore envoyée${store.queue.length>1?"s":""} (pas de réseau ?)<button class="btn" id="retry" style="min-height:38px">Réessayer</button></div>`:""}
   ${ROLE==="rtj"&&toVal.length?`<div class="rtjbar"><span>${toVal.length} fiche${toVal.length>1?"s":""} ${GRP} à valider</span><button class="btn ok" id="valall">✓ Valider les ${toVal.length}</button></div>`:""}
-  <div class="bar"><span class="prog grow">${done} / ${inG.length} carnets remplis</span></div>
-  ${ROLE==="rtj"?`<div class="rtjtools"><p class="apph" style="margin:0 0 8px">Outils du RTJ · ${GRP}</p><div class="rtjgrid"><button class="btn" id="carnall"${inG.length?"":" disabled"}>🖨 Voir / imprimer les carnets</button><button class="btn" id="gred2">✎ Critères et descriptifs</button><button class="btn" id="apred2">✎ « A travaillé »</button></div></div>`:""}
-  <details class="apprbox"><summary><b>Ce qui est sur le carnet</b> <span class="hint" style="margin:0">${(GRID[GRP]&&GRID[GRP].length)||(APPR[GRP]&&APPR[GRP].length)?"modifié par le RTJ":"version du programme"}</span></summary>
+  <div class="bar"><span class="prog grow">${done} / ${inG.length} carnets remplis${SYNC?` <span class="sync">· mise à jour…</span>`:""}</span></div>
+  ${ROLE==="rtj"?`<div class="rtjtools"><p class="apph" style="margin:0 0 8px">Outils du RTJ · ${GRP}</p><div class="rtjgrid"><button class="btn" id="carnall"${inG.length?"":" disabled"}>🖨 Voir / imprimer les carnets</button><button class="btn" id="gred2">✎ Modifier le carnet du groupe</button></div></div>`:""}
+  ${ROLE==="rtj"?"":`<details class="apprbox"><summary><b>Ce qui est sur le carnet</b> <span class="hint" style="margin:0">critères et « a travaillé »</span></summary>
     <p class="apph">Les critères (${gridFor(GRP).length})</p><ul>${gridFor(GRP).map(f=>`<li><b>${esc(f.name)}</b>${f.desc?` <span class="hint" style="margin:0">· ${esc(f.desc)}</span>`:""}</li>`).join("")}</ul>
-    ${ROLE==="rtj"?`<button class="btn sm" id="gred">✎ Modifier les critères</button>`:""}
     <p class="apph">« A travaillé »</p><ul>${apprOf(GRP).map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
-    ${ROLE==="rtj"?`<button class="btn sm" id="apred">✎ Modifier « a travaillé »</button>`:`<p class="hint">Le RTJ peut ajuster les items et « a travaillé » selon ce que le groupe a vraiment fait.</p>`}</details>
+    <p class="hint">Le RTJ peut les ajuster pour ce groupe.</p></details>`}
   <div class="seg" role="tablist" aria-label="Affichage"><button role="tab" data-v="liste" aria-selected="${VIEW==="liste"}">Les fiches</button><button role="tab" data-v="recap" aria-selected="${VIEW==="recap"}">Récap du groupe</button></div>
   <div class="chips" role="group" aria-label="Filtre">
     <button class="chip" data-f="tous" aria-pressed="${FILTER==="tous"}">Tous</button>
@@ -337,7 +345,7 @@ function listView(){
     return `<div class="rowwrap"><button class="row" data-p="${esc(p.id)}"><span class="mid"><span class="nm">${esc(p.name)}</span><br><span class="sub"><span class="st s${s}">${ST_LABEL[s]}</span>${esc(p.cat)}${filled?` · <span class="mini-stars">${fs.reduce((a,b)=>a+b,0)} ★</span>`:""} ${p.suivre?`<span class="flag">À suivre</span>`:""}</span></span><span class="go" aria-hidden="true">›</span></button>${ROLE==="rtj"?`<button class="rowc" data-c1="${esc(p.id)}" aria-label="Carnet de ${esc(p.name)}" title="Voir son carnet">👁<small>Carnet</small></button>`:""}</div>`}).join(""):`<p class="empty">Personne ici.</p>`}</div>
 `}
   <button class="addrow" id="addkid">+ Ajouter un enfant qui n'est pas sur la liste</button>
-  <p class="hint" style="margin-top:16px">${ROLE==="rtj"?"Mode RTJ : tu peux corriger et valider. Seules les fiches validées partent dans les carnets.":"Après ton enregistrement, la fiche passe « à valider » : le RTJ la relit et la valide."}</p>`}
+  <p class="hint" style="margin-top:16px;opacity:.7">Version du ${VERSION}</p><p class="hint" style="margin-top:6px">${ROLE==="rtj"?"Mode RTJ : tu peux corriger et valider. Seules les fiches validées partent dans les carnets.":"Après ton enregistrement, la fiche passe « à valider » : le RTJ la relit et la valide."}</p>`}
 
 /* Récap du groupe : un tableau simple, une ligne par enfant, pour comparer les étoiles entre éducateurs */
 const SHORT={motricite:"Motricité",conduite:"Conduite",passe:"Passe",jeu:"Jeu",attitude:"Attitude"},TINY={motricite:"Motri.",conduite:"Cond.",passe:"Passe",jeu:"Jeu",attitude:"Atti."};
@@ -402,11 +410,9 @@ function bind(){
     try{const j=await post({a:"validate",stage:STAGE,ids,by:store.who});if(j.ok){PLAYERS.forEach(p=>{if(ids.includes(p.id)){p.statut="validé";p.valPar=store.who}});toast(j.n+" fiche"+(j.n>1?"s":"")+" validée"+(j.n>1?"s":""))}else toast("Validation refusée")}catch(e){toast("Pas de réseau : réessaie")}render()};
   document.querySelectorAll("[data-c1]").forEach(b=>b.onclick=()=>{CARN=[b.dataset.c1];render();window.scrollTo(0,0)});
   const ca=$("carnall");if(ca)ca.onclick=()=>{CARN=PLAYERS.filter(p=>p.groupe===GRP).sort((a,b)=>a.name.localeCompare(b.name,"fr")).map(p=>p.id);render();window.scrollTo(0,0)};
-  const ae=$("apred");if(ae)ae.onclick=()=>{APED={grp:GRP,text:apprOf(GRP).join("\n")};document.body.style.overflow="hidden";renderModal()};
-  ["gred2","apred2"].forEach(id=>{const b=$(id);if(b)b.onclick=()=>$(id==="gred2"?"gred":"apred").click()});
-  const ge=$("gred");if(ge)ge.onclick=()=>{GED={grp:GRP,items:gridFor(GRP).map(x=>Object.assign({},x))};document.body.style.overflow="hidden";renderModal()};
+  const ge=$("gred2");if(ge)ge.onclick=()=>{GED={grp:GRP,items:gridFor(GRP).map(x=>Object.assign({},x)),text:apprOf(GRP).join("\n")};document.body.style.overflow="hidden";renderModal()};
   const ak=$("addkid");if(ak)ak.onclick=()=>{ADD={prenom:"",nom:"",cat:GRP.split("-")[0]};renderModal()};
-  const w=$("who");w.onclick=()=>{if(confirm("Changer d'éducateur ou de code ?")){store.code="";save();ROLE=null;PLAYERS=[];render()}}}
+  const w=$("who");w.onclick=()=>{if(confirm("Changer d'éducateur ou de code ?")){store.code="";store.cache=null;save();ROLE=null;PLAYERS=[];render()}}}
 
 function openFiche(id){const p=PLAYERS.find(x=>x.id===id);if(!p)return;OPEN=id;DRAFT={prenom:p.prenom||p.name.split(" ")[0],nom:p.nom!=null?p.nom:p.name.split(" ").slice(1).join(" "),ren:false,f:Object.assign({},p.f||{}),mot:p.mot||"",club:p.club||"",suivre:!!p.suivre,pourquoi:p.pourquoi||""};DRAFT.snap=JSON.stringify(Object.assign({},DRAFT,{ren:undefined}));document.body.style.overflow="hidden";renderModal()}
 function closeModal(){OPEN=null;DRAFT=null;ADD=null;document.body.style.overflow="";renderModal();render()}
@@ -414,14 +420,17 @@ function renderModal(){const m=$("modal");
   if(OPEN){m.innerHTML=ficheView();bindFiche()}else if(ADD){m.innerHTML=addView();bindAdd()}else if(APED){m.innerHTML=apprView();bindAppr()}else if(GED){m.innerHTML=gridView();bindGrid()}else m.innerHTML=""}
 function gridView(){const G=GED;
   return `<div class="ov" id="ov"><div class="sheet" role="dialog" aria-modal="true" aria-label="Items du carnet" style="height:auto;max-height:94vh">
-  <div class="shead"><button class="x" id="gx" aria-label="Fermer">✕</button><h2>Critères du carnet</h2><div class="sub">${esc(G.grp)} · propres à cette catégorie · 7 critères au maximum</div></div>
-  <div class="sbody">${G.items.map((it,k)=>`<div class="gitem"><div class="gnum">${k+1}</div><div class="gf"><input type="text" data-gn="${k}" value="${esc(it.name)}" placeholder="Nom du critère" aria-label="Nom de l'item ${k+1}"><input type="text" data-gd="${k}" value="${esc(it.desc||"")}" placeholder="Descriptif : ce qu'on regarde (petite ligne sous le critère)" aria-label="Description de l'item ${k+1}"></div><div class="gbt"><button class="btn sm" data-gu="${k}" aria-label="Monter"${k?"":" disabled"}>↑</button><button class="btn sm" data-gdn="${k}" aria-label="Descendre"${k<G.items.length-1?"":" disabled"}>↓</button><button class="btn sm" data-gr="${k}" aria-label="Retirer">✕</button></div></div>`).join("")}
+  <div class="shead"><button class="x" id="gx" aria-label="Fermer">✕</button><h2>Le carnet ${esc(G.grp)}</h2><div class="sub">Propre à cette catégorie · s'applique au carnet de chaque enfant du groupe</div></div>
+  <div class="sbody"><p class="apph" style="margin-top:4px">1 · Les critères en étoiles <span style="text-transform:none;font-weight:400">(7 au maximum)</span></p>${G.items.map((it,k)=>`<div class="gitem"><div class="gnum">${k+1}</div><div class="gf"><input type="text" data-gn="${k}" value="${esc(it.name)}" placeholder="Nom du critère" aria-label="Nom de l'item ${k+1}"><input type="text" data-gd="${k}" value="${esc(it.desc||"")}" placeholder="Descriptif : ce qu'on regarde (petite ligne sous le critère)" aria-label="Description de l'item ${k+1}"></div><div class="gbt"><button class="btn sm" data-gu="${k}" aria-label="Monter"${k?"":" disabled"}>↑</button><button class="btn sm" data-gdn="${k}" aria-label="Descendre"${k<G.items.length-1?"":" disabled"}>↓</button><button class="btn sm" data-gr="${k}" aria-label="Retirer">✕</button></div></div>`).join("")}
     ${G.items.length<7?`<button class="addrow" id="gadd">+ Ajouter un critère</button>`:""}
     <button class="linkbtn" id="gdef">Remettre les 5 critères d'origine</button>
     <p class="hint">Les étoiles déjà données sur un critère gardé restent ; un critère retiré n'apparaît plus sur les carnets.</p>
+    <p class="apph" style="margin-top:22px">2 · « A participé aux deux journées et a travaillé » <span style="text-transform:none;font-weight:400">(${esc(stName(STAGE))})</span></p>
+    <div class="field" style="margin-top:6px"><label for="gtx">Un point par ligne <span class="hint" style="font-weight:400">(6 conseillés, 7 au maximum)</span></label><textarea id="gtx" rows="7">${esc(G.text)}</textarea></div>
+    <button class="linkbtn" id="gtdef">Remettre la liste du programme</button>
     ${G.err?`<p class="err">${esc(G.err)}</p>`:""}</div>
   <div class="sfoot"><button class="btn" id="gcancel">Annuler</button><button class="btn primary" id="gsave">✓ Enregistrer</button></div></div></div>`}
-function bindGrid(){const G=GED;const rd=()=>{document.querySelectorAll("[data-gn]").forEach(i=>G.items[+i.dataset.gn].name=i.value);document.querySelectorAll("[data-gd]").forEach(i=>G.items[+i.dataset.gd].desc=i.value)};
+function bindGrid(){const G=GED;const rd=()=>{const t=$("gtx");if(t)G.text=t.value;document.querySelectorAll("[data-gn]").forEach(i=>G.items[+i.dataset.gn].name=i.value);document.querySelectorAll("[data-gd]").forEach(i=>G.items[+i.dataset.gd].desc=i.value)};
   const close=()=>{GED=null;document.body.style.overflow="";renderModal();render()};
   $("gx").onclick=close;$("gcancel").onclick=close;$("ov").onclick=e=>{if(e.target.id==="ov")close()};
   const keep=()=>{const sb=document.querySelector(".sbody").scrollTop;renderModal();document.querySelector(".sbody").scrollTop=sb};
@@ -429,9 +438,11 @@ function bindGrid(){const G=GED;const rd=()=>{document.querySelectorAll("[data-g
   document.querySelectorAll("[data-gdn]").forEach(b=>b.onclick=()=>{rd();const k=+b.dataset.gdn;[G.items[k+1],G.items[k]]=[G.items[k],G.items[k+1]];keep()});
   document.querySelectorAll("[data-gr]").forEach(b=>b.onclick=()=>{rd();if(G.items.length<=1){toast("Il faut au moins un critère");return}G.items.splice(+b.dataset.gr,1);keep()});
   const ga=$("gadd");if(ga)ga.onclick=()=>{rd();G.items.push({id:"x"+Date.now().toString(36),name:"",desc:""});keep();const l=document.querySelectorAll("[data-gn]");l[l.length-1].focus()};
-  $("gdef").onclick=()=>{G.items=defGrid(G.grp);keep()};
+  $("gdef").onclick=()=>{rd();G.items=defGrid(G.grp);keep()};
+  $("gtdef").onclick=()=>{rd();G.text=((CARNETS.GROUPS.find(x=>x.id===GMAP[G.grp])||{}).apprentissages||[]).join("\n");keep()};
   $("gsave").onclick=async()=>{rd();const items=G.items.filter(x=>x.name.trim()).map(x=>({id:x.id,name:x.name.trim(),desc:(x.desc||"").trim()}));if(!items.length){G.err="Il faut au moins un critère";keep();return}
-    $("gsave").disabled=true;try{const j=await post({a:"grid",groupe:G.grp,items,by:store.who});if(j.ok){GRID[G.grp]=j.grid;toast("Critères enregistrés pour "+G.grp);close()}else{G.err=j.error==="rtj"?"Réservé au RTJ":"Enregistrement refusé ("+(j.error||"?")+")";keep()}}
+    const list=G.text.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,7);
+    $("gsave").disabled=true;try{const j=await post({a:"grid",groupe:G.grp,items,by:store.who});const j2=j.ok?await post({a:"appr",stage:STAGE,groupe:G.grp,list,by:store.who}):{};if(j.ok&&j2.ok){GRID[G.grp]=j.grid;APPR[G.grp]=j2.list;toast("Carnet "+G.grp+" enregistré");close()}else if(j.ok){GRID[G.grp]=j.grid;G.err="Critères enregistrés, mais pas « a travaillé » ("+(j2.error||"?")+")";keep()}else{G.err=j.error==="rtj"?"Réservé au RTJ":"Enregistrement refusé ("+(j.error||"?")+")";keep()}}
     catch(e){G.err="Pas de réseau : réessaie";keep()}}}
 function apprView(){const a=APED;const n=a.text.split("\n").map(x=>x.trim()).filter(Boolean);const long=n.some(x=>x.length>80);
   return `<div class="ov" id="ov"><div class="sheet" role="dialog" aria-modal="true" aria-label="Ce que le groupe a travaillé" style="height:auto;max-height:94vh">
