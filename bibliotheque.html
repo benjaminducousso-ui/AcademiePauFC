@@ -386,6 +386,10 @@ function skPath(pts){const P=pts.map(p=>[p.x??p[0],p.y??p[1]]);const segs=[];let
   for(let i=0;i<P.length-1;i++){const [x1,y1]=P[i],[x2,y2]=P[i+1];const l=Math.hypot(x2-x1,y2-y1);if(l>0.01){segs.push({x1,y1,x2,y2,l,ux:(x2-x1)/l,uy:(y2-y1)/l,s0:tot});tot+=l}}
   const at=s=>{for(const g of segs){if(s<=g.s0+g.l||g===segs[segs.length-1]){const t=Math.max(0,Math.min(g.l,s-g.s0));return {x:g.x1+g.ux*t,y:g.y1+g.uy*t,ux:g.ux,uy:g.uy}}}return {x:P[0][0],y:P[0][1],ux:1,uy:0}};
   return {P,segs,tot,at}}
+/* tracé à plusieurs points : même courbe lissée que les autres flèches, échantillonnée finement */
+function skSmooth(pts){const P=pts.map(p=>[p.x??p[0],p.y??p[1]]);const out=[P[0]];const q=(a,c,e,n)=>{for(let k=1;k<=n;k++){const t=k/n,u=1-t;out.push([u*u*a[0]+2*u*t*c[0]+t*t*e[0],u*u*a[1]+2*u*t*c[1]+t*t*e[1]])}};
+  let cur=P[0];for(let i=1;i<P.length-1;i++){const m=[(P[i][0]+P[i+1][0])/2,(P[i][1]+P[i+1][1])/2];q(cur,P[i],m,12);cur=m}
+  const l=P[P.length-1];q(cur,l,l,6);return out}
 function renderSchema(sc){
   if(!sc) return "";
   const [L,W]=sc.f; const S=10, pad=2.6;
@@ -414,9 +418,9 @@ function renderSchema(sc){
   (sc.hurdles||[]).forEach(h=>{const v=h.o==="v",d=0.55;const a=v?[h.x,h.y-d]:[h.x-d,h.y],b=v?[h.x,h.y+d]:[h.x+d,h.y];
     o+=`<line x1="${X(a[0])}" y1="${Y(a[1])}" x2="${X(b[0])}" y2="${Y(b[1])}" stroke="#E53935" stroke-width="3.2" stroke-linecap="round"/><circle cx="${X(a[0])}" cy="${Y(a[1])}" r="2.6" fill="#fff" stroke="#7A1010" stroke-width=".8"/><circle cx="${X(b[0])}" cy="${Y(b[1])}" r="2.6" fill="#fff" stroke="#7A1010" stroke-width=".8"/>`});
   (sc.arrows||[]).forEach(a=>{const ak={c:1,m:1,p:1,s:1}[a.k]?a.k:"m";const pts=a.p||[];if(pts.length<2)return;
-    const G=skPath(pts);
-    if(ak==="c"){/* conduite : trait ondulé, la fin reste droite pour la pointe */
-      const lam=1.6,amp=0.32,end=Math.max(0,G.tot-0.9);let d="";const N=Math.max(8,Math.ceil(G.tot/0.2));
+    const multi=pts.length>2;const G=skPath(multi?skSmooth(pts):pts);
+    if(ak==="c"){/* conduite : trait ondulé, la fin reste droite pour la pointe ; sur un tracé courbe (slalom) l'ondulation est plus fine */
+      const lam=multi?1.1:1.6,amp=multi?0.18:0.32,end=Math.max(0,G.tot-0.9);let d="";const N=Math.max(8,Math.ceil(G.tot/0.1));
       for(let k=0;k<=N;k++){const s=G.tot*k/N;const q=G.at(s);const w=s<end?Math.sin(s/lam*2*Math.PI)*amp*Math.min(1,s/0.4):0;const x=q.x-q.uy*w,y=q.y+q.ux*w;d+=(k?" L":"M")+X(x)+" "+Y(y)}
       o+=`<path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${id}c)"/>`;return}
     if(ak==="s"){/* tir : double trait parallèle et grosse pointe triangulaire */
