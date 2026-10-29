@@ -431,8 +431,7 @@ function renderSchema(sc){
   (sc.arrows||[]).forEach(a=>{const ak={c:1,m:1,p:1,s:1}[a.k]?a.k:"m";const pts=a.p||[];if(pts.length<2)return;
     const multi=pts.length>2;const G=skPath(multi?skSmooth(pts):pts);
     if(ak==="c"){/* conduite : trait ondulé, la fin reste droite pour la pointe ; sur un tracé courbe (slalom) l'ondulation est plus fine */
-      const lam=multi?1.1:1.6,amp=multi?0.18:0.32,end=Math.max(0,G.tot-0.9);let d="";const N=Math.max(8,Math.ceil(G.tot/0.1));
-      for(let k=0;k<=N;k++){const s=G.tot*k/N;const q=G.at(s);const w=s<end?Math.sin(s/lam*2*Math.PI)*amp*Math.min(1,s/0.4):0;const x=q.x-q.uy*w,y=q.y+q.ux*w;d+=(k?" L":"M")+X(x)+" "+Y(y)}
+      const lam=multi?0.9:1.6,amp=multi?0.2:0.32,end=Math.max(0,G.tot-0.9);let d="";const N=Math.max(8,Math.ceil(G.tot/0.1));/* dans les virages serrés (slalom, huit) l'ondulation s'efface pour garder un tracé lisible */const env=[];for(let k=0;k<=N;k++){const s=G.tot*k/N;const t1=G.at(Math.max(0,s-0.35)),t2=G.at(Math.min(G.tot,s+0.35));const turn=Math.acos(Math.max(-1,Math.min(1,t1.ux*t2.ux+t1.uy*t2.uy)));env.push(Math.max(0,1-turn/0.45))}const envS=env.map((_,k)=>{let a=0,n=0;for(let j=-4;j<=4;j++){const v=env[k+j];if(v!=null){a+=v;n++}}return a/n});for(let k=0;k<=N;k++){const s=G.tot*k/N;const q=G.at(s);const w=s<end?Math.sin(s/lam*2*Math.PI)*amp*envS[k]*Math.min(1,s/0.4,(end-s)/0.4):0;const x=q.x-q.uy*w,y=q.y+q.ux*w;d+=(k?" L":"M")+X(x)+" "+Y(y)}
       o+=`<path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${id}c)"/>`;return}
     if(ak==="s"){/* tir : double trait parallèle et grosse pointe triangulaire */
       const hl=1.1,hw=0.75,off=0.2,end=Math.max(0,G.tot-hl);const tip=G.at(G.tot),bs=G.at(end);let d1="",d2="";const N=Math.max(2,Math.ceil(end/0.3));
