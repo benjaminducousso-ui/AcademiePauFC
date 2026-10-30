@@ -300,6 +300,7 @@ textarea.ta{width:100%;box-sizing:border-box;min-height:64px;border:1px solid va
 .acctbar{display:flex;gap:6px;justify-content:flex-end;margin-top:6px}.acct{background:none;border:1px solid rgba(255,255,255,.3);color:#C9D6E8;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer}
 .cwseg{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.cwb{min-height:40px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:14px;padding:0 14px;cursor:pointer;color:var(--ink)}.cwb[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}.cwq{margin:0;font-size:15px}
 .valbox{background:#FFF8D6;border:1.5px solid #F2C200;border-radius:14px;padding:12px 16px;margin:0 0 16px;color:#13213A}.valbox.none{background:#EAF6EE;border-color:#9BD3AE}.valhead{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.vallist{margin-top:10px;display:flex;flex-direction:column;gap:10px}.valg h4{margin:4px 0;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#0B2A4A}.valrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #E6DCA8;border-radius:10px;padding:8px 12px}.valp{display:flex;flex-direction:column}.valp small{color:#5A6578}.valbtns{display:flex;gap:6px}.cat{position:relative}.vbadge{position:absolute;top:-4px;right:-4px;background:#E0532F;color:#fff;font-style:normal;font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.sbband{position:sticky;top:0;z-index:50;background:#E0532F;color:#fff;font-weight:800;font-size:13px;letter-spacing:.5px;text-align:center;padding:6px 10px}
 </style>
 
 <header class="top"><div class="wrap">
@@ -721,7 +722,9 @@ async function showCarnets(list,opts){
 </script>
 <script>
 /* ===== Progression RTJ — application ===== */
-const LS=REF==="v2"?"paufc-progression-rtj-v2":"paufc-progression-rtj-v1";let store={};try{store=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch(e){}
+/* accès test (bac à sable) : données à part, en local comme dans le classeur, jamais mélangées aux vrais carnets */
+const SANDBOX=(()=>{try{return localStorage.getItem("paufc-prog-sandbox")==="1"}catch(e){return false}})();
+const LS=(REF==="v2"?"paufc-progression-rtj-v2":"paufc-progression-rtj-v1")+(SANDBOX?"-test":"");let store={};try{store=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch(e){}
 const save=()=>{try{localStorage.setItem(LS,JSON.stringify(store))}catch(e){}};
 const get=(k,d)=>(k in store)?store[k]:d;const set=(k,v)=>{store[k]=v;save()};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -736,6 +739,7 @@ const RTJ_H="d951fdb29cd20760b6b913d30016b63cbc654a034c1dc2a58aa84eed302168db";l
 (async()=>{const q=QS.get("rtj");if(q==null)return;const clean=()=>{try{const u=new URL(location.href);u.searchParams.delete("rtj");history.replaceState(null,"",u)}catch(e){}};if(q==="off"){set("rtj",false);rtj=false;clean();render();toast("Mode RTJ désactivé");return}try{const h=[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(q.trim().toLowerCase())))].map(b=>b.toString(16).padStart(2,"0")).join("");clean();if(h===RTJ_H){set("rtj",true);rtj=true;set("auth2",true);const l=document.getElementById("login");if(l){l.remove();document.body.style.overflow=""}render();renderCats();toast("Mode RTJ activé : tu peux valider les appréciations")}else toast("Code RTJ incorrect")}catch(e){}})();
 /* ===== accès : prénom + mot de passe (comme pour les stages). Le mot de passe d'une catégorie ouvre cette catégorie,
    celui du RTJ ouvre tout. Protection simple, côté navigateur : elle évite les erreurs et les curieux, pas un piratage. */
+const TEST_H="8be12fd7ada842acbca58697ec4f6c8eda626a559a278737dd5c95a8427978ff";
 const CODE_H={"4cf75a3923a531643fd023b6f2e279b1ad997930fadb31c6b3fb99977334ab01": "U7", "7441db8a4077f8cc8e29a1877ab65c1f33d2ca097d0474b341512e28bf40abb3": "U8", "580fdafaa1db892a653fba6de756eb1d80ec65a1e6027dc1b12c461738788c80": "U9", "9d92eb927d508fa33669f910cae877f34eec5317e3a87f7d1203e89a2e72bfea": "U10", "3b01438e6135d9930f0914e386f0793cec658e6f3ebcf35483d92fe237eda1a6": "U11", "c6a8db7000f01bf32a573a5b6135a5323ce534a56423b6ee97bb076deb8e91a5": "U12", "27db58a39792ea3d3bf2d8c21fc2c5594452cbb1059a8d96b8cb6ad8e2b2d65b": "U13", "a766e55b2c98906be4e83a93e3b13984b5e4bca5e1194b1140dde1928551ecc8": "U14", "3158d7deacb7daed49ca9f909de28290f4195be10742f3f76fec9a156fb2db78": "U15"};
 const sha=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t.trim().toLowerCase())))].map(b=>b.toString(16).padStart(2,"0")).join("");
 const authed=()=>rtj||(Array.isArray(lock)&&lock.length>0&&get("auth2",false));
@@ -748,14 +752,17 @@ function showLogin(add){let o=document.getElementById("login");if(!o){o=document
   const q=id=>document.getElementById(id);const go=async()=>{const w=q("lgwho");const who=w?w.value.trim():get("who","");const pw=q("lgpw").value;const err=t=>{const e=q("lgerr");e.textContent=t;e.hidden=false};
     if(!who){err("Écris ton prénom");w&&w.focus();return}if(!pw){err("Écris le mot de passe");q("lgpw").focus();return}
     const h=await sha(pw);
-    if(h===RTJ_H){set("rtj",true);rtj=true;set("lock",null);lock=null}
+    if(h===TEST_H&&!SANDBOX){try{localStorage.setItem("paufc-prog-sandbox","1");localStorage.setItem(LS+"-test",JSON.stringify({who,lock:["U11"],cat:"U11",auth2:true,rtj:false,tab:"view-eval"}))}catch(e){}location.reload();return}
+    if(h===TEST_H){set("rtj",false);rtj=false;lock=["U11"];set("lock",lock);cat="U11";set("cat",cat)}
+    else if(h===RTJ_H){if(SANDBOX){err("Accès test en cours : déconnecte-toi d'abord.");return}set("rtj",true);rtj=true;set("lock",null);lock=null}
     else if(CODE_H[h]){const c=CODE_H[h];const l=(add&&Array.isArray(lock)?lock:[]).filter(x=>x!==c);l.push(c);lock=l.sort((a,b)=>CATS.indexOf(a)-CATS.indexOf(b));set("lock",lock);cat=c;set("cat",cat);if(!add){set("rtj",false);rtj=false}}
     else{err("Mot de passe inconnu. Demande-le au RTJ.");return}
     set("who",who);set("auth2",true);o.remove();document.body.style.overflow="";render();loadRemote(cat);loadTests(cat);toast(rtj?`Bonjour ${who} · accès RTJ, toutes les catégories`:`Bonjour ${who} · ${lock.join(", ")}`);
     if(QS.get("terrain")==="1"&&!add)setTimeout(()=>openTestMode(),300)};
   q("lgok").onclick=go;o.querySelectorAll("input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")go()}));if(q("lgcancel"))q("lgcancel").onclick=()=>{o.remove();document.body.style.overflow=""};
   setTimeout(()=>{const f=q("lgwho")&&!q("lgwho").value?q("lgwho"):q("lgpw");f&&f.focus()},100)}
-function logout(){set("rtj",false);rtj=false;set("lock",null);lock=null;set("auth2",false);showLogin()}
+function logout(){if(SANDBOX){try{localStorage.removeItem("paufc-prog-sandbox")}catch(e){}location.reload();return}set("rtj",false);rtj=false;set("lock",null);lock=null;set("auth2",false);showLogin()}
+if(SANDBOX){const b=document.createElement("div");b.className="sbband";b.textContent="ACCÈS TEST · U11 · les saisies restent dans un espace d’essai, elles n’iront jamais dans les vrais carnets";document.body.prepend(b)}
 let cat=QS.get("cat")&&CATS.includes(QS.get("cat"))?QS.get("cat"):get("cat","U7");
 {const g=(QS.get("groupe")||"").toUpperCase();if(CATS.includes(g))cat=g}
 let lock=get("lock",null);if(lock&&!lock.includes(cat)&&!rtj)cat=lock[0];
@@ -884,7 +891,7 @@ async function loadTests(c){try{const r=await fetch(`${API}?seances=${encodeURIC
    Côté classeur : même point d'entrée que la progression actuelle (prog:1), catégorie « RTJ-<saison>-<cat> »,
    les rencontres sont enregistrées avec période 102 / 104. Rien à changer dans l'Apps Script. */
 store.evals=store.evals||{};store.ent=store.ent||{};store.extra=store.extra||{};store.queue=store.queue||[];store.sel=store.sel||{};
-const apiCat=(c,s)=>`${REF==="v2"?"RTJ2":"RTJ"}-${s||SEASON}-${c}`;
+const apiCat=(c,s)=>`${SANDBOX?"RTJTEST":REF==="v2"?"RTJ2":"RTJ"}-${s||SEASON}-${c}`;
 const key=(c,p,n,s)=>`${s||SEASON}|${c}|${p}|${n}`;
 const blank=()=>({f:{},c:{},t:{},forts:"",axes:"",note:"",by:"",ts:0,val:null});
 const blankEnt=()=>({a:{},ac:{},bil:{},obj:["",""],date:"",by:"",ts:0});
@@ -919,7 +926,7 @@ async function flush(){if(flushing||!store.queue.length){setStatus();return}flus
   flushing=false;setStatus("ok")}
 function setStatus(mode){document.querySelectorAll(".syncStatus").forEach(el=>{
   if(mode==="sync"){el.className="status syncStatus";el.textContent="Envoi…"}else if(mode==="bad"||store.queue.length){el.className="status warn syncStatus";el.textContent=`${store.queue.length} saisie(s) en attente d'envoi — réessai automatique`}else if(mode==="ok"){el.className="status ok syncStatus";el.textContent="Partagé avec le RTJ"}else{el.className="status ok syncStatus";el.textContent="À jour"}})}
-function absorb(x,season){const c=String(x.cat||"").replace(/^RTJ2?-\d{4}-\d{4}-/,"");if(!CATS.includes(c))return false;const p=x.player;let n=0;
+function absorb(x,season){const c=String(x.cat||"").replace(/^RTJ(?:2|TEST)?-\d{4}-\d{4}-/,"");if(!CATS.includes(c))return false;const p=x.player;let n=0;
   if(x.per>=200&&x.per<300){const i=String(p).lastIndexOf("¦");if(i<0)return false;const pl=String(p).slice(0,i),id=String(p).slice(i+1),P=x.per-200;const ek=key(c,pl,P,season),tk=ek+"|"+id;const loc=store.tst[tk];
     if(loc&&(x.ts||0)<=(loc.ts||0))return false;store.tst[tk]={t:x.t||{},by:x.by||"",ts:x.ts||0};if(!store.evals[ek])store.evals[ek]=blank();overlayTests(ek);
     if(season===SEASON&&pl&&!players(c).includes(pl)){store.extra[c]=store.extra[c]||[];store.extra[c].push(pl)}return true}
