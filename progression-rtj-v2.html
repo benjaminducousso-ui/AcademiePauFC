@@ -1,4 +1,4 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0">
+<!doctype html><html lang="fr" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0">
 <script>const REF="v2";</script>
 <title>Progression RTJ · Pau FC</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:ital,wght@0,400;0,700;1,400&display=swap">
@@ -758,7 +758,8 @@ function logout(){set("rtj",false);rtj=false;set("lock",null);lock=null;set("aut
 let cat=QS.get("cat")&&CATS.includes(QS.get("cat"))?QS.get("cat"):get("cat","U7");
 {const g=(QS.get("groupe")||"").toUpperCase();if(CATS.includes(g))cat=g}
 let lock=get("lock",null);if(lock&&!lock.includes(cat)&&!rtj)cat=lock[0];
-let per=get("per",(PERIODS.find(p=>today<=D(p.to))||PERIODS[4]).n);
+/* période par défaut : la dernière commencée (pendant les vacances, on reste sur la période qui vient de finir, celle qu'on est en train de remplir) */
+let per=get("per",([...PERIODS].reverse().find(p=>today>=D(p.from))||PERIODS[0]).n);
 const grp=(c)=>GROUPS[GROUP_OF[c||cat]];
 const prenom=p=>{const w=String(p).trim().split(/\s+/);const f=w.filter(x=>x!==x.toUpperCase()||x.length<=2);return f.length?f.join(" "):w[w.length-1]};
 /* ----- ce qu'on observe : la grille du RTJ en U7-U11, les compétences FFF au-delà ----- */
@@ -923,7 +924,9 @@ function absorb(x,season){const c=String(x.cat||"").replace(/^RTJ2?-\d{4}-\d{4}-
   if(season===SEASON&&p&&!players(c).includes(p)){store.extra[c]=store.extra[c]||[];store.extra[c].push(p)}
   return n>0}
 async function loadRemote(c,season){season=season||SEASON;try{const r=await fetch(`${API}?prog=${encodeURIComponent(apiCat(c,season))}`,{cache:"no-store"});const j=await r.json();if(!Array.isArray(j))return 0;let n=0;
-  j.forEach(x=>{if(absorb(x,season))n++});if(n){save();if(c===cat&&season===SEASON)render()}return n}catch(e){return 0}}
+  j.forEach(x=>{if(absorb(x,season))n++});if(n){save();if(c===cat&&season===SEASON)safeRender()}return n}catch(e){return 0}}
+/* ne pas redessiner pendant qu'un éducateur écrit : on attend qu'il quitte le champ */
+let pendingRender=false;function safeRender(){const a=document.activeElement;if(a&&(a.tagName==="TEXTAREA"||(a.tagName==="INPUT"&&a.type!=="button"&&a.type!=="checkbox"&&a.type!=="radio"))){if(!pendingRender){pendingRender=true;a.addEventListener("blur",()=>{pendingRender=false;setTimeout(()=>{const b=document.activeElement;if(!b||!/TEXTAREA|INPUT/.test(b.tagName))render()},150)},{once:true})}return}render()}
 /* tout le club (toutes catégories, toutes saisons connues) : nécessaire pour que le carnet suive l'enfant d'une catégorie à l'autre */
 let allLoaded=false;
 async function loadAll(){const jobs=[];SEASONS.forEach(s=>CATS.forEach(c=>{if(!(s===SEASON&&c===cat))jobs.push(loadRemote(c,s))}));await Promise.all(jobs);allLoaded=true}
@@ -1350,6 +1353,8 @@ if(REF==="v2"){document.title="Progression · Pau FC Académie";const e=document
 showTab(["view-eval","view-ent","view-carnet","view-bilan"].includes(get("tab",""))?get("tab"):"view-eval");
 if(!authed()&&QS.get("rtj")==null)showLogin();
 loadRemote(cat).then(()=>loadAll().then(()=>{if(get("tab")==="view-carnet")render()}));loadTests(cat);flush();
+/* rafraîchissement automatique : on récupère les saisies des autres éducateurs toutes les 30 s et au retour sur la page */
+const refresh=()=>{if(document.visibilityState==="visible"&&authed()){loadRemote(cat);flush()}};setInterval(refresh,30000);document.addEventListener("visibilitychange",refresh);window.addEventListener("focus",refresh);
 function addScrollArrows(){document.querySelectorAll('.tbl-wrap').forEach(el=>{const over=el.scrollWidth>el.clientWidth+4;let bar=el.nextElementSibling;if(!(bar&&bar.classList.contains('scrollhint')))bar=null;el.classList.toggle('has-more',over);
   if(!over){if(bar)bar.hidden=true;return}
   if(!bar){bar=document.createElement('div');bar.className='scrollhint';bar.innerHTML='<span aria-hidden="true">↔</span> Tableau plus large que l’écran : faites-le glisser vers la gauche pour voir toutes les colonnes.';el.parentNode.insertBefore(bar,el.nextSibling);const upd=()=>el.classList.toggle('at-end',el.scrollLeft+el.clientWidth>=el.scrollWidth-4);el.addEventListener('scroll',upd,{passive:true});upd()}bar.hidden=false})}
