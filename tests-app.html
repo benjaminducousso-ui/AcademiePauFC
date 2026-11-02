@@ -49,7 +49,7 @@ body{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-
 .try{border-radius:14px;padding:9px 11px;background:var(--bg2);display:flex;flex-direction:column;gap:2px;min-height:64px}
 .try small{font-size:10.5px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
 .try b{font-family:var(--mono);font-size:21px}.try i{font-style:normal;font-size:11.5px;color:var(--ok)}.try i.m{color:var(--warn)}
-.try.best{outline:2px solid var(--yellow)}.try.cur{outline:2px dashed var(--yellow);background:var(--bg3)}.try.cur small{color:var(--yellow)}.try.wait{opacity:.55}
+.try{border:2px solid transparent}.try.best{border-color:var(--yellow)}.try.cur{border:2px dashed var(--yellow);background:var(--bg3)}.try.cur small{color:var(--yellow)}.try.wait{opacity:.55}
 .row:has(.vbtn){grid-template-columns:1fr 1fr 1.4fr}
 .vbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1;padding:8px 6px;white-space:nowrap}.vbtn small{font-family:var(--mono);font-size:12.5px;font-weight:700;opacity:.85}
 .btn{white-space:nowrap}
@@ -204,8 +204,10 @@ function best(){const t=V.test;let b=null;[0,1].forEach(i=>{const f=finalOf(i);i
 const pendingBonus=()=>V.test.combo&&[0,1].some(i=>V.cur.v[i]!=null&&V.cur.b[i]==null);
 function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf();const done=r=>has(V.cat,r,V.per,t.id);const pr=prior(p);const bs=best();const max=t.one?1:2;
   const tryBox=i=>{const f=finalOf(i);let main="–",sub="";if(c.v[i]!=null){main=fmtV(t,t.combo&&f!=null?f:c.v[i]);if(t.combo)sub=c.b[i]==null?"choisis la passe ↓":`chrono ${fmtV(t,c.v[i])} − ${c.b[i]} s`;if(c.m[i])sub=`<i class="m">✎ saisi à la main · ${esc(c.m[i])}</i>`+(t.combo&&c.b[i]!=null?` · −${c.b[i]} s`:"")}
-    const st=t.one?"":c.v[i]!=null?(c.n>=2&&bs&&bs.i===i?" · meilleur":" · fait ✓"):i===c.n?" · à faire":"";
-    return `<div class="try ${c.n>=2&&bs&&bs.i===i&&!t.one?'best':''} ${!t.one&&i===c.n&&c.v[i]==null?'cur':''} ${c.v[i]==null&&i>c.n?'wait':''}"><small>${t.one?"Résultat":"Essai "+(i+1)}${st}</small><b>${main}</b>${sub?(sub.startsWith("<i")?sub:`<i>${sub}</i>`):""}</div>`};
+    /* l'essai « en cours » : celui dont on attend le résultat de la passe, sinon le prochain à courir */
+    const pb=t.combo?[0,1].find(k=>c.v[k]!=null&&c.b[k]==null):undefined;const curI=pb!=null?pb:c.n;
+    const st=t.one?"":i===pb?" · passe à indiquer":c.v[i]!=null?(c.n>=2&&pb==null&&bs&&bs.i===i?" · meilleur":" · fait ✓"):i===curI?" · à faire":"";
+    return `<div class="try ${c.n>=2&&bs&&bs.i===i&&!t.one&&pb==null?'best':''} ${!t.one&&i===curI&&(c.v[i]==null||i===pb)?'cur':''} ${c.v[i]==null&&i>curI?'wait':''}"><small>${t.one?"Résultat":"Essai "+(i+1)}${st}</small><b>${main}</b>${sub?(sub.startsWith("<i")?sub:`<i>${sub}</i>`):""}</div>`};
   const full=c.n>=max,needB=pendingBonus();
   let zone="";
   if(t.kind==="count")zone=`<button class="big counter" id="cnt" ${full?'disabled':''}><b>${c.count}</b><span class="lab">${full?"Essais faits":`Touche à chaque contact · essai ${c.n+1} sur 2`}</span></button>
