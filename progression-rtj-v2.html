@@ -758,10 +758,15 @@ async function showCarnets(list,opts){
 }
 </script>
 <script>
+/* filet de sécurité : si une erreur bloque l'outil, on l'affiche avec deux boutons pour repartir, au lieu d'une page vide */
+window.addEventListener("error",ev=>{try{if(document.getElementById("crashbox"))return;const m=document.querySelector("main")||document.body;const d=document.createElement("div");d.id="crashbox";d.style.cssText="margin:24px auto;max-width:560px;padding:16px 18px;border-radius:14px;background:#FFF4E5;border:1.5px solid #E0A030;color:#13213A;font:15px/1.5 system-ui,sans-serif";
+  d.innerHTML='<b>L\u2019outil n\u2019a pas pu s\u2019afficher.</b><br>Tes saisies sont en sécurité. Essaie de recharger la page ; si ça recommence, touche « Se reconnecter ».<br><small style="color:#7a5a20">Détail : '+String(ev.message||"erreur").replace(/[<>&]/g,"")+'</small><div style="display:flex;gap:8px;margin-top:10px"><button onclick="location.reload()" style="padding:9px 14px;border-radius:10px;border:0;background:#0B2A4A;color:#fff;font-weight:700">Recharger</button><button onclick="try{const k=\'paufc-progression-rtj-v2\';const s=JSON.parse(localStorage.getItem(k)||\'{}\');delete s.auth2;delete s.rtj;delete s.lock;delete s.tab;delete s.per;localStorage.setItem(k,JSON.stringify(s))}catch(e){};location.reload()" style="padding:9px 14px;border-radius:10px;border:1px solid #0B2A4A;background:#fff;color:#0B2A4A;font-weight:700">Se reconnecter</button></div>';m.prepend(d)}catch(e){}});
+</script>
+<script>
 /* ===== Progression RTJ — application ===== */
 /* accès test (bac à sable) : données à part, en local comme dans le classeur, jamais mélangées aux vrais carnets */
 /* remise à zéro avant l'ouverture de la campagne : lundi 2 novembre 2026, 20 h 25 (Paris) : le vrai top départ. Les lignes plus anciennes restent dans le classeur (rien n'est effacé), l'outil les ignore. */
-const RESET_TS=Date.UTC(2026,10,2,19,25,0);const resetOn=()=>Date.now()>=RESET_TS;
+const RESET_TS=Date.UTC(2026,10,2,19,25,0);const FIX_U7_TS=Date.UTC(2026,10,3,12,45,0);const resetOn=()=>Date.now()>=RESET_TS;
 if(resetOn()){try{if(localStorage.getItem("paufc-prog-sandbox")==="1")localStorage.removeItem("paufc-prog-sandbox")}catch(e){}}
 const SANDBOX=(()=>{try{return localStorage.getItem("paufc-prog-sandbox")==="1"}catch(e){return false}})();
 const LS=(REF==="v2"?"paufc-progression-rtj-v2":"paufc-progression-rtj-v1")+(SANDBOX?"-test":"");let store={};try{store=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch(e){}
@@ -980,7 +985,7 @@ async function flush(){if(flushing||!store.queue.length){setStatus();return}flus
 function setStatus(mode){document.querySelectorAll(".syncStatus").forEach(el=>{
   if(mode==="sync"){el.className="status syncStatus";el.textContent="Envoi…"}else if(mode==="bad"||store.queue.length){el.className="status warn syncStatus";el.textContent=`${store.queue.length} saisie(s) en attente d'envoi — réessai automatique`}else if(mode==="ok"){el.className="status ok syncStatus";el.textContent="Partagé avec le RTJ"}else{el.className="status ok syncStatus";el.textContent="À jour"}})}
 /* 3/11/2026 : toute appréciation saisie en P2 avant cette heure est une appréciation de P1 (erreur de période constatée en U7 ; la P2 ne s'ouvre que le 5 décembre). Les lignes du classeur restent telles quelles. */
-const FIX_U7_TS=Date.UTC(2026,10,3,12,45,0);const fixU7=x=>{if(x.per===2&&(x.ts||0)<FIX_U7_TS)return Object.assign({},x,{per:1});return x};
+const fixU7=x=>{if(x.per===2&&(x.ts||0)<FIX_U7_TS)return Object.assign({},x,{per:1});return x};
 function absorb(x,season){x=fixU7(x);if(resetOn()&&(x.ts||0)<RESET_TS)return false;const c=String(x.cat||"").replace(/^RTJ(?:2|TEST)?-\d{4}-\d{4}-/,"");if(!CATS.includes(c))return false;const p=x.player;let n=0;
   if(x.per>=200&&x.per<300){const i=String(p).lastIndexOf("¦");if(i<0)return false;const pl=String(p).slice(0,i),id=String(p).slice(i+1),P=x.per-200;const ek=key(c,pl,P,season),tk=ek+"|"+id;const loc=store.tst[tk];
     if(loc&&(x.ts||0)<=(loc.ts||0))return false;store.tst[tk]={t:x.t||{},by:x.by||"",ts:x.ts||0};if(!store.evals[ek])store.evals[ek]=blank();overlayTests(ek);
