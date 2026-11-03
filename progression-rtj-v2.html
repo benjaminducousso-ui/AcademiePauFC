@@ -302,6 +302,37 @@ textarea.ta{width:100%;box-sizing:border-box;min-height:64px;border:1px solid va
 .valbox{background:#FFF8D6;border:1.5px solid #F2C200;border-radius:14px;padding:12px 16px;margin:0 0 16px;color:#13213A}.valbox.none{background:#EAF6EE;border-color:#9BD3AE}.valhead{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.vallist{margin-top:10px;display:flex;flex-direction:column;gap:10px}.valg h4{margin:4px 0;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#0B2A4A}.valrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #E6DCA8;border-radius:10px;padding:8px 12px}.valp{display:flex;flex-direction:column}.valp small{color:#5A6578}.valbtns{display:flex;gap:6px}.cat{position:relative}.vbadge{position:absolute;top:-4px;right:-4px;background:#E0532F;color:#fff;font-style:normal;font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 .sbband{position:sticky;top:0;z-index:50;background:#E0532F;color:#fff;font-weight:800;font-size:13px;letter-spacing:.5px;text-align:center;padding:6px 10px}
 .tman{font-size:11px;font-weight:800;color:#B4530A;white-space:nowrap}
+.perchip.locked{opacity:.55}
+
+/* ===== téléphone (≤ 700 px) : une colonne, rien ne déborde, tout reste lisible au pouce ===== */
+@media (max-width:700px){
+  html,body{overflow-x:hidden}
+  .hm{display:none}
+  header.top .brand{flex-wrap:wrap!important;gap:8px!important;min-width:0}
+  header.top .whoslot{order:3;flex:1 1 100%!important;display:flex!important;flex-wrap:nowrap;align-items:center;gap:6px;margin-top:4px;min-width:0}
+  header.top .whochip{flex:1 1 auto;min-width:0;display:flex;align-items:center}
+  header.top .whoslot .whochip input{width:100%!important;min-width:0}
+  header.top .acctbar{margin-top:0!important;flex:none;gap:4px}
+  header.top .acct{padding:6px 9px;font-size:12px;white-space:nowrap}
+  header.top #bdesc{display:none}
+  .tabs{gap:0}.tab{font-size:14px!important;padding:8px 7px!important}
+  /* périodes : une seule ligne qui glisse, puces compactes */
+  .perbar{flex-wrap:nowrap!important;overflow-x:auto!important;position:static!important;gap:6px!important;padding:2px 0 6px!important;margin:10px 0 6px!important;scrollbar-width:none}
+  .perbar::-webkit-scrollbar{display:none}
+  .perchip{flex:0 0 auto!important;min-width:0!important;padding:7px 11px!important;border-radius:12px}
+  .perchip b{font-size:15px;white-space:nowrap}.perchip small{font-size:10.5px;white-space:nowrap}
+  .perchip.locked small{display:none}
+  #bilanPer{display:flex;align-items:center}#bilanPer .note{flex:none;font-size:12px}#bilanPer .btn{flex:none;white-space:nowrap}
+  /* bilan écrit : une fiche par enfant plutôt qu'un tableau trop étroit */
+  #txtCard table.sgt,#txtCard tbody,#txtCard tr,#txtCard td{display:block;width:100%!important;min-width:0!important;max-width:none!important}
+  #txtCard thead{display:none}
+  #txtCard tr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px;background:var(--surface)}
+  #txtCard td{border:0!important;box-shadow:none!important;background:none!important;padding:2px 0!important;text-align:left;position:static!important}
+  #txtCard td.name{font-weight:800;font-size:15px;padding-bottom:6px!important;white-space:normal}
+  #txtCard td.ttxtc::before{content:attr(data-l);display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+  #txtCard .tbl-wrap{overflow:visible}
+  .valbox .valhead{gap:8px}.valrow{padding:8px 10px}.valbtns{width:100%}.valbtns .btn{flex:1}
+}
 </style>
 
 <header class="top"><div class="wrap">
@@ -310,7 +341,7 @@ textarea.ta{width:100%;box-sizing:border-box;min-height:64px;border:1px solid va
     <div class="btxt"><div class="eyebrow">Pau FC · Académie · Saison 2026-2027</div><h1>Progression RTJ</h1><p id="bdesc">Le suivi de chaque joueur, période après période. L'éducateur de la catégorie donne de 1 à 4 étoiles sur chaque critère, puis écrit son mot en bas de la fiche. Le RTJ relit puis valide : seules les appréciations validées entrent dans le carnet remis à la famille.</p></div><div class="whoslot" id="whoslot"></div>
   </div>
   <div class="catbar" id="catbar" role="group" aria-label="Catégories"></div>
-  <nav class="tabs" role="tablist"><button class="tab" role="tab" id="tab-eval" aria-selected="true" aria-controls="view-eval">Appréciation</button><button class="tab" role="tab" id="tab-bilan" aria-selected="false" aria-controls="view-bilan">Bilan du groupe</button><button class="tab" role="tab" id="tab-ent" aria-selected="false" aria-controls="view-ent">Rencontres famille</button><button class="tab" role="tab" id="tab-carnet" aria-selected="false" aria-controls="view-carnet">Carnets</button></nav>
+  <nav class="tabs" role="tablist"><button class="tab" role="tab" id="tab-eval" aria-selected="true" aria-controls="view-eval">Appréciation</button><button class="tab" role="tab" id="tab-bilan" aria-selected="false" aria-controls="view-bilan">Bilan<span class="hm"> du groupe</span></button><button class="tab" role="tab" id="tab-ent" aria-selected="false" aria-controls="view-ent">Rencontres<span class="hm"> famille</span></button><button class="tab" role="tab" id="tab-carnet" aria-selected="false" aria-controls="view-carnet">Carnets</button></nav>
 </div></header>
 <main class="wrap">
   <section class="view active" id="view-eval" role="tabpanel"></section>
@@ -776,7 +807,10 @@ let cat=QS.get("cat")&&CATS.includes(QS.get("cat"))?QS.get("cat"):get("cat","U7"
 {const g=(QS.get("groupe")||"").toUpperCase();if(CATS.includes(g))cat=g}
 let lock=get("lock",null);if(lock&&!lock.includes(cat)&&!rtj)cat=lock[0];
 /* période par défaut : la dernière commencée (pendant les vacances, on reste sur la période qui vient de finir, celle qu'on est en train de remplir) */
-let per=get("per",([...PERIODS].reverse().find(p=>today>=D(p.from))||PERIODS[0]).n);
+/* une période s'évalue à partir de 14 jours avant sa fin (P1 dès maintenant, P2 à partir du 5 décembre…) : évite de remplir la mauvaise période */
+const evalOpen=P=>today>=new Date(D(P.to).getTime()-14*864e5);const openFrom=P=>{const d=new Date(D(P.to).getTime()-14*864e5);return `${d.getDate()}${d.getDate()===1?"er":""} ${MOIS_L[d.getMonth()]}`};
+const defPer=()=>([...PERIODS].reverse().find(evalOpen)||PERIODS[0]).n;
+let per=get("per",defPer());if(!rtj&&!evalOpen(PERIODS[per-1])){per=defPer()}
 const grp=(c)=>GROUPS[GROUP_OF[c||cat]];
 const prenom=p=>{const w=String(p).trim().split(/\s+/);const f=w.filter(x=>x!==x.toUpperCase()||x.length<=2);return f.length?f.join(" "):w[w.length-1]};
 /* ----- ce qu'on observe : la grille du RTJ en U7-U11, les compétences FFF au-delà ----- */
@@ -902,6 +936,9 @@ async function loadTests(c){try{const r=await fetch(`${API}?seances=${encodeURIC
 store.evals=store.evals||{};store.ent=store.ent||{};store.extra=store.extra||{};store.queue=store.queue||[];store.sel=store.sel||{};
 function applyReset(){if(!resetOn()||(store.resetAt||0)>=RESET_TS)return false;store.evals={};store.ent={};store.tst={};store.sel={};store.queue=(store.queue||[]).filter(q=>(q.ts||0)>=RESET_TS);store.resetAt=RESET_TS;save();return true}
 applyReset();
+/* même correction sur les données déjà enregistrées dans l'appareil */
+if(!store.fixU7){Object.keys(store.evals).forEach(k=>{const [s,c,p,n]=k.split("|");if(n!=="2")return;const r=store.evals[k];if(!r||(r.ts||0)>=FIX_U7_TS)return;const k1=[s,c,p,"1"].join("|");const r1=store.evals[k1];if(!r1||!Object.values(r1.f||{}).some(Boolean)||(r1.ts||0)<(r.ts||0))store.evals[k1]=r;delete store.evals[k]});
+  store.queue=(store.queue||[]).map(q=>q.prog&&q.per===2&&(q.ts||0)<FIX_U7_TS?Object.assign({},q,{per:1}):q);store.fixU7=1;save()}
 const apiCat=(c,s)=>`${SANDBOX?"RTJTEST":REF==="v2"?"RTJ2":"RTJ"}-${s||SEASON}-${c}`;
 const key=(c,p,n,s)=>`${s||SEASON}|${c}|${p}|${n}`;
 const blank=()=>({f:{},c:{},t:{},forts:"",axes:"",note:"",by:"",ts:0,val:null});
@@ -937,7 +974,9 @@ async function flush(){if(flushing||!store.queue.length){setStatus();return}flus
   flushing=false;setStatus("ok")}
 function setStatus(mode){document.querySelectorAll(".syncStatus").forEach(el=>{
   if(mode==="sync"){el.className="status syncStatus";el.textContent="Envoi…"}else if(mode==="bad"||store.queue.length){el.className="status warn syncStatus";el.textContent=`${store.queue.length} saisie(s) en attente d'envoi — réessai automatique`}else if(mode==="ok"){el.className="status ok syncStatus";el.textContent="Partagé avec le RTJ"}else{el.className="status ok syncStatus";el.textContent="À jour"}})}
-function absorb(x,season){if(resetOn()&&(x.ts||0)<RESET_TS)return false;const c=String(x.cat||"").replace(/^RTJ(?:2|TEST)?-\d{4}-\d{4}-/,"");if(!CATS.includes(c))return false;const p=x.player;let n=0;
+/* 3/11/2026 : toute appréciation saisie en P2 avant cette heure est une appréciation de P1 (erreur de période constatée en U7 ; la P2 ne s'ouvre que le 5 décembre). Les lignes du classeur restent telles quelles. */
+const FIX_U7_TS=Date.UTC(2026,10,3,12,45,0);const fixU7=x=>{if(x.per===2&&(x.ts||0)<FIX_U7_TS)return Object.assign({},x,{per:1});return x};
+function absorb(x,season){x=fixU7(x);if(resetOn()&&(x.ts||0)<RESET_TS)return false;const c=String(x.cat||"").replace(/^RTJ(?:2|TEST)?-\d{4}-\d{4}-/,"");if(!CATS.includes(c))return false;const p=x.player;let n=0;
   if(x.per>=200&&x.per<300){const i=String(p).lastIndexOf("¦");if(i<0)return false;const pl=String(p).slice(0,i),id=String(p).slice(i+1),P=x.per-200;const ek=key(c,pl,P,season),tk=ek+"|"+id;const loc=store.tst[tk];
     if(loc&&(x.ts||0)<=(loc.ts||0))return false;store.tst[tk]={t:x.t||{},by:x.by||"",ts:x.ts||0};if(!store.evals[ek])store.evals[ek]=blank();overlayTests(ek);
     if(season===SEASON&&pl&&!players(c).includes(pl)){store.extra[c]=store.extra[c]||[];store.extra[c].push(pl)}return true}
@@ -959,13 +998,13 @@ function parcours(p){const out={};const add=(k,kind,v)=>{const [s,c,pl,n]=k.spli
 /* ===== rendu ===== */
 function renderCats(){document.getElementById("catbar").innerHTML=CATS.filter(c=>rtj||!lock||lock.includes(c)).map(c=>`<button class="cat" data-c="${c}" aria-pressed="${c===cat}">${c}<small>${players(c).length} joueurs</small></button>`).join("");
   document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{cat=b.dataset.c;set("cat",cat);tEdit=false;tDraft=null;render();loadRemote(cat);loadTests(cat)}))}
-function perbar(){const list=players(cat);const L=allLines().length;return `<div class="perbar" role="group" aria-label="Période">${PERIODS.map(p=>{const n=list.filter(x=>{const r=store.evals[key(cat,x,p.n)];return r&&Object.values(r.f).filter(Boolean).length>=L}).length;const cur=today>=D(p.from)&&today<=D(p.to);
-  return `<button class="perchip${cur?" now":""}" data-p="${p.n}" aria-pressed="${p.n===per}"><b>P${p.n}${cur?" <em>en cours</em>":""}</b><small>${fmtShort(p.from)} → ${fmtShort(p.to)}${n?` · ${n}/${list.length} ✓`:""}</small></button>`}).join("")}</div>`}
-function bindPer(root){const cp=root.querySelector('.perchip[aria-pressed="true"]');if(cp&&cp.parentElement.scrollWidth>cp.parentElement.clientWidth)cp.parentElement.scrollLeft=cp.offsetLeft-16;root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{per=+b.dataset.p;set("per",per);render()}))}
+function perbar(){const list=players(cat);const L=allLines().length;return `<div class="perbar" role="group" aria-label="Période">${PERIODS.map(p=>{const n=list.filter(x=>{const r=store.evals[key(cat,x,p.n)];return r&&Object.values(r.f).filter(Boolean).length>=L}).length;const op=evalOpen(p);const cur=op&&p.n===defPer();
+  return `<button class="perchip${cur?" now":""}${op?"":" locked"}" data-p="${p.n}" aria-pressed="${p.n===per}"><b>P${p.n}${cur?" <em>à évaluer</em>":op?"":" 🔒"}</b><small>${fmtShort(p.from)} → ${fmtShort(p.to)}${n?` · ${n}/${list.length} ✓`:op?"":` · dès le ${openFrom(p)}`}</small></button>`}).join("")}</div>`}
+function bindPer(root){const cp=root.querySelector('.perchip[aria-pressed="true"]');if(cp&&cp.parentElement.scrollWidth>cp.parentElement.clientWidth)cp.parentElement.scrollLeft=cp.offsetLeft-16;root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{const n=+b.dataset.p;const P=PERIODS[n-1];if(!rtj&&!evalOpen(P)){toast(`La période ${n} s'évaluera à partir du ${openFrom(P)}. Pour l'instant, on remplit la période ${defPer()}.`);return}per=n;set("per",per);render()}))}
 /* ===== composants d'interface : saisie fluide, consultation claire ===== */
 function whobar(){return ""}   /* le « rempli par » vit dans l'en-tête, une seule fois */
 function renderWho(){const s=document.getElementById("whoslot");if(!s)return;const who=get("who","");
-  s.innerHTML=`<label class="whochip${who?"":" empty"}">${rtj?'<b class="rtjb" title="Tu peux valider les appréciations">RTJ</b>':""}<span>Rempli par</span><input class="who" type="text" value="${esc(who)}" placeholder="✎ Ton prénom" aria-label="Éducateur qui remplit" autocomplete="given-name"></label><span class="acctbar">${!rtj?`<button class="acct" id="addCat" title="Ajouter une autre catégorie">＋ catégorie</button>`:""}${rtj?`<button class="acct" id="bkBtn" title="Télécharger une copie de toutes les évaluations">💾 Sauvegarde</button>`:""}<button class="acct" id="logoutBtn" title="Se déconnecter">Se déconnecter</button></span>`;
+  s.innerHTML=`<label class="whochip${who?"":" empty"}">${rtj?'<b class="rtjb" title="Tu peux valider les appréciations">RTJ</b>':""}<span>Rempli par</span><input class="who" type="text" value="${esc(who)}" placeholder="✎ Ton prénom" aria-label="Éducateur qui remplit" autocomplete="given-name"></label><span class="acctbar">${!rtj?`<button class="acct" id="addCat" title="Ajouter une autre catégorie">＋ catégorie</button>`:""}${rtj?`<button class="acct" id="bkBtn" title="Télécharger une copie de toutes les évaluations">💾<span class="hm"> Sauvegarde</span></button>`:""}<button class="acct" id="logoutBtn" title="Se déconnecter">Se déconnecter</button></span>`;
   {const bk=s.querySelector("#bkBtn");if(bk)bk.onclick=backupJson;const lb=s.querySelector("#logoutBtn");if(lb)lb.onclick=logout;const ab=s.querySelector("#addCat");if(ab)ab.onclick=()=>showLogin(true)}
   const wi=s.querySelector(".who");wi.addEventListener("input",e=>{set("who",e.target.value.trim());wi.closest(".whochip").classList.toggle("empty",!e.target.value.trim());wi.previousElementSibling.textContent="Rempli par"});
   wi.addEventListener("change",()=>toast(get("who","")?"Merci "+get("who","")+" : tes saisies seront signées":"Renseigne ton prénom pour signer tes saisies"))}
@@ -1203,7 +1242,7 @@ function bindStarsGroup(){const bar=document.getElementById("bilanPer");if(!bar)
   const sc=document.getElementById("starsCard");if(sc)sc.innerHTML=starsGroupHTML();const tc=document.getElementById("testsCard");if(tc)tc.innerHTML=testsGroupHTML();const t=document.getElementById("txtCard");if(t)t.innerHTML=txtGroupHTML();bindStarsGroup()}))}
 /* ----- le bilan écrit du groupe, pour la période choisie ----- */
 function txtGroupHTML(){const P_=sgPer==="evol"||!sgPer?per:sgPer;const list=players(cat);
-  const rows=list.map(x=>{const r=store.evals[key(cat,x,P_)]||{};return `<tr><td class="name">${esc(x)}</td>${["forts","axes","note"].map(k=>`<td class="ttxtc">${r[k]?esc(r[k]):'<span class="sg0">·</span>'}</td>`).join("")}</tr>`}).join("");
+  const rows=list.map(x=>{const r=store.evals[key(cat,x,P_)]||{};return `<tr><td class="name">${esc(x)}</td>${["forts","axes","note"].map(k=>`<td class="ttxtc" data-l="${{forts:"Points forts",axes:"Axes de travail",note:"Mot de l'éducateur"}[k]}">${r[k]?esc(r[k]):'<span class="sg0">·</span>'}</td>`).join("")}</tr>`}).join("");
   return `<div class="ghead"><div><h3>Le bilan écrit de l'éducateur · période ${P_}</h3><p class="note">Suit la période choisie plus haut. Pratique pour vérifier que chaque enfant a un mot qui lui est propre et qui colle à ses étoiles.</p></div></div>
     <div class="tbl-wrap"><table class="sgt"><thead><tr><th>Joueur</th><th>Points forts</th><th>Axes de travail</th><th>Mot de l'éducateur</th></tr></thead><tbody>${rows}</tbody></table></div>`}
 /* ----- tests du groupe : novembre (P1), février (P3), avril (P4), évolution — comme la feuille Excel du club ----- */
