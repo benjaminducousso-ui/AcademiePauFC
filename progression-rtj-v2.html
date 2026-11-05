@@ -853,7 +853,7 @@ let lock=get("lock",null);if(lock&&!lock.includes(cat)&&!rtj)cat=lock[0];
 /* une période s'évalue à partir de 14 jours avant sa fin (P1 dès maintenant, P2 à partir du 5 décembre…) : évite de remplir la mauvaise période */
 const evalOpen=P=>today>=new Date(D(P.to).getTime()-14*864e5);const openFrom=P=>{const d=new Date(D(P.to).getTime()-14*864e5);return `${d.getDate()}${d.getDate()===1?"er":""} ${MOIS_L[d.getMonth()]}`};
 const defPer=()=>([...PERIODS].reverse().find(evalOpen)||PERIODS[0]).n;
-let per=get("per",defPer());if(!rtj&&!evalOpen(PERIODS[per-1])){per=defPer()}
+let per=get("per",defPer());if(!evalOpen(PERIODS[per-1])){per=defPer()}
 const grp=(c)=>GROUPS[GROUP_OF[c||cat]];
 const prenom=p=>{const w=String(p).trim().split(/\s+/);const f=w.filter(x=>x!==x.toUpperCase());return f.length?f.join(" "):w[w.length-1]};
 const nomCourt=p=>{const w=String(p).trim().split(/\s+/);const pr=prenom(p);const nom=w.find(x=>x===x.toUpperCase()&&x!==pr);return nom?`${pr} ${nom[0]}.`:pr};
@@ -1066,7 +1066,7 @@ function renderCats(){document.getElementById("catbar").innerHTML=CATS.filter(c=
   document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{cat=b.dataset.c;set("cat",cat);tEdit=false;tDraft=null;render();loadRemote(cat);loadTests(cat)}))}
 function perbar(){const list=players(cat);const L=allLines().length;return `<div class="perbar" role="group" aria-label="Période">${PERIODS.map(p=>{const n=list.filter(x=>{const r=evR(cat,x,p.n);return r&&Object.values(r.f).filter(Boolean).length>=L}).length;const op=evalOpen(p);const cur=op&&p.n===defPer();
   return `<button class="perchip${cur?" now":""}${op?"":" locked"}" data-p="${p.n}" aria-pressed="${p.n===per}"><b>P${p.n}${cur?" <em>à évaluer</em>":op?"":" 🔒"}</b><small>${fmtShort(p.from)} → ${fmtShort(p.to)}${n?` · ${n}/${list.length} ✓`:op?"":` · dès le ${openFrom(p)}`}</small></button>`}).join("")}</div>`}
-function bindPer(root){const cp=root.querySelector('.perchip[aria-pressed="true"]');if(cp&&cp.parentElement.scrollWidth>cp.parentElement.clientWidth)cp.parentElement.scrollLeft=cp.offsetLeft-16;root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{const n=+b.dataset.p;const P=PERIODS[n-1];if(!rtj&&!evalOpen(P)){toast(`La période ${n} s'évaluera à partir du ${openFrom(P)}. Pour l'instant, on remplit la période ${defPer()}.`);return}per=n;set("per",per);render()}))}
+function bindPer(root){const cp=root.querySelector('.perchip[aria-pressed="true"]');if(cp&&cp.parentElement.scrollWidth>cp.parentElement.clientWidth)cp.parentElement.scrollLeft=cp.offsetLeft-16;root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{const n=+b.dataset.p;const P=PERIODS[n-1];if(!evalOpen(P)){toast(`La période ${n} s'évaluera à partir du ${openFrom(P)}. Pour l'instant, on remplit la période ${defPer()}.`);return}per=n;set("per",per);render()}))}
 /* ===== composants d'interface : saisie fluide, consultation claire ===== */
 function whobar(){return ""}   /* le « rempli par » vit dans l'en-tête, une seule fois */
 function renderWho(){const s=document.getElementById("whoslot");if(!s)return;const who=get("who","");
@@ -1179,7 +1179,7 @@ function renderEval(){const v=document.getElementById("view-eval");const g=grp()
     ${DOM.map(d=>`<section class="dom"><h4>${esc(d.name)}<small class="dcount">${d.lines.filter(l=>r.f[l.id]).length}/${d.lines.length}</small></h4>${d.lines.map(line).join("")}</section>`).join("")}
     ${tests}
     <section class="dom bil"><h4>Le bilan de la période</h4><div class="bgrid">
-      <label><span>Points forts</span><textarea class="ta" data-k="forts" placeholder="Ce qui ressort chez ${esc(pn)} cette période">${esc(r.forts)}</textarea></label>
+      <label><span>Points forts</span><textarea class="ta" data-k="forts" placeholder="Ce qui ressort chez ${esc(pn)} sur cette période">${esc(r.forts)}</textarea></label>
       <label><span>Axes de travail</span><textarea class="ta" data-k="axes" placeholder="Ce qu'on va travailler ensemble">${esc(r.axes)}</textarea></label>
       <label class="wide"><span>Le mot de l'éducateur</span><textarea class="ta" data-k="note" placeholder="Quelques mots pour ${esc(pn)} et ses parents, repris tels quels dans le carnet">${esc(r.note)}</textarea></label></div></section>
     <div class="ffoot"><span class="vslot">${valChip(r,p)}</span><span class="note">${r.ts?`Dernière saisie le ${new Date(r.ts).toLocaleDateString("fr-FR")}${r.by?" par "+esc(r.by):""} · `:""}tout est enregistré au fil de l'eau.</span>
@@ -1292,7 +1292,7 @@ function renderBilan(){const v=document.getElementById("view-bilan");const g=grp
   bindTestsGroup();bindStarsGroup()}
 /* ----- les étoiles du groupe : un joueur par ligne, une observation par colonne (contrôle de cohérence) ----- */
 let sgPer=null;
-function canEditP(P){return authed()&&(rtj||(Array.isArray(lock)&&lock.includes(cat)))&&(rtj||evalOpen(PERIODS[P-1]))}
+function canEditP(P){return authed()&&(rtj||(Array.isArray(lock)&&lock.includes(cat)))&&evalOpen(PERIODS[P-1])}
 function avisBand(){const P=per;if(isAvis(cat))return `<div class="avisband">✏️ <b>Ton avis personnel</b> : tes étoiles restent un brouillon, elles ne partent pas au RTJ. Le référent de la catégorie les voit et donne ensuite l'avis commun.</div>`;const W=avisWriters(cat,P);if(!W.length)return "";return `<div class="avisband ref">👥 <b>Avis des éducateurs pour la période ${P}</b> : ${W.map(esc).join(", ")}. Ils s'affichent à côté de chaque critère (👤) et dans le Bilan du groupe. Ce sont des brouillons : seule ta saisie part au RTJ.</div>`}
 let sgWho=null;const AV_COL=["#2E7DD7","#C2410C","#7C3AED","#0F8A5F"];const avCol=(w,WR)=>AV_COL[Math.max(0,WR.indexOf(w))%AV_COL.length];
 function starsGroupHTML(){const DOM=domains();const list=players(cat);const lines=DOM.flatMap(d=>d.lines);const P_=sgPer==="evol"?null:(sgPer||per);
@@ -1310,7 +1310,7 @@ function starsGroupHTML(){const DOM=domains();const list=players(cat);const line
   const avg=lines.map(l=>{const vs=list.map(x=>cell(x,l)).filter(v=>v!=null&&(P_?v>0:true));return vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:null});
   const noEvol=!P_&&!list.some(x=>prevN(x));
   const whoBar=P_&&WR.length?`<div class="sgwho"><span class="note"><b>En petit sous les étoiles, l'avis de :</b></span>${WR.map(w=>`<span class="avkey" style="--c:${avCol(w,WR)}"><u></u>${esc(w)} <span class="avst">★★</span></span>`).join("")}<span class="note">(brouillon de l'éducateur, il ne part pas au RTJ)</span></div>`:"";
-  const lead=W?`Avis personnel de <b>${esc(W)}</b> · période ${P_} (brouillon, lecture seule : il ne part pas au RTJ).`:P_?(ED?`Période ${P_} : <b>touchez une case pour mettre les étoiles</b> (au clavier : flèches, puis 1 à 4, 0 pour effacer). Un joueur par ligne, un critère par colonne : vous voyez tout de suite ce que vous avez mis aux autres.${isAvis(cat)?" C'est <b>ton avis personnel</b> : il ne part pas au RTJ.":""}`:`Période ${P_} : un joueur par ligne, une observation par colonne. Pour vérifier d'un coup d'œil que les notes sont cohérentes dans le groupe.`):`Évolution entre la dernière période renseignée et la période ${per} : en jaune, les étoiles gagnées.`;
+  const lead=W?`Avis personnel de <b>${esc(W)}</b> · période ${P_} (brouillon, lecture seule : il ne part pas au RTJ).`:P_?(ED?`Période ${P_} : <b>touchez une case pour mettre les étoiles</b> (au clavier : flèches, puis 1 à 4, 0 pour effacer). Un joueur par ligne, un critère par colonne : vous voyez tout de suite ce que vous avez mis aux autres.${isAvis(cat)?" C'est <b>ton avis personnel</b> : il ne part pas au RTJ.":""}`:`Période ${P_} : un joueur par ligne, une observation par colonne.${!evalOpen(PERIODS[P_-1])?` <b>🔒 La période ${P_} s'évaluera à partir du ${openFrom(PERIODS[P_-1])}</b> : pas encore de notation possible.`:" Pour vérifier d'un coup d'œil que les notes sont cohérentes dans le groupe."}`):`Évolution entre la dernière période renseignée et la période ${per} : en jaune, les étoiles gagnées.`;
   return `<div class="ghead"><div><h3>Les étoiles du groupe${W?` · avis de ${esc(W)}`:""}</h3><p class="note">${noEvol?`Pas encore d'évolution à montrer : il faut au moins deux périodes notées (période actuelle : ${per}). Choisissez une période pour voir les étoiles.`:lead}</p></div>
     </div>${whoBar}
     ${P_?`<details class="lvhelp"${ED&&innerWidth>700?" open":""}><summary>Ce que veut dire chaque niveau</summary>${legend4()}</details>`:""}
@@ -1326,7 +1326,7 @@ function starPop(td,P_,cb){closeStarPop();const p=td.dataset.gp,id=td.dataset.gl
   d.querySelectorAll("button[data-n]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();closeStarPop();cb(+b.dataset.n)}));
   const off=e=>{if(!d.contains(e.target))closeStarPop()};const kd=e=>{if(/^[0-4]$/.test(e.key)){e.preventDefault();e.stopPropagation();closeStarPop();cb(+e.key)}else if(e.key==="Escape"){e.stopPropagation();closeStarPop();td.focus()}};
   setTimeout(()=>{document.addEventListener("click",off,true);document.addEventListener("keydown",kd,true)},0);closeStarPop._off=()=>{document.removeEventListener("click",off,true);document.removeEventListener("keydown",kd,true)}}
-function goPlayer(p,P){store.sel[cat]=p;save();if(P&&typeof P==="number"&&(rtj||evalOpen(PERIODS[P-1]))){per=P;set("per",per)}evMode="saisie";set("evMode",evMode);showTab("view-eval");window.scrollTo({top:0})}
+function goPlayer(p,P){store.sel[cat]=p;save();if(P&&typeof P==="number"&&evalOpen(PERIODS[P-1])){per=P;set("per",per)}evMode="saisie";set("evMode",evMode);showTab("view-eval");window.scrollTo({top:0})}
 function bindGo(root){(root||document).querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();goPlayer(b.dataset.go,sgPer==="evol"?null:(sgPer||per))}))}
 function bindTxtEdit(){const c=document.getElementById("txtCard");if(!c)return;bindGo(c);const P_=sgPer==="evol"||!sgPer?per:sgPer;
   c.querySelectorAll("textarea.gta").forEach(t=>{autoGrow(t);let h;const sv=()=>{const r=rec(cat,t.dataset.tp,P_);const val=t.value.trim();if((r[t.dataset.tk]||"")===val)return;r[t.dataset.tk]=val;push(cat,t.dataset.tp,P_);const ok=t.parentElement.querySelector(".gsaved");if(ok){ok.hidden=false;clearTimeout(ok._h);ok._h=setTimeout(()=>ok.hidden=true,1500)}};
@@ -1352,7 +1352,7 @@ function bindStarsGroup(){const bar=document.getElementById("bilanPer");if(!bar)
   const sc=document.getElementById("starsCard");if(sc)sc.innerHTML=starsGroupHTML();const tc=document.getElementById("testsCard");if(tc)tc.innerHTML=testsGroupHTML();const t=document.getElementById("txtCard");if(t)t.innerHTML=txtGroupHTML();bindStarsGroup()}));bindSgEdit()}
 /* ----- le bilan écrit du groupe, pour la période choisie ----- */
 function txtGroupHTML(){const P_=sgPer==="evol"||!sgPer?per:sgPer;const list=players(cat);
-  const ED=canEditP(P_);const PH={forts:"Ce qui ressort cette période",axes:"Ce qu'on va travailler ensemble",note:"Quelques mots pour l'enfant et ses parents (repris dans le carnet)"};
+  const ED=canEditP(P_);const PH={forts:"Ce qui ressort de cette période",axes:"Ce qu'on va travailler ensemble",note:"Quelques mots pour l'enfant et ses parents (repris dans le carnet)"};
   const rows=list.map(x=>{const r=evR(cat,x,P_)||{};return `<tr><td class="name"><button type="button" class="golink" data-go="${esc(x)}" title="Ouvrir la fiche de ${esc(x)}">${esc(x)}</button></td>${["forts","axes","note"].map(k=>`<td class="ttxtc${ED?" ted":""}" data-l="${{forts:"Points forts",axes:"Axes de travail",note:"Mot de l'éducateur"}[k]}">${ED?`<textarea class="gta" rows="2" data-tp="${esc(x)}" data-tk="${k}" placeholder="${esc(PH[k])}">${esc(r[k]||"")}</textarea><span class="gsaved" hidden>✓ enregistré</span>`:r[k]?esc(r[k]):'<span class="sg0">·</span>'}</td>`).join("")}</tr>`}).join("");
   return `<div class="ghead"><div><h3>Le bilan écrit de l'éducateur · période ${P_}</h3><p class="note">Suit la période choisie plus haut. ${ED?"Vous pouvez écrire directement ici, tout s'enregistre au fil de l'eau. ":""}Pratique pour vérifier que chaque enfant a un mot qui lui est propre et qui colle à ses étoiles.</p></div></div>
     <div class="tbl-wrap"><table class="sgt"><thead><tr><th>Joueur</th><th>Points forts</th><th>Axes de travail</th><th>Mot de l'éducateur</th></tr></thead><tbody>${rows}</tbody></table></div>`}
@@ -1444,7 +1444,7 @@ async function bilanXlsx(){await loadXlsx();const X=window.XLSX;const d=bilanDat
 async function grillePdf(){await loadJsPDF();const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",orientation:"landscape",compress:true});carnetFonts(doc);
   const g=grp();const DOM=domains();const lines=DOM.flatMap(d=>d.lines);const list=players(cat);const P_=sgPer==="evol"||!sgPer?per:sgPer;const PP=PERIODS[P_-1];
   const PW=297,PH=210,MX=8;const col=x=>hex(x);const font=(st,sz)=>{doc.setFont("Poppins",st);doc.setFontSize(sz)};
-  const NW=46,CW=(PW-2*MX-NW)/lines.length,RH=6.4,HB=5.5,HC=34;const bs=Math.min(2.4,(CW-2.2)/4.6),gap=bs*.22;
+  const NW=46,CW=(PW-2*MX-NW)/lines.length,RH=6.1,HB=5.5,HC=38;const bs=Math.min(2.4,(CW-2.2)/4.6),gap=bs*.22;
   const rowsAll=[...list,"",""];const Y0=26;const avail=PH-12-Y0-HB-HC-22;const per_page=Math.max(8,Math.floor(avail/RH));
   const pages=[];for(let i=0;i<rowsAll.length;i+=per_page)pages.push(rowsAll.slice(i,i+per_page));
   const trunc=(t,w)=>{let x=t;while(x.length>3&&doc.getTextWidth(x)>w)x=x.slice(0,-2);return x===t?t:x.replace(/[\s,;·]+$/,"")+"…"};
@@ -1456,7 +1456,7 @@ async function grillePdf(){await loadJsPDF();const {jsPDF}=window.jspdf;const do
     let x=MX+NW;DOM.forEach((d,di)=>{const w=d.lines.length*CW;doc.setFillColor(...col(di%2?"#E8EDF4":"#DCE4EF"));doc.rect(x,Y0,w,HB,"F");font("bold",6.2);doc.setTextColor(...col(CCOL.navy));doc.text(trunc(d.name.toUpperCase(),w-2),x+w/2,Y0+3.8,{align:"center"});x+=w});
     let n=0;x=MX+NW;const yH=Y0+HB;DOM.forEach((d,di)=>d.lines.forEach(l=>{n++;doc.setFillColor(...col(di%2?"#F6F8FB":"#EEF2F7"));doc.rect(x,yH,CW,HC,"F");
       font("bold",7.5);doc.setTextColor(...col(CCOL.navy));doc.text(String(n),x+CW/2,yH+HC-1.6,{align:"center"});
-      font("normal",6.4);doc.setTextColor(...col(CCOL.ink));const lab=trunc(l.short||l.name,HC-7);doc.text(lab,x+CW/2+1.8,yH+HC-5.2,{angle:90});x+=CW}));
+      font("normal",6.2);doc.setTextColor(...col(CCOL.ink));const lab=trunc(l.short||l.name,HC-6.5);doc.text(lab,x+CW/2+1.8,yH+HC-5.2,{angle:90});x+=CW}));
     font("bold",7);doc.setTextColor(...col(CCOL.gray));doc.text("JOUEUR",MX+1.5,yH+HC-1.6);
     let y=yH+HC;rows.forEach((p,ri)=>{if(ri%2){doc.setFillColor(...col("#F6F8FB"));doc.rect(MX,y,PW-2*MX,RH,"F")}
       font(p?"bold":"normal",7.4);doc.setTextColor(...col(CCOL.ink));if(p)doc.text(trunc(p,NW-3),MX+1.5,y+RH/2+1.2);else{doc.setDrawColor(...col(CCOL.line));doc.setLineWidth(.2);doc.line(MX+1.5,y+RH-1.4,MX+NW-3,y+RH-1.4)}
@@ -1464,11 +1464,16 @@ async function grillePdf(){await loadJsPDF();const {jsPDF}=window.jspdf;const do
       y+=RH});
     doc.setDrawColor(...col(CCOL.line));doc.setLineWidth(.2);let gx=MX+NW;doc.line(gx,Y0,gx,y);DOM.forEach(d=>{gx+=d.lines.length*CW;doc.line(gx,Y0,gx,y)});doc.rect(MX,Y0,PW-2*MX,y-Y0,"S");
     let ly=y+5;font("bold",6.8);doc.setTextColor(...col(CCOL.navy));doc.text("LES 4 NIVEAUX",MX,ly);
-    const LW=PW-2*MX-24;STAR_LEGEND.forEach((q,k)=>{const lx=MX+24,yy=ly+k*3.9;font("bold",6.8);doc.setTextColor(...col(CCOL.ink));const h=`${q.n} = ${KID_STARS[q.n-1]} (${q.name.toLowerCase()}) : `;doc.text(h,lx,yy);font("normal",6.8);doc.text(trunc(q.desc,LW-doc.getTextWidth(h)-3),lx+doc.getTextWidth(h)+.5,yy)});
+    const LW=PW-2*MX-24;STAR_LEGEND.forEach((q,k)=>{const lx=MX+24,yy=ly+k*3.9;font("bold",6.8);doc.setTextColor(...col(CCOL.ink));const h=`${q.n} = ${KID_STARS[q.n-1]} (${q.name.toLowerCase()}) : `;doc.text(h,lx,yy);font("normal",6.8);doc.text(q.desc,lx+doc.getTextWidth(h)+1.4,yy)});
     font("italic",6.2);doc.setTextColor(...col(CCOL.gray));doc.text(`Pau FC Academy · grille d'avis ${cat} · page ${pi+1}/${pages.length+1} · les numéros des critères sont détaillés sur la dernière page`,MX,PH-6)});
   doc.addPage();try{doc.addImage(CREST_PNG,"PNG",MX,6,13,13)}catch(e){}font("bold",14);doc.setTextColor(...col(CCOL.navy));doc.text(`${cat} · les critères de la grille`,MX+16,15);
-  const C3=(PW-2*MX)/3;let k=0,cx=MX,cy=26;const colH=PH-16;DOM.forEach(d=>{const need=5+d.lines.length*4.2;if(cy+need>colH){cx+=C3;cy=26}font("bold",7.6);doc.setTextColor(...col(CCOL.navy));doc.text(d.name.toUpperCase(),cx,cy);cy+=4.6;
-    d.lines.forEach(l=>{k++;font("bold",7.4);doc.setTextColor(...col(CCOL.navy));doc.text(String(k),cx,cy);font("normal",7.4);doc.setTextColor(...col(CCOL.ink));const t=doc.splitTextToSize(l.name,C3-9);doc.text(t,cx+6,cy);cy+=t.length*3.3+1.1;if(cy>colH){cx+=C3;cy=26}});cy+=2.5});
+  const CG=10,CW2=(PW-2*MX-CG)/2,LH=4.3,IG=1.6,DG=4,TH=5.2;font("normal",9);
+  const blocks=DOM.map(d=>({d,items:d.lines.map(l=>doc.splitTextToSize(l.name,CW2-9))}));const bh=b=>TH+b.items.reduce((a,t)=>a+t.length*LH+IG,0)+DG;
+  const tot=blocks.reduce((a,b)=>a+bh(b),0);let acc=0,colI=0,k=0,cy=28;
+  blocks.forEach(b=>{if(colI===0&&acc>0&&acc+bh(b)/2>tot/2){colI=1;cy=28}acc+=bh(b);const cx=MX+colI*(CW2+CG);
+    font("bold",9);doc.setTextColor(...col(CCOL.navy));doc.text(b.d.name.toUpperCase(),cx,cy);doc.setDrawColor(...col("#F2C200"));doc.setLineWidth(.5);doc.line(cx,cy+1.3,cx+12,cy+1.3);cy+=TH+.8;
+    b.items.forEach(t=>{k++;font("bold",9);doc.setTextColor(...col(CCOL.navy));doc.text(String(k),cx,cy);font("normal",9);doc.setTextColor(...col(CCOL.ink));t.forEach((ln,li)=>doc.text(ln,cx+8,cy+li*LH));cy+=t.length*LH+IG});cy+=DG});
+  font("bold",8);doc.setTextColor(...col(CCOL.navy));let ly=PH-30;doc.text("LES 4 NIVEAUX",MX,ly);STAR_LEGEND.forEach((q,n)=>{const yy=ly+4.6+n*4.2;font("bold",8);doc.setTextColor(...col(CCOL.ink));const h=`${q.n} = ${KID_STARS[q.n-1]} (${q.name.toLowerCase()}) : `;doc.text(h,MX,yy);font("normal",8);doc.text(q.desc,MX+doc.getTextWidth(h)+1.4,yy)});
   font("italic",6.2);doc.setTextColor(...col(CCOL.gray));doc.text(`Pau FC Academy · grille d'avis ${cat} · page ${pages.length+1}/${pages.length+1}`,MX,PH-6);
   doc.save(`grille-avis-${cat.toLowerCase()}-P${P_}.pdf`)}
 async function bilanPdf(){
@@ -1492,7 +1497,7 @@ async function bilanPdf(){
   const nameTxt=(p,x,y,max)=>{font("bold",7.2);doc.setTextColor(...col(CCOL.ink));let s=p;while(doc.getTextWidth(s)>max&&s.length>4)s=s.slice(0,-2)+"…";doc.text(s,x,y)};
   /* en-tête de tableau à colonnes groupées */
   const gridHead=(y,NW,cw,groups,labels,lastLab,lastW)=>{let x=MX+NW;rect(MX,y,NW,5,DOMF);groups.forEach(gq=>{const w=gq.n*cw;rect(x,y,w,5,DOMF);doc.setDrawColor(255,255,255);doc.setLineWidth(.6);doc.line(x,y,x,y+5);doc.setTextColor(...col(CCOL.navy));let fs=5.8;font("bold",fs);while(doc.getTextWidth(gq.name.toUpperCase())>w-1.5&&fs>4.4){fs-=.2;font("bold",fs)}const dl=doc.splitTextToSize(gq.name.toUpperCase(),w-1).slice(0,2);dl.forEach((s,k)=>doc.text(s,x+w/2,y+(dl.length>1?2.2+k*2.1:3.4),{align:"center"}));x+=w});if(lastW)rect(x,y,lastW,5,DOMF);
-    y+=5;const fit=s=>{let f=5.5;font("bold",f);const longest=()=>Math.max(...s.split(/\s+/).map(w=>doc.getTextWidth(w)));while(longest()>cw-.8&&f>3.6){f-=.2;font("bold",f)}return f};const FS=labels.map(fit);const L=labels.map((s,i)=>{font("bold",FS[i]);return doc.splitTextToSize(s,cw-1).slice(0,4)});const hh=Math.max(...L.map(a=>a.length))*2.25+2.6;rect(MX,y,NW+labels.length*cw+(lastW||0),hh,CCOL.navy);
+    y+=5;labels=labels.map(s=>String(s).replace(/-(?=\S)/g,"- "));const fit=s=>{let f=5.5;font("bold",f);const longest=()=>Math.max(...s.split(/\s+/).map(w=>doc.getTextWidth(w)));while(longest()>cw-1.2&&f>3.8){f-=.1;font("bold",f)}return f};const F0=Math.max(3.8,Math.min(...labels.map(fit)));const FS=labels.map(()=>F0);const L=labels.map(s=>{font("bold",F0);return doc.splitTextToSize(s,cw-.6).slice(0,4)});const hh=Math.max(...L.map(a=>a.length))*2.25+2.6;rect(MX,y,NW+labels.length*cw+(lastW||0),hh,CCOL.navy);
     doc.setTextColor(255,255,255);font("bold",6.5);doc.text("JOUEUR",MX+2,y+hh-2);L.forEach((a,i)=>{font("bold",FS[i]);const x0=MX+NW+i*cw+cw/2;a.forEach((s,k)=>doc.text(s,x0,y+hh-1.9-(a.length-1-k)*2.25,{align:"center"}))});
     if(lastLab){font("bold",5.8);doc.text(lastLab,MX+NW+labels.length*cw+lastW/2,y+hh-2,{align:"center"})}return y+hh};
   const RH=5.4;
