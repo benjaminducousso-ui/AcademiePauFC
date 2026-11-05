@@ -1,6 +1,6 @@
 {
- "name": "Tests Pau FC Academy",
- "short_name": "Tests Pau FC",
+ "name": "Défis techniques · Pau FC Academy",
+ "short_name": "Défis Pau FC",
  "start_url": "tests-app.html",
  "scope": "./",
  "display": "standalone",

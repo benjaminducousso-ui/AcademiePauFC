@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>Tests Pau FC</title>
+<title>Défis techniques Pau FC</title>
 <meta name="theme-color" content="#0E2440">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Tests Pau FC">
+<meta name="apple-mobile-web-app-title" content="Défis Pau FC">
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="tests-app.webmanifest">
 <link rel="apple-touch-icon" href="tests-app-icon-180.png">
@@ -165,7 +165,7 @@ function topBar(title,sub,back){return `<div class="top">${back?'<button class="
 function render(){if(V.view==="login")return login();if(V.view==="home")return home();if(V.view==="measure")return measure();if(V.view==="done")return done()}
 
 /* ---------- connexion ---------- */
-function login(){app.innerHTML=`<div class="main" style="justify-content:center"><div class="card"><img class="crest" src="${CREST}" alt=""><h2 style="text-align:center">Tests Pau FC</h2>
+function login(){app.innerHTML=`<div class="main" style="justify-content:center"><div class="card"><img class="crest" src="${CREST}" alt=""><h2 style="text-align:center">Défis techniques</h2>
   <p class="hint">Ton prénom et le mot de passe de ta catégorie : les mêmes que pour l'outil Progression.</p>
   <label class="f">Ton prénom<input class="f" id="lw" autocomplete="given-name" value="${esc(D.who||"")}"></label>
   <label class="f">Mot de passe<input class="f" id="lp" type="password" autocomplete="current-password"></label>
@@ -173,7 +173,7 @@ function login(){app.innerHTML=`<div class="main" style="justify-content:center"
   const go=async()=>{const w=document.getElementById("lw").value.trim(),pw=document.getElementById("lp").value,er=document.getElementById("le");const err=t=>{er.textContent=t;er.hidden=false};
     if(!w)return err("Écris ton prénom");if(!pw)return err("Écris le mot de passe");const h=await sha(pw);
     if(h===RTJ_H){D.rtj=true;D.lock=null}else if(CODE_H[h]&&CATS.includes(CODE_H[h])){const c=CODE_H[h];D.rtj=false;D.lock=[...new Set([...(V.adding?D.lock||[]:[]),c])].sort((a,b)=>CATS.indexOf(a)-CATS.indexOf(b));V.cat=c}
-    else if(CODE_H[h])return err("Pas de tests techniques en U7 et U8.");else return err("Mot de passe inconnu. Demande-le au RTJ.");
+    else if(CODE_H[h])return err("Pas de défis techniques en U7 et U8.");else return err("Mot de passe inconnu. Demande-le au RTJ.");
     D.who=w;save();V.adding=false;V.cat=V.cat&&myCats().includes(V.cat)?V.cat:myCats()[0];V.view="home";render();pull(V.cat);flush()};
   document.getElementById("lg").onclick=go;app.querySelectorAll("input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")go()}))}
 
@@ -181,10 +181,10 @@ function login(){app.innerHTML=`<div class="main" style="justify-content:center"
 function doneOf(t){return players(V.cat).filter(p=>has(V.cat,p,V.per,t.id)).length}
 function home(){const T=clubTests(V.cat);const cats=myCats();
   let groups=[];T.forEach(t=>{let g=groups.find(x=>x.n===t.cat);if(!g)groups.push(g={n:t.cat,t:[]});g.t.push(t)});
-  app.innerHTML=topBar(`Tests · ${V.cat}`,`${TP[V.per]} (P${V.per}) · ${esc(D.who)}${D.rtj?" · RTJ":""}`,false)+`<div class="main">
+  app.innerHTML=topBar(`Défis · ${V.cat}`,`${TP[V.per]} (P${V.per}) · ${esc(D.who)}${D.rtj?" · RTJ":""}`,false)+`<div class="main">
     ${cats.length>1?`<div class="seg" style="--n:${Math.min(cats.length,7)}">${cats.map(c=>`<button data-c="${c}" aria-pressed="${c===V.cat}">${c}</button>`).join("")}</div>`:""}
     <div class="seg" style="--n:3">${TEST_PERIODS.map(n=>`<button data-p="${n}" aria-pressed="${n===V.per}">${TP[n]}<small>P${n}</small></button>`).join("")}</div>
-    ${groups.map(g=>`<p class="sect">${g.n}</p>${g.t.map(t=>{const d=doneOf(t),N=players(V.cat).length;return `<button class="atl" data-t="${t.id}"><span class="l"><b>${esc((x=>x.charAt(0).toUpperCase()+x.slice(1))(t.name.replace(/^Jonglerie /,"")))}</b><small>${t.kind==="count"?"Compteur de touches · 2 essais":t.kind==="value"?"Palier atteint, saisi à la fin du test":t.combo?"Chrono − bonus de la passe · 2 essais":t.beep?"Chrono · départ au bip · 2 essais":"Chrono · 2 essais"}</small><span class="bar"><i style="width:${N?d/N*100:0}%"></i></span></span><span class="c ${d===N&&N?'done':''}">${d}/${N}</span></button>`}).join("")}`).join("")}
+    ${groups.map(g=>`<p class="sect">${g.n}</p>${g.t.map(t=>{const d=doneOf(t),N=players(V.cat).length;return `<button class="atl" data-t="${t.id}"><span class="l"><b>${esc((x=>x.charAt(0).toUpperCase()+x.slice(1))(t.name.replace(/^Jonglerie /,"")))}</b><small>${t.kind==="count"?"Compteur de touches · 2 essais":t.kind==="value"?"Palier atteint, saisi à la fin du défi":t.combo?"Chrono − bonus de la passe · 2 essais":t.beep?"Chrono · départ au bip · 2 essais":"Chrono · 2 essais"}</small><span class="bar"><i style="width:${N?d/N*100:0}%"></i></span></span><span class="c ${d===N&&N?'done':''}">${d}/${N}</span></button>`}).join("")}`).join("")}
     <button class="opt" id="voice" aria-pressed="${!!D.opt.voice}"><span>🔊 Annoncer les résultats à voix haute</span><i>${D.opt.voice?"oui":"non"}</i></button>
     <div class="row">${D.rtj?"":`<button class="btn g" id="add">+ catégorie</button>`}<button class="btn g" id="out">Se déconnecter</button></div>
     <p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
