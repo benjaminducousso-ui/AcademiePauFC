@@ -1023,6 +1023,7 @@ const isDemote=(c,x)=>DEMOTE.some(d=>d.c===c&&String(x.by||"").trim().toLowerCas
 function absorbAvis(c,p,n,w,x,season){if(!(n>=1&&n<=5)||!w||!p)return false;const k=akey(c,p,n,w,season);const loc=store.avis[k];if(loc&&(x.ts||0)<=(loc.ts||0))return false;const f=Object.assign({},x.f||{});const xx=f._x||{};delete f._x;store.avis[k]={f,c:xx.c||{},t:{},forts:xx.forts||"",axes:xx.axes||"",note:x.note||"",by:w,ts:x.ts||0,val:null};return true}
 if(!store.fixAvis1){Object.keys(store.evals).forEach(k=>{const q=k.split("|");const r=store.evals[k];const n=+q[3];if(!r||!(n>=1&&n<=5)||!isDemote(q[1],r))return;const w=String(r.by).trim();const ak=akey(q[1],q[2],n,w,q[0]);if(!store.avis[ak]||(store.avis[ak].ts||0)<(r.ts||0))store.avis[ak]=Object.assign({},r,{val:null,t:{}});store.evals[k]=Object.assign(blank(),{t:r.t||{}})});store.fixAvis1=1;save()}
 if(!store.fixAvis2){Object.keys(store.avis).forEach(k=>{const q=k.split("|");if(q[1]==="U10"&&q.slice(4).join("|").trim().toLowerCase()==="pierre"&&((store.avis[k]||{}).ts||0)<Date.UTC(2026,10,7,0,0,0))delete store.avis[k]});store.fixAvis2=1;save()}
+if(!store.fixUnsend1){Object.keys(store.evals).forEach(k=>{const q=k.split("|");const r=store.evals[k];if(unsentByRule(q[1],r))r.sent=null});store.fixUnsend1=1;save()}
 if(!store.fixIgn1){Object.keys(store.evals).forEach(k=>{const q=k.split("|");const r=store.evals[k];const n=+q[3];if(!r||!(n>=1&&n<=5)||!isIgn(q[1],r))return;store.evals[k]=Object.assign(blank(),{t:r.t||{}})});store.fixIgn1=1;save()}
 function recEnt(c,p,n){return store.ent[key(c,p,n)]||(store.ent[key(c,p,n)]=blankEnt())}
 const filled=r=>!!r&&(Object.values(r.f||{}).some(Boolean)||Object.values(r.t||{}).some(v=>v!=null&&v!=="")||!!(r.forts||r.axes||r.note));
@@ -1061,7 +1062,7 @@ function absorb(x,season){x=fixU7(x);if(resetOn()&&(x.ts||0)<RESET_TS)return fal
     if(loc&&(x.ts||0)<=(loc.ts||0))return false;store.tst[tk]={t:x.t||{},by:x.by||"",ts:x.ts||0};if(!store.evals[ek])store.evals[ek]=blank();overlayTests(ek);
     if(season===SEASON&&pl&&!players(c).includes(pl)){store.extra[c]=store.extra[c]||[];store.extra[c].push(pl)}return true}
   if(x.per>=100){const k=key(c,p,x.per-100,season);const loc=store.ent[k];if(!loc||(x.ts||0)>(loc.ts||0)){const t=x.t||{};store.ent[k]={a:x.f||{},ac:t.ac||{},bil:t.bil||{},obj:Array.isArray(t.obj)?t.obj:["",""],date:t.date||"",by:x.by||"",ts:x.ts||0};n++}}
-  else{const k=key(c,p,x.per,season);const loc=store.evals[k];if(!loc||(x.ts||0)>(loc.ts||0)){const f=Object.assign({},x.f||{});const xx=f._x||{};delete f._x;store.evals[k]={f,c:xx.c||{},t:x.t||{},forts:xx.forts||"",axes:xx.axes||"",note:x.note||"",by:x.by||"",ts:x.ts||0,val:xx.val||null,sent:xx.sent||null};overlayTests(k);n++}}
+  else{const k=key(c,p,x.per,season);const loc=store.evals[k];if(!loc||(x.ts||0)>(loc.ts||0)){const f=Object.assign({},x.f||{});const xx=f._x||{};delete f._x;store.evals[k]={f,c:xx.c||{},t:x.t||{},forts:xx.forts||"",axes:xx.axes||"",note:x.note||"",by:x.by||"",ts:x.ts||0,val:xx.val||null,sent:xx.sent||null};if(unsentByRule(c,store.evals[k]))store.evals[k].sent=null;overlayTests(k);n++}}
   if(season===SEASON&&p&&!players(c).includes(p)){store.extra[c]=store.extra[c]||[];store.extra[c].push(p)}
   return n>0}
 function repostDemoted(c){let n=0;Object.entries(store.avis).forEach(([k,a])=>{const q=k.split("|");if(q[0]!==SEASON||q[1]!==c||!a||!a.dem||a.rp)return;store.queue.push({prog:1,cat:avisCat(c),player:q[2]+"¦"+q.slice(4).join("|"),per:+q[3],f:Object.assign({},a.f,{_x:{c:a.c||{},forts:a.forts||"",axes:a.axes||""}}),t:{},note:a.note||"",by:a.by,ts:a.ts});a.rp=1;n++});if(n){save();flush()}}
@@ -1310,9 +1311,11 @@ function renderBilan(){const v=document.getElementById("view-bilan");const g=grp
 /* ----- les étoiles du groupe : un joueur par ligne, une observation par colonne (contrôle de cohérence) ----- */
 let sgPer=null;
 function sendBar(P){if(isAvis(cat)||rtj||!authed())return "";const list=players(cat);const L=allLines().length;const fl=list.filter(x=>filled(store.evals[key(cat,x,P)]));const dr=fl.filter(x=>{const r=store.evals[key(cat,x,P)];return !isSent(r)&&!isVal(r)});
-  if(!dr.length)return fl.length?`<div class="sendbar ok"><span>📤 <b>Période ${P} envoyée au RTJ</b> : ${fl.length} fiche${fl.length>1?"s":""}. Si tu modifies une fiche, elle repart toute seule au RTJ.</span></div>`:"";
+  if(!dr.length){const nv=fl.filter(x=>!isVal(store.evals[key(cat,x,P)])).length;return fl.length?`<div class="sendbar ok"><span>📤 <b>Période ${P} envoyée au RTJ</b> : ${fl.length} fiche${fl.length>1?"s":""}. Si tu modifies une fiche, elle repart toute seule au RTJ.</span>${nv?`<button class="btn" data-unsend="${P}">↩ Annuler l'envoi (${nv})</button>`:""}</div>`:""}
   const inc=list.filter(x=>{const r=store.evals[key(cat,x,P)];return !r||Object.values(r.f||{}).filter(Boolean).length<L}).length;
   return `<div class="sendbar"><span>✏️ <b>${dr.length} fiche${dr.length>1?"s":""} en brouillon</b> · période ${P}. Le RTJ ne les voit pas encore : quand ton groupe est fini, envoie-le.</span><button class="btn primary" data-send="${P}" data-n="${dr.length}" data-inc="${inc}">📤 Envoyer au RTJ (${dr.length})</button></div>`}
+function unsendGroup(P){let n=0;players(cat).forEach(x=>{const r=store.evals[key(cat,x,P)];if(filled(r)&&r.sent&&!isVal(r)){r.sent=null;push(cat,x,P,true);n++}});return n}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-unsend]");if(!b)return;if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirmer : repasser en brouillon ?";return}const n=unsendGroup(+b.dataset.unsend);toast(`${n} fiche${n>1?"s":""} repassée${n>1?"s":""} en brouillon`);render()});
 function sendGroup(P){const list=players(cat);let n=0;list.forEach(x=>{const r=store.evals[key(cat,x,P)];if(filled(r)&&!isSent(r)&&!isVal(r)){r.sent={by:me(),ts:Date.now()};push(cat,x,P,true);n++}});return n}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-send]");if(!b)return;const P=+b.dataset.send;
   if(b.dataset.armed!=="1"){const list=players(cat);const L=allLines().length;const n=list.filter(x=>{const r=store.evals[key(cat,x,P)];return filled(r)&&!isSent(r)&&!isVal(r)}).length;const inc=list.filter(x=>{const r=store.evals[key(cat,x,P)];return !r||Object.values(r.f||{}).filter(Boolean).length<L}).length;b.dataset.armed="1";b.textContent=`Confirmer l'envoi de ${n} fiche${n>1?"s":""}${inc?` (${inc} joueur${inc>1?"s":""} pas complet${inc>1?"s":""})`:""} ?`;return}
@@ -1597,7 +1600,11 @@ function render(){renderCats();renderWho();const id=get("tab","view-eval");if(!d
 
 /* ===== RTJ : tout ce qui reste à valider, toutes catégories et périodes ===== */
 /* 6/11/2026 : le référent travaille en brouillon puis envoie son groupe au RTJ (« Envoyer au RTJ »). Ce qui a été saisi avant le 6/11 compte comme envoyé. */
-const SENT_CUT=Date.UTC(2026,10,6,0,0,0);const isSent=r=>!!(r&&(r.sent||(r.ts||0)<SENT_CUT));
+const SENT_CUT=Date.UTC(2026,10,6,0,0,0);
+/* 6/11/2026 : Morgane avait envoyé le groupe U10 sans les commentaires : cet envoi est annulé (ses étoiles restent, en brouillon) */
+const UNSEND={U10:Date.UTC(2026,10,6,18,45,0)};
+const unsentByRule=(c,r)=>!!(r&&r.sent&&UNSEND[c]&&(r.sent.ts||0)<UNSEND[c]&&!(r.val&&r.val.ts));
+const isSent=r=>!!(r&&(r.sent||(r.ts||0)<SENT_CUT));
 const needsVal=r=>filled(r)&&!isVal(r)&&isSent(r)&&(Object.values(r.f||{}).some(Boolean)||!!(r.forts||r.axes||r.note));
 function pendingVal(){return Object.entries(store.evals).map(([k,r])=>{const [s,c,p,n]=k.split("|");return {s,c,p,n:+n,r}}).filter(x=>x.s===SEASON&&CATS.includes(x.c)&&x.n>=1&&x.n<=5&&needsVal(x.r)).sort((a,b)=>CATS.indexOf(a.c)-CATS.indexOf(b.c)||a.n-b.n||(a.r.ts||0)-(b.r.ts||0))}
 let valOpen=false;
