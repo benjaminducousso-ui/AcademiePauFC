@@ -372,6 +372,9 @@ td.ted{padding:3px!important;min-width:180px}textarea.gta{width:100%;box-sizing:
 .fiche .lvhelp.lvf{margin:8px 16px 4px}.fiche .lvhelp.lvf .legend4{margin-top:8px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.fiche .lvhelp.lvf .legend4 div{font-size:12.5px}
 @media (max-width:700px){.fiche .lvhelp.lvf{margin:8px 12px 4px}}
 .sgavm{display:block;font-size:10.5px;font-weight:600;color:#8A94A6;margin-top:1px}
+
+.avtxt{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-top:5px;padding:5px 8px;background:#F1F3F7;border:1px dashed #B8C2D3;border-radius:8px;font-size:12.5px;line-height:1.35;color:#4A5568;font-weight:400}.avtxt b{color:#13213A}.avtxt .btn{padding:3px 10px;min-height:0;font-size:12px}
+.avok{font-size:12px;color:#1F7A4A;font-weight:700}
 </style>
 
 <header class="top"><div class="wrap">
@@ -819,15 +822,17 @@ const RTJ_H="d951fdb29cd20760b6b913d30016b63cbc654a034c1dc2a58aa84eed302168db";l
 /* ===== accès : prénom + mot de passe (comme pour les stages). Le mot de passe d'une catégorie ouvre cette catégorie,
    celui du RTJ ouvre tout. Protection simple, côté navigateur : elle évite les erreurs et les curieux, pas un piratage. */
 const TEST_H="8be12fd7ada842acbca58697ec4f6c8eda626a559a278737dd5c95a8427978ff";
-const CODE_H={"4cf75a3923a531643fd023b6f2e279b1ad997930fadb31c6b3fb99977334ab01": "U7", "7441db8a4077f8cc8e29a1877ab65c1f33d2ca097d0474b341512e28bf40abb3": "U8", "580fdafaa1db892a653fba6de756eb1d80ec65a1e6027dc1b12c461738788c80": "U9", "ffc10dfcbfdb7fa2089eba0056dba605cf569c6c1875d574a1e4fa0ff21572cd": "U10", "3b01438e6135d9930f0914e386f0793cec658e6f3ebcf35483d92fe237eda1a6": "U11", "c6a8db7000f01bf32a573a5b6135a5323ce534a56423b6ee97bb076deb8e91a5": "U12", "27db58a39792ea3d3bf2d8c21fc2c5594452cbb1059a8d96b8cb6ad8e2b2d65b": "U13", "a766e55b2c98906be4e83a93e3b13984b5e4bca5e1194b1140dde1928551ecc8": "U14", "3158d7deacb7daed49ca9f909de28290f4195be10742f3f76fec9a156fb2db78": "U15"};
+const CODE_H={"4cf75a3923a531643fd023b6f2e279b1ad997930fadb31c6b3fb99977334ab01": "U7", "7441db8a4077f8cc8e29a1877ab65c1f33d2ca097d0474b341512e28bf40abb3": "U8", "ffc10dfcbfdb7fa2089eba0056dba605cf569c6c1875d574a1e4fa0ff21572cd": "U10", "3b01438e6135d9930f0914e386f0793cec658e6f3ebcf35483d92fe237eda1a6": "U11", "27db58a39792ea3d3bf2d8c21fc2c5594452cbb1059a8d96b8cb6ad8e2b2d65b": "U13", "3158d7deacb7daed49ca9f909de28290f4195be10742f3f76fec9a156fb2db78": "U15", "6b31f6e1ed4fe933937ca5bd2d0aa92d561476d5cbda9083e5e5eba2016bd290": "U9", "12221361d354f8a57f395eabb118417cb1fc4d3948a87f978e2ae23ca4ee7a20": "U12", "b4644d6479c545f2a05ce059393a07dcbc1be9142e514e2c6b81709f85416889": "U14"};
 /* 5/11/2026 : deux accès par catégorie. Le mot de passe « référent » : sa saisie est la vision concertée, c'est elle qui part au RTJ.
    Le mot de passe « éducateur » : son avis reste un brouillon personnel, il ne part jamais au RTJ ; le référent le voit pour préparer l'avis commun.
    (Le mot de passe U10 donné avant le 5/11 est devenu un accès « éducateur ».) */
-const AVIS_H={"0c683e32ebdd46400d13e4d29a325044d85afb72ac0d335febc1c2c6eaf745da": "U7", "ecaa4802861f1b169de634bb8040b60e77007d96f6cba0cd10fb8608c915ca2f": "U8", "91ffb2cbf4c0f835f8edbfce7c25569c5c347bf8a2e947f5476b6dac3890bd7b": "U9", "1a2046ee1027bf4196c21d4bec545c74531170db6300bf6e0d6ffcd8a5055b93": "U10", "0b8b86b33bd529ad8fad54ede19924d31912afa9ceb4cb8185d4a6ae1a232134": "U11", "44c1359355c53249a5bda62ca5c3e9c2f764a1592bc8a02409bc55da17392e60": "U12", "9d0a00ef5ac4c5ba1cf7e1deb9a7ae265eeca05c0d93285c79cfedb9fe5f207d": "U13", "07d09af1a923e37a6a0446de401b082161ed0f40bfdc142a70917b47d5586664": "U14", "a3129453924af39475356efc4e47956d6cb1ed8038a5c9e8aa9fd72ba6eb97f7": "U15", "9d92eb927d508fa33669f910cae877f34eec5317e3a87f7d1203e89a2e72bfea": "U10"};
+const AVIS_H={"0c683e32ebdd46400d13e4d29a325044d85afb72ac0d335febc1c2c6eaf745da": "U7", "ecaa4802861f1b169de634bb8040b60e77007d96f6cba0cd10fb8608c915ca2f": "U8", "91ffb2cbf4c0f835f8edbfce7c25569c5c347bf8a2e947f5476b6dac3890bd7b": "U9", "1a2046ee1027bf4196c21d4bec545c74531170db6300bf6e0d6ffcd8a5055b93": "U10", "0b8b86b33bd529ad8fad54ede19924d31912afa9ceb4cb8185d4a6ae1a232134": "U11", "44c1359355c53249a5bda62ca5c3e9c2f764a1592bc8a02409bc55da17392e60": "U12", "9d0a00ef5ac4c5ba1cf7e1deb9a7ae265eeca05c0d93285c79cfedb9fe5f207d": "U13", "07d09af1a923e37a6a0446de401b082161ed0f40bfdc142a70917b47d5586664": "U14", "a3129453924af39475356efc4e47956d6cb1ed8038a5c9e8aa9fd72ba6eb97f7": "U15", "9d92eb927d508fa33669f910cae877f34eec5317e3a87f7d1203e89a2e72bfea": "U10", "580fdafaa1db892a653fba6de756eb1d80ec65a1e6027dc1b12c461738788c80": "U9", "c6a8db7000f01bf32a573a5b6135a5323ce534a56423b6ee97bb076deb8e91a5": "U12", "a766e55b2c98906be4e83a93e3b13984b5e4bca5e1194b1140dde1928551ecc8": "U14"};
 let roles=get("roles",{})||{};
 const isAvis=c=>!rtj&&roles&&roles[c]==="avis";
 const sha=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t.trim().toLowerCase())))].map(b=>b.toString(16).padStart(2,"0")).join("");
-const authed=()=>rtj||(Array.isArray(lock)&&lock.length>0&&get("auth2",false)&&get("auth3",false));
+/* 6/11/2026 : nouveaux codes référent U9, U12, U14 (les anciens deviennent des accès éducateur) : on se reconnecte une fois */
+const RECO4=["U9","U12","U14"];
+const authed=()=>rtj||(Array.isArray(lock)&&lock.length>0&&get("auth2",false)&&get("auth3",false)&&(get("auth4",false)||!lock.some(c=>RECO4.includes(c))));
 function showLogin(add){let o=document.getElementById("login");if(!o){o=document.createElement("div");o.id="login";document.body.appendChild(o)}document.body.style.overflow="hidden";
   o.innerHTML=`<div class="lgbox"><img src="${CREST_PNG}" alt=""><p class="lgey">Pau FC Academy</p><h2>${add?"Ajouter une catégorie":"Progression des joueurs"}</h2>
     <p class="lgnote">${add?"Entre le mot de passe de l'autre catégorie.":"Ton prénom et le mot de passe de ta catégorie. Le RTJ a son propre mot de passe."}</p>
@@ -843,7 +848,7 @@ function showLogin(add){let o=document.getElementById("login");if(!o){o=document
     else if(h===RTJ_H){if(SANDBOX){err("Accès test en cours : déconnecte-toi d'abord.");return}set("rtj",true);rtj=true;set("lock",null);lock=null}
     else if(CODE_H[h]||AVIS_H[h]){const c=CODE_H[h]||AVIS_H[h];roles=Object.assign({},add?roles:{},{[c]:AVIS_H[h]?"avis":"ref"});set("roles",roles);const l=(add&&Array.isArray(lock)?lock:[]).filter(x=>x!==c);l.push(c);lock=l.sort((a,b)=>CATS.indexOf(a)-CATS.indexOf(b));set("lock",lock);cat=c;set("cat",cat);if(!add){set("rtj",false);rtj=false}}
     else{err("Mot de passe inconnu. Demande-le au RTJ.");return}
-    set("who",who);set("auth2",true);set("auth3",true);o.remove();document.body.style.overflow="";render();loadRemote(cat);loadTests(cat);toast(rtj?`Bonjour ${who} · accès RTJ, toutes les catégories`:`Bonjour ${who} · ${lock.join(", ")}${lock.some(isAvis)?" · ton avis personnel (il ne part pas au RTJ)":""}`);
+    set("who",who);set("auth2",true);set("auth3",true);set("auth4",true);o.remove();document.body.style.overflow="";render();loadRemote(cat);loadTests(cat);toast(rtj?`Bonjour ${who} · accès RTJ, toutes les catégories`:`Bonjour ${who} · ${lock.join(", ")}${lock.some(isAvis)?" · ton avis personnel (il ne part pas au RTJ)":""}`);
     if(QS.get("terrain")==="1"&&!add)setTimeout(()=>openTestMode(),300)};
   q("lgok").onclick=go;o.querySelectorAll("input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")go()}));if(q("lgcancel"))q("lgcancel").onclick=()=>{o.remove();document.body.style.overflow=""};
   setTimeout(()=>{const f=q("lgwho")&&!q("lgwho").value?q("lgwho"):q("lgpw");f&&f.focus()},100)}
@@ -1023,7 +1028,7 @@ function recEnt(c,p,n){return store.ent[key(c,p,n)]||(store.ent[key(c,p,n)]=blan
 const filled=r=>!!r&&(Object.values(r.f||{}).some(Boolean)||Object.values(r.t||{}).some(v=>v!=null&&v!=="")||!!(r.forts||r.axes||r.note));
 const filledEnt=e=>!!e&&(Object.values(e.a||{}).some(Boolean)||Object.values(e.bil||{}).some(Boolean)||(e.obj||[]).some(Boolean)||!!e.date);
 function players(c){return [...(ROSTER[c]||[]),...(store.extra[c]||[])]}
-function push(c,p,n,keep){if(isAvis(c)){const a=avisRec(c,p,n);a.ts=Date.now();a.by=me();a.val=null;save();store.queue.push({prog:1,cat:avisCat(c),player:p+"¦"+me(),per:n,f:Object.assign({},a.f,{_x:{c:a.c,forts:a.forts,axes:a.axes}}),t:{},note:a.note,by:a.by,ts:a.ts});save();flush();return}const r=rec(c,p,n);r.ts=Date.now();if(!keep){r.by=get("who","");r.val=null}save();
+function push(c,p,n,keep){if(isAvis(c)){const a=avisRec(c,p,n);a.ts=Date.now();a.by=me();a.val=null;save();store.queue.push({prog:1,cat:avisCat(c),player:p+"¦"+me(),per:n,f:Object.assign({},a.f,{_x:{c:a.c,forts:a.forts,axes:a.axes}}),t:{},note:a.note,by:a.by,ts:a.ts});save();flush();return}const r=rec(c,p,n);r.ts=Date.now();if(!keep){r.by=get("who","");r.val=null;/* une saisie faite avec l'accès RTJ compte comme envoyée (accès référent de toutes les catégories) */if(rtj&&!r.sent)r.sent={by:r.by||"RTJ",ts:r.ts}}save();
   const payload={prog:1,cat:apiCat(c),player:p,per:n,f:Object.assign({},r.f,{_x:{c:r.c,forts:r.forts,axes:r.axes,val:r.val||null,sent:r.sent||null}}),t:r.t,note:r.note,by:r.by,ts:r.ts};
   store.queue.push(payload);save();flush()}
 /* validation par le RTJ : toute nouvelle saisie d'un éducateur la retire ; seules les appréciations validées entrent dans les carnets */
@@ -1190,9 +1195,9 @@ function renderEval(){const v=document.getElementById("view-eval");const g=grp()
     ${DOM.map(d=>`<section class="dom"><h4>${esc(d.name)}<small class="dcount">${d.lines.filter(l=>r.f[l.id]).length}/${d.lines.length}</small></h4>${d.lines.map(line).join("")}</section>`).join("")}
     ${tests}
     <section class="dom bil"><h4>Le bilan de la période</h4><div class="bgrid">
-      <label><span>Points forts</span><textarea class="ta" data-k="forts" placeholder="Ce qui ressort chez ${esc(pn)} sur cette période">${esc(r.forts)}</textarea></label>
-      <label><span>Axes de travail</span><textarea class="ta" data-k="axes" placeholder="Ce qu'on va travailler ensemble">${esc(r.axes)}</textarea></label>
-      <label class="wide"><span>Le mot de l'éducateur</span><textarea class="ta" data-k="note" placeholder="Quelques mots pour ${esc(pn)} et ses parents, repris tels quels dans le carnet">${esc(r.note)}</textarea></label></div></section>
+      <label><span>Points forts</span><textarea class="ta" data-k="forts" placeholder="Ce qui ressort chez ${esc(pn)} sur cette période">${esc(r.forts)}</textarea>${avTxt(AVL,"forts",undefined,r.forts)}</label>
+      <label><span>Axes de travail</span><textarea class="ta" data-k="axes" placeholder="Ce qu'on va travailler ensemble">${esc(r.axes)}</textarea>${avTxt(AVL,"axes",undefined,r.axes)}</label>
+      <label class="wide"><span>Le mot de l'éducateur</span><textarea class="ta" data-k="note" placeholder="Quelques mots pour ${esc(pn)} et ses parents, repris tels quels dans le carnet">${esc(r.note)}</textarea>${avTxt(AVL,"note",undefined,r.note)}</label></div></section>
     <div class="ffoot"><span class="vslot">${valChip(r,p)}</span><span class="note">${r.ts?`Dernière saisie le ${new Date(r.ts).toLocaleDateString("fr-FR")}${r.by?" par "+esc(r.by):""} · `:""}tout est enregistré au fil de l'eau.</span>
       <span class="ffbtn">${list.indexOf(p)>0?`<button class="btn" data-pn="-1">‹ Précédent</button>`:""}${list.indexOf(p)<list.length-1?`<button class="btn primary nextp" data-pn="1">Joueur suivant ›</button>`:""}</span></div></div>`:`<div class="card"><p class="note">Aucun joueur dans cette catégorie. Ajoute-les dans la liste.</p></div>`;
   v.innerHTML=`<div class="vhead"><div><div class="eyebrow">${esc(g.label)}</div><h2>${cat} · Appréciation continue</h2></div>
@@ -1224,6 +1229,7 @@ function renderEval(){const v=document.getElementById("view-eval");const g=grp()
   v.querySelectorAll(".fiche [data-tc]").forEach(i=>i.addEventListener("change",()=>comboSave(i.dataset.tc)));v.querySelectorAll(".fiche [data-tb]").forEach(i=>i.addEventListener("change",()=>comboSave(i.dataset.tb)));
   v.querySelectorAll(".fiche input.num[data-t]").forEach(i=>i.addEventListener("change",()=>{const r=rec(cat,p,per);const tt=T.find(x=>x.id===i.dataset.t);const dec=/^(s|km\/h)$/.test((tt&&tt.unit)||"");r.t[i.dataset.t]=i.value===""?null:(dec?Math.round(+i.value*100)/100:Math.round(+i.value));i.value=r.t[i.dataset.t]??"";push(cat,p,per);pushTest(cat,p,per,i.dataset.t);flashSaved(v);
     const c=i.closest(".tcard");const val=r.t[i.dataset.t];c.classList.toggle("reached",!!(tt&&val!=null&&tt.target!=null&&(tt.lower?val<=tt.target:val>=tt.target)))}));
+  v.querySelectorAll(".fiche [data-take]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();takeAvis(b,per,v.querySelector(`.fiche textarea.ta[data-k="${b.dataset.take}"]`))}));
   v.querySelectorAll(".fiche textarea.ta").forEach(t=>{autoGrow(t);let h;const sv=()=>{const r=rec(cat,p,per);const val=t.value.trim();if(r[t.dataset.k]===val)return;r[t.dataset.k]=val;push(cat,p,per);flashSaved(v)};
     t.addEventListener("input",()=>{autoGrow(t);clearTimeout(h);h=setTimeout(sv,800)});t.addEventListener("blur",()=>{clearTimeout(h);sv()})});
   v.querySelectorAll("[data-book]").forEach(b=>b.addEventListener("click",()=>openBook([b.dataset.book],"view-eval")));
@@ -1315,6 +1321,11 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
 const lvOpen=()=>{const v=get("lvh",null);return v==null?innerWidth>700:!!v};
 document.addEventListener("toggle",e=>{const d=e.target;if(d&&d.classList&&d.classList.contains("lvhelp")&&e.isTrusted!==false&&d.dataset.init)set("lvh",d.open)},true);
 document.addEventListener("click",e=>{const sm=e.target.closest&&e.target.closest(".lvhelp > summary");if(sm)sm.parentElement.dataset.init="1"},true);
+/* commentaires des éducateurs : le référent les voit sous chaque champ et peut les reprendre d'un clic, puis les modifier */
+const avTxt=(AV,k,p,cur)=>{const L=(AV||[]).filter(x=>String(x.a[k]||"").trim());if(!L.length)return "";return L.map(x=>`<div class="avtxt"><span>👤 <b>${esc(x.w)}</b> : « ${esc(x.a[k])} »</span>${isAvis(cat)?"":String(cur||"").includes(String(x.a[k]).trim())?`<span class="avok">✓ repris</span>`:`<button type="button" class="btn small" data-take="${k}" data-w="${esc(x.w)}"${p!=null?` data-tp="${esc(p)}"`:""}>↧ Reprendre</button>`}</div>`).join("")};
+function takeAvis(btn,P,field){const k=btn.dataset.take,w=btn.dataset.w,p=btn.dataset.tp||selPlayer();const a=avisOf(cat,p,P).find(x=>x.w===w);if(!a)return;const t=String(a.a[k]||"").trim();if(!t)return;
+  const r=rec(cat,p,P);const cur=String(r[k]||"").trim();if(cur.includes(t)){toast("Déjà repris");return}r[k]=cur?cur+"\n"+t:t;push(cat,p,P);
+  if(field){field.value=r[k];autoGrow(field);field.focus();field.setSelectionRange(field.value.length,field.value.length)}btn.textContent="✓ Repris";btn.disabled=true}
 function canEditP(P){return authed()&&(rtj||(Array.isArray(lock)&&lock.includes(cat)))&&evalOpen(PERIODS[P-1])}
 function avisBand(){const P=per;if(isAvis(cat))return `<div class="avisband">✏️ <b>Ton avis personnel</b> : tes étoiles restent un brouillon, elles ne partent pas au RTJ. Le référent de la catégorie les voit et donne ensuite l'avis commun.</div>`;const W=avisWriters(cat,P);if(rtj)return "";if(!W.length)return "";return `<div class="avisband ref">👥 <b>Avis des éducateurs pour la période ${P}</b> : ${W.map(esc).join(", ")}. Ils s'affichent à côté de chaque critère (👤) et dans le Bilan du groupe. Ce sont des brouillons : seule ta saisie part au RTJ.</div>`}
 let sgWho=null;const AV_COL=["#2E7DD7","#C2410C","#7C3AED","#0F8A5F"];const avCol=(w,WR)=>AV_COL[Math.max(0,WR.indexOf(w))%AV_COL.length];
@@ -1356,7 +1367,7 @@ function starPop(td,P_,cb){closeStarPop();const p=td.dataset.gp,id=td.dataset.gl
   setTimeout(()=>{document.addEventListener("click",off,true);document.addEventListener("keydown",kd,true)},0);closeStarPop._off=()=>{document.removeEventListener("click",off,true);document.removeEventListener("keydown",kd,true)}}
 function goPlayer(p,P){store.sel[cat]=p;save();if(P&&typeof P==="number"&&evalOpen(PERIODS[P-1])){per=P;set("per",per)}evMode="saisie";set("evMode",evMode);showTab("view-eval");window.scrollTo({top:0})}
 function bindGo(root){(root||document).querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();goPlayer(b.dataset.go,sgPer==="evol"?null:(sgPer||per))}))}
-function bindTxtEdit(){const c=document.getElementById("txtCard");if(!c)return;bindGo(c);const P_=sgPer==="evol"||!sgPer?per:sgPer;
+function bindTxtEdit(){const c=document.getElementById("txtCard");if(!c)return;bindGo(c);const P_=sgPer==="evol"||!sgPer?per:sgPer;c.querySelectorAll("[data-take]").forEach(b=>b.addEventListener("click",()=>takeAvis(b,P_,c.querySelector(`textarea.gta[data-tp="${CSS.escape(b.dataset.tp)}"][data-tk="${b.dataset.take}"]`))));
   c.querySelectorAll("textarea.gta").forEach(t=>{autoGrow(t);let h;const sv=()=>{const r=rec(cat,t.dataset.tp,P_);const val=t.value.trim();if((r[t.dataset.tk]||"")===val)return;r[t.dataset.tk]=val;push(cat,t.dataset.tp,P_);const ok=t.parentElement.querySelector(".gsaved");if(ok){ok.hidden=false;clearTimeout(ok._h);ok._h=setTimeout(()=>ok.hidden=true,1500)}};
     t.addEventListener("input",()=>{autoGrow(t);clearTimeout(h);h=setTimeout(sv,800)});t.addEventListener("blur",()=>{clearTimeout(h);sv()})})}
 function bindSgEdit(){const card=document.getElementById("starsCard");if(!card)return;const P_=sgPer==="evol"?null:(sgPer||per);bindGo(card);bindTxtEdit();
@@ -1381,7 +1392,7 @@ function bindStarsGroup(){const bar=document.getElementById("bilanPer");if(!bar)
 /* ----- le bilan écrit du groupe, pour la période choisie ----- */
 function txtGroupHTML(){const P_=sgPer==="evol"||!sgPer?per:sgPer;const list=players(cat);
   const ED=canEditP(P_);const PH={forts:"Ce qui ressort de cette période",axes:"Ce qu'on va travailler ensemble",note:"Quelques mots pour l'enfant et ses parents (repris dans le carnet)"};
-  const rows=list.map(x=>{const r=evR(cat,x,P_)||{};return `<tr><td class="name"><button type="button" class="golink" data-go="${esc(x)}" title="Ouvrir la fiche de ${esc(x)}">${esc(x)}</button></td>${["forts","axes","note"].map(k=>`<td class="ttxtc${ED?" ted":""}" data-l="${{forts:"Points forts",axes:"Axes de travail",note:"Mot de l'éducateur"}[k]}">${ED?`<textarea class="gta" rows="2" data-tp="${esc(x)}" data-tk="${k}" placeholder="${esc(PH[k])}">${esc(r[k]||"")}</textarea><span class="gsaved" hidden>✓ enregistré</span>`:r[k]?esc(r[k]):'<span class="sg0">·</span>'}</td>`).join("")}</tr>`}).join("");
+  const rows=list.map(x=>{const r=evR(cat,x,P_)||{};const AVX=avisOf(cat,x,P_);return `<tr><td class="name"><button type="button" class="golink" data-go="${esc(x)}" title="Ouvrir la fiche de ${esc(x)}">${esc(x)}</button></td>${["forts","axes","note"].map(k=>`<td class="ttxtc${ED?" ted":""}" data-l="${{forts:"Points forts",axes:"Axes de travail",note:"Mot de l'éducateur"}[k]}">${ED?`<textarea class="gta" rows="2" data-tp="${esc(x)}" data-tk="${k}" placeholder="${esc(PH[k])}">${esc(r[k]||"")}</textarea><span class="gsaved" hidden>✓ enregistré</span>${avTxt(AVX,k,x,r[k])}`:r[k]?esc(r[k]):'<span class="sg0">·</span>'}</td>`).join("")}</tr>`}).join("");
   return `<div class="ghead"><div><h3>Le bilan écrit de l'éducateur · période ${P_}</h3><p class="note">Suit la période choisie plus haut. ${ED?"Vous pouvez écrire directement ici, tout s'enregistre au fil de l'eau. ":""}Pratique pour vérifier que chaque enfant a un mot qui lui est propre et qui colle à ses étoiles.</p></div></div>
     <div class="tbl-wrap"><table class="sgt"><thead><tr><th>Joueur</th><th>Points forts</th><th>Axes de travail</th><th>Mot de l'éducateur</th></tr></thead><tbody>${rows}</tbody></table></div>`}
 /* ----- tests du groupe : novembre (P1), février (P3), avril (P4), évolution — comme la feuille Excel du club ----- */
