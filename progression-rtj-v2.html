@@ -1,5 +1,8 @@
 <!doctype html><html lang="fr" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0">
-<script>const REF="v2";</script>
+<script>const REF="v2";
+const UNSEND={U10:Date.UTC(2026,10,6,18,45,0)};
+const unsentByRule=(c,r)=>!!(r&&r.sent&&UNSEND[c]&&(r.sent.ts||0)<UNSEND[c]&&!(r.val&&r.val.ts));
+</script>
 <title>Progression RTJ · Pau FC</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
@@ -1615,8 +1618,7 @@ function render(){renderCats();renderWho();const id=get("tab","view-eval");if(!d
 /* 6/11/2026 : le référent travaille en brouillon puis envoie son groupe au RTJ (« Envoyer au RTJ »). Ce qui a été saisi avant le 6/11 compte comme envoyé. */
 const SENT_CUT=Date.UTC(2026,10,6,0,0,0);
 /* 6/11/2026 : Morgane avait envoyé le groupe U10 sans les commentaires : cet envoi est annulé (ses étoiles restent, en brouillon) */
-const UNSEND={U10:Date.UTC(2026,10,6,18,45,0)};
-const unsentByRule=(c,r)=>!!(r&&r.sent&&UNSEND[c]&&(r.sent.ts||0)<UNSEND[c]&&!(r.val&&r.val.ts));
+
 const isSent=r=>!!(r&&(r.sent||(r.ts||0)<SENT_CUT));
 const needsVal=r=>filled(r)&&!isVal(r)&&isSent(r)&&(Object.values(r.f||{}).some(Boolean)||!!(r.forts||r.axes||r.note));
 function pendingVal(){return Object.entries(store.evals).map(([k,r])=>{const [s,c,p,n]=k.split("|");return {s,c,p,n:+n,r}}).filter(x=>x.s===SEASON&&CATS.includes(x.c)&&x.n>=1&&x.n<=5&&needsVal(x.r)).sort((a,b)=>CATS.indexOf(a.c)-CATS.indexOf(b.c)||a.n-b.n||(a.r.ts||0)-(b.r.ts||0))}
