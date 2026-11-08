@@ -375,6 +375,10 @@ td.ted{padding:3px!important;min-width:180px}textarea.gta{width:100%;box-sizing:
 
 .avtxt{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-top:5px;padding:5px 8px;background:#F1F3F7;border:1px dashed #B8C2D3;border-radius:8px;font-size:12.5px;line-height:1.35;color:#4A5568;font-weight:400}.avtxt b{color:#13213A}.avtxt .btn{padding:3px 10px;min-height:0;font-size:12px}
 .avok{font-size:12px;color:#1F7A4A;font-weight:700}
+table.sgedit td.sged{cursor:default}.sgk{display:inline-flex;white-space:nowrap}.sgk i{font-style:normal;cursor:pointer;color:#DDE2EA;font-size:15px;line-height:1;padding:2px 1px}.sgk i.on{color:#D9A400}.sgk:hover i{color:#F2C200}.sgk i:hover~i{color:#DDE2EA}
+@media (max-width:700px){.sgk i{font-size:14px;padding:3px 0}}
+@media print{.sgk i{font-size:7pt;padding:0}.sgk:hover i{color:inherit}}
+.gkband{margin:12px 16px 0;padding:8px 12px;border-radius:10px;background:#EAF2FF;border:1px solid #C9DBF5;font-size:13.5px;color:#14365C}.gkh{margin:18px 0 6px;font-size:16px;color:var(--navy,#0B2A4A)}
 </style>
 
 <header class="top"><div class="wrap">
@@ -870,8 +874,13 @@ const grp=(c)=>GROUPS[GROUP_OF[c||cat]];
 const prenom=p=>{const w=String(p).trim().split(/\s+/);const f=w.filter(x=>x!==x.toUpperCase());return f.length?f.join(" "):w[w.length-1]};
 const nomCourt=p=>{const w=String(p).trim().split(/\s+/);const pr=prenom(p);const nom=w.find(x=>x===x.toUpperCase()&&x!==pr);return nom?`${pr} ${nom[0]}.`:pr};
 /* ----- ce qu'on observe : la grille du RTJ en U7-U11, les compétences FFF au-delà ----- */
-function domains(c){c=c||cat;if(REF==="v2")return V2_DOMAINS[GROUP_OF[c]];if(RTJ_CATS.includes(c))return RTJ_DOMAINS;if(RTJ_PRE_CATS.includes(c))return RTJ_PRE_DOMAINS;const g=grp(c);return [{id:"fff",name:"Compétences du guide FFF",lines:g.facets.map(f=>({id:f.id,short:f.name,name:f.desc}))}]}
-const allLines=c=>domains(c).flatMap(d=>d.lines);
+/* ----- gardiens de but : grille propre au poste (liste issue du suivi des packs, poste « Gardien ») ----- */
+const GK_GRIDS={"k9": [{"id": "gkb", "name": "Défendre son but", "lines": [{"id": "k9b1", "src": "G", "short": "Placement", "name": "Position de base et placement sur la ligne ballon-but"}, {"id": "k9b2", "src": "G", "short": "Prise de balle", "name": "Sûre au sol, à mi-hauteur et en hauteur (mains en « W »)"}, {"id": "k9b3", "src": "G", "short": "Plongeon au sol et mi-hauteur", "name": "Des deux côtés"}, {"id": "k9b4", "src": "G", "short": "Déviation", "name": "Quand il ne peut pas capter, dévie le ballon sur le côté, jamais au centre"}, {"id": "k9b5", "src": "G", "short": "Replacement", "name": "Se relève et se replace vite après un arrêt"}]}, {"id": "gke", "name": "Défendre l'espace", "lines": [{"id": "k9e1", "src": "G", "short": "Sortie", "name": "Sort au bon moment sur un ballon dans sa surface"}, {"id": "k9e2", "src": "G", "short": "Duel 1 c 1", "name": "Avance, reste debout le plus longtemps possible, ferme l'angle"}, {"id": "k9e3", "src": "G", "short": "Ballon aérien", "name": "Capte un ballon haut sans adversaire"}]}, {"id": "gkm", "name": "Jeu au pied et relance", "lines": [{"id": "k9m1", "src": "G", "short": "Jeu au pied", "name": "Contrôle orienté et passe des deux pieds sur une passe en retrait"}, {"id": "k9m2", "src": "G", "short": "Qualité de relance", "name": "Relance au pied précise vers un partenaire (au sol, courte ou moyenne)"}, {"id": "k9m3", "src": "G", "short": "Relance rapide", "name": "Relance vite à la main pour lancer l'attaque"}, {"id": "k9m4", "src": "G", "short": "Prise d'information", "name": "Regarde avant de recevoir : sait déjà où il va relancer"}]}, {"id": "gkc", "name": "Communiquer", "lines": [{"id": "k9c1", "src": "G", "short": "Communication", "name": "Guide ses défenseurs à la voix, clairement et tôt"}]}, {"id": "gkp", "name": "Mental", "lines": [{"id": "k9p1", "src": "G", "short": "Concentration", "name": "Reste concentré tout le match, même quand il n'a rien à faire"}, {"id": "k9p2", "src": "G", "short": "Gestion des émotions", "name": "Rebondit après une erreur ou un but encaissé"}]}, {"id": "gka", "name": "Athlétique", "lines": [{"id": "k9a1", "src": "G", "short": "Vitesse de réaction et appuis", "name": "Appuis rapides, coordination et détente"}]}], "k12": [{"id": "gkb", "name": "Défendre son but", "lines": [{"id": "k12b1", "src": "G", "short": "Placement (fermeture des angles)", "name": "Se place sur l'arc de cercle selon la position du ballon"}, {"id": "k12b2", "src": "G", "short": "Prise de balle", "name": "Sûre à toutes les hauteurs, sur frappes arrêtées ou en mouvement"}, {"id": "k12b3", "src": "G", "short": "Plongeon (sol, mi-hauteur, hauteur)", "name": "Des deux côtés, à toutes les hauteurs"}, {"id": "k12b4", "src": "G", "short": "Ballon rebond", "name": "Dévie hors de l'axe et se relève pour le deuxième ballon"}, {"id": "k12b5", "src": "G", "short": "Vitesse de réaction", "name": "Réflexes sur les frappes proches"}]}, {"id": "gke", "name": "Défendre l'espace", "lines": [{"id": "k12e1", "src": "G", "short": "Ballon aérien", "name": "Sort sur les centres, capte ou boxe, avec un appel d'élan"}, {"id": "k12e2", "src": "G", "short": "Gestion de la profondeur", "name": "Joue haut et couvre la profondeur derrière sa défense"}, {"id": "k12e3", "src": "G", "short": "Duel 1 c 1", "name": "Temporise, ferme l'angle, choisit le bon moment pour aller au sol en sécurité"}]}, {"id": "gkm", "name": "Jeu au pied et relance", "lines": [{"id": "k12m1", "src": "G", "short": "Jeu au pied", "name": "Contrôle orienté des deux pieds, même sous pression"}, {"id": "k12m2", "src": "G", "short": "Relance courte", "name": "Joue court pour sortir le ballon proprement, au sol, vers les côtés"}, {"id": "k12m3", "src": "G", "short": "Qualité de relance (jeu long)", "name": "Joue long et précis quand il le faut"}, {"id": "k12m4", "src": "G", "short": "Choix de relance et relance rapide", "name": "Choisit vite la bonne relance (courte ou longue, main ou pied) selon ce qu'il voit"}]}, {"id": "gkc", "name": "Communiquer et organiser", "lines": [{"id": "k12c1", "src": "G", "short": "Organisation défensive", "name": "Organise sa défense, y compris sur les coups de pied arrêtés"}, {"id": "k12c2", "src": "G", "short": "Communication", "name": "Courte et claire : « gardien », « seul », « dégage »"}]}, {"id": "gkp", "name": "Mental", "lines": [{"id": "k12p1", "src": "G", "short": "Confiance et leadership", "name": "S'impose dans sa surface et rassure ses partenaires"}, {"id": "k12p2", "src": "G", "short": "Gestion des émotions", "name": "Gère ses erreurs et reste concentré"}]}, {"id": "gka", "name": "Athlétique", "lines": [{"id": "k12a1", "src": "G", "short": "Explosivité et appuis", "name": "Vitesse d'appuis et détente"}, {"id": "k12a2", "src": "G", "short": "Gainage, souplesse, chute", "name": "Sait tomber sans se faire mal"}]}], "k14": [{"id": "gkb", "name": "Défendre son but", "lines": [{"id": "k14b1", "src": "G", "short": "Placement (fermeture des angles)", "name": "Placement juste selon la situation (centre, frappe, 1 contre 1)"}, {"id": "k14b2", "src": "G", "short": "Prise de balle", "name": "Sûre sur des frappes puissantes"}, {"id": "k14b3", "src": "G", "short": "Plongeon (sol, mi-hauteur, hauteur)", "name": "Des deux côtés, avec le bon pas d'appel"}, {"id": "k14b4", "src": "G", "short": "Ballon rebond", "name": "Gère les seconds ballons et les rebonds"}, {"id": "k14b5", "src": "G", "short": "Vitesse de réaction", "name": "Réflexes sur les frappes proches et déviées"}]}, {"id": "gke", "name": "Défendre l'espace", "lines": [{"id": "k14e1", "src": "G", "short": "Ballon aérien", "name": "Dans le trafic (centres, corners) : capte ou boxe au bon moment"}, {"id": "k14e2", "src": "G", "short": "Gestion de la profondeur", "name": "Gardien libéro : anticipe, sort de sa surface et couvre l'espace dans le dos de sa défense"}, {"id": "k14e3", "src": "G", "short": "Duel 1 c 1", "name": "Bon timing de sortie, technique du « bloc »"}]}, {"id": "gkm", "name": "Jeu au pied et relance", "lines": [{"id": "k14m1", "src": "G", "short": "Jeu au pied", "name": "Joue comme un joueur de champ : contrôle orienté, passes des deux pieds sous pression"}, {"id": "k14m2", "src": "G", "short": "Participation au jeu", "name": "Participe à la construction : se rend disponible et propose des solutions"}, {"id": "k14m3", "src": "G", "short": "Qualité de relance (jeu long)", "name": "Passe longue, renversement, relance longue à la main"}, {"id": "k14m4", "src": "G", "short": "Choix de relance", "name": "Lit le pressing adverse et choisit entre jouer court et jouer long"}]}, {"id": "gkc", "name": "Communiquer et organiser", "lines": [{"id": "k14c1", "src": "G", "short": "Organisation défensive", "name": "Organise sa défense : ligne, couverture, coups de pied arrêtés (mur, placement)"}, {"id": "k14c2", "src": "G", "short": "Communication", "name": "Communique pour anticiper, guider et rassurer"}]}, {"id": "gkp", "name": "Mental", "lines": [{"id": "k14p1", "src": "G", "short": "Leadership et confiance", "name": "Rassure ses partenaires et prend ses responsabilités"}, {"id": "k14p2", "src": "G", "short": "Gestion des émotions", "name": "Gère la pression et les erreurs, rebondit vite"}]}, {"id": "gka", "name": "Athlétique", "lines": [{"id": "k14a1", "src": "G", "short": "Explosivité et appuis", "name": "Détente et vitesse d'appuis"}, {"id": "k14a2", "src": "G", "short": "Gainage, souplesse, chute", "name": "Prévention : sait tomber sans se faire mal"}]}]};
+const GK_OF={"U9": "k9", "U10": "k9", "U11": "k9", "U12": "k12", "U13": "k12", "U14": "k14", "U15": "k14"};
+const GK_LIST={"U9": ["ALBERT Adrien"], "U10": ["KHALOUKI Souleymane", "ROIG Leo"], "U11": ["FABRE AARON"], "U12": ["JOULALI Issa Leo", "MASAOUDI Sofiane"], "U13": ["DEJARDIN Miquel", "LAGORCE Louis"], "U14": ["SALIK LAMRISS ANWAR", "SAMIH Elyazid", "BOURGE CARLADOUS Simon"], "U15": ["DUVAL Martin", "MARCHEBOIS Hadrien"]};
+const isGK=(c,p)=>!!GK_OF[c]&&(GK_LIST[c]||[]).includes(p);const gkDomains=c=>GK_GRIDS[GK_OF[c]]||[];const gkOf=c=>players(c).filter(p=>isGK(c,p));const fieldOf=c=>players(c).filter(p=>!isGK(c,p));
+function domains(c,p){c=c||cat;if(p!=null&&isGK(c,p))return gkDomains(c);if(REF==="v2")return V2_DOMAINS[GROUP_OF[c]];if(RTJ_CATS.includes(c))return RTJ_DOMAINS;if(RTJ_PRE_CATS.includes(c))return RTJ_PRE_DOMAINS;const g=grp(c);return [{id:"fff",name:"Compétences du guide FFF",lines:g.facets.map(f=>({id:f.id,short:f.name,name:f.desc}))}]}
+const allLines=(c,p)=>domains(c,p).flatMap(d=>d.lines);
 /* ----- repères mesurés : les mêmes que l'outil actuel (clé PROG-<cat> partagée) ----- */
 store.tests=store.tests||{};
 const UNITS=["contacts","s","m","cm","km/h","réussi 0/1","points","répétitions"];
@@ -1081,7 +1090,7 @@ function parcours(p){const out={};const add=(k,kind,v)=>{const [s,c,pl,n]=k.spli
 /* ===== rendu ===== */
 function renderCats(){document.getElementById("catbar").innerHTML=CATS.filter(c=>rtj||!lock||lock.includes(c)).map(c=>`<button class="cat" data-c="${c}" aria-pressed="${c===cat}">${c}<small>${players(c).length} joueurs</small></button>`).join("");
   document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{cat=b.dataset.c;set("cat",cat);tEdit=false;tDraft=null;render();loadRemote(cat);loadTests(cat)}))}
-function perbar(){const list=players(cat);const L=allLines().length;return `<div class="perbar" role="group" aria-label="Période">${PERIODS.map(p=>{const n=list.filter(x=>{const r=evR(cat,x,p.n);return r&&Object.values(r.f).filter(Boolean).length>=L}).length;const op=evalOpen(p);const cur=op&&p.n===defPer();
+function perbar(){const list=players(cat);const L=allLines().length;return `<div class="perbar" role="group" aria-label="Période">${PERIODS.map(p=>{const n=list.filter(x=>{const r=evR(cat,x,p.n);return r&&Object.values(r.f).filter(Boolean).length>=allLines(cat,x).length}).length;const op=evalOpen(p);const cur=op&&p.n===defPer();
   return `<button class="perchip${cur?" now":""}${op?"":" locked"}" data-p="${p.n}" aria-pressed="${p.n===per}"><b>P${p.n}${cur?" <em>à évaluer</em>":op?"":" 🔒"}</b><small>${fmtShort(p.from)} → ${fmtShort(p.to)}${n?` · ${n}/${list.length} ✓`:op?"":` · dès le ${openFrom(p)}`}</small></button>`}).join("")}</div>`}
 function bindPer(root){const cp=root.querySelector('.perchip[aria-pressed="true"]');if(cp&&cp.parentElement.scrollWidth>cp.parentElement.clientWidth)cp.parentElement.scrollLeft=cp.offsetLeft-16;root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{const n=+b.dataset.p;const P=PERIODS[n-1];if(!evalOpen(P)){toast(`La période ${n} s'évaluera à partir du ${openFrom(P)}. Pour l'instant, on remplit la période ${defPer()}.`);return}per=n;set("per",per);render()}))}
 /* ===== composants d'interface : saisie fluide, consultation claire ===== */
@@ -1156,7 +1165,7 @@ function bindTestsPanel(v){const q=id=>document.getElementById(id);
   const rs=q("tReset");if(rs)rs.addEventListener("click",()=>{if(rs.dataset.armed!=="1"){rs.dataset.armed="1";rs.textContent="Confirmer le retour aux repères du guide ?";return}tEdit=false;tDraft=null;saveTests(cat,null,get("who","")).then(()=>render());renderEval()})}
 /* --- onglet Appréciation : saisie par joueur (liste + fiche) ou vue du groupe --- */
 let evMode="saisie";
-function evProg(x){const r=evR(cat,x,per);const L=allLines();return {done:r?L.filter(l=>r.f[l.id]).length:0,tot:L.length}}
+function evProg(x){const r=evR(cat,x,per);const L=allLines(cat,x);return {done:r?L.filter(l=>r.f[l.id]).length:0,tot:L.length}}
 function groupView(){const DOM=domains();const T=TESTS_P();const list=players(cat);const nL=allLines().length;
   const rows=list.map(x=>{const r=evR(cat,x,per);const q=evProg(x);
     return `<tr data-p="${esc(x)}"><td class="name"><span class="gname">${ring(q.done,q.tot)}<span>${esc(x)}<small>${q.done?`${q.done}/${nL}`:"à faire"}${isVal(r)?" · ✓ validé":filled(r)?" · à valider":""}</small></span></span></td>${DOM.map(d=>`<td class="gdom">${d.lines.map(l=>{const n=r?(r.f[l.id]||0):0;const c=r&&r.c&&r.c[l.id];return `<span class="lvl gst l${n}${c?" hasc":""}" title="${esc(l.name)}${n?" · "+esc(STAR_LEGEND[n-1].name):""}${c?" · « "+esc(c)+" »":""}">${n?"★".repeat(n):"·"}</span>`}).join("")}</td>`).join("")}${T.map(t=>{const val=r&&r.t[t.id];const ok=val!=null&&t.target!=null&&(t.lower?val<=t.target:val>=t.target);return `<td class="gtest"><span class="tv${val==null?" empty":""}${ok?" ok":""}" title="${esc(t.name)}${t.target!=null?" · objectif "+t.target:""}">${val==null?"–":Math.round(val*100)/100}</span></td>`}).join("")}<td class="gnote">${r&&(r.note||r.forts||r.axes)?`${r.note?`<p><b>Mot</b> ${esc(r.note)}</p>`:""}${r.forts?`<p><b>Forts</b> ${esc(r.forts)}</p>`:""}${r.axes?`<p><b>Axes</b> ${esc(r.axes)}</p>`:""}`:`<span class="note">–</span>`}</td></tr>`}).join("");
@@ -1167,7 +1176,7 @@ function groupView(){const DOM=domains();const T=TESTS_P();const list=players(ca
     <div class="toolbar" style="margin-top:14px"><form class="addPf addp" autocomplete="off"><input class="addPn" type="text" placeholder="NOM Prénom du joueur à ajouter" aria-label="Nom du joueur à ajouter"><button class="btn" type="submit">+ Ajouter</button></form>
       ${(REF==="v2"&&V2_NO_TESTS.includes(cat))||!TEST_PERIODS.includes(per)?"":`<button class="btn primary appgo" data-app="1">📱 Faire passer les défis (appli)</button><button class="btn" id="tEditBtn" aria-pressed="${tEdit}">⚙️ Défis techniques${T.length?` · ${T.length}`:""}</button>`}${(()=>{const fl=list.filter(x=>filled(evR(cat,x,per)));const pe=fl.filter(x=>needsVal(evR(cat,x,per)));return fl.length&&!isAvis(cat)?`<span class="note">${fl.length-pe.length}/${fl.length} validées par le RTJ</span>${rtj&&pe.length?`<button class="btn" id="valAll">✓ ${pe.length>1?`Valider les ${pe.length} appréciations en attente`:"Valider l'appréciation en attente"}</button>`:""}`:""})()}<span class="status syncStatus"></span></div></div>`}
 function groupTools(list){const T=TESTS();return `${tEdit?`<div class="card" style="margin-top:14px">${testsPanel()}</div>`:""}<div class="toolbar gtools" style="margin-top:14px">${(REF==="v2"&&V2_NO_TESTS.includes(cat))||!TEST_PERIODS.includes(per)?"":`<button class="btn primary appgo" data-app="1">📱 Faire passer les défis (appli)</button><button class="btn" id="tEditBtn" aria-pressed="${tEdit}">⚙️ Défis techniques${T.length?` · ${T.length}`:""}</button>`}${(()=>{const fl=list.filter(x=>filled(evR(cat,x,per)));const pe=fl.filter(x=>needsVal(evR(cat,x,per)));return fl.length&&!isAvis(cat)?`<span class="note">${fl.length-pe.length}/${fl.length} validées par le RTJ</span>${rtj&&pe.length?`<button class="btn" id="valAll">✓ ${pe.length>1?`Valider les ${pe.length} appréciations en attente`:"Valider l'appréciation en attente"}</button>`:""}`:""})()}<span class="status syncStatus"></span></div>`}
-function renderEval(){const v=document.getElementById("view-eval");const g=grp();const P=PERIODS[per-1];const list=players(cat);const p=selPlayer();const DOM=domains();const T=TESTS_P();const L=allLines();
+function renderEval(){const v=document.getElementById("view-eval");const g=grp();const P=PERIODS[per-1];const list=players(cat);const p=selPlayer();const DOM=domains(cat,p);const T=TESTS_P();const L=allLines(cat,p);
   const r=p?rec(cat,p,per):blank();const prevR=per>1&&p?evR(cat,p,per-1):null;const pn=p?prenom(p):"";
   const done=L.filter(l=>r.f[l.id]).length;
   const others=list.filter(x=>x!==p).length;
@@ -1193,7 +1202,7 @@ function renderEval(){const v=document.getElementById("view-eval");const g=grp()
     <div class="vbar vslot">${valChip(r,p)}</div>
     <p class="kbd">Clavier : <kbd>1</kbd>–<kbd>4</kbd> note la ligne, <kbd>↓</kbd> <kbd>↑</kbd> passent d'une ligne à l'autre. Après une note, on passe tout seul à la ligne suivante.</p>
     <details class="lvhelp lvf"${lvOpen()?" open":""}><summary>Ce que veut dire chaque niveau</summary>${legend4()}</details>
-    ${DOM.map(d=>`<section class="dom"><h4>${esc(d.name)}<small class="dcount">${d.lines.filter(l=>r.f[l.id]).length}/${d.lines.length}</small></h4>${d.lines.map(line).join("")}</section>`).join("")}
+    ${p&&isGK(cat,p)?`<div class="gkband">🧤 <b>Gardien de but</b> : ${esc(pn)} est noté sur la grille des gardiens (mêmes étoiles, critères propres au poste).</div>`:""}${DOM.map(d=>`<section class="dom"><h4>${esc(d.name)}<small class="dcount">${d.lines.filter(l=>r.f[l.id]).length}/${d.lines.length}</small></h4>${d.lines.map(line).join("")}</section>`).join("")}
     ${tests}
     <section class="dom bil"><h4>Le bilan de la période</h4><div class="bgrid">
       <label><span>Points forts</span><textarea class="ta" data-k="forts" placeholder="Ce qui ressort chez ${esc(pn)} sur cette période">${esc(r.forts)}</textarea>${avTxt(AVL,"forts",undefined,r.forts)}</label>
@@ -1312,13 +1321,13 @@ function renderBilan(){const v=document.getElementById("view-bilan");const g=grp
 let sgPer=null;
 function sendBar(P){if(isAvis(cat)||rtj||!authed())return "";const list=players(cat);const L=allLines().length;const fl=list.filter(x=>filled(store.evals[key(cat,x,P)]));const dr=fl.filter(x=>{const r=store.evals[key(cat,x,P)];return !isSent(r)&&!isVal(r)});
   if(!dr.length){const nv=fl.filter(x=>!isVal(store.evals[key(cat,x,P)])).length;return fl.length?`<div class="sendbar ok"><span>📤 <b>Période ${P} envoyée au RTJ</b> : ${fl.length} fiche${fl.length>1?"s":""}. Si tu modifies une fiche, elle repart toute seule au RTJ.</span>${nv?`<button class="btn" data-unsend="${P}">↩ Annuler l'envoi (${nv})</button>`:""}</div>`:""}
-  const inc=list.filter(x=>{const r=store.evals[key(cat,x,P)];return !r||Object.values(r.f||{}).filter(Boolean).length<L}).length;
+  const inc=list.filter(x=>{const r=store.evals[key(cat,x,P)];return !r||Object.values(r.f||{}).filter(Boolean).length<allLines(cat,x).length}).length;
   return `<div class="sendbar"><span>✏️ <b>${dr.length} fiche${dr.length>1?"s":""} en brouillon</b> · période ${P}. Le RTJ ne les voit pas encore : quand ton groupe est fini, envoie-le.</span><button class="btn primary" data-send="${P}" data-n="${dr.length}" data-inc="${inc}">📤 Envoyer au RTJ (${dr.length})</button></div>`}
 function unsendGroup(P){let n=0;players(cat).forEach(x=>{const r=store.evals[key(cat,x,P)];if(filled(r)&&r.sent&&!isVal(r)){r.sent=null;push(cat,x,P,true);n++}});return n}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-unsend]");if(!b)return;if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirmer : repasser en brouillon ?";return}const n=unsendGroup(+b.dataset.unsend);toast(`${n} fiche${n>1?"s":""} repassée${n>1?"s":""} en brouillon`);render()});
 function sendGroup(P){const list=players(cat);let n=0;list.forEach(x=>{const r=store.evals[key(cat,x,P)];if(filled(r)&&!isSent(r)&&!isVal(r)){r.sent={by:me(),ts:Date.now()};push(cat,x,P,true);n++}});return n}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-send]");if(!b)return;const P=+b.dataset.send;
-  if(b.dataset.armed!=="1"){const list=players(cat);const L=allLines().length;const n=list.filter(x=>{const r=store.evals[key(cat,x,P)];return filled(r)&&!isSent(r)&&!isVal(r)}).length;const inc=list.filter(x=>{const r=store.evals[key(cat,x,P)];return !r||Object.values(r.f||{}).filter(Boolean).length<L}).length;b.dataset.armed="1";b.textContent=`Confirmer l'envoi de ${n} fiche${n>1?"s":""}${inc?` (${inc} joueur${inc>1?"s":""} pas complet${inc>1?"s":""})`:""} ?`;return}
+  if(b.dataset.armed!=="1"){const list=players(cat);const L=allLines().length;const n=list.filter(x=>{const r=store.evals[key(cat,x,P)];return filled(r)&&!isSent(r)&&!isVal(r)}).length;const inc=list.filter(x=>{const r=store.evals[key(cat,x,P)];return !r||Object.values(r.f||{}).filter(Boolean).length<allLines(cat,x).length}).length;b.dataset.armed="1";b.textContent=`Confirmer l'envoi de ${n} fiche${n>1?"s":""}${inc?` (${inc} joueur${inc>1?"s":""} pas complet${inc>1?"s":""})`:""} ?`;return}
   const n=sendGroup(P);toast(`${n} fiche${n>1?"s":""} envoyée${n>1?"s":""} au RTJ`);render()});
 /* « Ce que veut dire chaque niveau » : ouvert par défaut sur ordinateur, fermé sur téléphone ; on retient le choix */
 const lvOpen=()=>{const v=get("lvh",null);return v==null?innerWidth>700:!!v};
@@ -1332,7 +1341,8 @@ function takeAvis(btn,P,field){const k=btn.dataset.take,w=btn.dataset.w,p=btn.da
 function canEditP(P){return authed()&&(rtj||(Array.isArray(lock)&&lock.includes(cat)))&&evalOpen(PERIODS[P-1])}
 function avisBand(){const P=per;if(isAvis(cat))return `<div class="avisband">✏️ <b>Ton avis personnel</b> : tes étoiles restent un brouillon, elles ne partent pas au RTJ. Le référent de la catégorie les voit et donne ensuite l'avis commun.</div>`;const W=avisWriters(cat,P);if(rtj)return "";if(!W.length)return "";return `<div class="avisband ref">👥 <b>Avis des éducateurs pour la période ${P}</b> : ${W.map(esc).join(", ")}. Ils s'affichent à côté de chaque critère (👤) et dans le Bilan du groupe. Ce sont des brouillons : seule ta saisie part au RTJ.</div>`}
 let sgWho=null;const AV_COL=["#2E7DD7","#C2410C","#7C3AED","#0F8A5F"];const avCol=(w,WR)=>AV_COL[Math.max(0,WR.indexOf(w))%AV_COL.length];
-function starsGroupHTML(){const DOM=domains();const list=players(cat);const lines=DOM.flatMap(d=>d.lines);const P_=sgPer==="evol"?null:(sgPer||per);
+function starsGroupHTML(){const gk=gkOf(cat);const a=sgHTML(fieldOf(cat),domains(),false);if(!gk.length)return a;return a+`<h3 class="gkh">🧤 Les gardiens · grille des gardiens</h3>`+sgHTML(gk,gkDomains(cat),true)}
+function sgHTML(list,DOM,tblOnly){const lines=DOM.flatMap(d=>d.lines);const P_=sgPer==="evol"?null:(sgPer||per);
   const WR=P_?avisWriters(cat,P_):[];sgWho=null;const W=null;
   const src=(x,n)=>W?store.avis[akey(cat,x,n,W)]:evR(cat,x,n);
   const fv=(x,n,id)=>{const r=src(x,n);return r&&r.f?r.f[id]||0:0};
@@ -1340,7 +1350,7 @@ function starsGroupHTML(){const DOM=domains();const list=players(cat);const line
   const ED=!!P_&&!W&&canEditP(P_);
   const cell=(x,l)=>{if(P_)return fv(x,P_,l.id);const pn=prevN(x);if(!pn)return null;const a=fv(x,pn,l.id),b=fv(x,per,l.id);return a&&b?b-a:null};
   const td=(v,l,x,av)=>{if(P_){const a=(av||[]).map(o=>({w:o.w,v:(o.a.f||{})[l.id]||0})).filter(o=>o.v);
-      return `<td class="sgc tval${ED?" sged":""}"${ED?` tabindex="0" data-gp="${esc(x)}" data-gl="${l.id}"`:""} title="${esc(l.name)}${v?" : "+v+"/4 · "+esc(STAR_LEGEND[v-1].name):""}${a.map(o=>` · avis de ${esc(o.w)} : ${o.v}/4`).join("")}">${v?`<b class="st">${"★".repeat(v)}<i>${"★".repeat(4-v)}</i></b>`:`<span class="sg0">${ED?"＋":"·"}</span>`}${a.length?`<span class="sgav">${a.map(o=>`<i style="--c:${avCol(o.w,WR)}">${WR.length>1?"<u></u>":""}${"★".repeat(o.v)}<s>${"★".repeat(4-o.v)}</s></i>`).join("")}</span>`:""}</td>`}
+      return `<td class="sgc tval${ED?" sged":""}"${ED?` tabindex="0" data-gp="${esc(x)}" data-gl="${l.id}"`:""} title="${esc(l.name)}${v?" : "+v+"/4 · "+esc(STAR_LEGEND[v-1].name):""}${a.map(o=>` · avis de ${esc(o.w)} : ${o.v}/4`).join("")}">${ED?`<span class="sgk">${[1,2,3,4].map(k=>`<i data-k="${k}" class="${k<=v?"on":""}" title="${k}/4 · ${esc(STAR_LEGEND[k-1].name)}${k===v?" (cliquer pour effacer)":""}">★</i>`).join("")}</span>`:v?`<b class="st">${"★".repeat(v)}<i>${"★".repeat(4-v)}</i></b>`:`<span class="sg0">·</span>`}${a.length?`<span class="sgav">${a.map(o=>`<i style="--c:${avCol(o.w,WR)}">${WR.length>1?"<u></u>":""}${"★".repeat(o.v)}<s>${"★".repeat(4-o.v)}</s></i>`).join("")}</span>`:""}</td>`}
     return `<td class="sgc tval${v>0?" up":""}">${v==null?"–":`<b>${v>0?"+":""}${v}</b>`}</td>`};
   const rows=list.map(x=>{const vs=lines.map(l=>cell(x,l));const nz=vs.filter(v=>v!=null&&(P_?v>0:true));const m=nz.length?nz.reduce((a,b)=>a+b,0)/nz.length:null;const av=P_&&!W?avisOf(cat,x,P_):null;
     return `<tr><td class="name"><button type="button" class="golink" data-go="${esc(x)}" title="Ouvrir la fiche de ${esc(x)}"><span class="nfull">${esc(x)}</span><span class="nshort">${esc(nomCourt(x))}</span></button></td>${vs.map((v,i)=>td(v,lines[i],x,av)).join("")}<td class="sgc"><b>${m==null?"–":(!P_&&m>0?"+":"")+fmtN(m)}</b>${P_&&WR.length?"__AVR__"+esc(x)+"__":""}</td></tr>`}).join("");
@@ -1352,16 +1362,16 @@ function starsGroupHTML(){const DOM=domains();const list=players(cat);const line
   const gm=v=>v==null?"":`<small class="sgavm" title="Moyenne de l'avis ${WR.length===1?"de "+esc(WR[0]):"des éducateurs"}">${fmtN(Math.round(v*100)/100)}</small>`;
   const noEvol=!P_&&!list.some(x=>prevN(x));
   const whoBar=P_&&WR.length?(WR.length===1?`<div class="sgwho"><span class="note">En <b>gris</b> (petites étoiles et moyennes) = <b>l'avis de ${esc(WR[0])}</b>${rtj?"":", pour t'aider (il ne part pas au RTJ)"}.</span></div>`:`<div class="sgwho"><span class="note">En <b>gris</b> (petites étoiles et moyennes) = l'avis des éducateurs${rtj?"":" (il ne part pas au RTJ)"} :</span>${WR.map(w=>`<span class="avkey" style="--c:${avCol(w,WR)}"><u></u>${esc(w)}</span>`).join("")}</div>`):"";
-  const lead=W?`Avis personnel de <b>${esc(W)}</b> · période ${P_} (brouillon, lecture seule : il ne part pas au RTJ).`:P_?(ED?`Période ${P_} : <b>touchez une case pour mettre les étoiles</b> (au clavier : flèches, puis 1 à 4, 0 pour effacer). Un joueur par ligne, un critère par colonne : vous voyez tout de suite ce que vous avez mis aux autres.${isAvis(cat)?" C'est <b>ton avis personnel</b> : il ne part pas au RTJ.":""}`:`Période ${P_} : un joueur par ligne, une observation par colonne.${!evalOpen(PERIODS[P_-1])?` <b>🔒 La période ${P_} s'évaluera à partir du ${openFrom(PERIODS[P_-1])}</b> : pas encore de notation possible.`:" Pour vérifier d'un coup d'œil que les notes sont cohérentes dans le groupe."}`):`Évolution entre la dernière période renseignée et la période ${per} : en jaune, les étoiles gagnées.`;
-  return `<div class="ghead"><div><h3>Les étoiles du groupe${W?` · avis de ${esc(W)}`:""}</h3><p class="note">${noEvol?`Pas encore d'évolution à montrer : il faut au moins deux périodes notées (période actuelle : ${per}). Choisissez une période pour voir les étoiles.`:lead}</p></div>
+  const lead=W?`Avis personnel de <b>${esc(W)}</b> · période ${P_} (brouillon, lecture seule : il ne part pas au RTJ).`:P_?(ED?`Période ${P_} : <b>cliquez directement sur la bonne étoile</b> (recliquer sur la même étoile l'efface) (au clavier : flèches, puis 1 à 4, 0 pour effacer). Un joueur par ligne, un critère par colonne : vous voyez tout de suite ce que vous avez mis aux autres.${isAvis(cat)?" C'est <b>ton avis personnel</b> : il ne part pas au RTJ.":""}`:`Période ${P_} : un joueur par ligne, une observation par colonne.${!evalOpen(PERIODS[P_-1])?` <b>🔒 La période ${P_} s'évaluera à partir du ${openFrom(PERIODS[P_-1])}</b> : pas encore de notation possible.`:" Pour vérifier d'un coup d'œil que les notes sont cohérentes dans le groupe."}`):`Évolution entre la dernière période renseignée et la période ${per} : en jaune, les étoiles gagnées.`;
+  const HD=`<div class="ghead"><div><h3>Les étoiles du groupe${W?` · avis de ${esc(W)}`:""}</h3><p class="note">${noEvol?`Pas encore d'évolution à montrer : il faut au moins deux périodes notées (période actuelle : ${per}). Choisissez une période pour voir les étoiles.`:lead}</p></div>
     </div>
     ${P_?`<details class="lvhelp"${ED&&lvOpen()?" open":""}><summary>Ce que veut dire chaque niveau</summary>${legend4()}</details>`:""}${whoBar}
-    ${noEvol?"":`<div class="tbl-wrap"><table class="sgt${ED?" sgedit":""}"><thead><tr class="tcathead"><th></th>${DOM.map(d=>`<th colspan="${d.lines.length}" class="tcatth">${esc(d.name)}</th>`).join("")}<th></th></tr>
+    `;const TB=`${noEvol?"":`<div class="tbl-wrap"><table class="sgt${ED?" sgedit":""}"><thead><tr class="tcathead"><th></th>${DOM.map(d=>`<th colspan="${d.lines.length}" class="tcatth">${esc(d.name)}</th>`).join("")}<th></th></tr>
     <tr><th>Joueur</th>${lines.map(l=>`<th class="thtest thc" data-full="${esc(l.name)}" title="${esc(l.name)}">${esc(l.short||l.name)}</th>`).join("")}<th class="thtest">Moyenne</th></tr></thead>
-    <tbody>${rows}<tr class="tmain"><td class="name"><b><span class="nfull">Moyenne du groupe</span><span class="nshort">Moyenne</span></b></td>${avg.map((v,i)=>`<td class="sgc"><b>${v==null?"–":(!P_&&v>0?"+":"")+fmtN(v)}</b>${P_&&WR.length?gm(avCol2(lines[i])):""}</td>`).join("")}<td></td></tr></tbody></table></div>`}`.replace(/__AVR__(.*?)__/g,(_,x)=>{const p=list.find(q=>esc(q)===x);return p!=null?gm(avRow(p)):""})}
+    <tbody>${rows}<tr class="tmain"><td class="name"><b><span class="nfull">Moyenne du groupe</span><span class="nshort">Moyenne</span></b></td>${avg.map((v,i)=>`<td class="sgc"><b>${v==null?"–":(!P_&&v>0?"+":"")+fmtN(v)}</b>${P_&&WR.length?gm(avCol2(lines[i])):""}</td>`).join("")}<td></td></tr></tbody></table></div>`}`;const OUT=(tblOnly?"":HD)+TB;return OUT.replace(/__AVR__(.*?)__/g,(_,x)=>{const p=list.find(q=>esc(q)===x);return p!=null?gm(avRow(p)):""})}
 /* fenêtre des 4 niveaux, au toucher d'une case */
 function closeStarPop(){const d=document.getElementById("starpop");if(d)d.remove();if(closeStarPop._off){closeStarPop._off();closeStarPop._off=null}}
-function starPop(td,P_,cb){closeStarPop();const p=td.dataset.gp,id=td.dataset.gl;const l=allLines().find(x=>x.id===id);const r0=evR(cat,p,P_);const cur=r0&&r0.f?r0.f[id]||0:0;
+function starPop(td,P_,cb){closeStarPop();const p=td.dataset.gp,id=td.dataset.gl;const l=allLines(cat,p).find(x=>x.id===id);const r0=evR(cat,p,P_);const cur=r0&&r0.f?r0.f[id]||0:0;
   const d=document.createElement("div");d.id="starpop";d.className="starpop";d.setAttribute("role","dialog");
   d.innerHTML=`<p class="spt"><b>${esc(prenom(p))}</b> · ${esc(l?l.name:"")}</p>${STAR_LEGEND.map(q=>`<button type="button" data-n="${q.n}" class="${cur===q.n?"cur":""}"><b class="sps">${"★".repeat(q.n)}<i>${"★".repeat(4-q.n)}</i></b><span><b>${esc(KID_STARS[q.n-1])} · ${esc(q.name)}</b>${esc(q.desc)}</span></button>`).join("")}${cur?`<button type="button" data-n="0" class="spclr">Effacer</button>`:""}`;
   document.body.appendChild(d);const R=td.getBoundingClientRect();const Wd=Math.min(360,innerWidth-16);d.style.width=Wd+"px";const x=Math.min(Math.max(8,R.left+R.width/2-Wd/2),innerWidth-Wd-8);const H=d.offsetHeight;let y=R.bottom+6;if(y+H>innerHeight-8)y=Math.max(8,R.top-H-6);d.style.left=x+"px";d.style.top=y+"px";
@@ -1382,12 +1392,12 @@ function bindSgEdit(){const card=document.getElementById("starsCard");if(!card)r
   const setV=(td,n)=>{const p=td.dataset.gp,id=td.dataset.gl;const r=rec(cat,p,P_);if((r.f[id]||0)===n&&n)return td;r.f[id]=n;push(cat,p,P_);const w=card.querySelector(".tbl-wrap");const sl=w?w.scrollLeft:0,st=w?w.scrollTop:0;const sy=window.scrollY;
     card.innerHTML=starsGroupHTML();const w2=card.querySelector(".tbl-wrap");if(w2){w2.scrollLeft=sl;w2.scrollTop=st}window.scrollTo(0,sy);bindSgEdit();const t=document.getElementById("txtCard");if(t)t.innerHTML=txtGroupHTML();return cellAt(p,id)};
   card.querySelectorAll("td.sged").forEach(td=>{
-    td.addEventListener("click",e=>{e.stopPropagation();starPop(td,P_,n=>{const nt=setV(td,n);if(nt)nt.focus({preventScroll:true})})});
+    td.addEventListener("click",e=>{e.stopPropagation();const st=e.target.closest("i[data-k]");if(!st)return;const k=+st.dataset.k;const cur=+(td.querySelectorAll(".sgk i.on").length);const nt=setV(td,k===cur?0:k);if(nt)nt.focus({preventScroll:true})});
     td.addEventListener("keydown",e=>{const k=e.key;
       if(/^[0-4]$/.test(k)){e.preventDefault();const nt=setV(td,+k);if(nt){const nx=move(nt,1,0)||nt;nx.focus({preventScroll:false})}}
       else if(k==="Backspace"||k==="Delete"){e.preventDefault();const nt=setV(td,0);if(nt)nt.focus()}
       else if(/^Arrow/.test(k)){e.preventDefault();const m={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[k];const nx=move(td,m[0],m[1]);if(nx)nx.focus()}
-      else if(k==="Enter"||k===" "){e.preventDefault();td.click()}})})}
+      })})}
 /* un seul choix de période pour tout l'écran Bilan : étoiles, défis (P1 = novembre, P3 = février, P4 = avril) et bilan écrit */
 function perBarHTML(){const P_=sgPer==="evol"?null:(sgPer||per);return `<span class="note"><b>Période affichée :</b></span>${PERIODS.map(P=>`<button class="btn small" data-sg="${P.n}" aria-pressed="${P_===P.n}">P${P.n}${TEST_PERIODS.includes(P.n)?` <small>· défis</small>`:""}</button>`).join("")}<button class="btn small" data-sg="evol" aria-pressed="${!P_}">Évolution</button>`}
 function bindStarsGroup(){const bar=document.getElementById("bilanPer");if(!bar)return;bar.querySelectorAll("[data-sg]").forEach(b=>b.addEventListener("click",()=>{sgPer=b.dataset.sg==="evol"?"evol":+b.dataset.sg;bar.innerHTML=perBarHTML();const pl=document.getElementById("pdfLab");if(pl)pl.textContent=sgPer==="evol"?"l'évolution":"la période "+sgPer;
@@ -1417,7 +1427,7 @@ function bindTestsGroup(){const c=document.getElementById("testsCard");if(!c)ret
 function loadXlsx(){return new Promise((res,rej)=>{if(window.__xlsxOK)return res();const add=(src,next)=>{const sc=document.createElement("script");sc.src=src;sc.onload=()=>{window.__xlsxOK=1;res()};sc.onerror=next;document.head.appendChild(sc)};
   add("https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js",()=>{if(window.XLSX)return res();add("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",()=>rej(new Error("xlsx")))})})}
 /* données communes aux deux extractions du bilan */
-function bilanData(){const list=players(cat);const DOM=domains();const T=TESTS();const A=TP_A,B=TP_B;
+function bilanData(){const list=players(cat);const flist=fieldOf(cat);const gk={list:gkOf(cat),DOM:gkDomains(cat)};gk.lines=gk.DOM.flatMap(d=>d.lines.map(l=>({...l,dom:d.name})));const DOM=domains();const T=TESTS();const A=TP_A,B=TP_B;
   const lines=DOM.flatMap(d=>d.lines.map(l=>({...l,dom:d.name})));
   const ev=(p,n)=>evR(cat,p,n);const fv=(p,n,id)=>{const r=ev(p,n);return r&&r.f?r.f[id]||0:0};
   const noted=PERIODS.filter(P=>list.some(p=>filled(ev(p,P.n))));
@@ -1426,10 +1436,10 @@ function bilanData(){const list=players(cat);const DOM=domains();const T=TESTS()
   const hasTests=T.length&&list.some(p=>T.some(t=>TEST_PERIODS.some(n=>tVal(p,n,t.id)!=null)));
   const better=(t,a,b)=>a!=null&&b!=null&&a!==b?((t.lower?b<a:b>a)?1:-1):0;
   const reached=(t,v)=>v!=null&&t.target!=null&&(t.lower?v<=t.target:v>=t.target);
-  return {list,DOM,T,A,B,lines,ev,fv,noted,avg,tA,tB,hasTests,better,reached}}
+  return {list,flist,gk,DOM,T,A,B,lines,ev,fv,noted,avg,tA,tB,hasTests,better,reached}}
 const perDates=P=>`${fmtShort(P.from)} au ${fmtShort(P.to)}`;
 
-async function bilanXlsx(){await loadXlsx();const X=window.XLSX;const d=bilanData();const {list,DOM,T,lines,ev,fv,noted,avg,tA,tB,better,reached}=d;const g=grp();const wb=X.utils.book_new();
+async function bilanXlsx(){await loadXlsx();const X=window.XLSX;const d=bilanData();const {list,flist,gk,DOM,T,lines,ev,fv,noted,avg,tA,tB,better,reached}=d;const g=grp();const wb=X.utils.book_new();
   const NAVY="0B2A4A",GOLD="C99700",GRAY="6E7887",LINE="D5DBE3";
   const bd={top:{style:"thin",color:{rgb:LINE}},bottom:{style:"thin",color:{rgb:LINE}},left:{style:"thin",color:{rgb:LINE}},right:{style:"thin",color:{rgb:LINE}}};
   const S={title:{font:{bold:true,sz:15,color:{rgb:NAVY}}},sub:{font:{sz:9,color:{rgb:GRAY},italic:true}},
@@ -1449,17 +1459,18 @@ async function bilanXlsx(){await loadXlsx();const X=window.XLSX;const d=bilanDat
     const w=Math.max(...rows.map(r=>r.length));ws["!ref"]=X.utils.encode_range({s:{r:0,c:0},e:{r:rows.length-1,c:w-1}});ws["!cols"]=cols;ws["!merges"]=merges;ws["!rows"]=rows.map((_,i)=>heights[i]?{hpt:heights[i]}:{});X.utils.book_append_sheet(wb,ws,name.slice(0,31))};
   const titleRows=(t,s)=>[[C(t,S.title)],[C(s,S.sub)],[]];
   const legend=STAR_LEGEND.map(l=>`${"★".repeat(l.n)}${"☆".repeat(4-l.n)} ${l.name.toLowerCase()}`).join("   ·   ");
-  const domRow=(off)=>{const r=[C("",S.dom)];const m=[];let c=off;DOM.forEach(dd=>{r.push(C(dd.name.toUpperCase(),S.dom));for(let k=1;k<dd.lines.length;k++)r.push(C("",S.dom));m.push({s:{r:3,c},e:{r:3,c:c+dd.lines.length-1}});c+=dd.lines.length});return [r,m]};
+  const domRow=(off,DM=DOM)=>{const r=[C("",S.dom)];const m=[];let c=off;DM.forEach(dd=>{r.push(C(dd.name.toUpperCase(),S.dom));for(let k=1;k<dd.lines.length;k++)r.push(C("",S.dom));m.push({s:{r:3,c},e:{r:3,c:c+dd.lines.length-1}});c+=dd.lines.length});return [r,m]};
   /* 1. étoiles : une feuille par période renseignée */
-  noted.forEach(P=>{const [dr,dm]=domRow(1);const rows=[...titleRows(`${cat} · Les étoiles du groupe · Période ${P.n}`,`${g.label} · du ${perDates(P)} · ${legend}`),[...dr,C("",S.dom)],
+  const starBlock=(list,lines,DM,nm,tt)=>noted.forEach(P=>{const [dr,dm]=domRow(1,DM);const rows=[...titleRows(`${cat} · ${tt} · Période ${P.n}`,`${g.label} · du ${perDates(P)} · ${legend}`),[...dr,C("",S.dom)],
       [C("Joueur",S.thL),...lines.map(l=>C(l.short||l.name,S.th)),C("Moyenne",S.th)]];
     list.forEach((p,i)=>{const z=i%2;const vs=lines.map(l=>fv(p,P.n,l.id));const m=avg(vs.map(v=>v||null));rows.push([C(p,S.name(z)),...vs.map(v=>C(stars(v),S.star(z))),C(m==null?"":Math.round(m*10)/10,S.num(z,{bold:true,fmt:"0.0"}))])});
     rows.push([C("Moyenne du groupe",S.avgL),...lines.map(l=>{const m=avg(list.map(p=>fv(p,P.n,l.id)||null));return C(m==null?"":Math.round(m*10)/10,S.avg)}),C("",S.avg)]);
-    sheet(`Étoiles P${P.n}`,rows,{cols:[{wch:28},...lines.map(()=>({wch:11})),{wch:10}],merges:dm,heights:{0:24,4:58}})});
+    sheet(`${nm} P${P.n}`,rows,{cols:[{wch:28},...lines.map(()=>({wch:11})),{wch:10}],merges:dm,heights:{0:24,4:58}})});
+  starBlock(flist,lines,DOM,"Étoiles","Les étoiles du groupe");if(gk.list.length)starBlock(gk.list,gk.lines,gk.DOM,"Gardiens","Les étoiles des gardiens");
   /* 2. évolution des étoiles entre les deux dernières périodes renseignées */
   if(noted.length>=2){const P0=noted[noted.length-2],P1=noted[noted.length-1];const [dr,dm]=domRow(1);
     const rows=[...titleRows(`${cat} · Évolution des étoiles · P${P0.n} → P${P1.n}`,`En vert : étoiles gagnées · en orange : étoiles perdues · vide : pas noté sur l'une des deux périodes`),[...dr,C("",S.dom)],[C("Joueur",S.thL),...lines.map(l=>C(l.short||l.name,S.th)),C("Moyenne",S.th)]];
-    list.forEach((p,i)=>{const z=i%2;const vs=lines.map(l=>{const a=fv(p,P0.n,l.id),b=fv(p,P1.n,l.id);return a&&b?b-a:null});const m=avg(vs);
+    flist.forEach((p,i)=>{const z=i%2;const vs=lines.map(l=>{const a=fv(p,P0.n,l.id),b=fv(p,P1.n,l.id);return a&&b?b-a:null});const m=avg(vs);
       rows.push([C(p,S.name(z)),...vs.map(v=>C(v==null?"":v,S.num(z,{fmt:"+0;-0;0",bold:!!v,color:v>0?"1F7A4A":v<0?"B4530A":GRAY,fill:v>0?"DDF3E6":v<0?"FDE9D9":null}))),C(m==null?"":Math.round(m*10)/10,S.num(z,{bold:true,fmt:"+0.0;-0.0;0.0"}))])});
     sheet("Évolution étoiles",rows,{cols:[{wch:28},...lines.map(()=>({wch:11})),{wch:10}],merges:dm,heights:{0:24,4:58}})}
   /* 3. défis techniques */
@@ -1478,21 +1489,22 @@ async function bilanXlsx(){await loadXlsx();const X=window.XLSX;const d=bilanDat
     sheet("Bilan écrit",rows,{cols:[{wch:28},{wch:9},{wch:38},{wch:38},{wch:50},{wch:14},{wch:11}],heights:{0:24}})}
   /* 5. données brutes en chiffres, pour les calculs */
   {const rows=[[C("Joueur",S.thL),C("Période",S.th),...lines.map(l=>C(`${l.dom} · ${l.short||l.name}`,S.th))]];
-    list.forEach(p=>noted.forEach(P=>{const r=ev(p,P.n);if(!r||!filled(r))return;rows.push([p,`P${P.n}`,...lines.map(l=>r.f[l.id]||"")])}));
+    flist.forEach(p=>noted.forEach(P=>{const r=ev(p,P.n);if(!r||!filled(r))return;rows.push([p,`P${P.n}`,...lines.map(l=>r.f[l.id]||"")])}));
     sheet("Données (chiffres)",rows,{cols:[{wch:28},{wch:9},...lines.map(()=>({wch:12}))],heights:{0:58}})}
   X.writeFile(wb,`Bilan-${cat}-${SEASON}.xlsx`);toast("Bilan du groupe téléchargé")}
 
 /* grille d'avis vierge : chaque éducateur note de son côté sur papier, puis on met en commun avec le référent */
 async function grillePdf(){await loadJsPDF();const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",orientation:"landscape",compress:true});carnetFonts(doc);
-  const g=grp();const DOM=domains();const lines=DOM.flatMap(d=>d.lines);const list=players(cat);const P_=sgPer==="evol"||!sgPer?per:sgPer;const PP=PERIODS[P_-1];
+  const g=grp();const P_=sgPer==="evol"||!sgPer?per:sgPer;const PP=PERIODS[P_-1];
+  const drawG=(list,DOM,lab,first)=>{const lines=DOM.flatMap(d=>d.lines);
   const PW=297,PH=210,MX=8;const col=x=>hex(x);const font=(st,sz)=>{doc.setFont("Poppins",st);doc.setFontSize(sz)};
   const NW=46,CW=(PW-2*MX-NW)/lines.length,RH=6.1,HB=5.5,HC=38;const bs=Math.min(2.4,(CW-2.2)/4.6),gap=bs*.22;
   const rowsAll=[...list,"",""];const Y0=26;const avail=PH-12-Y0-HB-HC-22;const per_page=Math.max(8,Math.floor(avail/RH));
   const pages=[];for(let i=0;i<rowsAll.length;i+=per_page)pages.push(rowsAll.slice(i,i+per_page));
   const trunc=(t,w)=>{let x=t;while(x.length>3&&doc.getTextWidth(x)>w)x=x.slice(0,-2);return x===t?t:x.replace(/[\s,;·]+$/,"")+"…"};
-  pages.forEach((rows,pi)=>{if(pi)doc.addPage();try{doc.addImage(CREST_PNG,"PNG",MX,6,13,13)}catch(e){}
+  pages.forEach((rows,pi)=>{if(pi||!first)doc.addPage();try{doc.addImage(CREST_PNG,"PNG",MX,6,13,13)}catch(e){}
     font("bold",7);doc.setTextColor(...col(CCOL.gray));doc.text(`PAU FC · ACADÉMIE · SAISON ${SEASON} · ${g.label.toUpperCase()}`,MX+16,10,{charSpace:.4});
-    font("bold",14);doc.setTextColor(...col(CCOL.navy));doc.text(`Grille d'avis · période ${P_}${PP?` · du ${fmtShort(PP.from)} au ${fmtShort(PP.to)}`:""}`,MX+16,16.5);
+    font("bold",14);doc.setTextColor(...col(CCOL.navy));doc.text(`Grille d'avis${lab} · période ${P_}${PP?` · du ${fmtShort(PP.from)} au ${fmtShort(PP.to)}`:""}`,MX+16,16.5);
     font("normal",8.5);doc.setTextColor(...col(CCOL.ink));doc.text("Éducateur : ……………………………………    Date : …… / …… / ……",PW-MX,16.5,{align:"right"});
     font("normal",6.8);doc.setTextColor(...col(CCOL.gray));doc.text("Chacun note de son côté (cochez ou entourez 1 à 4), puis on met en commun avec le référent : c'est lui qui saisit l'avis commun dans l'outil.",MX+16,21.5);
     let x=MX+NW;DOM.forEach((d,di)=>{const w=d.lines.length*CW;doc.setFillColor(...col(di%2?"#E8EDF4":"#DCE4EF"));doc.rect(x,Y0,w,HB,"F");font("bold",6.2);doc.setTextColor(...col(CCOL.navy));doc.text(trunc(d.name.toUpperCase(),w-2),x+w/2,Y0+3.8,{align:"center"});x+=w});
@@ -1508,7 +1520,7 @@ async function grillePdf(){await loadJsPDF();const {jsPDF}=window.jspdf;const do
     let ly=y+5;font("bold",6.8);doc.setTextColor(...col(CCOL.navy));doc.text("LES 4 NIVEAUX",MX,ly);
     const LW=PW-2*MX-24;STAR_LEGEND.forEach((q,k)=>{const lx=MX+24,yy=ly+k*3.9;font("bold",6.8);doc.setTextColor(...col(CCOL.ink));const h=`${q.n} = ${KID_STARS[q.n-1]} (${q.name.toLowerCase()}) : `;doc.text(h,lx,yy);font("normal",6.8);doc.text(q.desc,lx+doc.getTextWidth(h)+1.4,yy)});
     font("italic",6.2);doc.setTextColor(...col(CCOL.gray));doc.text(`Pau FC Academy · grille d'avis ${cat} · page ${pi+1}/${pages.length+1} · les numéros des critères sont détaillés sur la dernière page`,MX,PH-6)});
-  doc.addPage();try{doc.addImage(CREST_PNG,"PNG",MX,6,13,13)}catch(e){}font("bold",14);doc.setTextColor(...col(CCOL.navy));doc.text(`${cat} · les critères de la grille`,MX+16,15);
+  doc.addPage();try{doc.addImage(CREST_PNG,"PNG",MX,6,13,13)}catch(e){}font("bold",14);doc.setTextColor(...col(CCOL.navy));doc.text(`${cat}${lab} · les critères de la grille`,MX+16,15);
   const CG=10,CW2=(PW-2*MX-CG)/2,LH=4.3,IG=1.6,DG=4,TH=5.2;font("normal",9);
   const blocks=DOM.map(d=>({d,items:d.lines.map(l=>doc.splitTextToSize(l.name,CW2-9))}));const bh=b=>TH+b.items.reduce((a,t)=>a+t.length*LH+IG,0)+DG;
   const tot=blocks.reduce((a,b)=>a+bh(b),0);let acc=0,colI=0,k=0,cy=28;
@@ -1517,10 +1529,11 @@ async function grillePdf(){await loadJsPDF();const {jsPDF}=window.jspdf;const do
     b.items.forEach(t=>{k++;font("bold",9);doc.setTextColor(...col(CCOL.navy));doc.text(String(k),cx,cy);font("normal",9);doc.setTextColor(...col(CCOL.ink));t.forEach((ln,li)=>doc.text(ln,cx+8,cy+li*LH));cy+=t.length*LH+IG});cy+=DG});
   font("bold",8);doc.setTextColor(...col(CCOL.navy));let ly=PH-30;doc.text("LES 4 NIVEAUX",MX,ly);STAR_LEGEND.forEach((q,n)=>{const yy=ly+4.6+n*4.2;font("bold",8);doc.setTextColor(...col(CCOL.ink));const h=`${q.n} = ${KID_STARS[q.n-1]} (${q.name.toLowerCase()}) : `;doc.text(h,MX,yy);font("normal",8);doc.text(q.desc,MX+doc.getTextWidth(h)+1.4,yy)});
   font("italic",6.2);doc.setTextColor(...col(CCOL.gray));doc.text(`Pau FC Academy · grille d'avis ${cat} · page ${pages.length+1}/${pages.length+1}`,MX,PH-6);
+  };const GKs=gkOf(cat);drawG(fieldOf(cat),domains(),"",true);if(GKs.length)drawG(GKs,gkDomains(cat)," · gardiens",false);
   doc.save(`grille-avis-${cat.toLowerCase()}-P${P_}.pdf`)}
 async function bilanPdf(){
   await loadJsPDF();const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",orientation:"landscape",compress:true});carnetFonts(doc);
-  const g=grp();const d=bilanData();const {list,DOM,T,lines,ev,fv,noted,avg,tA,tB,better,reached}=d;
+  const g=grp();const d=bilanData();const {list,flist,gk,DOM,T,lines,ev,fv,noted,avg,tA,tB,better,reached}=d;
   const PW=297,PH=210,MX=10,TOP=31,BOTTOM=PH-9;const col=x=>hex(x);const font=(st,sz)=>{doc.setFont("Poppins",st);doc.setFontSize(sz)};
   const fmtV=v=>v==null?"":Number.isInteger(v)?String(v):String(Math.round(v*100)/100).replace(".",",");
   const fmt1=v=>v==null?"":String(Math.round(v*10)/10).replace(".",",");
@@ -1545,8 +1558,8 @@ async function bilanPdf(){
   const RH=5.4;
   /* 1. les étoiles, une page par période renseignée */
   const domGroups=DOM.map(dd=>({name:dd.name,n:dd.lines.length}));
-  const starsPage=P=>{const NW=46,AW=13;const cw=(PW-2*MX-NW-AW)/lines.length;const SG=Math.min(2.5,(cw-1.6)/4),SR=SG*.44;
-    const title=`Les étoiles du groupe · période ${P.n}`;const sub=`Du ${perDates(P)} · un joueur par ligne, une observation par colonne · ${STAR_LEGEND.map(l=>`${l.n} étoile${l.n>1?"s":""} = ${l.name.toLowerCase()}`).join(" · ")}`;
+  const starsPage=(P,list=flist,lines=d.lines,domGroups=DOM.map(dd=>({name:dd.name,n:dd.lines.length})),tt="Les étoiles du groupe")=>{const NW=46,AW=13;const cw=(PW-2*MX-NW-AW)/lines.length;const SG=Math.min(2.5,(cw-1.6)/4),SR=SG*.44;
+    const title=`${tt} · période ${P.n}`;const sub=`Du ${perDates(P)} · un joueur par ligne, une observation par colonne · ${STAR_LEGEND.map(l=>`${l.n} étoile${l.n>1?"s":""} = ${l.name.toLowerCase()}`).join(" · ")}`;
     let y=gridHead(head(title,sub),NW,cw,domGroups,lines.map(l=>l.short||l.name),"MOYENNE",AW);
     list.forEach((p,i)=>{if(y+RH>BOTTOM-RH){y=gridHead(head(title+" (suite)",sub),NW,cw,domGroups,lines.map(l=>l.short||l.name),"MOYENNE",AW)}
       if(i%2)rect(MX,y,PW-2*MX,RH,ZEBRA);nameTxt(p,MX+2,y+3.6,NW-4);const vs=lines.map(l=>fv(p,P.n,l.id));
@@ -1562,12 +1575,12 @@ async function bilanPdf(){
   const evolPage=()=>{const NW=46,AW=13;const cw=(PW-2*MX-NW-AW)/lines.length;const title=`Évolution des étoiles · période ${per}`;const sub=`Pour chaque joueur : étoiles de la période ${per} moins celles de sa dernière période notée · vert = étoiles gagnées · orange = étoiles perdues · · = pas noté`;
     const hd=()=>gridHead(head(title,sub),NW,cw,domGroups,lines.map(l=>l.short||l.name),"MOYENNE",AW);let y=hd();
     const dv=(x,l)=>{const pn=prevN(x);if(!pn)return null;const a=fv(x,pn,l.id),b=fv(x,per,l.id);return a&&b?b-a:null};
-    list.forEach((p,i)=>{if(y+RH>BOTTOM-RH)y=hd();if(i%2)rect(MX,y,PW-2*MX,RH,ZEBRA);nameTxt(p,MX+2,y+3.6,NW-4);const vs=lines.map(l=>dv(p,l));
+    flist.forEach((p,i)=>{if(y+RH>BOTTOM-RH)y=hd();if(i%2)rect(MX,y,PW-2*MX,RH,ZEBRA);nameTxt(p,MX+2,y+3.6,NW-4);const vs=lines.map(l=>dv(p,l));
       vs.forEach((v,k)=>{const x0=MX+NW+k*cw;if(v==null){doc.setFillColor(...col(CCOL.faint));doc.circle(x0+cw/2,y+RH/2,.35,"F");return}if(v)rect(x0+.6,y+.6,cw-1.2,RH-1.2,v>0?GFILL:OFILL);font(v?"bold":"normal",7.2);doc.setTextColor(...col(v>0?GREEN:v<0?ORANGE:CCOL.gray));doc.text((v>0?"+":"")+v,x0+cw/2,y+3.7,{align:"center"})});
       const m=avg(vs);font("bold",7.2);doc.setTextColor(...col(CCOL.navy));doc.text(m==null?"·":(m>0?"+":"")+fmt1(m),MX+NW+lines.length*cw+AW/2,y+3.7,{align:"center"});y+=RH;hline(MX,y,PW-2*MX)});
     rect(MX,y,PW-2*MX,RH+.6,AVGF);hline(MX,y,PW-2*MX,CCOL.navy,.4);font("bold",7.2);doc.setTextColor(...col(CCOL.navy));doc.text("Moyenne du groupe",MX+2,y+3.9);
-    lines.forEach((l,k)=>{const m=avg(list.map(p=>dv(p,l)));doc.text(m==null?"·":(m>0?"+":"")+fmt1(m),MX+NW+k*cw+cw/2,y+3.9,{align:"center"})})};
-  if(noted.length){if(PS){if(noted.some(P=>P.n===PS.n))starsPage(PS);else{head(`Les étoiles du groupe · période ${PS.n}`,`Du ${perDates(PS)}`);font("normal",10);doc.setTextColor(...col(CCOL.gray));doc.text(`Aucune appréciation saisie en période ${PS.n} pour le moment.`,MX,45)}}else evolPage()}
+    lines.forEach((l,k)=>{const m=avg(flist.map(p=>dv(p,l)));doc.text(m==null?"·":(m>0?"+":"")+fmt1(m),MX+NW+k*cw+cw/2,y+3.9,{align:"center"})})};
+  if(noted.length){if(PS){if(noted.some(P=>P.n===PS.n)){starsPage(PS);if(gk.list.length)starsPage(PS,gk.list,gk.lines,gk.DOM.map(dd=>({name:dd.name,n:dd.lines.length})),"Les étoiles des gardiens")}else{head(`Les étoiles du groupe · période ${PS.n}`,`Du ${perDates(PS)}`);font("normal",10);doc.setTextColor(...col(CCOL.gray));doc.text(`Aucune appréciation saisie en période ${PS.n} pour le moment.`,MX,45)}}else evolPage()}
   /* 2. les défis techniques : une session (P1, P3 ou P4), ou les trois côte à côte, fond coloré selon l'évolution de novembre à avril */
   if(noted.length&&d.hasTests&&(sel==="evol"||TEST_PERIODS.includes(sel))){const one=sel!=="evol";const NW=46;const cw=(PW-2*MX-NW)/T.length;const NP=TEST_PERIODS.length;const sub3=cw/NP;const groups=tGroups(T).map(gq=>({name:gq.name,n:gq.items.length}));
     const tv=(p,n,id)=>tVal(p,n,id);
@@ -1613,7 +1626,7 @@ function valBanner(){const v=document.getElementById("view-eval");if(!v||!rtj)re
   if(!L.length){box.innerHTML=`<b>✓ Rien à valider</b> : toutes les appréciations saisies par les éducateurs sont validées.`;v.prepend(box);return}
   const groups={};L.forEach(x=>{const g=x.c+" · P"+x.n;(groups[g]=groups[g]||[]).push(x)});
   box.innerHTML=`<div class="valhead"><span>⏳ <b>${L.length} appréciation${L.length>1?"s":""} à valider</b> · ${Object.entries(groups).map(([g,a])=>`${g} (${a.length})`).join(" · ")}</span><button class="btn small primary" id="valToggle">${valOpen?"Masquer la liste":"Voir la liste"}</button></div>`+
-   (valOpen?`<div class="vallist">${Object.entries(groups).map(([g,a])=>`<div class="valg"><h4>${g}</h4>${a.map(x=>`<div class="valrow"><span class="valp"><b>${esc(x.p)}</b><small>${(()=>{try{const L=domains(x.c).flatMap(d=>d.lines);const d=L.filter(l=>x.r.f&&x.r.f[l.id]).length;return d+"/"+L.length+" critères"+(d<L.length?" (incomplet)":" ✓")+" · "}catch(e){return ""}})()}${x.r.by?"rempli par "+esc(x.r.by):""}${x.r.ts?" · le "+new Date(x.r.ts).toLocaleDateString("fr-FR"):""}</small></span><span class="valbtns"><button class="btn small" data-vopen="${esc(x.c)}|${esc(x.p)}|${x.n}">Ouvrir la fiche</button><button class="btn small primary" data-vok="${esc(x.c)}|${esc(x.p)}|${x.n}">✓ Valider</button></span></div>`).join("")}</div>`).join("")}</div>`:"");
+   (valOpen?`<div class="vallist">${Object.entries(groups).map(([g,a])=>`<div class="valg"><h4>${g}</h4>${a.map(x=>`<div class="valrow"><span class="valp"><b>${esc(x.p)}</b><small>${(()=>{try{const L=domains(x.c,x.p).flatMap(d=>d.lines);const d=L.filter(l=>x.r.f&&x.r.f[l.id]).length;return d+"/"+L.length+" critères"+(d<L.length?" (incomplet)":" ✓")+" · "}catch(e){return ""}})()}${x.r.by?"rempli par "+esc(x.r.by):""}${x.r.ts?" · le "+new Date(x.r.ts).toLocaleDateString("fr-FR"):""}</small></span><span class="valbtns"><button class="btn small" data-vopen="${esc(x.c)}|${esc(x.p)}|${x.n}">Ouvrir la fiche</button><button class="btn small primary" data-vok="${esc(x.c)}|${esc(x.p)}|${x.n}">✓ Valider</button></span></div>`).join("")}</div>`).join("")}</div>`:"");
   v.prepend(box);
   box.querySelector("#valToggle").onclick=()=>{valOpen=!valOpen;valBanner()};
   box.querySelectorAll("[data-vopen]").forEach(b=>b.onclick=()=>{const [c,p,n]=b.dataset.vopen.split("|");cat=c;set("cat",cat);per=+n;set("per",per);store.sel[c]=p;save();valOpen=false;render();loadRemote(cat);window.scrollTo({top:document.getElementById("view-eval").offsetTop-10,behavior:"smooth"})});
@@ -1713,7 +1726,7 @@ function bookPages(doc,player,pc,opts){
     if(pc.length){hLeft("MES SAISONS",y);y+=8;const two=pc.length>6,half=Math.ceil(pc.length/2),y0=y;pc.forEach((q,i)=>{const xo=two&&i>=half?MX+W/2:MX;if(two&&i===half)y=y0;T(q.season,xo,y,{size:9.5,st:"bold"});T(q.cat,xo+30,y,{size:9.5,st:"bold",c:NAVY});const e=eduOf(q);T(e.length?"avec "+e.join(", "):"",xo+48,y,{size:8.6,c:CCOL.gray});y+=6.5});if(two)y=y0+half*6.5}
   }
   /* ================= PAGES D'UNE PÉRIODE ================= */
-  const period=(x,xi,n)=>{const c=x.cat,s=x.season,r=x.evals[n],p=PERIODS[n-1],g=GROUPS[GROUP_OF[c]],DOM=domains(c),T_=TESTS(c);
+  const period=(x,xi,n)=>{const c=x.cat,s=x.season,r=x.evals[n],p=PERIODS[n-1],g=GROUPS[GROUP_OF[c]],DOM=domains(c,player),T_=TESTS(c);
     const bef=xi?pc[xi-1]:null,befN=bef?Math.max(0,...Object.keys(bef.evals).map(Number)):0;
     let prevN=[4,3,2,1].find(k=>k<n&&x.evals[k]),pr=prevN?x.evals[prevN]:null,prevLab=prevN?`P${prevN}`:"",prevLong=prevN?`LA PÉRIODE ${prevN}`:"";
     if(!pr&&befN){pr=bef.evals[befN];prevLab=`${bef.cat}`;prevLong=`LA FIN DE SAISON ${bef.cat}`}
@@ -1805,7 +1818,7 @@ function bookPages(doc,player,pc,opts){
   if(only==="per"){const x=pc.find(q=>q.cat===cat&&q.season===SEASON)||{season:SEASON,cat,evals:{},ents:{}};x.evals[opts.n]=x.evals[opts.n]||blank();period(x,0,opts.n);return pages}
   if(only==="ent"){const x=pc[0];const E=ENTRETIENS.find(e=>e.n===opts.n);rencontre(x,E,x.ents[opts.n]||blankEnt());return pages}
   /* ================= UNE SAISON APRÈS L'AUTRE ================= */
-  pc.forEach((x,xi)=>{const c=x.cat,s=x.season,g=GROUPS[GROUP_OF[c]],DOM=domains(c),T_=TESTS(c);
+  pc.forEach((x,xi)=>{const c=x.cat,s=x.season,g=GROUPS[GROUP_OF[c]],DOM=domains(c,player),T_=TESTS(c);
     /* --- intercalaire de catégorie --- */
     P=[];pages.push(P);frame();R(F,F,PW-2*F,112,{fill:NAVY});
     crestDisc(MX+W-15,F+26,13);
