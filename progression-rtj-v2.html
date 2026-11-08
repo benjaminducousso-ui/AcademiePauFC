@@ -855,7 +855,7 @@ function showLogin(add){let o=document.getElementById("login");if(!o){o=document
     else if(h===RTJ_H){if(SANDBOX){err("Accès test en cours : déconnecte-toi d'abord.");return}set("rtj",true);rtj=true;set("lock",null);lock=null}
     else if(CODE_H[h]||AVIS_H[h]){const c=CODE_H[h]||AVIS_H[h];roles=Object.assign({},add?roles:{},{[c]:AVIS_H[h]?"avis":"ref"});set("roles",roles);const l=(add&&Array.isArray(lock)?lock:[]).filter(x=>x!==c);l.push(c);lock=l.sort((a,b)=>CATS.indexOf(a)-CATS.indexOf(b));set("lock",lock);cat=c;set("cat",cat);if(!add){set("rtj",false);rtj=false}}
     else{err("Mot de passe inconnu. Demande-le au RTJ.");return}
-    set("who",who);set("auth2",true);set("auth3",true);set("auth4",true);o.remove();document.body.style.overflow="";render();loadRemote(cat);loadTests(cat);toast(rtj?`Bonjour ${who} · accès RTJ, toutes les catégories`:`Bonjour ${who} · ${lock.join(", ")}${lock.some(isAvis)?" · ton avis personnel (il ne part pas au RTJ)":""}`);
+    set("who",who);set("auth2",true);set("auth3",true);set("auth4",true);o.remove();document.body.style.overflow="";render();logConn("connexion");loadRemote(cat);loadTests(cat);toast(rtj?`Bonjour ${who} · accès RTJ, toutes les catégories`:`Bonjour ${who} · ${lock.join(", ")}${lock.some(isAvis)?" · ton avis personnel (il ne part pas au RTJ)":""}`);
     if(QS.get("terrain")==="1"&&!add)setTimeout(()=>openTestMode(),300)};
   q("lgok").onclick=go;o.querySelectorAll("input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")go()}));if(q("lgcancel"))q("lgcancel").onclick=()=>{o.remove();document.body.style.overflow=""};
   setTimeout(()=>{const f=q("lgwho")&&!q("lgwho").value?q("lgwho"):q("lgpw");f&&f.focus()},100)}
@@ -1061,6 +1061,11 @@ const testKeys=id=>[id,id+"_e1",id+"_e2",id+"_c",id+"_b",id+"_c2",id+"_b2",id+"_
 function pushTest(c,p,P,id){const r=rec(c,p,P);/* corrigé dans l'outil : ce n'est plus le temps saisi à la main dans l'appli */if(r.t&&(r.t[id+"_m"]||r.t[id+"_m1"]||r.t[id+"_m2"])){r.t[id+"_m"]=null;r.t[id+"_m1"]=null;r.t[id+"_m2"]=null}const t={};testKeys(id).forEach(k=>{if(r.t&&r.t[k]!==undefined)t[k]=r.t[k]});const ts=Date.now(),by=get("who","");
   store.tst[key(c,p,P)+"|"+id]={t,by,ts};store.queue.push({prog:1,cat:apiCat(c),player:p+"¦"+id,per:200+P,f:{},t,note:"",by,ts});save();flush()}
 function overlayTests(k){const r=store.evals[k];if(!r)return;r.t=r.t||{};Object.entries(store.tst).forEach(([kk,v])=>{if(kk.slice(0,kk.lastIndexOf("|"))===k)Object.assign(r.t,v.t||{})})}
+/* journal des connexions : une ligne « LOG-CONNEXIONS » dans le Google Sheet à chaque connexion, et au plus une visite toutes les 4 h par personne et par navigateur */
+function logConn(how){try{if(SANDBOX||!authed())return;const now=Date.now();const acc=rtj?"RTJ":(lock||[]).map(c=>c+(roles[c]==="avis"?" (avis)":"")).join(", ");const k=acc+"|"+me();
+  if(how!=="connexion"&&store.lastLog&&store.lastLog.k===k&&now-store.lastLog.ts<4*3600e3)return;store.lastLog={k,ts:now};
+  const ua=navigator.userAgent||"";const nav=/Edg\//.test(ua)?"Edge":/Chrome|CriOS/.test(ua)?"Chrome":/Firefox|FxiOS/.test(ua)?"Firefox":/Safari/.test(ua)?"Safari":"autre";
+  store.queue.push({prog:1,cat:"LOG-CONNEXIONS",player:me(),per:900,f:{acces:acc,type:how,appareil:/Mobi|iPhone|iPad|Android/i.test(ua)?"téléphone":"ordinateur",navigateur:nav,onglet:get("tab","")},t:{},note:how+" · "+acc,by:me(),ts:now});save();flush()}catch(e){}}
 let flushing=false;
 async function flush(){if(flushing||!store.queue.length){setStatus();return}flushing=true;setStatus("sync");
   while(store.queue.length){const p=store.queue[0];try{const r=await fetch(API,{method:"POST",body:JSON.stringify(p),headers:{"Content-Type":"text/plain;charset=utf-8"}});if(!r.ok)throw new Error(r.status);const j=await r.json().catch(()=>({}));if(j.error)throw new Error(j.error);store.queue.shift();save()}catch(e){flushing=false;setStatus("bad");return}}
@@ -1650,9 +1655,9 @@ document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>show
 if(REF==="v2"){document.title="Progression · Pau FC Académie";const e=document.querySelector(".essai");if(e)e.textContent="V5 · proposition d'essai"}
 showTab(["view-eval","view-ent","view-carnet","view-bilan"].includes(get("tab",""))?get("tab"):"view-eval");
 if(!authed()&&QS.get("rtj")==null)showLogin();
-loadRemote(cat).then(()=>loadAll().then(()=>{if(get("tab")==="view-carnet")render()}));loadTests(cat);flush();
+loadRemote(cat).then(()=>loadAll().then(()=>{if(get("tab")==="view-carnet")render()}));loadTests(cat);flush();logConn("visite");
 /* rafraîchissement automatique : on récupère les saisies des autres éducateurs toutes les 30 s et au retour sur la page */
-const refresh=()=>{if(SANDBOX&&resetOn()){try{localStorage.removeItem("paufc-prog-sandbox")}catch(e){}location.reload();return}if(applyReset()){location.reload();return}if(document.visibilityState==="visible"&&authed()){if(rtj)CATS.forEach(c=>loadRemote(c));else loadRemote(cat);flush()}};setInterval(refresh,30000);document.addEventListener("visibilitychange",refresh);window.addEventListener("focus",refresh);
+const refresh=()=>{if(SANDBOX&&resetOn()){try{localStorage.removeItem("paufc-prog-sandbox")}catch(e){}location.reload();return}if(applyReset()){location.reload();return}if(document.visibilityState==="visible"&&authed()){logConn("visite");if(rtj)CATS.forEach(c=>loadRemote(c));else loadRemote(cat);flush()}};setInterval(refresh,30000);document.addEventListener("visibilitychange",refresh);window.addEventListener("focus",refresh);
 function addScrollArrows(){document.querySelectorAll('.tbl-wrap').forEach(el=>{const over=el.scrollWidth>el.clientWidth+4;let bar=el.nextElementSibling;if(!(bar&&bar.classList.contains('scrollhint')))bar=null;el.classList.toggle('has-more',over);
   if(!over){if(bar)bar.hidden=true;return}
   if(!bar){bar=document.createElement('div');bar.className='scrollhint';bar.innerHTML='<span aria-hidden="true">↔</span> Tableau plus large que l’écran : faites-le glisser vers la gauche pour voir toutes les colonnes.';el.parentNode.insertBefore(bar,el.nextSibling);const upd=()=>el.classList.toggle('at-end',el.scrollLeft+el.clientWidth>=el.scrollWidth-4);el.addEventListener('scroll',upd,{passive:true});upd()}bar.hidden=false})}
