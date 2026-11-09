@@ -133,6 +133,8 @@ const fmtV=(t,v)=>v==null?"–":t.kind==="time"?fmt(v*1000)+" s":t.kind==="count
 const rkey=(c,p,P,id)=>`${c}|${p}|${P}|${id}`;
 const has=(c,p,P,id)=>{const r=D.res[rkey(c,p,P,id)];return !!(r&&r.t&&r.t[id]!=null&&r.t[id]!=="")};
 function players(c){return [...(ROSTER[c]||[]),...(D.extra[c]||[])]}
+/* accès du préparateur physique : toutes les catégories, dans l'appli Défis seulement (ne marche pas dans l'outil Progression) */
+const PREPA_H="744e9f693695a63bcf2b120e86860a74355ec8b5deedbceef4957278d525df55";
 const authed=()=>!!(D.who&&(D.rtj||(D.lock&&D.lock.length)));
 const myCats=()=>D.rtj?CATS:(D.lock||[]).filter(c=>CATS.includes(c));
 /* ---------- envoi : file d'attente, jamais perdue ---------- */
@@ -172,7 +174,7 @@ function login(){app.innerHTML=`<div class="main" style="justify-content:center"
   <p class="err" id="le" hidden></p><button class="btn y" id="lg">Entrer</button></div></div>`;
   const go=async()=>{const w=document.getElementById("lw").value.trim(),pw=document.getElementById("lp").value,er=document.getElementById("le");const err=t=>{er.textContent=t;er.hidden=false};
     if(!w)return err("Écris ton prénom");if(!pw)return err("Écris le mot de passe");const h=await sha(pw);
-    if(h===RTJ_H){D.rtj=true;D.lock=null}else if(CODE_H[h]&&CATS.includes(CODE_H[h])){const c=CODE_H[h];D.rtj=false;D.lock=[...new Set([...(V.adding?D.lock||[]:[]),c])].sort((a,b)=>CATS.indexOf(a)-CATS.indexOf(b));V.cat=c}
+    if(h===RTJ_H||h===PREPA_H){D.rtj=true;D.lock=null;D.role=h===PREPA_H?"Prépa physique":"RTJ"}else if(CODE_H[h]&&CATS.includes(CODE_H[h])){const c=CODE_H[h];D.rtj=false;D.lock=[...new Set([...(V.adding?D.lock||[]:[]),c])].sort((a,b)=>CATS.indexOf(a)-CATS.indexOf(b));V.cat=c}
     else if(CODE_H[h])return err("Pas de défis techniques en U7 et U8.");else return err("Mot de passe inconnu. Demande-le au RTJ.");
     D.who=w;save();V.adding=false;V.cat=V.cat&&myCats().includes(V.cat)?V.cat:myCats()[0];V.view="home";render();pull(V.cat);flush()};
   document.getElementById("lg").onclick=go;app.querySelectorAll("input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")go()}))}
@@ -181,7 +183,7 @@ function login(){app.innerHTML=`<div class="main" style="justify-content:center"
 function doneOf(t){return players(V.cat).filter(p=>has(V.cat,p,V.per,t.id)).length}
 function home(){const T=clubTests(V.cat);const cats=myCats();
   let groups=[];T.forEach(t=>{let g=groups.find(x=>x.n===t.cat);if(!g)groups.push(g={n:t.cat,t:[]});g.t.push(t)});
-  app.innerHTML=topBar(`Défis · ${V.cat}`,`${TP[V.per]} (P${V.per}) · ${esc(D.who)}${D.rtj?" · RTJ":""}`,false)+`<div class="main">
+  app.innerHTML=topBar(`Défis · ${V.cat}`,`${TP[V.per]} (P${V.per}) · ${esc(D.who)}${D.rtj?" · "+(D.role||"RTJ"):""}`,false)+`<div class="main">
     ${cats.length>1?`<div class="seg" style="--n:${Math.min(cats.length,7)}">${cats.map(c=>`<button data-c="${c}" aria-pressed="${c===V.cat}">${c}</button>`).join("")}</div>`:""}
     <div class="seg" style="--n:3">${TEST_PERIODS.map(n=>`<button data-p="${n}" aria-pressed="${n===V.per}">${TP[n]}<small>P${n}</small></button>`).join("")}</div>
     ${groups.map(g=>`<p class="sect">${g.n}</p>${g.t.map(t=>{const d=doneOf(t),N=players(V.cat).length;return `<button class="atl" data-t="${t.id}"><span class="l"><b>${esc((x=>x.charAt(0).toUpperCase()+x.slice(1))(t.name.replace(/^Jonglerie /,"")))}</b><small>${t.kind==="count"?"Compteur de touches · 2 essais":t.kind==="value"?"Palier atteint, saisi à la fin du défi":t.combo?"Chrono − bonus de la passe · 2 essais":t.beep?"Chrono · départ au bip · 2 essais":"Chrono · 2 essais"}</small><span class="bar"><i style="width:${N?d/N*100:0}%"></i></span></span><span class="c ${d===N&&N?'done':''}">${d}/${N}</span></button>`}).join("")}`).join("")}

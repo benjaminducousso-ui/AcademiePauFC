@@ -382,6 +382,7 @@ table.sgedit td.sged{cursor:default}.sgk{display:inline-flex;white-space:nowrap}
 @media (max-width:700px){.sgk i{font-size:14px;padding:3px 0}}
 @media print{.sgk i{font-size:7pt;padding:0}.sgk:hover i{color:inherit}}
 .gkband{margin:12px 16px 0;padding:8px 12px;border-radius:10px;background:#EAF2FF;border:1px solid #C9DBF5;font-size:13.5px;color:#14365C}.gkh{margin:18px 0 6px;font-size:16px;color:var(--navy,#0B2A4A)}
+.nowrite{margin:14px 16px 0;padding:10px 12px;border-radius:10px;background:#F4F6FA}.entsec{border-top:3px solid #F2C200;padding-top:4px}.entsec .entbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0}.entsec .enth small{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted,#6E7887)}.entsec .enth{margin:14px 0 4px;font-size:13px;color:var(--navy,#0B2A4A);text-transform:uppercase;letter-spacing:.04em}
 </style>
 
 <header class="top"><div class="wrap">
@@ -390,7 +391,7 @@ table.sgedit td.sged{cursor:default}.sgk{display:inline-flex;white-space:nowrap}
     <div class="btxt"><div class="eyebrow">Pau FC · Académie · Saison 2026-2027</div><h1>Progression RTJ</h1><p id="bdesc">Le suivi de chaque joueur, période après période. L'éducateur de la catégorie donne de 1 à 4 étoiles sur chaque critère, puis écrit son mot en bas de la fiche. Le RTJ relit puis valide : seules les appréciations validées entrent dans le carnet remis à la famille.</p></div><div class="whoslot" id="whoslot"></div>
   </div>
   <div class="catbar" id="catbar" role="group" aria-label="Catégories"></div>
-  <nav class="tabs" role="tablist"><button class="tab" role="tab" id="tab-eval" aria-selected="true" aria-controls="view-eval">Appréciation<span class="hm"> continue</span></button><button class="tab" role="tab" id="tab-bilan" aria-selected="false" aria-controls="view-bilan">Bilan<span class="hm"> du groupe</span></button><button class="tab" role="tab" id="tab-ent" aria-selected="false" aria-controls="view-ent">Rencontres<span class="hm"> famille</span></button><button class="tab" role="tab" id="tab-carnet" aria-selected="false" aria-controls="view-carnet">Carnets</button></nav>
+  <nav class="tabs" role="tablist"><button class="tab" role="tab" id="tab-eval" aria-selected="true" aria-controls="view-eval">Appréciation<span class="hm"> continue</span></button><button class="tab" role="tab" id="tab-bilan" aria-selected="false" aria-controls="view-bilan">Bilan<span class="hm"> du groupe</span></button><button class="tab" role="tab" id="tab-ent" aria-selected="false" aria-controls="view-ent" hidden>Rencontres<span class="hm"> famille</span></button><button class="tab" role="tab" id="tab-carnet" aria-selected="false" aria-controls="view-carnet">Carnets</button></nav>
 </div></header>
 <main class="wrap">
   <section class="view active" id="view-eval" role="tabpanel"></section>
@@ -507,6 +508,9 @@ const KID_STARS=["Je découvre","Je progresse","Je sais faire","Je maîtrise"];
 const ENTRETIENS=[
   {n:2,after:2,label:"Bilan intermédiaire",when:"après la période 2"},
   {n:4,after:4,label:"Bilan de printemps",when:"après la période 4"}];
+/* bilan écrit (points forts, axes, mot) et rencontre famille : seulement en P2 et P4 (décision du 9/11/2026, après sondage des éducateurs) ; P1, P3, P5 = étoiles seules */
+const WRITE_P=[2,4];const WRITE=n=>WRITE_P.includes(+n);
+const splitAxes=t=>String(t||"").split(/\n+/).map(x=>x.replace(/^\s*\d[).:-]\s*/,"").trim()).filter(Boolean);
 const AUTO_LEGEND=[{n:1,name:"en difficulté"},{n:2,name:"ça vient"},{n:3,name:"à l'aise"},{n:4,name:"très à l'aise"}];
 const AUTO_CRITS=[
   {id:"a1",name:"Mon niveau technique (passes, contrôles, conduite)"},
@@ -590,10 +594,13 @@ const V2_DOMAINS={
       {id:"w12c1",src:"F",short:"Fixe pour jouer ailleurs",name:"Fixe l'adversaire dans une zone pour jouer dans une autre"},
       {id:"w12c2",src:"F",short:"Change de rythme",name:"Change le rythme du jeu au bon moment"},
       {id:"w12c3",src:"F",short:"Réagit à la perte",name:"Réagit tout de suite à la perte et récupère en bloc"},
-      {id:"w12c4",src:"F",short:"Protège son but",name:"Se replace pour protéger son but quand l'équipe est en déséquilibre"}]},
+      {id:"w12c4",src:"F",short:"Protège son but",name:"Se replace pour protéger son but quand l'équipe est en déséquilibre"},
+      {id:"w12c5",src:"RF",short:"Se rend visible et disponible",name:"Se rend visible et disponible : offre une solution au porteur, à distance de passe, et attaque la profondeur"},
+      {id:"w12c6",src:"R",short:"Coups de pied arrêtés",name:"Connaît et tient son rôle sur les coups de pied arrêtés"}]},
     {id:"tvj",name:"Technique · voir le jeu",lines:[
-      {id:"w12v1",src:"RF",vj:1,short:"Scanne avant de recevoir",name:"Prend l'information avant de recevoir : sait où jouer avant le contrôle"},
-      {id:"w12v2",src:"F",vj:1,short:"Joue en une ou deux touches",name:"Joue en une ou deux touches parce qu'il a déjà vu la solution"}]},
+      {id:"w12v1",src:"RF",vj:1,short:"Scanne en continu",name:"Prend l'information en continu : avant, pendant et après la réception"},
+      {id:"w12v2",src:"F",vj:1,short:"Joue en une ou deux touches",name:"Joue en une ou deux touches parce qu'il a déjà vu la solution"},
+      {id:"w12v3",src:"RF",vj:1,short:"Vitesse de décision et d'exécution",name:"Décide vite et exécute son choix sans temps mort"}]},
     {id:"tec",name:"Technique · gestes",lines:[
       {id:"w12t1",src:"RF",short:"Premier contrôle",name:"Premier contrôle orienté, au sol ou aérien, des deux pieds, et enchaîne vite"},
       {id:"w12t5",src:"RF",short:"Passes courtes, remises",name:"Passes courtes précises et dosées, dans la course ; remises et déviations"},
@@ -601,28 +608,31 @@ const V2_DOMAINS={
       {id:"w12t6",src:"RF",short:"Conduite tête levée",name:"Conduit le ballon tête levée, en regardant autour de lui"},
       {id:"w12t7",src:"R",short:"Éliminer en 1 contre 1",name:"Élimine en 1 contre 1 : feintes, changements de rythme et d'appuis"},
       {id:"w12t2",src:"RF",short:"Finition",name:"Finition : frappes cadrées et variées des deux pieds (cou-de-pied, enroulé, volée)"},
-      {id:"w12t4",src:"R",short:"Jeu de tête",name:"Jeu de tête offensif et défensif"},
+      {id:"w12t4",src:"R",short:"Jeu de tête",name:"Jeu de tête : lit la trajectoire, se place sous le ballon et frappe avec le front en orientant sa tête"},
       {id:"w12t8",src:"R",short:"Défendre, gagner ses duels",name:"Défend : posture de cadrage, timing d'intervention, interception"},
       {id:"w12t9",src:"RF",short:"Protection de balle",name:"Protège son ballon en se servant du corps"}]},
     {id:"psy",name:"Psychologique",lines:[
       {id:"w12e1",src:"F",short:"Gestion des émotions",name:"Gère ses émotions, garde son calme après une erreur ou une décision"},
       {id:"w12e2",src:"F",short:"Exigence",name:"Exigeant avec lui-même à chaque séance"},
       {id:"w12e3",src:"F",short:"État d'esprit, engagement",name:"État d'esprit, concentration et engagement à chaque séance"},
-      {id:"w12e4",src:"F",short:"Capitaine, leadership",name:"Capacité à être capitaine : entraîne et aide ses partenaires"}]},
+      {id:"w12e4",src:"F",short:"Joue avec personnalité",name:"Joue avec personnalité : ose, prend des initiatives, demande le ballon, entraîne les autres à sa façon"},
+      {id:"w12e5",src:"F",short:"Communique sur le terrain",name:"Parle à ses partenaires sur le terrain : « seul », « homme », « je suis là »"}]},
     {id:"ath",name:"Athlétique",lines:[
-      {id:"w12a1",src:"F",short:"Vitesse",name:"Vitesse et vitesse d'exécution"},
+      {id:"w12a1",src:"F",short:"Vitesse, démarrage",name:"Vitesse de course et démarrage"},
       {id:"w12a2",src:"F",short:"Gainage, souplesse",name:"Gainage et souplesse"}]}],
   u1415:[
     {id:"tac",name:"Tactique",lines:[
-      {id:"w14c1",src:"F",short:"Jeu de position",name:"Tient sa place dans le jeu de position à 11"},
+      {id:"w14c1",src:"F",short:"Jeu de position",name:"Tient sa place dans le jeu de position à 11, exploite les espaces libres et s'adapte s'il change de poste"},
       {id:"w14c2",src:"F",short:"Transitions",name:"Réagit vite dans les transitions offensives et défensives"},
-      {id:"w14c3",src:"F",short:"Bloc défensif",name:"Défend en bloc avec ses partenaires"}]},
+      {id:"w14c3",src:"F",short:"Bloc défensif",name:"Défend en bloc avec ses partenaires"},
+      {id:"w14c4",src:"RF",short:"Se rend visible et disponible",name:"Se rend visible et disponible : varie ses appels (profondeur, dans les pieds, contre-appels)"}]},
     {id:"tvj",name:"Technique · voir le jeu",lines:[
       {id:"w14v1",src:"RF",vj:1,short:"Scanne en continu",name:"Prend l'information en permanence, avant et pendant l'action"},
-      {id:"w14v2",src:"F",vj:1,short:"Anticipe",name:"Anticipe le jeu : voit la solution avant ses adversaires"}]},
+      {id:"w14v2",src:"F",vj:1,short:"Anticipe",name:"Anticipe le jeu : voit la solution avant ses adversaires"},
+      {id:"w14v3",src:"RF",vj:1,short:"Vitesse de décision et d'exécution",name:"Décide vite et exécute son choix sans temps mort, sous pression"}]},
     {id:"tec",name:"Technique · gestes sous pression",lines:[
       {id:"w14t1",src:"RF",short:"Contrôle-enchaînement",name:"Premier contrôle orienté et enchaînement sous pression, à vitesse de match"},
-      {id:"w14t4",src:"R",short:"Passes courtes",name:"Passes courtes précises et dosées, dans la course du partenaire"},
+      {id:"w14t4",src:"R",short:"Passes toutes surfaces",name:"Passes précises avec toutes les surfaces (intérieur, extérieur, cou-de-pied), dans la course du partenaire"},
       {id:"w14t2",src:"RF",short:"Jeu long deux pieds",name:"Jeu long précis des deux pieds"},
       {id:"w14t5",src:"R",short:"Conduite tête levée",name:"Conduit le ballon tête levée"},
       {id:"w14t6",src:"RF",short:"Éliminer en 1 contre 1",name:"Élimine en 1 contre 1 à vitesse de match"},
@@ -634,10 +644,11 @@ const V2_DOMAINS={
       {id:"w14e1",src:"F",short:"Communication, leadership",name:"Communique et entraîne ses partenaires (leadership)"},
       {id:"w14e2",src:"F",short:"Concentration 90 min",name:"Reste concentré sur tout le match"},
       {id:"w14e3",src:"F",short:"Gestion des émotions",name:"Gère ses émotions dans les moments difficiles du match"},
-      {id:"w14e4",src:"F",short:"Arbitre, projet collectif",name:"Respecte l'arbitre et adhère au projet collectif"}]},
+      {id:"w14e4",src:"F",short:"Arbitre, projet collectif",name:"Respecte l'arbitre et adhère au projet collectif"},
+      {id:"w14e5",src:"F",short:"Prend ses responsabilités",name:"Prend ses responsabilités et joue avec personnalité dans les moments importants"}]},
     {id:"ath",name:"Physique",lines:[
       {id:"w14a1",src:"F",short:"Vitesse, puissance",name:"Vitesse et puissance"},
-      {id:"w14a2",src:"F",short:"Endurance",name:"Endurance"}]}],
+      {id:"w14a2",src:"F",short:"Endurance, répétition des efforts",name:"Endurance et répétition des efforts"}]}],
   u1618:[
     {id:"inf",name:"Prise d'information",lines:[
       {id:"u16i1",src:"F",short:"Lecture du jeu",name:"Lit le jeu et prend les bonnes décisions à haute intensité"},
@@ -1099,7 +1110,7 @@ function parcours(p){const out={};const add=(k,kind,v)=>{const [s,c,pl,n]=k.spli
 function renderCats(){document.getElementById("catbar").innerHTML=CATS.filter(c=>rtj||!lock||lock.includes(c)).map(c=>`<button class="cat" data-c="${c}" aria-pressed="${c===cat}">${c}<small>${players(c).length} joueurs</small></button>`).join("");
   document.querySelectorAll(".cat").forEach(b=>b.addEventListener("click",()=>{cat=b.dataset.c;set("cat",cat);tEdit=false;tDraft=null;render();loadRemote(cat);loadTests(cat)}))}
 function perbar(){const list=players(cat);const L=allLines().length;return `<div class="perbar" role="group" aria-label="Période">${PERIODS.map(p=>{const n=list.filter(x=>{const r=evR(cat,x,p.n);return r&&Object.values(r.f).filter(Boolean).length>=allLines(cat,x).length}).length;const op=evalOpen(p);const cur=op&&p.n===defPer();
-  return `<button class="perchip${cur?" now":""}${op?"":" locked"}" data-p="${p.n}" aria-pressed="${p.n===per}"><b>P${p.n}${cur?" <em>à évaluer</em>":op?"":" 🔒"}</b><small>${fmtShort(p.from)} → ${fmtShort(p.to)}${n?` · ${n}/${list.length} ✓`:op?"":` · dès le ${openFrom(p)}`}</small></button>`}).join("")}</div>`}
+  return `<button class="perchip${cur?" now":""}${op?"":" locked"}" data-p="${p.n}" aria-pressed="${p.n===per}"><b>P${p.n}${WRITE(p.n)?" 🤝":""}${cur?" <em>à évaluer</em>":op?"":" 🔒"}</b><small>${fmtShort(p.from)} → ${fmtShort(p.to)}${n?` · ${n}/${list.length} ✓`:op?"":` · dès le ${openFrom(p)}`}</small></button>`}).join("")}</div>`}
 function bindPer(root){const cp=root.querySelector('.perchip[aria-pressed="true"]');if(cp&&cp.parentElement.scrollWidth>cp.parentElement.clientWidth)cp.parentElement.scrollLeft=cp.offsetLeft-16;root.querySelectorAll(".perchip").forEach(b=>b.addEventListener("click",()=>{const n=+b.dataset.p;const P=PERIODS[n-1];if(!evalOpen(P)){toast(`La période ${n} s'évaluera à partir du ${openFrom(P)}. Pour l'instant, on remplit la période ${defPer()}.`);return}per=n;set("per",per);render()}))}
 /* ===== composants d'interface : saisie fluide, consultation claire ===== */
 function whobar(){return ""}   /* le « rempli par » vit dans l'en-tête, une seule fois */
@@ -1212,10 +1223,11 @@ function renderEval(){const v=document.getElementById("view-eval");const g=grp()
     <details class="lvhelp lvf"${lvOpen()?" open":""}><summary>Ce que veut dire chaque niveau</summary>${legend4()}</details>
     ${p&&isGK(cat,p)?`<div class="gkband">🧤 <b>Gardien de but</b> : ${esc(pn)} est noté sur la grille des gardiens (mêmes étoiles, critères propres au poste).</div>`:""}${DOM.map(d=>`<section class="dom"><h4>${esc(d.name)}<small class="dcount">${d.lines.filter(l=>r.f[l.id]).length}/${d.lines.length}</small></h4>${d.lines.map(line).join("")}</section>`).join("")}
     ${tests}
-    <section class="dom bil"><h4>Le bilan de la période</h4><div class="bgrid">
+    ${!WRITE(per)&&(r.forts||r.axes||r.note)?`<section class="dom bil"><h4>Le bilan de la période${WRITE(per)?"":`<small>écrit avant la simplification : en P${per}, plus besoin de bilan écrit</small>`}</h4><div class="bgrid">
       <label><span>Points forts</span><textarea class="ta" data-k="forts" placeholder="Ce qui ressort chez ${esc(pn)} sur cette période">${esc(r.forts)}</textarea>${avTxt(AVL,"forts",undefined,r.forts)}</label>
       <label><span>Axes de travail</span><textarea class="ta" data-k="axes" placeholder="Ce qu'on va travailler ensemble">${esc(r.axes)}</textarea>${avTxt(AVL,"axes",undefined,r.axes)}</label>
-      <label class="wide"><span>Le mot de l'éducateur</span><textarea class="ta" data-k="note" placeholder="Quelques mots pour ${esc(pn)} et ses parents, repris tels quels dans le carnet">${esc(r.note)}</textarea>${avTxt(AVL,"note",undefined,r.note)}</label></div></section>
+      <label class="wide"><span>Le mot de l'éducateur</span><textarea class="ta" data-k="note" placeholder="Quelques mots pour ${esc(pn)} et ses parents, repris tels quels dans le carnet">${esc(r.note)}</textarea>${avTxt(AVL,"note",undefined,r.note)}</label></div></section>`:`${WRITE(per)?"":`<p class="note nowrite">P${per} : <b>les étoiles suffisent</b>. Le bilan écrit et la rencontre famille se font en période 2 et en période 4.</p>`}`}
+    ${WRITE(per)?entSection(p,per,r,AVL):""}
     <div class="ffoot"><span class="vslot">${valChip(r,p)}</span><span class="note">${r.ts?`Dernière saisie le ${new Date(r.ts).toLocaleDateString("fr-FR")}${r.by?" par "+esc(r.by):""} · `:""}tout est enregistré au fil de l'eau.</span>
       <span class="ffbtn">${list.indexOf(p)>0?`<button class="btn" data-pn="-1">‹ Précédent</button>`:""}${list.indexOf(p)<list.length-1?`<button class="btn primary nextp" data-pn="1">Joueur suivant ›</button>`:""}</span></div></div>`:`<div class="card"><p class="note">Aucun joueur dans cette catégorie. Ajoute-les dans la liste.</p></div>`;
   v.innerHTML=`<div class="vhead"><div><div class="eyebrow">${esc(g.label)}</div><h2>${cat} · Appréciation continue</h2></div>
@@ -1232,13 +1244,13 @@ function renderEval(){const v=document.getElementById("view-eval");const g=grp()
   const refresh=()=>{const r=rec(cat,p,per);const d=L.filter(l=>r.f[l.id]).length;v.querySelector(".pcount").textContent=`${d}/${L.length}`;v.querySelector(".pbar span").style.width=Math.round(d/L.length*100)+"%";
     v.querySelectorAll(".fiche .dom").forEach((el,i)=>{const dd=DOM[i];const s=el.querySelector(".dcount");if(dd&&s)s.textContent=`${dd.lines.filter(l=>r.f[l.id]).length}/${dd.lines.length}`});
     const it=v.querySelector(`.ritem[data-sel="${CSS.escape(p)}"] .ring`);if(it)it.outerHTML=ring(d,L.length);flashSaved(v)};
-  const rate=(row,n,adv)=>{const f=row.dataset.l;const r=rec(cat,p,per);const nv=r.f[f]===n?0:n;r.f[f]=nv;push(cat,p,per);
+  const rate=(row,n,adv)=>{if(row.classList.contains("ecrit"))return;const f=row.dataset.l;const r=rec(cat,p,per);const nv=r.f[f]===n?0:n;r.f[f]=nv;push(cat,p,per);
     const sc=row.querySelector(".scale");sc.outerHTML=scale(nv,`data-f="${f}"`);row.classList.toggle("rated",!!nv);bindScale(row);refresh();if(nv&&adv)nextRow(row)};
   const bindScale=row=>row.querySelectorAll(".scale button").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();rate(row,+b.dataset.n,true)}));
-  v.querySelectorAll(".fiche .crit").forEach(bindScale);bindKeys(v,rate);
-  v.querySelectorAll(".cbtn").forEach(b=>b.addEventListener("click",()=>{const t=b.parentElement.querySelector(".ctxt");t.hidden=false;autoGrow(t);t.focus()}));
+  v.querySelectorAll(".fiche .crit:not(.ecrit)").forEach(bindScale);bindKeys(v,rate);
+  v.querySelectorAll(".cbtn:not(.ecb)").forEach(b=>b.addEventListener("click",()=>{const t=b.parentElement.querySelector(".ctxt");t.hidden=false;autoGrow(t);t.focus()}));
   let tmr={};const saveC=t=>{const r=rec(cat,p,per);const val=t.value.trim();if((r.c[t.dataset.c]||"")===val)return;r.c[t.dataset.c]=val;push(cat,p,per);flashSaved(v);const b=t.parentElement.querySelector(".cbtn");b.classList.toggle("has",!!val);b.innerHTML=val?"💬":`<span class="cbl">＋ commentaire</span><span class="cbm">＋ 💬</span>`};
-  v.querySelectorAll(".ctxt").forEach(t=>{autoGrow(t);t.addEventListener("input",()=>{autoGrow(t);clearTimeout(tmr[t.dataset.c]);tmr[t.dataset.c]=setTimeout(()=>saveC(t),700)});
+  v.querySelectorAll(".ctxt:not(.ectxt)").forEach(t=>{autoGrow(t);t.addEventListener("input",()=>{autoGrow(t);clearTimeout(tmr[t.dataset.c]);tmr[t.dataset.c]=setTimeout(()=>saveC(t),700)});
     t.addEventListener("blur",()=>{clearTimeout(tmr[t.dataset.c]);saveC(t);if(!t.value.trim())t.hidden=true});
     t.addEventListener("keydown",e=>{if(e.key==="Escape"||(e.key==="Enter"&&!e.shiftKey)){e.preventDefault();t.blur();t.closest(".crit").focus()}})});
   const comboSave=id=>{const r=rec(cat,p,per);const fin=[];["","2"].forEach(k=>{const ci=v.querySelector(`[data-tc="${id}"][data-k="${k}"]`),bi=v.querySelector(`[data-tb="${id}"][data-k="${k}"]`);const ch=ci&&ci.value!==""?Math.round(+ci.value*100)/100:null;const bo=bi&&bi.value!==""?+bi.value:null;
@@ -1252,8 +1264,34 @@ function renderEval(){const v=document.getElementById("view-eval");const g=grp()
     t.addEventListener("input",()=>{autoGrow(t);clearTimeout(h);h=setTimeout(sv,800)});t.addEventListener("blur",()=>{clearTimeout(h);sv()})});
   v.querySelectorAll("[data-book]").forEach(b=>b.addEventListener("click",()=>openBook([b.dataset.book],"view-eval")));
   v.querySelectorAll("[data-perpdf]").forEach(b=>b.addEventListener("click",()=>openBook([b.dataset.perpdf],"view-eval",{only:"per",n:per})));
+  if(WRITE(per))bindEntSection(v,p,per);
   updVal(v);
 }
+/* --- rencontre famille, intégrée à la fiche de la période 2 et de la période 4 --- */
+function entSection(p,n,r,AVL){const E=ENTRETIENS.find(x=>x.n===n);if(!E)return "";const e=recEntRO(cat,p,n);const pn=prenom(p);const AX=splitAxes(r.axes);if(!AX.length&&e.obj)e.obj.forEach(o=>{if(o)AX.push(o)});const av=isAvis(cat);
+  const line=a=>{const v=e.a[a.id]||0;const c=e.ac[a.id]||"";return `<div class="crit ecrit${v?" rated":""}" tabindex="0" data-a="${a.id}"><div class="lab">${esc(a.name)}</div>
+      <div class="rate">${scale(v,`data-a="${a.id}"`,AUTO_LEGEND,true)}</div>
+      <button class="cbtn ecb${c?" has":""}" type="button" title="Ce que dit l'enfant">${c?"💬":`<span class="cbl">＋ ce qu'il dit</span><span class="cbm">＋ 💬</span>`}</button>
+      <textarea class="ctxt ectxt" data-ac="${a.id}" rows="1" placeholder="Ce que dit ${esc(pn)}, avec ses mots" ${c?"":"hidden"}>${esc(c)}</textarea></div>`};
+  return `<section class="dom entsec"><h4>🤝 Bilan et rencontre avec la famille<small>${esc(E.label)} · ${esc(E.when)}</small></h4>
+    ${av?"":`<div class="entbar"><label class="dchip">📅 <input type="date" class="entdate" value="${esc(e.date||"")}" aria-label="Date de la rencontre"></label><button class="btn small" type="button" data-entpdf2="${esc(p)}" title="Les pages de la période ${n-1} et de la période ${n} (étoiles et défis validés par le RTJ), puis la rencontre : auto-évaluation, regard de l'éducateur, axes de travail">📘 Demi-carnet pour les parents · P${n-1} + P${n}</button></div>
+    <h5 class="enth">1 · ${esc(pn)} : ce que je pense de moi<small> l'enfant choisit, pendant la rencontre</small></h5>${AUTO_CRITS.map(line).join("")}`}
+    <h5 class="enth">${av?"":"2 · "}Le regard de l'éducateur</h5><div class="bgrid">
+      <label class="wide"><span>Points forts</span><textarea class="ta" data-k="forts" placeholder="Ce qui ressort chez ${esc(pn)}">${esc(r.forts)}</textarea>${avTxt(AVL,"forts",undefined,r.forts)}</label>
+      <label class="wide"><span>Le mot de l'éducateur</span><textarea class="ta" data-k="note" placeholder="Quelques mots pour ${esc(pn)} et ses parents, repris tels quels dans le carnet">${esc(r.note)}</textarea>${avTxt(AVL,"note",undefined,r.note)}</label></div>
+    <h5 class="enth">${av?"":"3 · "}Nos deux axes de travail<small> clairs, atteignables, fixés avec ${esc(pn)}</small></h5><div class="objs">${[0,1].map(i=>`<label class="objrow"><b>${i+1}</b><input type="text" data-axe="${i}" value="${esc(AX[i]||"")}" placeholder="${i?"ex. Encourager mes partenaires à chaque séance":"ex. Utiliser mon pied gauche en conduite"}"></label>`).join("")}</div>${avTxt(AVL,"axes",undefined,r.axes)}</section>`}
+const recEntRO=(c,p,n)=>store.ent[key(c,p,n)]||blankEnt();
+function bindEntSection(v,p,n){const s=v.querySelector(".entsec");if(!s)return;
+  const rate=(row,val)=>{const a=row.dataset.a;const e=recEnt(cat,p,n);const nv=e.a[a]===val?0:val;e.a[a]=nv;pushEnt(cat,p,n);row.querySelector(".scale").outerHTML=scale(nv,`data-a="${a}"`,AUTO_LEGEND,true);row.classList.toggle("rated",!!nv);bindRow(row);flashSaved(v)};
+  const bindRow=row=>row.querySelectorAll(".scale button").forEach(b=>b.addEventListener("click",ev=>{ev.stopPropagation();rate(row,+b.dataset.n)}));
+  s.querySelectorAll(".ecrit").forEach(row=>{bindRow(row);row.addEventListener("keydown",ev=>{if(ev.target.matches("textarea,input"))return;if(/^[1-4]$/.test(ev.key)){ev.preventDefault();ev.stopPropagation();rate(row,+ev.key)}})});
+  s.querySelectorAll(".ecb").forEach(b=>b.addEventListener("click",()=>{const t=b.parentElement.querySelector(".ectxt");t.hidden=false;autoGrow(t);t.focus()}));
+  const sv=(t,fn)=>{let h;t.addEventListener("input",()=>{if(t.tagName==="TEXTAREA")autoGrow(t);clearTimeout(h);h=setTimeout(()=>fn(t),700)});t.addEventListener("blur",()=>{clearTimeout(h);fn(t)})};
+  s.querySelectorAll(".ectxt").forEach(t=>{autoGrow(t);sv(t,t=>{const e=recEnt(cat,p,n);const val=t.value.trim();if((e.ac[t.dataset.ac]||"")===val)return;e.ac[t.dataset.ac]=val;pushEnt(cat,p,n);flashSaved(v);const b=t.parentElement.querySelector(".ecb");b.classList.toggle("has",!!val);b.innerHTML=val?"💬":`<span class="cbl">＋ ce qu'il dit</span><span class="cbm">＋ 💬</span>`});t.addEventListener("blur",()=>{if(!t.value.trim())t.hidden=true})});
+  s.querySelectorAll("[data-axe]").forEach(i=>sv(i,()=>{const r=rec(cat,p,n);const val=[...s.querySelectorAll("[data-axe]")].map(x=>x.value.trim()).filter(Boolean).join("\n");if((r.axes||"")===val)return;r.axes=val;push(cat,p,n);flashSaved(v)}));
+  s.querySelectorAll('[data-take="axes"]').forEach(b=>b.addEventListener("click",()=>setTimeout(()=>{const ax=splitAxes(rec(cat,p,n).axes);s.querySelectorAll("[data-axe]").forEach((x,i)=>{x.value=ax[i]||""})},60)));
+  const d=s.querySelector(".entdate");if(d)d.addEventListener("change",ev=>{recEnt(cat,p,n).date=ev.target.value;pushEnt(cat,p,n);flashSaved(v)});
+  const b=s.querySelector("[data-entpdf2]");if(b)b.addEventListener("click",()=>openBook([p],"view-eval",{only:"half",n}))}
 /* --- onglet Rencontres : même mécanique, l'enfant parle d'abord --- */
 let entN=get("entN",2);
 function entProg(x){const e=store.ent[key(cat,x,entN)];const tot=AUTO_CRITS.length+BILAN_ASPECTS.length+2;if(!e)return {done:0,tot};
@@ -1411,7 +1449,7 @@ function perBarHTML(){const P_=sgPer==="evol"?null:(sgPer||per);return `<span cl
 function bindStarsGroup(){const bar=document.getElementById("bilanPer");if(!bar)return;bar.querySelectorAll("[data-sg]").forEach(b=>b.addEventListener("click",()=>{sgPer=b.dataset.sg==="evol"?"evol":+b.dataset.sg;bar.innerHTML=perBarHTML();const pl=document.getElementById("pdfLab");if(pl)pl.textContent=sgPer==="evol"?"l'évolution":"la période "+sgPer;
   const sc=document.getElementById("starsCard");if(sc)sc.innerHTML=starsGroupHTML();const tc=document.getElementById("testsCard");if(tc)tc.innerHTML=testsGroupHTML();const t=document.getElementById("txtCard");if(t)t.innerHTML=txtGroupHTML();bindStarsGroup()}));bindSgEdit()}
 /* ----- le bilan écrit du groupe, pour la période choisie ----- */
-function txtGroupHTML(){const P_=sgPer==="evol"||!sgPer?per:sgPer;const list=players(cat);
+function txtGroupHTML(){const P_=sgPer==="evol"||!sgPer?per:sgPer;const list=players(cat);if(!WRITE(P_)&&!list.some(x=>{const r=evR(cat,x,P_);return r&&(r.forts||r.axes||r.note)}))return `<h3>Le bilan écrit</h3><p class="note">Pas de bilan écrit en période ${P_} : les étoiles suffisent. Points forts, axes de travail et mot de l'éducateur se remplissent en période 2 et en période 4, avec la rencontre famille.</p>`;
   const ED=canEditP(P_);const PH={forts:"Ce qui ressort de cette période",axes:"Ce qu'on va travailler ensemble",note:"Quelques mots pour l'enfant et ses parents (repris dans le carnet)"};
   const rows=list.map(x=>{const r=evR(cat,x,P_)||{};const AVX=avisOf(cat,x,P_);return `<tr><td class="name"><button type="button" class="golink" data-go="${esc(x)}" title="Ouvrir la fiche de ${esc(x)}">${esc(x)}</button></td>${["forts","axes","note"].map(k=>`<td class="ttxtc${ED?" ted":""}" data-l="${{forts:"Points forts",axes:"Axes de travail",note:"Mot de l'éducateur"}[k]}">${ED?`<textarea class="gta" rows="2" data-tp="${esc(x)}" data-tk="${k}" placeholder="${esc(PH[k])}">${esc(r[k]||"")}</textarea><span class="gsaved" hidden>✓ enregistré</span>${avTxt(AVX,k,x,r[k])}`:r[k]?esc(r[k]):'<span class="sg0">·</span>'}</td>`).join("")}</tr>`}).join("");
   return `<div class="ghead"><div><h3>Le bilan écrit de l'éducateur · période ${P_}</h3><p class="note">Suit la période choisie plus haut. ${ED?"Vous pouvez écrire directement ici, tout s'enregistre au fil de l'eau. ":""}Pratique pour vérifier que chaque enfant a un mot qui lui est propre et qui colle à ses étoiles.</p></div></div>
@@ -1493,7 +1531,7 @@ async function bilanXlsx(){await loadXlsx();const X=window.XLSX;const d=bilanDat
     .forEach(([nm,title,sub,f])=>{const [rows,m]=mk(nm==="Défis évolution"?"evol":"",title,`${g.label} · ${sub}`,f);sheet(nm,rows,{cols:[{wch:28},...T.map(()=>({wch:14}))],merges:m,heights:{0:24,4:58}})})}
   /* 4. bilan écrit */
   {const rows=[...titleRows(`${cat} · Le bilan écrit de l'éducateur`,`${g.label} · une ligne par joueur et par période renseignée`),[],[C("Joueur",S.thL),C("Période",S.th),C("Points forts",S.thL),C("Axes de travail",S.thL),C("Mot de l'éducateur",S.thL),C("Rempli par",S.th),C("Validé RTJ",S.th)]];
-    let i=0;list.forEach(p=>noted.forEach(P=>{const r=ev(p,P.n);if(!r||!filled(r))return;const z=i++%2;rows.push([C(p,S.name(z)),C(`P${P.n}`,S.num(z)),C(r.forts||"",S.txt(z)),C(r.axes||"",S.txt(z)),C(r.note||"",S.txt(z)),C(r.by||"",S.num(z)),C(isVal(r)?"oui":"non",S.num(z,{color:isVal(r)?"1F7A4A":"B4530A",bold:true}))])}));
+    let i=0;list.forEach(p=>noted.forEach(P=>{const r=ev(p,P.n);if(!r||!filled(r)||!(WRITE(P.n)||r.forts||r.axes||r.note))return;const z=i++%2;rows.push([C(p,S.name(z)),C(`P${P.n}`,S.num(z)),C(r.forts||"",S.txt(z)),C(r.axes||"",S.txt(z)),C(r.note||"",S.txt(z)),C(r.by||"",S.num(z)),C(isVal(r)?"oui":"non",S.num(z,{color:isVal(r)?"1F7A4A":"B4530A",bold:true}))])}));
     sheet("Bilan écrit",rows,{cols:[{wch:28},{wch:9},{wch:38},{wch:38},{wch:50},{wch:14},{wch:11}],heights:{0:24}})}
   /* 5. données brutes en chiffres, pour les calculs */
   {const rows=[[C("Joueur",S.thL),C("Période",S.th),...lines.map(l=>C(`${l.dom} · ${l.short||l.name}`,S.th))]];
@@ -1606,7 +1644,7 @@ async function bilanPdf(){
     rect(MX,y,PW-2*MX,RH+.6,AVGF);hline(MX,y,PW-2*MX,CCOL.navy,.4);font("bold",7.2);doc.setTextColor(...col(CCOL.navy));doc.text("Moyenne du groupe",MX+2,y+3.9);
     T.forEach((t,k)=>{const x0=MX+NW+k*cw;if(one){font("bold",7);doc.text(fmtV(avg(list.map(p=>tv(p,sel,t.id))))||"–",x0+cw/2,y+3.9,{align:"center"});return}TEST_PERIODS.forEach((n,q)=>{font(q===NP-1?"bold":"normal",6.4);doc.text(fmtV(avg(list.map(p=>tv(p,n,t.id))))||"–",x0+q*sub3+sub3/2,y+3.9,{align:"center"})})})}
   /* 3. le bilan écrit, par période renseignée */
-  (PS&&noted.some(P=>P.n===PS.n)?[PS]:[]).forEach(P=>{const NW=46,W=[(PW-2*MX-NW)*.28,(PW-2*MX-NW)*.28,(PW-2*MX-NW)*.44];const title=`Le bilan écrit de l'éducateur · période ${P.n}`;const sub=`Du ${perDates(P)} · points forts, axes de travail et mot pour chaque joueur`;
+  (PS&&noted.some(P=>P.n===PS.n)&&(WRITE(PS.n)||list.some(p=>{const r=ev(p,PS.n);return r&&(r.forts||r.axes||r.note)}))?[PS]:[]).forEach(P=>{const NW=46,W=[(PW-2*MX-NW)*.28,(PW-2*MX-NW)*.28,(PW-2*MX-NW)*.44];const title=`Le bilan écrit de l'éducateur · période ${P.n}`;const sub=`Du ${perDates(P)} · points forts, axes de travail et mot pour chaque joueur`;
     const th=y=>{rect(MX,y,PW-2*MX,6,CCOL.navy);font("bold",6.5);doc.setTextColor(255,255,255);doc.text("JOUEUR",MX+2,y+4);let x=MX+NW;["POINTS FORTS","AXES DE TRAVAIL","MOT DE L'ÉDUCATEUR"].forEach((s,i)=>{doc.text(s,x+2,y+4);x+=W[i]});return y+6};
     let y=th(head(title,sub));
     list.forEach((p,i)=>{const r=ev(p,P.n)||{};font("normal",6.8);const cells=[r.forts,r.axes,r.note].map((s,k)=>s?doc.splitTextToSize(s,W[k]-4):["–"]);const h=Math.max(RH,Math.max(...cells.map(c=>c.length))*2.7+2.6);
@@ -1653,7 +1691,7 @@ function testsBanner(){const v=document.getElementById("view-eval");if(!v)return
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.getAttribute("aria-controls"))));
 {const d=document.getElementById("bdesc");if(d)d.textContent=REF==="v2"?"Le suivi de chaque joueur, période après période. L'éducateur de la catégorie donne de 1 à 4 étoiles sur chaque critère, puis écrit son mot en bas de la fiche. Le RTJ relit puis valide : seules les appréciations validées entrent dans le carnet remis à la famille.":"V1 · les grilles du responsable technique : 15 observations en foot d'animation (U7-U11), 14 en préformation (U12-U15), sur 4 étoiles, un commentaire par ligne, les repères mesurés, deux rencontres avec la famille. Le carnet suit l'enfant de catégorie en catégorie."}
 if(REF==="v2"){document.title="Progression · Pau FC Académie";const e=document.querySelector(".essai");if(e)e.textContent="V5 · proposition d'essai"}
-showTab(["view-eval","view-ent","view-carnet","view-bilan"].includes(get("tab",""))?get("tab"):"view-eval");
+showTab(["view-eval","view-carnet","view-bilan"].includes(get("tab",""))?get("tab"):"view-eval");
 if(!authed()&&QS.get("rtj")==null)showLogin();
 loadRemote(cat).then(()=>loadAll().then(()=>{if(get("tab")==="view-carnet")render()}));loadTests(cat);flush();logConn("visite");
 /* rafraîchissement automatique : on récupère les saisies des autres éducateurs toutes les 30 s et au retour sur la page */
@@ -1791,11 +1829,11 @@ function bookPages(doc,player,pc,opts){
         y+=Math.ceil(ups.length/2)*7.2+2}}
     /* 5. le bilan de l'éducateur */
     const box=(title,txt,x0,w,minH,it,sz)=>{const ls=txt?wrap(txt,it?"italic":"normal",sz,w-8):[];return {title,ls,x0,w,h:Math.max(minH,8.5+ls.length*sz*.45+2.5),it,sz}};
-    const b0=box("LE MOT DE L'ÉDUCATEUR",r.note,MX,W,17,true,9.6);const hw=(W-5)/2;const b1=box("POINTS FORTS",r.forts,MX,hw,19,false,8.6),b2=box("AXES DE TRAVAIL PRIORITAIRES",r.axes,MX+hw+5,hw,19,false,8.6);b1.h=b2.h=Math.max(b1.h,b2.h);
+    if(!WRITE(n)&&(r.forts||r.axes||r.note)){const b0=box("LE MOT DE L'ÉDUCATEUR",r.note,MX,W,17,true,9.6);const hw=(W-5)/2;const b1=box("POINTS FORTS",r.forts,MX,hw,19,false,8.6),b2=box("AXES DE TRAVAIL PRIORITAIRES",r.axes,MX+hw+5,hw,19,false,8.6);b1.h=b2.h=Math.max(b1.h,b2.h);
     need(9+b0.h+3+b1.h+6);hLeft(`${++SN} · LE BILAN DE L'ÉDUCATEUR`,y+3);y+=9;
     const drawBox=b=>{R(b.x0,y,b.w,b.h,{fill:CCOL.box,stroke:CCOL.line,lw:.3,r:2});T(b.title,b.x0+4,y+5.2,{size:6.6,st:"bold",c:NAVY,cs:.8});
       b.ls.forEach((l,i)=>T(l,b.x0+4,y+11.2+i*b.sz*.45,{size:b.sz,st:b.it?"italic":"normal"}));if(!b.ls.length)[0,1,2].forEach(k=>L(b.x0+4,y+11.8+k*4.4,b.x0+b.w-4,y+11.8+k*4.4,CCOL.faint,.25))};
-    drawBox(b0);y+=b0.h+3;drawBox(b1);drawBox(b2);y+=b1.h;
+    drawBox(b0);y+=b0.h+3;drawBox(b1);drawBox(b2);y+=b1.h;}
     const sy=Math.max(y+9,BOTTOM);L(MX,sy,MX+55,sy,CCOL.ink,.3);T("Les parents",MX,sy+3.6,{size:7.5,c:CCOL.gray});L(MX+W-55,sy,MX+W,sy,CCOL.ink,.3);T(`L'éducateur${r.by?" · "+r.by:""}`,MX+W,sy+3.6,{size:7.5,c:CCOL.gray,al:"right"})};
   /* ================= RENCONTRE AVEC LA FAMILLE : un autre look ================= */
   const rencontre=(x,E,ee)=>{const c=x.cat,s=x.season;P=[];pages.push(P);
@@ -1816,13 +1854,18 @@ function bookPages(doc,player,pc,opts){
     rows.forEach((q,i)=>{R(XC,yy+1,WC,q.h-2,{fill:"#EEF3FA",r:1.3});q.lab.forEach((t,k)=>T(t,XL,yy+5+k*4,{size:8.8}));starsAt(XS+2.5,yy+q.h/2,ee.a[q.a.id]||0,2.5,6.2,true);
       q.com.forEach((t,k)=>T(t,XC+3,yy+5+k*3.6,{size:8,st:"italic"}));yy+=q.h;if(i<rows.length-1)L(MX+4,yy,XC-2,yy,CCOL.line,.2)});
     y+=ch+7;numH("2","Le regard de l'éducateur");
-    BILAN_ASPECTS.forEach(b=>{const ls=ee.bil[b.id]?wrap(ee.bil[b.id],"normal",8.8,W-10).slice(0,4):[];const h=ls.length?Math.max(15,9.5+ls.length*4.2+3):19.5;card(h);T(b.name.toUpperCase(),MX+5,y+5.4,{size:6.6,st:"bold",c:NAVY,cs:.8});
-      ls.forEach((l,i)=>T(l,MX+5,y+11+i*4.2,{size:8.8}));if(!ls.length){L(MX+5,y+11,MX+W-5,y+11,CCOL.faint,.25);L(MX+5,y+16.5,MX+W-5,y+16.5,CCOL.faint,.25)}y+=h+3});
-    y+=3;numH("3","Nos deux objectifs jusqu'à la prochaine rencontre");
-    [0,1].forEach(i=>{const o=(ee.obj||[])[i]||"";card(13);R(MX,y,12,13,{fill:YEL,r:2.5});T(String(i+1),MX+6,y+9,{size:15,st:"bold",c:NAVY,al:"center"});
+    const rr=(x.evals&&x.evals[E.n])||{};
+    [{name:"Points forts",t:rr.forts||"",min:17},{name:"Le mot de l'éducateur",t:rr.note||"",min:19,it:true}].forEach(b=>{const ls=b.t?wrap(b.t,b.it?"italic":"normal",8.8,W-10).slice(0,5):[];const h=ls.length?Math.max(15,9.5+ls.length*4.2+3):b.min;card(h);T(b.name.toUpperCase(),MX+5,y+5.4,{size:6.6,st:"bold",c:NAVY,cs:.8});
+      ls.forEach((l,i)=>T(l,MX+5,y+11+i*4.2,{size:8.8,st:b.it?"italic":"normal"}));if(!ls.length){L(MX+5,y+11,MX+W-5,y+11,CCOL.faint,.25);L(MX+5,y+16.5,MX+W-5,y+16.5,CCOL.faint,.25)}y+=h+3});
+    y+=3;numH("3","Nos deux axes de travail jusqu'à la prochaine rencontre");
+    const AX=splitAxes(rr.axes);if(!AX.length&&ee.obj)ee.obj.forEach(o=>{if(o)AX.push(o)});
+    [0,1].forEach(i=>{const o=AX[i]||"";card(13);R(MX,y,12,13,{fill:YEL,r:2.5});T(String(i+1),MX+6,y+9,{size:15,st:"bold",c:NAVY,al:"center"});
       if(o)T(wrap(o,"normal",9.5,W-20)[0],MX+16,y+8.2,{size:9.5});else L(MX+16,y+8.8,MX+W-5,y+8.8,CCOL.faint,.25);y+=14.5});
     const sy=BOTTOM;[[MX,"Le joueur"],[CX-27,"Les parents"],[MX+W-54,`L'éducateur${ee.by?" · "+ee.by:""}`]].forEach(([xx,lab])=>{L(xx,sy,xx+54,sy,NAVY,.35);T(lab,xx,sy+3.6,{size:7.5,c:CCOL.gray})})};
   if(only==="per"){const x=pc.find(q=>q.cat===cat&&q.season===SEASON)||{season:SEASON,cat,evals:{},ents:{}};x.evals[opts.n]=x.evals[opts.n]||blank();period(x,0,opts.n);return pages}
+  /* demi-carnet remis à la rencontre famille : les deux périodes écoulées + la rencontre (auto-évaluation, regard de l'éducateur, objectifs) */
+  if(only==="half"){const x=pc.find(q=>q.cat===cat&&q.season===SEASON)||{season:SEASON,cat,evals:{},ents:{}};const E=ENTRETIENS.find(e=>e.n===opts.n);
+    [opts.n-1,opts.n].forEach(n=>{x.evals[n]=x.evals[n]||blank();period(x,0,n)});rencontre(x,E,(x.ents&&x.ents[opts.n])||store.ent[key(cat,player,opts.n)]||blankEnt());return pages}
   if(only==="ent"){const x=pc[0];const E=ENTRETIENS.find(e=>e.n===opts.n);rencontre(x,E,x.ents[opts.n]||blankEnt());return pages}
   /* ================= UNE SAISON APRÈS L'AUTRE ================= */
   pc.forEach((x,xi)=>{const c=x.cat,s=x.season,g=GROUPS[GROUP_OF[c]],DOM=domains(c,player),T_=TESTS(c);
@@ -1842,7 +1885,7 @@ function bookPages(doc,player,pc,opts){
       else{P.push({t:"diamond",x:MX+5.5,y:y-2.2,s:1.8});T("Le fil de la saison",MX+15,y,{size:9.5,st:"bold"});T("toutes mes étoiles côte à côte",MX+50,y,{size:8.6,c:CCOL.gray})}
       T(done?"dans le carnet":"à venir",MX+W,y,{size:7.5,st:done?"bold":"normal",c:done?NAVY:CCOL.faint,al:"right"});y+=4;L(MX,y,MX+W,y,CCOL.line,.15);y+=6.4});
     /* --- dans l'ordre de la saison : P1, P2, rencontre, P3, P4, rencontre, P5 --- */
-    PERIODS.forEach(p=>{if(x.evals[p.n])period(x,xi,p.n);const E=ENTRETIENS.find(e=>e.after===p.n);if(E&&x.ents[E.n])rencontre(x,E,x.ents[E.n])});
+    PERIODS.forEach(p=>{if(x.evals[p.n])period(x,xi,p.n);const E=ENTRETIENS.find(e=>e.after===p.n);const rb=x.evals[p.n];if(E&&(x.ents[E.n]||(rb&&(rb.forts||rb.axes||rb.note))))rencontre(x,E,x.ents[E.n]||blankEnt())});
     /* --- mes tests de la saison : novembre → février → avril --- */
     {const tv=(k,id)=>{const e=x.evals[k];const v=e&&e.t?e.t[id]:null;return v==null||v===""?null:+v};
      const tests=T_.filter(t=>TEST_PERIODS.some(n=>tv(n,t.id)!=null));
@@ -1903,13 +1946,13 @@ async function showBook(pages,opts){const m=document.querySelector("main");const
     if(dl){try{await dl.save({filename:fname,data:blob});toast("PDF enregistré")}catch(e){toast(e&&e.code==="declined"?"Enregistrement annulé":"Téléchargement impossible ici")}}else{try{doc2.save(fname);toast("PDF téléchargé")}catch(e){}}});
   fitDips();window.scrollTo(0,0)}
 async function openBook(list,backTab,opts){opts=opts||{};if(!list.length){toast("Aucun joueur");return}
-  if(!opts.demo&&opts.only!=="ent"){const ok=list.filter(p=>opts.only==="per"?isVal(store.evals[key(cat,p,opts.n)]):parcours(p).length);if(!ok.length){toast(opts.only==="per"?"Pas encore validé par le RTJ : l'appréciation sera disponible après validation":"Aucune appréciation validée par le RTJ pour l'instant");return}list=ok}
+  if(!opts.demo&&opts.only!=="ent"&&opts.only!=="half"){const ok=list.filter(p=>opts.only==="per"?isVal(store.evals[key(cat,p,opts.n)]):parcours(p).length);if(!ok.length){toast(opts.only==="per"?"Pas encore validé par le RTJ : l'appréciation sera disponible après validation":"Aucune appréciation validée par le RTJ pour l'instant");return}list=ok}
   try{await loadJsPDF()}catch(e){toast("Impossible de charger le module PDF (réseau)");return}
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4"});let pages=[];
   list.forEach(p=>{const pc=opts.demo?demoParcours():opts.only==="ent"?[{season:SEASON,cat,evals:{},ents:{[opts.n]:store.ent[key(cat,p,opts.n)]||blankEnt()}}]:parcours(p);
     pages=pages.concat(bookPages(doc,p,pc,opts))});
   const slug=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
-  const pre=opts.only==="per"?`appreciation-p${opts.n}-`:opts.only==="ent"?"rencontre-":"carnet-";showBook(pages,{title:(list.length===1?list[0]:`${cat} · ${list.length} ${opts.only==="per"?"appréciations":"carnets"}`)+(opts.only==="per"?` · période ${opts.n}`:""),fname:list.length===1?`${pre}${slug(list[0])}.pdf`:`${opts.only==="per"?`appreciations-p${opts.n}`:"carnets"}-rtj-${cat.toLowerCase()}.pdf`,back:()=>{restoreMain();showTab(backTab)}})}
+  const pre=opts.only==="per"?`appreciation-p${opts.n}-`:opts.only==="ent"?"rencontre-":opts.only==="half"?`demi-carnet-p${opts.n-1}-p${opts.n}-`:"carnet-";showBook(pages,{title:(list.length===1?list[0]:`${cat} · ${list.length} ${opts.only==="per"?"appréciations":"carnets"}`)+(opts.only==="per"?` · période ${opts.n}`:""),fname:list.length===1?`${pre}${slug(list[0])}.pdf`:`${opts.only==="per"?`appreciations-p${opts.n}`:"carnets"}-rtj-${cat.toLowerCase()}.pdf`,back:()=>{restoreMain();showTab(backTab)}})}
 /* ---- carnet d'exemple (données fictives) : Émilie, arrivée en U7, aujourd'hui en U10 ---- */
 const DEMO_NAME="Émilie";
 function demoParcours(){
