@@ -413,9 +413,10 @@ function renderSchema(sc){
     if(z.t) o+=`<text x="${X(z.x+z.w/2)}" y="${Y(z.y+z.h/2)}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="700" fill="#fff" style="paint-order:stroke" stroke="rgba(0,0,0,.45)" stroke-width="2.5" font-family="Barlow Condensed, Arial Narrow, sans-serif">${esc(z.t)}</text>`});
   /* lignes de jeu : ligne médiane, rond central et surface devant chaque but (proportionnées au terrain) */
   if(sc.lines!==false){const LS=`fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.4"`,cl=(a,b)=>Math.max(a[0],Math.min(a[1],b));
-    const onB=g=>g.o==="v"?(g.x<=0.05||g.x>=L-0.05):(g.y<=0.05||g.y>=W-0.05);const G0=sc.goals||[];
+    const onB=g=>g.o==="v"?(g.x<=1.5||g.x>=L-1.5):(g.y<=1.5||g.y>=W-1.5);const G0=sc.goals||[];
     /* plusieurs terrains dans le même schéma (buts au milieu) ou buts sur les 4 côtés : on ne trace rien de plus */
-    const gl=(G0.every(onB)&&!(G0.some(g=>g.o==="v")&&G0.some(g=>g.o!=="v")))?G0.filter(g=>(g.s||3)>=2):[];
+    const VG=(sc.lines===true&&!G0.length)?(L>=W?[{x:0,y:W/2,o:"v",s:Math.min(6,W*0.2)},{x:L,y:W/2,o:"v",s:Math.min(6,W*0.2)}]:[{x:L/2,y:0,s:Math.min(6,L*0.2)},{x:L/2,y:W,s:Math.min(6,L*0.2)}]):null;
+    const gl=VG||((G0.every(onB)&&!(G0.some(g=>g.o==="v")&&G0.some(g=>g.o!=="v")))?G0.filter(g=>(g.s||3)>=2):[]);
     const gv=gl.filter(g=>g.o==="v"),gh=gl.filter(g=>g.o!=="v");
     const side=g=>g.o==="v"?(g.x<=L/2?"l":"r"):(g.y<=W/2?"t":"b"),nb={};gl.forEach(g=>nb[side(g)]=(nb[side(g)]||0)+1);
     const ax=(gv.some(g=>g.x<=L/2)&&gv.some(g=>g.x>L/2))?"x":(gh.some(g=>g.y<=W/2)&&gh.some(g=>g.y>W/2))?"y":null;
@@ -424,14 +425,15 @@ function renderSchema(sc){
       if(D>=20){o+=`<circle cx="${X(L/2)}" cy="${Y(W/2)}" r="${M(r)}" ${LS}/><circle cx="${X(L/2)}" cy="${Y(W/2)}" r="2" fill="rgba(255,255,255,.85)"/>`}}
     gl.forEach(g=>{const v=g.o==="v",D=v?L:W,A=v?W:L;if(D<20||nb[side(g)]>1)return;const s=g.s||3;
       const dep=cl([2.5,16.5],D*0.16),sw=Math.min(A*0.7,s*2.6+dep*1.2),c=v?g.y:g.x,a0=cl([0,A-sw],c-sw/2);
+      /* mini-buts, ou but collé dans un coin : pas de surface */if(s<2.5||c-sw/2<-0.5||c+sw/2>A+0.5)return;
       /* petite surface (dès 30 m) et point de penalty */
-      const pd=dep*0.36,pw=Math.min(sw*0.8,s+2*pd),p0=cl([0,A-pw],c-pw/2),pk=dep*0.69,lo=g.x<=0.05||(!v&&g.y<=0.05);
-      if(v){const x0=g.x<=0.05?0:L-dep;o+=`<rect x="${X(x0)}" y="${Y(a0)}" width="${M(dep)}" height="${M(sw)}" ${LS}/>`;
-        if(D>=30)o+=`<rect x="${X(g.x<=0.05?0:L-pd)}" y="${Y(p0)}" width="${M(pd)}" height="${M(pw)}" ${LS}/>`;
-        o+=`<circle cx="${X(g.x<=0.05?pk:L-pk)}" cy="${Y(c)}" r="2" fill="rgba(255,255,255,.85)"/>`}
-      else{const y0=g.y<=0.05?0:W-dep;o+=`<rect x="${X(a0)}" y="${Y(y0)}" width="${M(sw)}" height="${M(dep)}" ${LS}/>`;
-        if(D>=30)o+=`<rect x="${X(p0)}" y="${Y(g.y<=0.05?0:W-pd)}" width="${M(pw)}" height="${M(pd)}" ${LS}/>`;
-        o+=`<circle cx="${X(c)}" cy="${Y(g.y<=0.05?pk:W-pk)}" r="2" fill="rgba(255,255,255,.85)"/>`}});}
+      const pd=dep*0.36,pw=Math.min(sw*0.8,s+2*pd),p0=cl([0,A-pw],c-pw/2),pk=dep*0.69;
+      if(v){const x0=g.x<=L/2?0:L-dep;o+=`<rect x="${X(x0)}" y="${Y(a0)}" width="${M(dep)}" height="${M(sw)}" ${LS}/>`;
+        if(D>=30)o+=`<rect x="${X(g.x<=L/2?0:L-pd)}" y="${Y(p0)}" width="${M(pd)}" height="${M(pw)}" ${LS}/>`;
+        o+=`<circle cx="${X(g.x<=L/2?pk:L-pk)}" cy="${Y(c)}" r="2" fill="rgba(255,255,255,.85)"/>`}
+      else{const y0=g.y<=W/2?0:W-dep;o+=`<rect x="${X(a0)}" y="${Y(y0)}" width="${M(sw)}" height="${M(dep)}" ${LS}/>`;
+        if(D>=30)o+=`<rect x="${X(p0)}" y="${Y(g.y<=W/2?0:W-pd)}" width="${M(pw)}" height="${M(pd)}" ${LS}/>`;
+        o+=`<circle cx="${X(c)}" cy="${Y(g.y<=W/2?pk:W-pk)}" r="2" fill="rgba(255,255,255,.85)"/>`}});}
   /* échelles de motricité : 2 montants et des barreaux tous les 0,5 m */
   (sc.ladders||[]).forEach(l=>{const n=Math.max(2,Math.min(16,+l.n||8)),len=n*0.5,w=0.55,v=l.o==="v";
     const x0=v?l.x-w/2:l.x-len/2,y0=v?l.y-len/2:l.y-w/2,lw=v?w:len,lh=v?len:w;
