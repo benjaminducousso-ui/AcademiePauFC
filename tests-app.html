@@ -198,7 +198,7 @@ function home(){const T=clubTests(V.cat);const cats=myCats();
     <p class="sect">Je fais passer</p><div class="seg" style="--n:2"><button data-flow="atl" aria-pressed="${FLOW()==="atl"}">Atelier par atelier<small>tous les enfants à la suite</small></button><button data-flow="kid" aria-pressed="${FLOW()==="kid"}">Enfant par enfant<small>tous ses ateliers de la station</small></button></div>
     <button class="opt" id="voice" aria-pressed="${!!D.opt.voice}"><span>🔊 Annoncer les résultats à voix haute</span><i>${D.opt.voice?"oui":"non"}</i></button>
     <div class="row">${D.rtj?"":`<button class="btn g" id="add">+ catégorie</button>`}<button class="btn g" id="out">Se déconnecter</button></div>
-    <p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
+    <p class="hint" style="text-align:center;opacity:.7">Version 12 · 10 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
   badge();app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{V.cat=b.dataset.c;D.cat=V.cat;save();render();pull(V.cat)});
   app.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{V.per=+b.dataset.p;D.per=V.per;save();render()});
   app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{goTest(b.dataset.t,FLOW()==="kid");keepAwake()});
