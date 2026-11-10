@@ -159,7 +159,7 @@ async function pull(c){try{const r=await fetch(`${API}?prog=${encodeURIComponent
     if(!loc||(x.ts||0)>(loc.ts||0)){D.res[k]={t:x.t||{},by:x.by||"",ts:x.ts||0};n++;if(!players(c).includes(p)){(D.extra[c]=D.extra[c]||[]).push(p)}}});
   if(n){save();if(V.view!=="measure")render();else if(T.state==="idle"&&V.cur&&!V.cur.n&&!V.cur.count){const p=players(V.cat)[V.idx];
     /* l'enfant affiché vient d'être fait sur un autre téléphone : atelier par atelier, on passe au suivant ; enfant par enfant, on montre son résultat */
-    if(FLOW()==="atl"&&has(V.cat,p,V.per,V.test.id)){const r=D.res[rkey(V.cat,p,V.per,V.test.id)];toast(`${prenom(p)} vient d'être fait${r&&r.by?" par "+r.by:""} · enfant suivant`);next(false)}else{loadKid();render()}}else if(T.state==="idle"&&V.cur&&V.cur.loaded&&!V.cur.dirty){newKidSoft()}}}catch(e){}}
+    if(has(V.cat,p,V.per,V.test.id)){const r=D.res[rkey(V.cat,p,V.per,V.test.id)];toast(`${prenom(p)} vient d'être fait${r&&r.by?" par "+r.by:""}`)}loadKid();render()}else if(T.state==="idle"&&V.cur&&V.cur.loaded&&!V.cur.dirty){newKidSoft()}}}catch(e){}}
 function newKidSoft(){const k=V.cur&&V.cur.count;if(k)return;V.cur={v:[null,null],ms:[null,null],b:[null,null],m:[null,null],n:0,count:0};loadKid();render()}
 /* ---------- état de l'écran ---------- */
 const defPer=()=>{const m=new Date().getMonth();return m<=1?3:m<=6?4:1};
@@ -195,14 +195,12 @@ function home(){const T=clubTests(V.cat);const cats=myCats();
     ${cats.length>1?`<div class="seg" style="--n:${Math.min(cats.length,7)}">${cats.map(c=>`<button data-c="${c}" aria-pressed="${c===V.cat}">${c}</button>`).join("")}</div>`:""}
     <div class="seg" style="--n:3">${TEST_PERIODS.map(n=>`<button data-p="${n}" aria-pressed="${n===V.per}">${TP[n]}<small>P${n}</small></button>`).join("")}</div>
     ${groups.map(g=>`<p class="sect">${g.n}</p>${g.t.map(t=>{const d=doneOf(t),N=players(V.cat).length;return `<button class="atl" data-t="${t.id}"><span class="l"><b>${esc((x=>x.charAt(0).toUpperCase()+x.slice(1))(t.name.replace(/^Jonglerie /,"")))}</b><small>${t.kind==="count"?"Compteur de touches · 2 essais":t.kind==="value"?"Palier atteint, saisi à la fin du défi":t.combo?"Chrono − bonus de la passe · 2 essais":t.beep?`Chrono · départ au bip · ${t.one?"1 essai":"2 essais"}`:"Chrono · 2 essais"}</small><span class="bar"><i style="width:${N?d/N*100:0}%"></i></span></span><span class="c ${d===N&&N?'done':''}">${d}/${N}</span></button>`}).join("")}`).join("")}
-    <p class="sect">Je fais passer</p><div class="seg" style="--n:2"><button data-flow="atl" aria-pressed="${FLOW()==="atl"}">Atelier par atelier<small>tous les enfants à la suite</small></button><button data-flow="kid" aria-pressed="${FLOW()==="kid"}">Enfant par enfant<small>tous ses ateliers de la station</small></button></div>
     <button class="opt" id="voice" aria-pressed="${!!D.opt.voice}"><span>🔊 Annoncer les résultats à voix haute</span><i>${D.opt.voice?"oui":"non"}</i></button>
     <div class="row">${D.rtj?"":`<button class="btn g" id="add">+ catégorie</button>`}<button class="btn g" id="out">Se déconnecter</button></div>
-    <p class="hint" style="text-align:center;opacity:.7">Version 12 · 10 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
+    <p class="hint" style="text-align:center;opacity:.7">Version 13 · 10 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
   badge();app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{V.cat=b.dataset.c;D.cat=V.cat;save();render();pull(V.cat)});
   app.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{V.per=+b.dataset.p;D.per=V.per;save();render()});
-  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{goTest(b.dataset.t,FLOW()==="kid");keepAwake()});
-  app.querySelectorAll("[data-flow]").forEach(b=>b.onclick=()=>{D.opt.flow=b.dataset.flow;save();render()});
+  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{goTest(b.dataset.t,true);keepAwake()});
   document.getElementById("voice").onclick=()=>{D.opt.voice=!D.opt.voice;save();render();if(D.opt.voice)say("Les résultats seront annoncés")};
   const ad=document.getElementById("add");if(ad)ad.onclick=()=>{V.adding=true;V.view="login";render()};
   document.getElementById("out").onclick=()=>{if(D.queue.length){toast(`${D.queue.length} résultat(s) pas encore envoyé(s) : reconnecte-toi au réseau avant de te déconnecter`);return}D.who=D.who;D.rtj=false;D.lock=null;save();V.view="login";render()};
@@ -215,12 +213,11 @@ function newKid(){V.cur={v:[null,null],ms:[null,null],b:[null,null],m:[null,null
   if(Date.now()-(newKid.pl||0)>4000){newKid.pl=Date.now();pull(V.cat)}}
 /* deux façons de faire passer : un atelier pour tous les enfants, ou un enfant sur tous les ateliers de la station */
 const SHORT={jd:"Pied droit",jg:"Pied gauche",ja:"Alterné",jt:"Tête",slalom10:"Grand slalom",huit5:"Figure en 8",pcd:"Cône · droit",pcg:"Cône · gauche",pdd:"Dosée · droit",pdg:"Dosée · gauche",v10:"10 m",v20:"20 m",v30:"30 m"};
-const FLOW=()=>D.opt.flow==="kid"?"kid":"atl";
 const station=t=>clubTests(V.cat).filter(x=>x.cat===t.cat);
 /* poser un essai dans la première case vide (un essai effacé se refait à sa place) */
 function putTry(v,ms,m){const c=V.cur,max=V.test.one?1:2;const i=[0,1].slice(0,max).find(k=>c.v[k]==null);if(i==null)return -1;c.v[i]=v;c.ms[i]=ms??null;c.m[i]=m||null;c.n=c.v.filter(x=>x!=null).length;c.dirty=true;return i}
 function goTest(id,keepKid){const T2=clubTests(V.cat);const t=T2.find(x=>x.id===id);if(!t)return;stopT();V.test=t;const L=players(V.cat);
-  const k=keepKid&&V.kid?L.indexOf(V.kid):-1;if(k>=0)V.idx=k;else{const ab=absOf();V.idx=Math.max(0,L.findIndex(p=>!has(V.cat,p,V.per,t.id)&&!ab[p]))}newKid()}
+  const k=keepKid&&V.kid&&(keepKid==="force"||!has(V.cat,V.kid,V.per,t.id))?L.indexOf(V.kid):-1;if(k>=0)V.idx=k;else{const ab=absOf();V.idx=Math.max(0,L.findIndex(p=>!has(V.cat,p,V.per,t.id)&&!ab[p]))}newKid()}
 /* fiche de l'enfant : tous ses résultats, et on peut aller sur un atelier en le gardant */
 function kidSheet(){const p=V.kid;if(!p)return;const T2=clubTests(V.cat);const sh=document.createElement("div");sh.className="sheet";
   let g=null;const rows=T2.map(t=>{const r=D.res[rkey(V.cat,p,V.per,t.id)];const ok=has(V.cat,p,V.per,t.id);const head=t.cat!==g?`<p class="sect">${esc(t.cat)}</p>`:"";g=t.cat;
@@ -228,7 +225,7 @@ function kidSheet(){const p=V.kid;if(!p)return;const T2=clubTests(V.cat);const s
   sh.innerHTML=`<div class="card" style="max-height:86vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="font-size:19px;margin:0">${esc(prenom(p))} · ses résultats</h2><button class="x" id="kx" aria-label="Fermer">✕</button></div>
     <p class="hint">${esc(p)} · ${TP[V.per]}. Touche un atelier pour y aller avec ${esc(prenom(p))}.</p>${rows}</div>`;
   document.body.appendChild(sh);sh.querySelector("#kx").onclick=()=>sh.remove();sh.addEventListener("pointerdown",e=>{if(e.target===sh)sh.remove()});
-  sh.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{sh.remove();goTest(b.dataset.g,true)})}
+  sh.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{sh.remove();goTest(b.dataset.g,"force")})}
 /* un enfant déjà passé : on réaffiche ses essais enregistrés (sur ce téléphone ou un autre), au lieu d'un compteur à zéro */
 function loadKid(){try{const t=V.test,p=players(V.cat)[V.idx];const r=D.res[rkey(V.cat,p,V.per,t.id)];if(!r||!r.t)return;const x=r.t,id=t.id,g=k=>x[k]==null||x[k]===""?null:+x[k];const c=V.cur;
   if(t.combo){c.v=[g(id+"_c"),g(id+"_c2")];c.b=[g(id+"_b"),g(id+"_b2")]}else if(t.one){c.v=[g(id),null]}else{c.v=[g(id+"_e1"),g(id+"_e2")];if(c.v.every(v=>v==null)&&g(id)!=null)c.v=[g(id),null]}
@@ -252,7 +249,7 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
   else{zone=`<button class="big ${T.state==='run'?'run':T.state==='arm'?'arm':''}" id="chrono" ${full||needB?'disabled':''}><span class="clock" id="clock">${T.state==='idle'?'0,00':''}</span><span class="lab" id="clab">${full?(max===1?"Essai fait":"2 essais faits"):needB?"Choisis d'abord le résultat de la passe":T.state==='run'?"Touche n'importe où pour arrêter":(t.beep&&D.opt["beep_"+t.id]!==false)?`Départ au bip${max===1?" · 1 essai":` · essai ${c.v[0]==null?1:2} sur 2`}`:`Touche pour démarrer${max===1?" · 1 essai":` · essai ${c.v[0]==null?1:2} sur 2`}`}</span></button>`;
     if(t.combo){const j=[0,1].find(i=>c.v[i]!=null&&c.b[i]==null);const jj=j!=null?j:Math.max(0,c.n-1);zone+=`<div class="bon">${PASS_BONUS[t.combo].map(o=>`<button data-b="${o.b}" aria-pressed="${c.b[jj]===o.b}" ${c.v[jj]==null?'disabled':''}>${o.l}<small>−${o.b} s</small></button>`).join("")}</div>`}
     zone+=`<div class="row" style="--n:${t.beep?2:1}">${t.beep?`<button class="opt" id="beep" aria-pressed="${D.opt["beep_"+t.id]!==false}"><span>Départ au bip</span><i>${D.opt["beep_"+t.id]!==false?"oui":"non"}</i></button>`:""}<button class="opt" id="manual" ${full?'disabled':''}><span>✎ Saisir un temps</span><i>cellules…</i></button></div>`}
-  if(view)zone=`<div class="card seen"><b>✓ Déjà passé${c.by?" · saisi par "+esc(c.by):""}</b><span>Résultat retenu : <b class="rec">${bs?fmtV(t,bs.v):"–"}</b></span>
+  if(view)zone=`<div class="card seen"><b>✓ Résultat enregistré${c.by?" · saisi par "+esc(c.by):""}</b><span>Résultat retenu : <b class="rec">${bs?fmtV(t,bs.v):"–"}</b></span>
       <div class="row" style="--n:${max}">${[0,1].slice(0,max).map(i=>`<button class="btn g" data-re="${i}" ${c.v[i]==null?'disabled':''}>↺ Refaire ${max===1?"l'essai":"l'essai "+(i+1)}</button>`).join("")}</div></div>`;
   else if(c.loaded&&!c.dirty&&!full)zone=`<p class="hint" style="text-align:center">✓ Un essai déjà enregistré · fais le 2e essai si tu veux</p>`+zone;
   app.innerHTML=topBar(t.name,`${V.cat} · ${TP[V.per]} · ${L.filter(done).length}/${L.length} faits`,true)+`<div class="main">
@@ -260,7 +257,8 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
     ${chips}<div class="who"><small>${view?"Résultats de":"Au tour de"}</small><b>${esc(prenom(p))}</b><span>${esc(p)} · <button class="lnk" id="kid">ses résultats</button></span>
       <span>${pr?`Son record ${pr.P===1?"de novembre":"de "+TP[pr.P].toLowerCase()} : <b class="rec">${fmtV(t,pr.v)}</b> · à battre`:(t.target!=null?`Objectif de fin de saison : ${t.target} ${t.unit}`:"Premier passage : il fixe son record")}</span></div>
     <div class="tries" style="${t.one?'grid-template-columns:1fr':''}">${tryBox(0)}${t.one?"":tryBox(1)}</div>${zone}
-    ${view?`<div class="row" style="display:grid;grid-template-columns:1fr 2fr;gap:8px"><button class="btn g" id="absent">Absent</button><button class="btn y vbtn" id="skip">${FLOW()==="kid"?"Atelier suivant ›":"Enfant suivant ›"}<small>sans rien changer</small></button></div>`:
+    ${view?(()=>{const ab2=absOf();const nk=[...L.slice(V.idx+1),...L.slice(0,V.idx)].find(x=>!has(V.cat,x,V.per,t.id)&&!ab2[x]);const nt=st2.find(x=>x.id!==t.id&&!has(V.cat,p,V.per,x.id));
+      return `${nk?`<button class="btn y vbtn" id="skip">Enfant suivant · ${esc(prenom(nk))} ›<small>${esc(SHORT[t.id]||t.name)}</small></button>`:`<button class="btn y" id="skip">✓ Tout le monde est passé</button>`}${nt?`<button class="btn g vbtn" id="sameKid" data-nt="${nt.id}">${esc(SHORT[nt.id]||nt.name)} avec ${esc(prenom(p))} ›<small>même enfant</small></button>`:""}`})():
     `<div class="row" style="--n:3"><button class="btn g" id="redo" ${c.n===0?'disabled':''}>↺ Refaire</button><button class="btn g" id="absent">Absent</button><button class="btn y vbtn" id="valid" ${!bs||needB||!full?'disabled':''}>Valider<small>${!full?`après l'essai ${c.v[0]==null?1:2}`:bs&&!needB?fmtV(t,bs.v):"…"}</small></button></div>`}
     ${!t.one&&c.n===1&&!needB&&bs?`<button class="lnk" id="one">Valider avec un seul essai (enfant blessé, fatigué…)</button>`:""}
   </div>`;
@@ -268,15 +266,16 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
   document.getElementById("back").onclick=()=>{stopT();V.view="home";render()};
   document.getElementById("sync").onclick=()=>flush();
   app.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{stopT();V.idx=+b.dataset.i;newKid()});
-  app.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{if(b.dataset.st!==t.id)goTest(b.dataset.st,true)});
+  app.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{if(b.dataset.st!==t.id)goTest(b.dataset.st,"force")});
   document.getElementById("kid").onclick=kidSheet;
   const clr=i=>{c.v[i]=null;c.ms[i]=null;c.b[i]=null;c.m[i]=null;c.n=c.v.filter(x=>x!=null).length;c.dirty=true};
   app.querySelectorAll("[data-re]").forEach(b=>b.onclick=()=>{stopT();const i=+b.dataset.re;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire · l'autre est gardé`);render()});
-  const sk=document.getElementById("skip");if(sk)sk.onclick=()=>next(false,true);
+  const sk=document.getElementById("skip");if(sk)sk.onclick=()=>next(false);
+  const sm=document.getElementById("sameKid");if(sm)sm.onclick=()=>goTest(sm.dataset.nt,"force");
   const rd=document.getElementById("redo");if(rd)rd.onclick=()=>{stopT();const i=[1,0].find(k=>c.v[k]!=null);if(i==null)return;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire`);render()};
-  document.getElementById("absent").onclick=()=>{stopT();setAbs(p,true);toast(`${prenom(p)} absent · à rattraper en fin d'atelier`);next(false)};
+  const abB=document.getElementById("absent");if(abB)abB.onclick=()=>{stopT();setAbs(p,true);toast(`${prenom(p)} absent · à rattraper en fin d'atelier`);next(false)};
   const vb=document.getElementById("valid");if(vb)vb.onclick=validate;const on1=document.getElementById("one");if(on1)on1.onclick=validate;
-  if(t.kind==="count"){const cnt=document.getElementById("cnt");cnt.addEventListener("pointerdown",e=>{e.preventDefault();if(c.n>=2)return;c.count++;cnt.querySelector("b").textContent=c.count;buzz(6)});
+  if(view){}else if(t.kind==="count"){const cnt=document.getElementById("cnt");cnt.addEventListener("pointerdown",e=>{e.preventDefault();if(c.n>=2)return;c.count++;cnt.querySelector("b").textContent=c.count;buzz(6)});
     document.getElementById("minus").onclick=()=>{c.count=Math.max(0,c.count-1);render()};
     document.getElementById("endtry").onclick=()=>{putTry(c.count);say(c.count+" touches");c.count=0;buzz([10,40,10]);render()}}
   else{const ch=document.getElementById("chrono");if(ch)ch.addEventListener("pointerdown",onChrono);if(T.state==="run")loopT();
@@ -306,14 +305,9 @@ function validate(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],b=best();
     /* l'annulation envoie une ligne vide qui remplace le résultat (le journal du classeur garde les deux) */
     const ts=Date.now();const keys=[t.id,t.id+"_e1",t.id+"_e2",t.id+"_c",t.id+"_b",t.id+"_c2",t.id+"_b2",t.id+"_m",t.id+"_m1",t.id+"_m2"];const tt={};keys.forEach(k=>tt[k]=prev&&prev.t&&prev.t[k]!==undefined?prev.t[k]:null);
     D.queue.push({prog:1,cat:apiCat(V.cat),player:p+"¦"+t.id,per:200+V.per,f:{},t:tt,note:"annulé",by:D.who,ts});D.res[rkey(V.cat,p,V.per,t.id)]={t:tt,by:D.who,ts};save();flush();V.idx=idx;newKid();toast("Résultat annulé : on recommence")}});
-  next(true)}
-function next(saved,skip){const L=players(V.cat),t=V.test,ab=absOf();const free=x=>!has(V.cat,x,V.per,t.id)&&!ab[x];
-  if(FLOW()==="kid"){const p=L[V.idx],S=station(t),i=S.findIndex(x=>x.id===t.id);const o=[...S.slice(i+1),...S.slice(0,i)];
-    const nt=o.find(x=>!has(V.cat,p,V.per,x.id));if(nt){V.test=nt;toast(`${prenom(p)} · ${nt.name.replace(/ \(\d+ m\)$/,"")}`);newKid();return}
-    /* l'enfant a fini la station : enfant suivant, sur son premier atelier pas fait */
-    const nx=[...L.slice(V.idx+1),...L.slice(0,V.idx)].find(x=>!ab[x]&&S.some(y=>!has(V.cat,x,V.per,y.id)));
-    if(!nx){stopT();V.view="done";setTimeout(render,saved?250:0);return}
-    V.idx=L.indexOf(nx);V.test=S.find(y=>!has(V.cat,nx,V.per,y.id));toast(`${prenom(p)} a fini · au tour de ${prenom(nx)}`);newKid();return}
+  newKid()}
+function next(saved){const L=players(V.cat),t=V.test,ab=absOf();const free=x=>!has(V.cat,x,V.per,t.id)&&!ab[x];
+
   let n=L.findIndex((x,i)=>i>V.idx&&free(x));if(n<0)n=L.findIndex(free);if(n<0){stopT();V.view="done";setTimeout(render,saved?250:0);return}V.idx=n;newKid()}
 function done(){const t=V.test,L=players(V.cat),ab=Object.keys(absOf()).filter(p=>!has(V.cat,p,V.per,t.id));const d=L.filter(p=>has(V.cat,p,V.per,t.id)).length;
   app.innerHTML=topBar(t.name,`${V.cat} · ${TP[V.per]}`,true)+`<div class="main"><div class="card" style="text-align:center"><h2>✓ ${d}/${L.length} joueurs</h2><p class="hint" style="font-size:14px">${ab.length?`À rattraper : ${ab.map(prenom).join(", ")}. Ils restent dans la liste, même lors d'une autre séance.`:"Tous les résultats sont dans l'outil Progression : fiches, bilan du groupe et carnets."}</p></div>
