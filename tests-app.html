@@ -132,7 +132,9 @@ if(resetOn()&&(D.resetAt||0)<RESET_TS){D.res={};D.abs={};D.queue=D.queue.filter(
 const save=()=>{try{localStorage.setItem(LS,JSON.stringify(D))}catch(e){}};save();
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const sha=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t.trim().toLowerCase())))].map(b=>b.toString(16).padStart(2,"0")).join("");
-const prenom=p=>{const w=String(p).trim().split(/\s+/);const f=w.filter(x=>x!==x.toUpperCase()||x.length<=2);return f.length?f.join(" "):w[w.length-1]};
+/* prénom + initiale du nom (« Leo D. ») : deux enfants peuvent avoir le même prénom */
+const prenom=p=>{const w=String(p).trim().split(/\s+/);const up=x=>x===x.toUpperCase()&&/[A-ZÀ-Ý]/.test(x);const f=w.filter(x=>!up(x));const n=w.filter(up);
+  if(!f.length){const l=w[w.length-1];return l.charAt(0)+l.slice(1).toLowerCase()+(w.length>1?" "+w[0].charAt(0)+".":"")}return f.join(" ")+(n.length?" "+n[0].charAt(0)+".":"")};
 const fmt=ms=>(ms/1000).toFixed(2).replace(".",",");
 const fmtV=(t,v)=>v==null?"–":t.kind==="time"?fmt(v*1000)+" s":t.kind==="count"?v+" touches":String(v).replace(".",",")+" "+t.unit;
 const rkey=(c,p,P,id)=>`${c}|${p}|${P}|${id}`;
@@ -197,7 +199,7 @@ function home(){const T=clubTests(V.cat);const cats=myCats();
     ${groups.map(g=>`<p class="sect">${g.n}</p>${g.t.map(t=>{const d=doneOf(t),N=players(V.cat).length;return `<button class="atl" data-t="${t.id}"><span class="l"><b>${esc((x=>x.charAt(0).toUpperCase()+x.slice(1))(t.name.replace(/^Jonglerie /,"")))}</b><small>${t.kind==="count"?"Compteur de touches · 2 essais":t.kind==="value"?"Palier atteint, saisi à la fin du défi":t.combo?"Chrono − bonus de la passe · 2 essais":t.beep?`Chrono · départ au bip · ${t.one?"1 essai":"2 essais"}`:"Chrono · 2 essais"}</small><span class="bar"><i style="width:${N?d/N*100:0}%"></i></span></span><span class="c ${d===N&&N?'done':''}">${d}/${N}</span></button>`}).join("")}`).join("")}
     <button class="opt" id="voice" aria-pressed="${!!D.opt.voice}"><span>🔊 Annoncer les résultats à voix haute</span><i>${D.opt.voice?"oui":"non"}</i></button>
     <div class="row">${D.rtj?"":`<button class="btn g" id="add">+ catégorie</button>`}<button class="btn g" id="out">Se déconnecter</button></div>
-    <p class="hint" style="text-align:center;opacity:.7">Version 13 · 10 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
+    <p class="hint" style="text-align:center;opacity:.7">Version 14 · 10 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
   badge();app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{V.cat=b.dataset.c;D.cat=V.cat;save();render();pull(V.cat)});
   app.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{V.per=+b.dataset.p;D.per=V.per;save();render()});
   app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{goTest(b.dataset.t,true);keepAwake()});
@@ -257,8 +259,7 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
     ${chips}<div class="who"><small>${view?"Résultats de":"Au tour de"}</small><b>${esc(prenom(p))}</b><span>${esc(p)} · <button class="lnk" id="kid">ses résultats</button></span>
       <span>${pr?`Son record ${pr.P===1?"de novembre":"de "+TP[pr.P].toLowerCase()} : <b class="rec">${fmtV(t,pr.v)}</b> · à battre`:(t.target!=null?`Objectif de fin de saison : ${t.target} ${t.unit}`:"Premier passage : il fixe son record")}</span></div>
     <div class="tries" style="${t.one?'grid-template-columns:1fr':''}">${tryBox(0)}${t.one?"":tryBox(1)}</div>${zone}
-    ${view?(()=>{const ab2=absOf();const nk=[...L.slice(V.idx+1),...L.slice(0,V.idx)].find(x=>!has(V.cat,x,V.per,t.id)&&!ab2[x]);const nt=st2.find(x=>x.id!==t.id&&!has(V.cat,p,V.per,x.id));
-      return `${nk?`<button class="btn y vbtn" id="skip">Enfant suivant · ${esc(prenom(nk))} ›<small>${esc(SHORT[t.id]||t.name)}</small></button>`:`<button class="btn y" id="skip">✓ Tout le monde est passé</button>`}${nt?`<button class="btn g vbtn" id="sameKid" data-nt="${nt.id}">${esc(SHORT[nt.id]||nt.name)} avec ${esc(prenom(p))} ›<small>même enfant</small></button>`:""}`})():
+    ${view?"":
     `<div class="row" style="--n:3"><button class="btn g" id="redo" ${c.n===0?'disabled':''}>↺ Refaire</button><button class="btn g" id="absent">Absent</button><button class="btn y vbtn" id="valid" ${!bs||needB||!full?'disabled':''}>Valider<small>${!full?`après l'essai ${c.v[0]==null?1:2}`:bs&&!needB?fmtV(t,bs.v):"…"}</small></button></div>`}
     ${!t.one&&c.n===1&&!needB&&bs?`<button class="lnk" id="one">Valider avec un seul essai (enfant blessé, fatigué…)</button>`:""}
   </div>`;
@@ -270,8 +271,7 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
   document.getElementById("kid").onclick=kidSheet;
   const clr=i=>{c.v[i]=null;c.ms[i]=null;c.b[i]=null;c.m[i]=null;c.n=c.v.filter(x=>x!=null).length;c.dirty=true};
   app.querySelectorAll("[data-re]").forEach(b=>b.onclick=()=>{stopT();const i=+b.dataset.re;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire · l'autre est gardé`);render()});
-  const sk=document.getElementById("skip");if(sk)sk.onclick=()=>next(false);
-  const sm=document.getElementById("sameKid");if(sm)sm.onclick=()=>goTest(sm.dataset.nt,"force");
+  
   const rd=document.getElementById("redo");if(rd)rd.onclick=()=>{stopT();const i=[1,0].find(k=>c.v[k]!=null);if(i==null)return;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire`);render()};
   const abB=document.getElementById("absent");if(abB)abB.onclick=()=>{stopT();setAbs(p,true);toast(`${prenom(p)} absent · à rattraper en fin d'atelier`);next(false)};
   const vb=document.getElementById("valid");if(vb)vb.onclick=validate;const on1=document.getElementById("one");if(on1)on1.onclick=validate;
