@@ -1,0 +1,97 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Défis techniques · animations</title>
+<style>
+:root{--bg:#0E2440;--card:#17304F;--mut:#AFC0D6;--y:#F2C200}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:Inter,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.w{max-width:620px;margin:0 auto;padding:14px 16px 40px}
+h1{font-size:20px;margin:6px 0 2px;text-transform:uppercase}.sub{color:var(--mut);font-size:13.5px;margin:0 0 10px}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px}.cats a{color:var(--mut);text-decoration:none;border:1.5px solid #2A4A70;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:700}.cats a.on{background:var(--y);color:var(--bg);border-color:var(--y)}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 14px}nav a{color:#fff;text-decoration:none;background:var(--card);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700}
+section{background:var(--card);border-radius:16px;padding:14px;margin-bottom:16px;scroll-margin-top:10px}
+section h2{margin:0 0 4px;font-size:17px}section p{margin:3px 0;color:var(--mut);font-size:13.5px;line-height:1.4}section p b{color:#fff}
+svg{width:100%;height:auto;display:block;border-radius:12px;margin-top:8px}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+button{border:0;border-radius:12px;padding:10px 14px;font-weight:800;font-size:14px;cursor:pointer;background:#22426A;color:#fff;font-family:inherit}button.play{background:var(--y);color:var(--bg)}button[aria-pressed=true]{background:#fff;color:var(--bg)}
+.clock{font-family:ui-monospace,Menlo,monospace;font-size:24px;font-weight:800;color:var(--y);margin-left:auto}
+.step{min-height:20px;font-size:14px;font-weight:700;margin-top:8px}
+</style></head><body><div class="w">
+<h1>Défis techniques · comment ça se passe</h1><p class="sub">Pau FC Academy · touche ▶ pour voir chaque atelier en mouvement. Les distances sont écrites sur les schémas.</p>
+<div class="cats" id="cats"></div>
+<nav><a href="#slalom">Grand slalom</a><a href="#huit">Figure en 8</a><a href="#passe">Slalom + passe</a><a href="#vitesse">Vitesse</a></nav>
+<section id="slalom"><h2>2A · Grand slalom</h2><p>Porte de <b>1,5 m</b> = départ et arrivée. Jalon <b>A à 10 m</b> dans l'axe. Jalons <b>B et C à 5 m</b> de la porte, écartés de <b>5 m</b> (2,5 m de chaque côté), coupelle repère au centre.</p><p><b>2 essais</b> : le 1er par la droite (A → B → C), le 2e en miroir (A → C → B). Chrono : 1er contact → ballon qui franchit la porte. Jalon oublié ou renversé : on refait.</p><div data-a="slalom"></div></section>
+<section id="huit"><h2>2B · Figure en 8</h2><p>2 jalons à <b>5 m</b> l'un de l'autre. Ligne de départ (2 cônes) <b>1 m avant</b> le 1er jalon.</p><p><b>2 essais</b> (départ par la droite, puis par la gauche). <b>2 allers-retours en 8</b>, puis retour à la ligne. Chrono : 1er contact → ballon qui franchit la ligne.</p><div data-a="huit"></div></section>
+<section id="passe"><h2>3A et 3B · Slalom + passe</h2><p>Porte de <b>1,5 m</b>. 5 coupelles tous les <b>2 m</b> (de 2 à 10 m). Ligne de passe à <b>11 m</b>. Cible à <b id="pd">10 m</b> de la ligne de passe.</p><p>3A : mini-but de <b>1,2 m</b>, plot au centre (−3 s plot tombé, −1 s dans le but plot debout). 3B : carré de <b>2 × 2 m</b> (−3 s arrêté dans le carré, −1 s le traverse). <b>2 essais par pied</b>. Chrono : 1er contact → passe.</p><div data-a="passe"></div></section>
+<section id="vitesse"><h2>Vitesse</h2><p>Couloir de <b>2 m</b>, lignes à <b>0, 10, 20</b><span id="v30"> et 30 m</span>, freinage <b>5 m</b> après. Départ arrêté, sans élan. <b>1 essai par distance.</b></p><p>L'éducateur se place <b>sur la ligne d'arrivée</b> : ▶ il touche quand l'enfant <b>se met en mouvement</b>, ⏹ quand <b>son buste passe la ligne</b>.</p><div data-a="vitesse"></div></section>
+</div>
+<script>
+const PASS={U9:10,U10:10,U11:10,U12:12,U13:12,U14:14,U15:16};
+const q=new URLSearchParams(location.search);let CAT=q.get("cat")||"U14";if(!PASS[CAT])CAT="U14";
+document.getElementById("cats").innerHTML=Object.keys(PASS).map(c=>`<a href="?cat=${c}${location.hash}" class="${c===CAT?'on':''}">${c}</a>`).join("");
+document.getElementById("pd").textContent=PASS[CAT]+" m";const N=parseInt(CAT.slice(1));if(N<12)document.getElementById("v30").textContent="";
+if(N<10)document.getElementById("vitesse").style.display="none";
+const NS="http://www.w3.org/2000/svg";
+const cr=p=>{let d=`M${p[0][0]} ${-p[0][1]}`;for(let i=0;i<p.length-1;i++){const a=p[i-1]||p[i],b=p[i],c=p[i+1],e=p[i+2]||c;const c1=[b[0]+(c[0]-a[0])/6,b[1]+(c[1]-a[1])/6],c2=[c[0]-(e[0]-b[0])/6,c[1]-(e[1]-b[1])/6];d+=` C${c1[0]} ${-c1[1]} ${c2[0]} ${-c2[1]} ${c[0]} ${-c[1]}`}return d};
+function field(box,vb,f){const s=document.createElementNS(NS,"svg");s.setAttribute("viewBox",vb.join(" "));box.appendChild(s);
+  const el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);s.appendChild(e);return e};
+  el("rect",{x:vb[0],y:vb[1],width:vb[2],height:vb[3],fill:"#2E7D4F"});const st=f.u||1;for(let x=vb[0];x<vb[0]+vb[2];x+=st*2)el("rect",{x,y:vb[1],width:st,height:vb[3],fill:"#33875A"});
+  const k=f.k||1;const api={el,
+    txt:(x,y,t,o={})=>{const e=el("text",{x,y:-y,"font-size":(o.s||.55)*k,"text-anchor":o.a||"middle",fill:o.c||"#fff","font-weight":o.w||700,"font-family":"Inter,Arial"});e.textContent=t;return e},
+    cone:(x,y,c="#F2C200")=>el("polygon",{points:`${x-.28*k},${-y+.22*k} ${x+.28*k},${-y+.22*k} ${x},${-y-.32*k}`,fill:c,stroke:"#14213A","stroke-width":.04*k}),
+    cup:(x,y)=>el("circle",{cx:x,cy:-y,r:.2*k,fill:"#FF9100",stroke:"#14213A","stroke-width":.04*k}),
+    jal:(x,y,l,lx=0,ly=.6)=>{el("circle",{cx:x,cy:-y,r:.26*k,fill:"#fff",stroke:"#C62828","stroke-width":.12*k});if(l)api.txt(x+lx,y+ly,l,{s:.7})},
+    dim:(x1,y1,x2,y2,t,dx=0,dy=0)=>{el("line",{x1,y1:-y1,x2,y2:-y2,stroke:"#FFE680","stroke-width":.06*k,"stroke-dasharray":`${.25*k} ${.15*k}`});api.txt((x1+x2)/2+dx,(y1+y2)/2+dy,t,{s:.5,c:"#FFE680"})},
+    line:(x1,y1,x2,y2,c="#fff",w=.06)=>el("line",{x1,y1:-y1,x2,y2:-y2,stroke:c,"stroke-width":w*k})};
+  return api}
+/* animation : segments [{p:points, d:durée en s, ball:seul ballon ?, say:texte}] ; chrono entre t0 et t1 (s) */
+function anim(box,F,variants){const ctl=document.createElement("div");ctl.className="ctl";const st=document.createElement("div");st.className="step";
+  const ghost=F.el("path",{fill:"none",stroke:"rgba(255,255,255,.35)","stroke-width":.08*(F.k||1),"stroke-dasharray":`${.3*(F.k||1)} ${.2*(F.k||1)}`});
+  const trail=F.el("path",{fill:"none",stroke:"#F2C200","stroke-width":.13*(F.k||1),"stroke-linecap":"round"});
+  const kid=F.el("circle",{r:.38*(F.k||1),fill:"#1E56C9",stroke:"#fff","stroke-width":.08*(F.k||1)});const ball=F.el("circle",{r:.2*(F.k||1),fill:"#fff",stroke:"#14213A","stroke-width":.06*(F.k||1)});
+  let cur=0,raf=0;const vs=variants;
+  vs.forEach((v,i)=>{const b=document.createElement("button");b.textContent=v.label;b.setAttribute("aria-pressed",i===0);b.onclick=()=>{cur=i;[...ctl.querySelectorAll("button[data-v]")].forEach((x,j)=>x.setAttribute("aria-pressed",j===i));reset()};b.dataset.v=i;if(vs.length>1)ctl.appendChild(b)});
+  const play=document.createElement("button");play.className="play";play.textContent="▶ Lancer";ctl.appendChild(play);const ck=document.createElement("span");ck.className="clock";ck.textContent="0,0";ctl.appendChild(ck);
+  box.appendChild(ctl);box.appendChild(st);
+  const P=[];function build(){P.length=0;vs[cur].seg.forEach(sg=>{const p=document.createElementNS(NS,"path");p.setAttribute("d",cr(sg.p));P.push({p,L:0,sg})});P.forEach(o=>{const g=F.el("g",{});o.p.setAttribute("fill","none");g.appendChild(o.p);o.L=o.p.getTotalLength();g.remove()})}
+  function reset(){cancelAnimationFrame(raf);build();ghost.setAttribute("d",vs[cur].seg.map(s=>cr(s.p)).join(" "));trail.setAttribute("d","");const s0=vs[cur].seg[0].p[0];[kid,ball].forEach(e=>{e.setAttribute("cx",s0[0]);e.setAttribute("cy",-s0[1])});kid.setAttribute("cx",s0[0]+(vs[cur].kx||0));ck.textContent="0,0";st.textContent=vs[cur].intro||""}
+  play.onclick=()=>{reset();const segs=P;const tot=segs.reduce((a,o)=>a+o.sg.d,0);let t0=null;const holder=document.createElementNS(NS,"g");F.el("g",{}).appendChild(holder);
+    const tmp=segs.map(o=>{const p=document.createElementNS(NS,"path");p.setAttribute("d",o.p.getAttribute("d"));p.setAttribute("fill","none");p.setAttribute("stroke","none");holder.appendChild(p);return p});
+    let trailD="";const fr=ts=>{if(t0==null)t0=ts;const t=(ts-t0)/1000;let acc=0,done="";
+      for(let i=0;i<segs.length;i++){const o=segs[i];const e=Math.min(1,Math.max(0,(t-acc)/o.sg.d));if(t>=acc){const pt=tmp[i].getPointAtLength(e*o.L);ball.setAttribute("cx",pt.x);ball.setAttribute("cy",pt.y);if(!o.sg.ball){kid.setAttribute("cx",pt.x+(vs[cur].kx||0));kid.setAttribute("cy",pt.y+(vs[cur].ky||0))}if(o.sg.say)st.textContent=o.sg.say}acc+=o.sg.d}
+      const T=vs[cur].chrono;const ct=Math.max(0,Math.min(t,T[1])-T[0]);ck.textContent=(t<T[0]?0:ct*(vs[cur].scale||1)).toFixed(1).replace(".",",");
+      /* tracé déjà parcouru */let a2=0;trail.setAttribute("d",segs.map((o,i)=>{const e=Math.min(1,Math.max(0,(t-a2)/o.sg.d));a2+=o.sg.d;return e>0?tmp[i].getAttribute("d"):""}).join(" "));
+      if(t<tot+.2)raf=requestAnimationFrame(fr);else{st.textContent=vs[cur].end||"";holder.remove()}};raf=requestAnimationFrame(fr)};
+  reset()}
+/* ---------- grand slalom ---------- */
+{const box=document.querySelector('[data-a="slalom"]');const F=field(box,[-8,-14,16,17.5],{u:1.1});
+ F.dim(-5.8,0,-5.8,10,"10 m",-.75,0);F.dim(2.5,6.7,-2.5,6.7,"5 m",0,.25);F.dim(4.4,0,4.4,5,"5 m",.75,0);F.dim(0,4.2,2.5,4.2,"2,5 m",1.25,-.55);F.dim(-.75,-.6,.75,-.6,"1,5 m",0,-.6);
+ F.cone(-.75,0);F.cone(.75,0);F.line(-.75,0,.75,0,"#fff",.05);F.cup(0,5);F.jal(0,10,"A",-.8,.1);F.jal(2.5,5,"B",1.3,.45);F.jal(-2.5,5,"C",-1.3,.45);F.txt(0,-1.9,"porte · départ = arrivée",{s:.5});
+ const R=[[0,-1.6],[0,0],[-.7,5.5],[-1,9.4],[0,11],[1,10],[1.9,7.4],[3.4,5.7],[3.4,4.3],[2.5,3.8],[1.2,4.4],[-1.2,5.6],[-2.5,6.2],[-3.45,5],[-2.6,3.8],[-1,1.9],[0,0],[0,-1.6]];
+ const Lm=R.map(([x,y])=>[-x,y]);
+ const mk=(p,o)=>[{p:p.slice(0,2),d:.6,say:"Départ : 1er contact, le chrono part"},{p:p.slice(1,7),d:2.6,say:`Conduite jusqu'au jalon A, on tourne autour`},{p:p.slice(6,11),d:1.8,say:`Jalon ${o[0]}`},{p:p.slice(10,16),d:2.2,say:`On traverse vers le jalon ${o[1]}`},{p:p.slice(15),d:1.2,say:"Le ballon franchit la porte : stop"}];
+ anim(box,F,[{label:"Essai 1 · droite",seg:mk(R,"BC"),chrono:[.6,7.8],scale:1.7,intro:"A, puis B (à droite), puis C, retour par la porte",end:"Essai 1 fini · essai 2 en miroir"},{label:"Essai 2 · miroir",seg:mk(Lm,"CB"),chrono:[.6,7.8],scale:1.7,intro:"A, puis C (à gauche), puis B, retour par la porte",end:"2 essais faits : on garde le meilleur"}])}
+/* ---------- figure en 8 ---------- */
+{const box=document.querySelector('[data-a="huit"]');const F=field(box,[-6,-9.2,12,11],{u:1.1});
+ F.cone(-.75,0);F.cone(.75,0);F.line(-.75,0,.75,0,"#fff",.05);F.jal(0,1,"1",1,-.15);F.jal(0,6,"2",1,-.15);F.txt(0,-1.2,"ligne de départ = arrivée",{s:.5});
+ F.dim(-3,0,-3,1,"1 m",-.7,0);F.dim(-3,1,-3,6,"5 m",-.7,0);
+ const loop=[[.9,1],[.6,2.3],[-.6,4.7],[-.95,6],[0,7],[.95,6],[.6,4.7],[-.6,2.3],[-.95,1],[0,.05]];
+ const mk=s=>{const L=loop.map(([x,y])=>[s*x,y]);return [{p:[[0,-1],[0,0],[s*.5,.3],...L.slice(0,1)],d:.7,say:"Départ : 1er contact, le chrono part"},{p:[L[0],...L.slice(1)],d:3.2,say:"1er aller-retour en 8"},{p:[L[L.length-1],...L],d:3.2,say:"2e aller-retour en 8"},{p:[L[L.length-1],[0,-.2],[0,-1]],d:.7,say:"Retour : le ballon franchit la ligne, stop"}]};
+ anim(box,F,[{label:"Essai 1 · par la droite",seg:mk(1),chrono:[.7,7.6],scale:1.6,intro:"Le 1er jalon se prend par la droite",end:"Essai 1 fini · essai 2 par la gauche"},{label:"Essai 2 · par la gauche",seg:mk(-1),chrono:[.7,7.6],scale:1.6,intro:"Le 1er jalon se prend par la gauche",end:"2 essais faits : on garde le meilleur"}])}
+/* ---------- slalom + passe ---------- */
+{const d=PASS[CAT],X=11+d;const box=document.querySelector('[data-a="passe"]');const F=field(box,[-2,-4.8,X+4,8.6],{u:2,k:1.4});
+ F.cone(0,.75);F.cone(0,-.75);for(let x=2;x<=10;x+=2)F.cup(x,0);F.line(11,1.6,11,-1.6,"#fff",.08);F.txt(11,2.1,"ligne de passe",{s:.42});
+ F.dim(0,-1.7,2,-1.7,"2 m",0,-.55);F.dim(2,-1.7,10,-1.7,"4 × 2 m",0,-.55);F.dim(0,-3,11,-3,"11 m",0,-.55);F.dim(11,-3,X,-3,d+" m",0,-.55);F.dim(-1.2,.75,-1.2,-.75,"1,5 m",-.9,0);
+ const tgt=F.el("g",{});const T3A=()=>{tgt.innerHTML="";const r=(x,y,w,h,a)=>{const e=document.createElementNS(NS,"rect");for(const k in a)e.setAttribute(k,a[k]);e.setAttribute("x",x);e.setAttribute("y",y);e.setAttribute("width",w);e.setAttribute("height",h);tgt.appendChild(e)};r(X,-.6,.35,1.2,{fill:"#fff",stroke:"#14213A","stroke-width":.04});const c=document.createElementNS(NS,"polygon");c.setAttribute("points",`${X-.25},.2 ${X+.25},.2 ${X},-.35`);c.setAttribute("fill","#FF9100");tgt.appendChild(c)};
+ const T3B=()=>{tgt.innerHTML="";const e=document.createElementNS(NS,"rect");e.setAttribute("x",X-1);e.setAttribute("y",-1);e.setAttribute("width",2);e.setAttribute("height",2);e.setAttribute("fill","rgba(255,255,255,.12)");e.setAttribute("stroke","#fff");e.setAttribute("stroke-width",.07);tgt.appendChild(e)};
+ const zig=[[-1,0],[0,0],[1,.6],[2,-.55],[3,.6],[4,-.55],[5,.6],[6,-.55],[7,.6],[8,-.55],[9,.6],[10,-.55],[10.8,0]];
+ const seg=[{p:zig.slice(0,2),d:.5,say:"Départ : 1er contact, le chrono part"},{p:zig.slice(1),d:4,say:"Slalom entre les 5 coupelles"},{p:[[10.8,0],[X-.1,0]],d:.9,ball:1,say:"Passe au plus tard sur la ligne : stop du chrono"}];
+ const vs=[{label:"3A · cône",seg,chrono:[.5,4.5],scale:1.4,intro:"Cible : mini-but 1,2 m, plot au centre",end:"Plot tombé −3 s · dans le but plot debout −1 s · manqué 0"},{label:"3B · carré",seg,chrono:[.5,4.5],scale:1.4,intro:"Cible : carré 2 × 2 m",end:"Arrêté dans le carré −3 s · le traverse −1 s · manqué 0"}];
+ T3A();anim(box,F,vs);box.querySelectorAll("button[data-v]").forEach((b,i)=>b.addEventListener("click",()=>i?T3B():T3A()))}
+/* ---------- vitesse ---------- */
+{const box=document.querySelector('[data-a="vitesse"]');const Dmax=N>=12?30:20;const F=field(box,[-3,-3.4,Dmax+10,6.4],{u:2.5,k:1.6});
+ F.line(-1,1,Dmax+5,1,"#fff",.05);F.line(-1,-1,Dmax+5,-1,"#fff",.05);
+ for(let x=0;x<=Dmax;x+=10){F.cone(x,1.2,"#FF8A80");F.cone(x,-1.2,"#FF8A80");F.line(x,1,x,-1,"#fff",.09);F.txt(x,1.9,x?x+" m":"départ",{s:.45})}
+ F.cone(Dmax+5,1.2,"#fff");F.cone(Dmax+5,-1.2,"#fff");F.txt(Dmax+5,1.9,"freinage +5 m",{s:.4});F.dim(-1.6,1,-1.6,-1,"2 m",-.9,0);
+ const ed=F.el("circle",{cx:Dmax,cy:-2.3,r:.35,fill:"#F2C200",stroke:"#14213A","stroke-width":.06});F.txt(Dmax+1.6,-2.45,"éducateur sur la ligne",{s:.38,a:"start",c:"#F2C200"});
+ const vs=[10,20,30].filter(x=>x<=Dmax).map(Dd=>({label:Dd+" m",seg:[{p:[[0,0],[0,0]],d:.8,ball:1,say:"Prêt… l'éducateur attend le 1er mouvement"},{p:[[0,0],[Dd,0]],d:Dd/10*.9,say:"▶ Il bouge : on touche, le chrono part"},{p:[[Dd,0],[Dd+4,0]],d:.6,say:"⏹ Le buste passe la ligne : on touche, stop"}],chrono:[.8,.8+Dd/10*.9],scale:Dd===10?2.1/0.9:Dd===20?3.9/1.8:5.3/2.7,kx:0,intro:`Sprint ${Dd} m · 1 essai`,end:`${Dd} m fini · 1 seul essai par distance`}));
+ anim(box,F,vs)}
+if(location.hash){setTimeout(()=>{const e=document.querySelector(location.hash);if(e)e.scrollIntoView()},50)}
+</script></body></html>
