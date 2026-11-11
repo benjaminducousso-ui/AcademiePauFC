@@ -199,10 +199,10 @@ function home(){const T=clubTests(V.cat);const cats=myCats();
     ${groups.map(g=>`<p class="sect">${g.n}</p>${g.t.map(t=>{const d=doneOf(t),N=players(V.cat).length;return `<button class="atl" data-t="${t.id}"><span class="l"><b>${esc((x=>x.charAt(0).toUpperCase()+x.slice(1))(t.name.replace(/^Jonglerie /,"")))}</b><small>${t.kind==="count"?"Compteur de touches · 2 essais":t.kind==="value"?"Palier atteint, saisi à la fin du défi":t.combo?"Chrono − bonus de la passe · 2 essais":t.mvt?"Chrono · au 1er mouvement · 1 essai":"Chrono · 2 essais"}</small><span class="bar"><i style="width:${N?d/N*100:0}%"></i></span></span><span class="c ${d===N&&N?'done':''}">${d}/${N}</span></button>`}).join("")}`).join("")}
     <button class="opt" id="voice" aria-pressed="${!!D.opt.voice}"><span>🔊 Annoncer les résultats à voix haute</span><i>${D.opt.voice?"oui":"non"}</i></button>
     <div class="row">${D.rtj?"":`<button class="btn g" id="add">+ catégorie</button>`}<button class="btn g" id="out">Se déconnecter</button></div>
-    <p class="hint" style="text-align:center;opacity:.7">Version 18 · 12 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
+    <p class="hint" style="text-align:center;opacity:.7">Version 19 · 12 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
   badge();app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{V.cat=b.dataset.c;D.cat=V.cat;save();render();pull(V.cat)});
   app.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{V.per=+b.dataset.p;D.per=V.per;save();render()});
-  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{goTest(b.dataset.t,true);keepAwake()});
+  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{goTest(b.dataset.t,V.kid?"force":true);keepAwake()});
   document.getElementById("voice").onclick=()=>{D.opt.voice=!D.opt.voice;save();render();if(D.opt.voice)say("Les résultats seront annoncés")};
   const ad=document.getElementById("add");if(ad)ad.onclick=()=>{V.adding=true;V.view="login";render()};
   document.getElementById("out").onclick=()=>{if(D.queue.length){toast(`${D.queue.length} résultat(s) pas encore envoyé(s) : reconnecte-toi au réseau avant de te déconnecter`);return}D.who=D.who;D.rtj=false;D.lock=null;save();V.view="login";render()};
@@ -277,14 +277,14 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
     zone+=`<div class="row" style="--n:${t.beep?2:1}">${t.beep?`<button class="opt" id="beep" aria-pressed="${D.opt["beep_"+t.id]!==false}"><span>Départ au bip</span><i>${D.opt["beep_"+t.id]!==false?"oui":"non"}</i></button>`:""}<button class="opt" id="manual" ${full?'disabled':''}><span>✎ Saisir un temps</span><i>cellules…</i></button></div>`}
   if(view)zone=`<div class="card seen"><b>✓ Résultat enregistré${c.by?" · saisi par "+esc(c.by):""}</b><button class="lnk" data-move>↪ Pas le bon joueur ou le bon exercice ? Déplacer</button><span>Résultat retenu : <b class="rec">${bs?fmtV(t,bs.v):"–"}</b></span>
       <div class="row" style="--n:${max}">${[0,1].slice(0,max).map(i=>`<button class="btn g" data-re="${i}" ${c.v[i]==null?'disabled':''}>↺ Refaire ${max===1?"l'essai":"l'essai "+(i+1)}</button>`).join("")}</div></div>`;
-  else if(c.loaded&&!c.dirty&&!full)zone=`<p class="hint" style="text-align:center">✓ Un essai déjà enregistré · fais le 2e essai si tu veux · <button class="lnk" data-move>↪ déplacer</button></p>`+zone;
+  else if(c.loaded&&!c.dirty&&!full&&!c.live)zone=`<p class="hint" style="text-align:center">✓ Un essai déjà enregistré · fais le 2e essai si tu veux</p>`+zone;
   app.innerHTML=topBar(t.name,`${V.cat} · ${TP[V.per]} · ${L.filter(done).length}/${L.length} faits`,true)+`<div class="main">
     <div class="queue" id="q">${L.map((x,i)=>`<button data-i="${i}" class="${i===V.idx?'on':done(x)?'ok':ab[x]?'abs':''}">${done(x)&&i!==V.idx?(half(x)?'◐ ':'✓ '):''}${esc(prenom(x))}</button>`).join("")}</div>
-    ${chips}<div class="who"><small>${view?"Résultats de":"Au tour de"}</small><b>${esc(prenom(p))}</b><span>${esc(p)} · <button class="lnk" id="kid">ses résultats</button></span>
+    ${chips}<div class="who"><small>${view?"Résultats de":"Au tour de"}</small><b>${esc(prenom(p))}</b><span>${esc(p)} · <button class="lnk" id="kid">ses résultats</button>${view?"":c.n===0&&!c.count?` · <button class="lnk" id="absent">absent ?</button>`:c.n>0?` · <button class="lnk" data-move>↪ déplacer</button>`:""}</span>
       <span>${pr?`Son record ${pr.P===1?"de novembre":"de "+TP[pr.P].toLowerCase()} : <b class="rec">${fmtV(t,pr.v)}</b> · à battre`:(t.target!=null?`Objectif de fin de saison : ${t.target} ${t.unit}`:"Premier passage : il fixe son record")}</span></div>
     <div class="tries" style="${t.one?'grid-template-columns:1fr':''}">${tryBox(0)}${t.one?"":tryBox(1)}</div>${zone}
     ${view?"":
-    `<div class="row" style="--n:2"><button class="btn g" id="redo" ${c.n===0?'disabled':''}>↺ Refaire le dernier essai</button><button class="btn g" id="absent">Absent</button></div><p class="hint" style="text-align:center;margin:0">✓ Chaque essai est enregistré automatiquement dès qu'il est fini${t.combo?" et la passe choisie":""}.</p>`}
+    `<div class="row"><button class="btn g" id="redo" ${c.n===0?'disabled':''}>↺ Refaire le dernier essai</button></div><p class="hint" style="text-align:center;margin:0">✓ Chaque essai est enregistré automatiquement dès qu'il est fini${t.combo?" et la passe choisie":""}.</p>`}
   </div>`;
   badge();const q=document.getElementById("q").children[V.idx];if(q)q.scrollIntoView({inline:"center",block:"nearest"});
   const leaveOK=()=>{if(!pendingBonus()||leaveOK.w===c){return true}leaveOK.w=c;toast("Choisis d'abord le résultat de la passe (sinon l'essai n'est pas enregistré) · touche encore pour partir");return false};
@@ -297,11 +297,14 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
   app.querySelectorAll("[data-re]").forEach(b=>b.onclick=()=>{stopT();const i=+b.dataset.re;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire · l'autre est gardé`);render()});
   
   const rd=document.getElementById("redo");if(rd)rd.onclick=()=>{stopT();const i=[1,0].find(k=>c.v[k]!=null);if(i==null)return;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire`);render()};
-  const abB=document.getElementById("absent");if(abB)abB.onclick=()=>{stopT();setAbs(p,true);toast(`${prenom(p)} absent · à rattraper en fin d'atelier`);next(false)};
+  const abB=document.getElementById("absent");if(abB)abB.onclick=()=>{stopT();const sh=document.createElement("div");sh.className="sheet";
+    sh.innerHTML=`<div class="card"><h2 style="font-size:18px">${esc(prenom(p))} est absent ?</h2><p class="hint">Il reste dans la liste, à rattraper en fin d'atelier. L'appli passe à l'enfant suivant.</p><div class="row"><button class="btn g" id="an">Non</button><button class="btn y" id="ay">Oui, absent</button></div></div>`;
+    document.body.appendChild(sh);sh.querySelector("#an").onclick=()=>sh.remove();sh.addEventListener("pointerdown",ev=>{if(ev.target===sh)sh.remove()});
+    sh.querySelector("#ay").onclick=()=>{sh.remove();setAbs(p,true);next(false);const q=players(V.cat)[V.idx];toast(`${prenom(p)} absent · au tour de ${prenom(q)}`)}};
   
   if(view){}else if(t.kind==="count"){const cnt=document.getElementById("cnt");cnt.addEventListener("pointerdown",e=>{e.preventDefault();if(fullOf(t,c))return;c.count++;cnt.querySelector("b").textContent=c.count;buzz(6)});
     document.getElementById("minus").onclick=()=>{c.count=Math.max(0,c.count-1);render()};
-    document.getElementById("endtry").onclick=()=>{putTry(c.count);say(c.count+" touches");c.count=0;buzz([10,40,10]);autoSave();render();if(objHit(t,c))setTimeout(()=>toast(`Objectif atteint (${t.target}) : pas besoin du 2e essai`),2300)}}
+    document.getElementById("endtry").onclick=()=>{if(Date.now()-(window._et||0)<900)return;window._et=Date.now();putTry(c.count);say(c.count+" touches");c.count=0;buzz([10,40,10]);autoSave();render();if(objHit(t,c))setTimeout(()=>toast(`Objectif atteint (${t.target}) : pas besoin du 2e essai`),2300)}}
   else{const ch=document.getElementById("chrono");if(ch)ch.addEventListener("pointerdown",onChrono);if(T.state==="run")loopT();
     app.querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{const j=[0,1].find(i=>c.v[i]!=null&&c.b[i]==null);const jj=j!=null?j:Math.max(0,c.n-1);c.b[jj]=+b.dataset.b;c.dirty=true;autoSave();render()});
     const be=document.getElementById("beep");if(be)be.onclick=()=>{D.opt["beep_"+t.id]=D.opt["beep_"+t.id]===false;save();render()}}
@@ -321,7 +324,7 @@ const sayT=ms=>{const [a,b]=(ms/1000).toFixed(2).split(".");return `${+a} second
    Plus besoin de « Valider » : un oubli ne fait plus rien perdre. « Refaire l'essai 1 / 2 » reste possible. */
 function autoSave(){const t=V.test,c=V.cur;if(!best()||pendingBonus())return;const max=t.one?1:2;const full=fullOf(t,c);
   if(full)return validate(true);
-  const p=players(V.cat)[V.idx],b=best(),r=buildR(b);send(V.cat,p,V.per,t,r);setAbs(p,false);c.loaded=true;c.dirty=false;c.by=D.who;
+  const p=players(V.cat)[V.idx],b=best(),r=buildR(b);send(V.cat,p,V.per,t,r);setAbs(p,false);c.loaded=true;c.live=true;c.dirty=false;c.by=D.who;
   toast(`Essai ${c.v[1]==null?1:2} enregistré · ${fmtV(t,b.v)}`);buzz(15)}
 function buildR(b){const t=V.test,c=V.cur;const r={};r[t.id]=b.v;
   if(t.combo){[0,1].forEach(i=>{if(c.v[i]==null)return;r[t.id+(i?"_c2":"_c")]=c.v[i];r[t.id+(i?"_b2":"_b")]=c.b[i]})}else if(!t.one){[0,1].forEach(i=>{if(c.v[i]!=null)r[t.id+"_e"+(i+1)]=c.v[i]})}
