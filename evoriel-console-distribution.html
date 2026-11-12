@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evoriel · Console de distribution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500..700&family=Inter:wght@400..700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ --bg:#F7F7FB;--panel:#FFFFFF;--soft:#F1EFFE;--line:#E6E3FF;--ink:#0B0F2B;--muted:#5A5F7A;--faint:#8A8FA8;
+ --acc:#5B4DFF;--acc-ink:#FFFFFF;--acc-soft:#EFEDFF;--navy:#1B1446;--mint:#C9F7F0;
+ --good:#13795B;--good-soft:#E3F5EE;--warn:#A86200;--warn-soft:#FDF1DD;--bad:#B4231B;--bad-soft:#FBE5E3;--teal:#1FA99B;--orange:#E8A33D;
+ --fd:"Sora","Segoe UI",system-ui,sans-serif;--fb:"Inter","Segoe UI",system-ui,sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0C0E1E;--panel:#151833;--soft:#1D2045;--line:#2A2E5A;--ink:#EEF0FF;--muted:#A9ADCB;--faint:#7E83A6;--acc:#8C82FF;--acc-soft:#252456;--navy:#0A0C1C;--good-soft:#123B30;--warn-soft:#3B2C12;--bad-soft:#3E1714;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0C0E1E;--panel:#151833;--soft:#1D2045;--line:#2A2E5A;--ink:#EEF0FF;--muted:#A9ADCB;--faint:#7E83A6;--acc:#8C82FF;--acc-soft:#252456;--navy:#0A0C1C;--good-soft:#123B30;--warn-soft:#3B2C12;--bad-soft:#3E1714;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--fb);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);height:100%}
+/* sidebar */
+.side{background:var(--navy);color:#E9E8FF;display:flex;flex-direction:column;padding:18px 12px;gap:4px;overflow-y:auto}
+.brandrow{display:flex;align-items:center;gap:10px;padding:4px 10px 16px}
+.brandrow .mk{width:34px;height:34px;border-radius:10px;background:var(--acc);display:grid;place-items:center;font-family:var(--fd);font-weight:700;color:#fff}
+.brandrow b{font-family:var(--fd);font-size:15px;display:block}
+.brandrow span{font-size:11.5px;color:#A9A6D9}
+.navlbl{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#8E8BC7;padding:14px 10px 6px}
+.side button.nav{display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#D9D7FB;padding:9px 10px;border-radius:10px;text-align:left;font-weight:500}
+.side button.nav svg{width:18px;height:18px;flex:none;opacity:.85}
+.side button.nav[aria-current="page"]{background:rgba(255,255,255,.1);color:#fff}
+.side button.nav .cnt{margin-left:auto;font-size:11px;background:var(--acc);color:#fff;border-radius:999px;padding:1px 7px}
+.side .foot{margin-top:auto;font-size:11.5px;color:#8E8BC7;padding:14px 10px 0;border-top:1px solid rgba(255,255,255,.1)}
+/* main */
+.main{display:flex;flex-direction:column;min-width:0;height:100%}
+.top{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
+.top .crumb{font-size:12.5px;color:var(--faint)}
+.top .crumb b{color:var(--ink)}
+.top .sp{flex:1}
+.search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--bg);min-width:240px;color:var(--faint)}
+.search input{border:0;background:transparent;outline:0;width:100%;padding:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:6px 12px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--acc);color:#fff}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--acc-soft);color:var(--acc);display:grid;place-items:center;font-weight:700;font-size:12px}
+.content{flex:1;overflow-y:auto;padding:24px 28px 48px}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--acc);margin:0 0 4px}
+.ph h1{font-family:var(--fd);font-size:24px;margin:0;letter-spacing:-.01em}
+.ph p{margin:4px 0 0;color:var(--muted);max-width:760px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 14px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card h3{font-family:var(--fd);font-size:15px;margin:0 0 10px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.kpi span{font-size:12px;color:var(--muted);font-weight:600}
+.kpi b{display:block;font-family:var(--fd);font-size:26px;margin-top:4px}
+.kpi small{font-size:12px;font-weight:600}
+.up{color:var(--good)} .down{color:var(--bad)}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.pill.acc{background:var(--acc-soft);color:var(--acc)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.navy{background:var(--navy);color:var(--mint)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11.5px;color:var(--faint);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--soft)}
+.tw{overflow-x:auto}
+.alert{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);margin-bottom:8px}
+.alert .dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex:none}
+.alert b{display:block}
+.alert span{color:var(--muted);font-size:12.5px}
+.alert .btn{margin-left:auto;flex:none}
+.funnel{display:grid;gap:8px}
+.frow{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;font-size:12.5px}
+.track{height:10px;background:var(--soft);border-radius:6px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--acc);border-radius:6px}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-weight:600;font-size:12.5px;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+select,input[type=text],input[type=number],textarea{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 10px;width:100%}
+label.f{display:grid;gap:5px;font-size:12px;font-weight:600;color:var(--muted)}
+.sw{width:38px;height:22px;border-radius:999px;border:0;background:var(--line);position:relative;padding:0;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw[aria-checked="true"]{background:var(--acc)}
+.sw[aria-checked="true"]::after{transform:translateX(16px)}
+.row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.muted{color:var(--muted)} .faint{color:var(--faint);font-size:12px}
+/* studio */
+.studio{display:grid;grid-template-columns:220px minmax(0,1fr) 360px;gap:16px;align-items:start}
+.steps{display:grid;gap:4px}
+.steps button{display:flex;gap:10px;align-items:center;border:0;background:transparent;padding:9px 10px;border-radius:10px;text-align:left;font-weight:600;color:var(--muted)}
+.steps button .n{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;flex:none}
+.steps button[aria-current="step"]{background:var(--panel);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.steps button[aria-current="step"] .n{background:var(--acc);border-color:var(--acc);color:#fff}
+.steps button.done .n{background:var(--good-soft);border-color:var(--good-soft);color:var(--good)}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;margin-bottom:8px}
+.opt[aria-pressed="true"]{border:2px solid var(--acc);padding:11px;background:var(--acc-soft)}
+.opt b{display:block}
+.opt span{font-size:12.5px;color:var(--muted)}
+.optgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.optgrid .opt{margin:0}
+.check{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.check:last-child{border-bottom:0}
+.check .ic{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex:none;margin-top:1px}
+.ic.ok{background:var(--good-soft);color:var(--good)} .ic.ko{background:var(--bad-soft);color:var(--bad)} .ic.wa{background:var(--warn-soft);color:var(--warn)}
+/* phone preview */
+.phone{width:300px;margin:0 auto;border-radius:30px;border:9px solid #0B0F2B;background:#F4F6FB;overflow:hidden;height:560px;display:flex;flex-direction:column;--b1:#1B2B5E;--b2:#2E4A9A;--ac:#F05A4B;--acs:#FFF0EC}
+.phone.oralia{--b1:#0E4F57;--b2:#167C86;--ac:#E89A2C;--acs:#FFF4E4}
+.phone .pb{background:linear-gradient(135deg,var(--b1),var(--b2));color:#fff;padding:14px 14px 18px}
+.phone .wm{font-family:var(--fd);font-weight:700;font-size:17px}
+.phone .wm i{font-style:normal;color:var(--ac)}
+.phone .pbody{flex:1;overflow-y:auto;padding:12px;display:grid;gap:10px;align-content:start;color:#0B0F2B}
+.phone .pc{background:#fff;border-radius:14px;padding:12px;box-shadow:0 1px 2px rgba(20,30,60,.06),0 6px 16px -10px rgba(20,30,60,.3);display:grid;gap:5px;font-size:12.5px}
+.phone .hero{background:linear-gradient(135deg,var(--ac),#ff8a6b);color:#fff;border-radius:14px;padding:12px;display:grid;gap:5px;font-size:12.5px}
+.phone.oralia .hero{background:linear-gradient(135deg,var(--ac),#f6c065)}
+.phone .pbtn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:9px;font-weight:700;text-align:center}
+.phone .hero .pbtn{background:#fff;color:var(--b1)}
+.phone .tag{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.phone .big{font-family:var(--fd);font-size:20px;color:var(--b1)}
+.phone .small{font-size:11px;color:#5A5F7A}
+.phone .ptab{display:flex;justify-content:space-around;border-top:1px solid #E6E9F0;background:#fff;padding:7px 0 9px;font-size:10px;color:#8A8FA8}
+.phone .ptab span.on{color:var(--b1);font-weight:700}
+.pvsteps{display:flex;gap:6px;justify-content:center;margin:0 0 10px}
+.pvsteps button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--muted)}
+.pvsteps button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* drawer & modal */
+.drawer{position:fixed;top:0;right:0;width:440px;max-width:100%;height:100%;background:var(--panel);border-left:1px solid var(--line);box-shadow:-20px 0 40px -20px rgba(10,15,40,.3);z-index:20;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .2s}
+.drawer.on{transform:none}
+.drawer .dh{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+.drawer .db{padding:18px 20px;overflow-y:auto;flex:1}
+.tl{display:grid}
+.tl div{display:grid;grid-template-columns:18px 1fr;gap:10px;padding-bottom:14px;position:relative;font-size:13px}
+.tl div::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--line);margin-top:4px}
+.tl div.ok::before{background:var(--good)} .tl div.now::before{background:var(--acc)}
+.tl span{color:var(--faint);font-size:12px;display:block}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;transition:all .2s;z-index:40;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.scrim{position:fixed;inset:0;background:rgba(10,12,30,.35);z-index:15;display:none}
+.scrim.on{display:block}
+.qr{width:96px;height:96px;background:#fff;border-radius:8px;padding:4px}
+.slot{border:1px dashed var(--line);border-radius:12px;padding:10px;display:grid;gap:6px;background:var(--bg)}
+.slot .it{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px}
+.slot .it b{flex:1}
+.mini{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px}
+.mini>div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--faint)}
+.mini i{display:block;width:100%;border-radius:6px 6px 0 0;background:var(--acc)}
+.mini i.r{background:var(--teal)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+@media (max-width:1100px){.studio{grid-template-columns:1fr}.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3,.g21{grid-template-columns:1fr}}
+@media (max-width:820px){.app{grid-template-columns:1fr}.side{flex-direction:row;flex-wrap:wrap;padding:10px}.side .navlbl,.side .foot,.brandrow span{display:none}.search{display:none}.g2,.g4{grid-template-columns:1fr}.content{padding:16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+ <aside class="side" aria-label="Navigation">
+  <div class="brandrow"><div class="mk">E</div><div><b>Evoriel</b><span>Console de distribution</span></div></div>
+  <div id="nav"></div>
+  <div class="foot">Propulsé par Obendy · données de démonstration</div>
+ </aside>
+ <div class="main">
+  <header class="top">
+   <div class="crumb" id="crumb"></div>
+   <div class="sp"></div>
+   <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="text" placeholder="Rechercher un parcours, un client, un partenaire" aria-label="Rechercher"></label>
+   <div class="seg" role="group" aria-label="Marque"><button data-brand="lamy">Lamy</button><button data-brand="oralia">Oralia</button><button data-brand="all">Les deux</button></div>
+   <div class="avatar" title="Alexandra M., Développement et expérience clients">AM</div>
+  </header>
+  <main class="content" id="view"></main>
+ </div>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Détail"><div class="dh"><div id="dtitle"></div><button class="btn sm" id="dclose">Fermer</button></div><div class="db" id="dbody"></div></aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fr=(n,d=0)=>Number(n).toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const eur=n=>fr(Math.round(n))+'\u00a0€', keur=n=>fr(n/1000,0)+'\u00a0k€';
+const KEY='evoriel-console-v1';
+const ICON={home:'<path d="M3 11l9-7 9 7v9H3z"/>',route:'<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h6.5"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c1-4 4-6 7-6s6 2 7 6M16 4.5a3.5 3.5 0 0 1 0 7M22 20c-.6-2.6-2.2-4.4-4.2-5.3"/>',box:'<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',send:'<path d="M3 12l18-8-7 18-3-7z"/>',inbox:'<path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 3h6l1-3h5"/>',plug:'<path d="M9 3v6M15 3v6M6 9h12v3a6 6 0 0 1-12 0zM12 18v3"/>',euro:'<path d="M17 6a7 7 0 1 0 0 12M4 10h9M4 14h9"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>'};
+const ic=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+
+/* ================= DATA ================= */
+const CIBLES=['Copropriétaires','Conseils syndicaux','Bailleurs','Locataires'];
+const SERVICES=[
+ {id:'s_quote',t:'Simulateur de quote-part après aides',type:'Simulateur',c:['Copropriétaires']},
+ {id:'s_aidescol',t:'Éligibilité et montage des aides collectives',type:'Moteur d\'aides',c:['Conseils syndicaux']},
+ {id:'s_treso',t:'Simulateur de rendement de la trésorerie',type:'Simulateur',c:['Conseils syndicaux']},
+ {id:'s_plan',t:'Plan de financement des travaux',type:'Simulateur',c:['Conseils syndicaux']},
+ {id:'s_diag',t:'Diagnostic de protection des loyers',type:'Diagnostic',c:['Bailleurs']},
+ {id:'s_verif',t:'Vérification des dossiers locataires',type:'Diagnostic',c:['Bailleurs']},
+ {id:'s_fisc',t:'Simulateur fiscal du bailleur',type:'Simulateur',c:['Bailleurs']},
+ {id:'s_bilan',t:'Bilan patrimonial en ligne',type:'Diagnostic',c:['Bailleurs','Copropriétaires']},
+ {id:'s_reinv',t:'Simulateur de réinvestissement',type:'Simulateur',c:['Bailleurs']},
+ {id:'s_comp_ae',t:'Comparateur d\'assurance emprunteur',type:'Comparateur',c:['Copropriétaires']},
+ {id:'s_comp_mrh',t:'Comparateur d\'assurance habitation',type:'Comparateur',c:['Copropriétaires','Locataires']},
+ {id:'s_aideslog',t:'Moteur d\'aides au logement',type:'Moteur d\'aides',c:['Locataires']},
+ {id:'s_check',t:'Check-list d\'emménagement',type:'Check-list',c:['Locataires']},
+ {id:'s_capa',t:'Capacité d\'emprunt et prêt à taux zéro',type:'Simulateur',c:['Locataires']},
+ {id:'s_artisans',t:'Annuaire d\'artisans vérifiés',type:'Service',c:['Copropriétaires','Bailleurs','Locataires']},
+ {id:'s_charges',t:'Comprendre ses charges',type:'Contenu',c:['Conseils syndicaux','Copropriétaires']}
+];
+const PRODUCTS=[
+ {id:'p_ptz',t:'Éco-PTZ et prêt travaux',fam:'Crédit',partner:'Banque partenaire A',dist:'Société commune · intermédiaire bancaire',modes:['lead','orient'],com:'180 € par dossier débloqué',statut:'à créer'},
+ {id:'p_pc',t:'Prêt collectif copropriété',fam:'Crédit',partner:'Banque partenaire A',dist:'Société commune · convention votée en AG',modes:['lead'],com:'1 % du montant financé',statut:'à créer'},
+ {id:'p_cat',t:'Compte à terme syndicat',fam:'Épargne',partner:'Banque spécialisée B',dist:'Banque partenaire · intérêts au syndicat',modes:['lead','orient'],com:'Aucune pour le syndic',statut:'ok'},
+ {id:'p_gli',t:'Garantie loyers impayés pilotée',fam:'Assurance',partner:'Bélier Assurances',dist:'Bélier · courtier immatriculé',modes:['sous','lead'],com:'15 % de la prime annuelle',statut:'ok'},
+ {id:'p_pno',t:'Assurance propriétaire non occupant',fam:'Assurance',partner:'Bélier Assurances',dist:'Bélier · courtier immatriculé',modes:['sous'],com:'15 % de la prime annuelle',statut:'ok'},
+ {id:'p_ae',t:'Assurance emprunteur',fam:'Assurance',partner:'Bélier Assurances',dist:'Bélier · courtier immatriculé',modes:['sous'],com:'30 % de la 1re année',statut:'ok'},
+ {id:'p_mrh',t:'Assurance habitation',fam:'Assurance',partner:'Bélier Assurances',dist:'Bélier · courtier immatriculé',modes:['sous'],com:'15 % de la prime annuelle',statut:'ok'},
+ {id:'p_nrj',t:'Contrat d\'énergie',fam:'Énergie',partner:'KoproWatt Energies',dist:'KoproWatt · courtier énergie',modes:['sous','orient'],com:'Forfait par contrat',statut:'ok'},
+ {id:'p_av',t:'Assurance vie et PER',fam:'Épargne',partner:'Assureur partenaire D',dist:'Société commune · conseil en investissements',modes:['lead'],com:'Entrée 1 % + encours 0,5 %',statut:'à créer'},
+ {id:'p_scpi',t:'SCPI',fam:'Épargne',partner:'Société de gestion E',dist:'Société commune · conseil en investissements',modes:['lead'],com:'Entrée 2 % + encours',statut:'à créer'},
+ {id:'p_liv',t:'Livret épargne loyers',fam:'Épargne',partner:'Banque partenaire C',dist:'Banque partenaire · marque blanche',modes:['sous'],com:'Rémunération négociée',statut:'ok'},
+ {id:'p_ci',t:'Crédit immobilier',fam:'Crédit',partner:'Courtier partenaire',dist:'Courtier partenaire',modes:['orient','lead'],com:'Apport d\'affaires 0,5 %',statut:'ok'}
+];
+const MODES={orient:{l:'Orientation vers le partenaire',d:'Le partenaire instruit et fait souscrire ; Evoriel suit le clic et les retours.'},lead:{l:'Lead géré par Evoriel',d:'Evoriel qualifie la demande et la route vers un conseiller, une agence ou le partenaire.'},sous:{l:'Souscription intégrée',d:'Le client souscrit sans quitter Evoriel, via un distributeur habilité.'}};
+const CHANNELS={app:{l:'Widget dans l\'app',d:'Accueil et onglet Services de Mon espace immo'},lien:{l:'Lien',d:'E-mails, site, convocations d\'AG'},qr:{l:'QR code',d:'Agences, courriers, halls d\'immeuble'},api:{l:'API conseillers',d:'Outils des gestionnaires et des conseillers'}};
+function seed(){return{
+ view:'home',brand:'lamy',
+ moments:[
+  {id:'m_ag',t:'AG avec vote de travaux dans 60 jours',src:'Agenda des AG',cible:'Conseils syndicaux',aud:380,on:true},
+  {id:'m_appel',t:'Appel de fonds travaux émis',src:'Comptabilité syndic',cible:'Copropriétaires',aud:6200,on:true},
+  {id:'m_treso',t:'Trésorerie supérieure à 50 000 €',src:'Comptes des syndicats',cible:'Conseils syndicaux',aud:2900,on:true},
+  {id:'m_bail',t:'Bail en cours sans garantie loyers impayés',src:'Mandats de gestion',cible:'Bailleurs',aud:2300,on:true},
+  {id:'m_defisc',t:'Fin de défiscalisation dans 9 mois',src:'Mandats de gestion',cible:'Bailleurs',aud:1840,on:true},
+  {id:'m_vente',t:'Mise en vente d\'un bien géré',src:'Transaction',cible:'Bailleurs',aud:620,on:true},
+  {id:'m_entree',t:'Signature d\'un bail',src:'Baux',cible:'Locataires',aud:2900,on:true},
+  {id:'m_3ans',t:'Locataire depuis 3 ans, moins de 35 ans',src:'Baux',cible:'Locataires',aud:9800,on:false},
+  {id:'m_pret',t:'Bien acheté depuis plus d\'un an',src:'Fiches copropriétaires',cible:'Copropriétaires',aud:8600,on:true}],
+ journeys:[
+  {id:'j1',t:'Payer sa part des travaux',cible:'Copropriétaires',moment:'m_appel',svc:'s_quote',prod:'p_ptz',mode:'lead',ch:['app','lien','qr'],status:'prod',seuil:1.5,v:3,m:[6200,2295,499,96],eur:17280,owner:'Alexandra M.',ab:false},
+  {id:'j2',t:'Sécuriser ses loyers',cible:'Bailleurs',moment:'m_bail',svc:'s_diag',prod:'p_gli',mode:'sous',ch:['app','lien'],status:'prod',seuil:3,v:2,m:[4190,1807,0,121],eur:9680,owner:'Mourad K.',ab:true},
+  {id:'j3',t:'Payer moins cher son assurance de prêt',cible:'Copropriétaires',moment:'m_pret',svc:'s_comp_ae',prod:'p_ae',mode:'sous',ch:['app','lien'],status:'test',seuil:3,v:1,m:[2172,870,0,43],eur:10750,owner:'Michael T.',ab:false},
+  {id:'j4',t:'Emménager sans rien oublier',cible:'Locataires',moment:'m_entree',svc:'s_check',prod:'p_mrh',mode:'sous',ch:['app','qr'],status:'prod',seuil:3,v:4,m:[7316,4150,0,227],eur:13620,owner:'Alexandra M.',ab:false},
+  {id:'j5',t:'Réinvestir après une vente',cible:'Bailleurs',moment:'m_vente',svc:'s_reinv',prod:'p_av',mode:'lead',ch:['app','api'],status:'test',seuil:1.5,v:1,m:[662,200,42,9],eur:16200,owner:'Mourad K.',ab:false},
+  {id:'j6',t:'Financer les travaux votés en AG',cible:'Conseils syndicaux',moment:'m_ag',svc:'s_plan',prod:'p_pc',mode:'lead',ch:['app','lien'],status:'test',seuil:1.5,v:2,m:[305,140,24,7],eur:21000,owner:'Michael T.',ab:false},
+  {id:'j7',t:'Faire travailler la trésorerie',cible:'Conseils syndicaux',moment:'m_treso',svc:'s_treso',prod:'p_cat',mode:'lead',ch:['app'],status:'draft',seuil:1.5,v:1,m:[0,0,0,0],eur:0,owner:'Alexandra M.',ab:false},
+  {id:'j8',t:'Préparer sa retraite',cible:'Bailleurs',moment:'m_defisc',svc:'s_bilan',prod:'p_av',mode:'lead',ch:['app','lien'],status:'pause',seuil:1.5,v:2,m:[1840,620,180,22],eur:9900,owner:'Mourad K.',ab:false}],
+ leads:[
+  {id:'L-2041',client:'Résidence Les Tilleuls',cible:'Conseils syndicaux',j:'j6',prod:'p_pc',mont:476600,to:'Conseiller financement',st:'En instruction chez le partenaire',src:'API partenaire',age:2,sla:72},
+  {id:'L-2040',client:'Karim B.',cible:'Copropriétaires',j:'j1',prod:'p_ptz',mont:11030,to:'Banque partenaire A',st:'Accordé, à signer',src:'API partenaire',age:20,sla:48},
+  {id:'L-2039',client:'Michel D.',cible:'Bailleurs',j:'j5',prod:'p_av',mont:205000,to:'Conseiller patrimonial',st:'Nouveau',src:'Plateforme',age:30,sla:24},
+  {id:'L-2038',client:'Françoise L.',cible:'Bailleurs',j:'j8',prod:'p_av',mont:410000,to:'Conseiller patrimonial',st:'Rendez-vous fixé',src:'Agenda',age:44,sla:24},
+  {id:'L-2037',client:'Agnès P.',cible:'Copropriétaires',j:'j1',prod:'p_ptz',mont:9400,to:'Non attribué',st:'Nouveau',src:'Plateforme',age:51,sla:48},
+  {id:'L-2036',client:'Résidence Les Érables',cible:'Conseils syndicaux',j:'j7',prod:'p_cat',mont:120000,to:'Banque spécialisée B',st:'Refusé, montant minimum',src:'Fichier quotidien',age:96,sla:72},
+  {id:'L-2035',client:'Thomas G.',cible:'Copropriétaires',j:'j1',prod:'p_ptz',mont:14870,to:'Banque partenaire A',st:'Débloqué',src:'API partenaire',age:300,sla:48}],
+ partners:[
+  {id:'pa',t:'Banque partenaire A',prods:['p_ptz','p_pc'],conn:'API',sync:'il y a 12 min',health:'ok',conv:'Signée',fields:{statut:true,contrat:true,encours:false,commission:true}},
+  {id:'pb',t:'Banque spécialisée B',prods:['p_cat'],conn:'Fichier quotidien',sync:'ce matin, 6 h',health:'ok',conv:'Signée',fields:{statut:true,contrat:true,encours:true,commission:false}},
+  {id:'pc',t:'Banque partenaire C',prods:['p_liv'],conn:'API',sync:'il y a 5 min',health:'ok',conv:'Signée',fields:{statut:true,contrat:true,encours:true,commission:true}},
+  {id:'pd',t:'Assureur partenaire D',prods:['p_av'],conn:'Fichier hebdomadaire',sync:'il y a 9 jours',health:'late',conv:'En négociation',fields:{statut:true,contrat:true,encours:true,commission:false}},
+  {id:'pe',t:'Société de gestion E',prods:['p_scpi'],conn:'Fichier mensuel',sync:'1er novembre',health:'ok',conv:'En négociation',fields:{statut:false,contrat:true,encours:true,commission:false}},
+  {id:'bel',t:'Bélier Assurances',prods:['p_gli','p_pno','p_ae','p_mrh'],conn:'API groupe',sync:'temps réel',health:'ok',conv:'Groupe',fields:{statut:true,contrat:true,encours:true,commission:true}},
+  {id:'kw',t:'KoproWatt Energies',prods:['p_nrj'],conn:'API groupe',sync:'temps réel',health:'ok',conv:'Groupe',fields:{statut:true,contrat:true,encours:false,commission:true}},
+  {id:'ct',t:'Courtier partenaire',prods:['p_ci'],conn:'API courtier',sync:'il y a 1 h',health:'warn',conv:'Signée',fields:{statut:true,contrat:false,encours:false,commission:true}}],
+ revenue:[
+  {p:'Bélier Assurances',ent:'Bélier',m:'Octobre',exp:41200,rec:41200},{p:'Banque partenaire A',ent:'Société commune',m:'Octobre',exp:38600,rec:34100},
+  {p:'Assureur partenaire D',ent:'Société commune',m:'Octobre',exp:12900,rec:0},{p:'KoproWatt Energies',ent:'KoproWatt',m:'Octobre',exp:9800,rec:9800},
+  {p:'Banque partenaire C',ent:'Evoriel gérance',m:'Octobre',exp:3100,rec:3100},{p:'Courtier partenaire',ent:'Société commune',m:'Octobre',exp:7400,rec:6200}],
+ routing:[
+  {if:'Épargne et placement, montant supérieur à 50 000 €',then:'Conseiller patrimonial',sla:24},
+  {if:'Crédit travaux, copropriétaire',then:'Banque partenaire A, dossier pré-rempli',sla:48},
+  {if:'Prêt collectif, conseil syndical',then:'Conseiller financement, puis vote en AG',sla:72},
+  {if:'Crédit immobilier',then:'Courtier partenaire',sla:24},
+  {if:'Aucune règle',then:'Agence du client',sla:48}],
+ cap:2,consent:82,
+ draft:null,dstep:0,
+ slots:{home:['j1','j4','j2'],services:['j1','j3','j2','j4','j5']},
+ audit:[['10/11, 16:42','Alexandra M.','Parcours « Sécuriser ses loyers » : version B lancée en test A/B'],['10/11, 11:05','Mourad K.','Règle de routage épargne : seuil passé de 30 000 € à 50 000 €'],['09/11, 18:20','Système','Fichier Assureur partenaire D non reçu (attendu le 02/11)'],['08/11, 09:14','Michael T.','Parcours « Financer les travaux votés en AG » : convention AG jointe']]
+}}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return seed()}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const P=id=>PRODUCTS.find(x=>x.id===id), SV=id=>SERVICES.find(x=>x.id===id), MO=id=>S.moments.find(x=>x.id===id), JO=id=>S.journeys.find(x=>x.id===id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast._);toast._=setTimeout(()=>t.classList.remove('on'),2400)}
+const STATUS={prod:['good','En production'],test:['acc','En test'],draft:['','Brouillon'],pause:['warn','En pause']};
+
+/* ================= NAV ================= */
+const NAV=[['Piloter',[['home','Tableau de bord','home'],['journeys','Parcours','route'],['moments','Moments de vie','users']]],['Distribuer',[['offer','Catalogue','box'],['placements','Diffusion','send'],['leads','Leads et dossiers','inbox']]],['Partenaires',[['partners','Partenaires et flux','plug'],['revenue','Revenus','euro']]],['Encadrer',[['compliance','Conformité','shield'],['settings','Paramètres','gear']]]];
+function renderNav(){const nl=S.leads.filter(l=>l.st==='Nouveau').length;
+ $('nav').innerHTML=NAV.map(([g,items])=>`<div class="navlbl">${g}</div>`+items.map(([k,l,i])=>`<button class="nav" data-v="${k}" ${S.view===k||(S.view==='studio'&&k==='journeys')?'aria-current="page"':''}>${ic(i)}${l}${k==='leads'&&nl?`<span class="cnt">${nl}</span>`:''}${k==='partners'&&S.partners.some(p=>p.health==='late')?'<span class="cnt" style="background:#E8A33D">1</span>':''}</button>`).join('')).join('');
+ $('nav').querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
+ document.querySelectorAll('[data-brand]').forEach(b=>{b.setAttribute('aria-pressed',S.brand===b.dataset.brand);b.onclick=()=>{S.brand=b.dataset.brand;save();render()}});
+ const t=NAV.flatMap(x=>x[1]).find(x=>x[0]===S.view);$('crumb').innerHTML=`Evoriel · <b>${S.view==='studio'?'Studio de parcours':t?t[1]:''}</b>`}
+function go(v){S.view=v;save();render();$('view').scrollTop=0}
+function head(eb,t,p,act=''){return `<div class="ph"><div><p class="eyebrow">${eb}</p><h1>${t}</h1>${p?`<p>${p}</p>`:''}</div><div class="row">${act}</div></div>`}
+
+/* ================= HOME ================= */
+function totals(){const live=S.journeys.filter(j=>j.status==='prod'||j.status==='test');return{expo:live.reduce((s,j)=>s+j.m[0],0),use:live.reduce((s,j)=>s+j.m[1],0),lead:live.reduce((s,j)=>s+j.m[2],0),sub:live.reduce((s,j)=>s+j.m[3],0),eur:S.journeys.reduce((s,j)=>s+j.eur,0)}}
+function vHome(){const T=totals();const below=S.journeys.filter(j=>j.status==='test'&&j.m[0]&&j.m[3]/j.m[0]*100<j.seuil);const late=S.partners.filter(p=>p.health==='late');const nl=S.leads.filter(l=>l.st==='Nouveau'&&l.to==='Non attribué');const rexp=S.revenue.reduce((s,r)=>s+r.exp,0),rrec=S.revenue.reduce((s,r)=>s+r.rec,0);
+ const months=[['Juin',41,30],['Juil.',58,44],['Août',62,51],['Sept.',88,70],['Oct.',113,94],['Nov.',126,null]];const mx=130;
+ return head('Tableau de bord','Bonjour Alexandra','Ce que la distribution des produits de vos partenaires a produit ce mois-ci, et ce qui demande votre attention.',`<button class="btn" data-go="journeys">Voir les parcours</button><button class="btn pri" id="newJ">Nouveau parcours</button>`)+
+ `<div class="grid g4" style="margin-bottom:14px">
+  <div class="card kpi"><span>Clients exposés, 30 jours</span><b>${fr(T.expo)}</b><small class="up">+ 18 % vs mois précédent</small></div>
+  <div class="card kpi"><span>Leads qualifiés</span><b>${fr(T.lead)}</b><small class="up">+ 9 %</small></div>
+  <div class="card kpi"><span>Souscriptions</span><b>${fr(T.sub)}</b><small class="up">+ 12 %</small></div>
+  <div class="card kpi"><span>Revenus attendus en octobre</span><b>${keur(rexp)}</b><small class="${rrec<rexp?'down':'up'}">${keur(rrec)} encaissés</small></div></div>
+ <div class="grid g21" style="margin-bottom:14px">
+  <div class="card"><h3>À traiter</h3>
+   ${below.map(j=>`<div class="alert"><span class="dot" style="background:var(--warn)"></span><div><b>${esc(j.t)} est sous son seuil</b><span>${fr(j.m[3]/j.m[0]*100,2)} % de souscription pour un seuil de ${fr(j.seuil,1)} %. Testez une autre formulation ou un autre moment.</span></div><button class="btn sm" data-open="${j.id}">Ouvrir</button></div>`).join('')}
+   ${late.map(p=>`<div class="alert"><span class="dot" style="background:var(--bad)"></span><div><b>${esc(p.t)} : fichier non reçu depuis ${p.sync.replace('il y a ','')}</b><span>Les souscriptions et commissions de ce partenaire ne sont plus à jour.</span></div><button class="btn sm" data-go="partners">Voir le flux</button></div>`).join('')}
+   ${nl.length?`<div class="alert"><span class="dot" style="background:var(--acc)"></span><div><b>${nl.length} lead${nl.length>1?'s':''} sans conseiller</b><span>Aucune règle de routage ne s'applique : à attribuer.</span></div><button class="btn sm" data-go="leads">Attribuer</button></div>`:''}
+   <div class="alert"><span class="dot" style="background:var(--acc)"></span><div><b>3 conventions à faire voter en AG</b><span>Offres au syndicat portées par une entité liée au syndic.</span></div><button class="btn sm" data-go="compliance">Voir</button></div></div>
+  <div class="card"><h3>Revenus par mois, k€</h3><div class="legend"><span><i style="background:var(--acc)"></i>Attendus</span><span><i style="background:var(--teal)"></i>Encaissés</span></div>
+   <div class="mini">${months.map(([m,a,r])=>`<div><div style="display:flex;gap:3px;align-items:flex-end;height:96px;width:100%"><i style="height:${a/mx*96}px" title="${a} k€ attendus"></i>${r!==null?`<i class="r" style="height:${r/mx*96}px" title="${r} k€ encaissés"></i>`:''}</div>${m}</div>`).join('')}</div>
+   <p class="faint" style="margin:8px 0 0">Novembre en cours : encaissements au fil des fichiers partenaires.</p></div></div>
+ <div class="grid g21">
+  <div class="card"><h3>Parcours en ligne</h3><div class="tw"><table><thead><tr><th>Parcours</th><th>Statut</th><th class="r">Exposés</th><th class="r">Souscriptions</th><th class="r">Conversion</th><th class="r">Revenus</th></tr></thead><tbody>
+   ${S.journeys.filter(j=>j.status!=='draft').map(j=>`<tr class="click" data-open="${j.id}"><td><b>${esc(j.t)}</b><div class="faint">${esc(j.cible)} · ${esc(P(j.prod).t)}</div></td><td><span class="pill ${STATUS[j.status][0]}">${STATUS[j.status][1]}</span></td><td class="r">${fr(j.m[0])}</td><td class="r">${fr(j.m[3])}</td><td class="r">${j.m[0]?fr(j.m[3]/j.m[0]*100,2)+' %':'—'}</td><td class="r"><b>${j.eur?eur(j.eur):'—'}</b></td></tr>`).join('')}</tbody></table></div></div>
+  <div class="card"><h3>Entonnoir global</h3><div class="funnel">${[['Exposés',T.expo],['Ont utilisé le service',T.use],['Leads',T.lead],['Souscriptions',T.sub]].map(([l,v])=>`<div class="frow"><span>${l}</span><span class="track"><i style="width:${Math.max(1,v/T.expo*100)}%"></i></span><b class="r" style="text-align:right">${fr(v)}</b></div>`).join('')}</div>
+   <div class="row" style="margin-top:14px"><span class="muted">Consentement à la prospection</span><b>${S.consent} %</b></div><div class="row"><span class="muted">Plafond d'offres par client</span><b>${S.cap} par mois</b></div></div></div>`}
+
+/* ================= JOURNEYS ================= */
+function vJourneys(){const f=S.jf||'all';const q=($('q').value||'').toLowerCase();
+ const list=S.journeys.filter(j=>(f==='all'||j.status===f)&&(!q||j.t.toLowerCase().includes(q)));
+ return head('Piloter','Parcours','Chaque parcours associe un moment de vie, un service et le produit d\'un partenaire. Composez, testez, déployez ce qui marche.',`<button class="btn pri" id="newJ">Nouveau parcours</button>`)+
+ `<div class="toolbar">${[['all','Tous'],['prod','En production'],['test','En test'],['draft','Brouillons'],['pause','En pause']].map(([k,l])=>`<button class="chip" data-jf="${k}" aria-pressed="${f===k}">${l} <span class="faint">${k==='all'?S.journeys.length:S.journeys.filter(j=>j.status===k).length}</span></button>`).join('')}</div>
+ <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th style="padding-left:16px">Parcours</th><th>Moment de vie</th><th>Produit et partenaire</th><th>Mode</th><th>Diffusion</th><th>Statut</th><th class="r">Conversion</th><th class="r" style="padding-right:16px">Revenus</th></tr></thead><tbody>
+ ${list.map(j=>{const conv=j.m[0]?j.m[3]/j.m[0]*100:0;return `<tr class="click" data-open="${j.id}"><td style="padding-left:16px"><b>${esc(j.t)}</b><div class="faint">${esc(j.cible)} · v${j.v} · ${esc(j.owner)}${j.ab?' · test A/B':''}</div></td><td>${esc(MO(j.moment).t)}</td><td>${esc(P(j.prod).t)}<div class="faint">${esc(P(j.prod).partner)}</div></td><td><span class="pill">${esc(MODES[j.mode].l)}</span></td><td>${j.ch.map(c=>`<span class="pill" style="margin:1px">${esc(CHANNELS[c].l)}</span>`).join('')}</td><td><span class="pill ${STATUS[j.status][0]}">${STATUS[j.status][1]}</span></td><td class="r">${j.m[0]?`<b class="${conv>=j.seuil?'up':'down'}">${fr(conv,2)} %</b><div class="faint">seuil ${fr(j.seuil,1)} %</div>`:'—'}</td><td class="r" style="padding-right:16px"><b>${j.eur?eur(j.eur):'—'}</b></td></tr>`}).join('')}</tbody></table></div></div>`}
+function openJourney(id){const j=JO(id),pr=P(j.prod),sv=SV(j.svc),mo=MO(j.moment);const conv=j.m[0]?j.m[3]/j.m[0]*100:0;
+ drawer(`<p class="eyebrow">Parcours · v${j.v}</p><h3 style="font-family:var(--fd);margin:0">${esc(j.t)}</h3>`,
+ `<p><span class="pill ${STATUS[j.status][0]}">${STATUS[j.status][1]}</span> <span class="pill">${esc(j.cible)}</span> ${j.ab?'<span class="pill acc">Test A/B en cours</span>':''}</p>
+ <div class="card" style="margin-bottom:12px"><div class="row"><span class="muted">Moment de vie</span><b>${esc(mo.t)}</b></div><div class="row"><span class="muted">Service</span><b>${esc(sv.t)}</b></div><div class="row"><span class="muted">Produit</span><b>${esc(pr.t)}</b></div><div class="row"><span class="muted">Partenaire</span><b>${esc(pr.partner)}</b></div><div class="row"><span class="muted">Mode</span><b>${esc(MODES[j.mode].l)}</b></div></div>
+ <div class="card" style="margin-bottom:12px"><h3>Résultats, 30 jours</h3><div class="funnel">${[['Exposés',j.m[0]],['Service utilisé',j.m[1]],['Leads',j.m[2]],['Souscriptions',j.m[3]]].map(([l,v])=>`<div class="frow"><span>${l}</span><span class="track"><i style="width:${j.m[0]?Math.max(1,v/j.m[0]*100):0}%"></i></span><b style="text-align:right">${fr(v)}</b></div>`).join('')}</div>
+ <div class="row" style="margin-top:10px"><span class="muted">Conversion</span><b class="${conv>=j.seuil?'up':'down'}">${fr(conv,2)} % · seuil ${fr(j.seuil,1)} %</b></div><div class="row"><span class="muted">Revenus générés</span><b>${eur(j.eur)}</b></div></div>
+ ${j.ab?`<div class="card" style="margin-bottom:12px"><h3>Test A/B</h3><div class="row"><span>A · « Vos loyers sont-ils protégés ? »</span><b>2,4 %</b></div><div class="row"><span>B · « Lyon 3e : ce loyer n'est pas garanti »</span><b class="up">3,6 %</b></div><p class="faint">B est significativement meilleur après 14 jours.</p><button class="btn sm pri" data-act="abwin">Retenir la version B</button></div>`:''}
+ <div class="row" style="gap:8px;justify-content:flex-start">${j.status!=='prod'?`<button class="btn pri" data-act="deploy">Déployer</button>`:''}${j.status==='prod'||j.status==='test'?`<button class="btn" data-act="pause">Mettre en pause</button>`:''}${j.status==='pause'?`<button class="btn" data-act="resume">Reprendre</button>`:''}<button class="btn" data-act="edit">Modifier dans le studio</button></div>`,
+ b=>{b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{const a=x.dataset.act;
+  if(a==='deploy'){j.status='prod';log(`Parcours « ${j.t} » déployé`);toast('Parcours déployé sur toute la cible')}
+  if(a==='pause'){j.status='pause';log(`Parcours « ${j.t} » mis en pause`);toast('Parcours en pause')}
+  if(a==='resume'){j.status='test';toast('Parcours relancé en test')}
+  if(a==='abwin'){j.ab=false;j.v++;log(`Parcours « ${j.t} » : version B retenue`);toast('Version B retenue pour tout le monde')}
+  if(a==='edit'){S.draft=JSON.parse(JSON.stringify(j));S.dstep=0;closeDrawer();go('studio');return}
+  save();closeDrawer();render()})})}
+
+/* ================= STUDIO ================= */
+function newDraft(){S.draft={id:null,t:'',cible:'Bailleurs',moment:'m_bail',svc:'s_diag',prod:'p_gli',mode:'sous',ch:['app'],seuil:3,ab:false,abB:'',hook:'Vos loyers sont-ils protégés ?',status:'draft'};S.dstep=0;S.pvs=0;go('studio')}
+const DSTEPS=['Moment de vie','Service','Produit partenaire','Mode de distribution','Diffusion','Contrôles et lancement'];
+function checks(D){const pr=P(D.prod);const C=[];
+ C.push(pr.statut==='ok'?['ok','Distributeur habilité pour ce produit',pr.dist]:['ko','Statut de distribution à créer',`${pr.dist} : immatriculation en cours. Passez en orientation vers le partenaire en attendant.`]);
+ if(D.mode==='sous'&&pr.statut!=='ok')C.push(['ko','Souscription intégrée impossible sans statut','Choisissez « Orientation » ou « Lead ».']);
+ if(D.cible==='Conseils syndicaux'&&/Société commune/.test(pr.dist))C.push(['wa','Convention à faire voter en AG','Offre au syndicat via une entité liée au syndic : jointe à la convocation.']);
+ if(D.cible==='Conseils syndicaux'&&pr.fam==='Épargne')C.push(['ok','Intérêts acquis au syndicat','Aucune rémunération du syndic : conforme.']);
+ C.push(D.ch.includes('lien')?['wa','E-mails : consentement requis',`${S.consent} % des clients ont consenti ; les autres ne recevront pas l'e-mail.`]:['ok','Pas de prospection par e-mail','Diffusion dans l\'app et en agence uniquement.']);
+ const pa=S.partners.find(p=>p.prods.includes(D.prod));C.push(pa&&pa.health==='ok'?['ok','Retours partenaire configurés',`${pa.t} · ${pa.conn}`]:['wa','Retours partenaire incomplets',pa?`${pa.t} : flux à surveiller`:'Aucun flux']);
+ C.push(['ok','Mentions légales générées','Distributeur, ORIAS, rémunération, document d\'information.']);
+ C.push(D.hook&&D.hook.length>4?['ok','Accroche rédigée',`« ${D.hook} »`]:['ko','Accroche manquante','Rédigez l\'accroche du widget à l\'étape Diffusion.']);
+ return C}
+function vStudio(){if(!S.draft)newDraft();const D=S.draft,st=S.dstep;const pr=P(D.prod),sv=SV(D.svc),mo=MO(D.moment);
+ let body='';
+ if(st===0){body=`<h3>Quand proposer ce parcours ?</h3><div class="toolbar">${CIBLES.map(c=>`<button class="chip" data-cible="${c}" aria-pressed="${D.cible===c}">${c}</button>`).join('')}</div>
+  ${S.moments.filter(m=>m.cible===D.cible).map(m=>`<button class="opt" data-mo="${m.id}" aria-pressed="${D.moment===m.id}"><b>${esc(m.t)}</b><span>${esc(m.src)} · ${fr(m.aud)} clients concernés par mois${m.on?'':' · règle inactive'}</span></button>`).join('')}
+  <button class="btn sm" data-go="moments">Créer un autre moment de vie</button>`}
+ if(st===1){const l=SERVICES.filter(s=>s.c.includes(D.cible));body=`<h3>Quel service ouvre la porte ?</h3><p class="faint">Bibliothèque de services Obendy, prête à l'emploi et aux couleurs de vos marques.</p><div class="optgrid">${l.map(s=>`<button class="opt" data-sv="${s.id}" aria-pressed="${D.svc===s.id}"><b>${esc(s.t)}</b><span>${esc(s.type)}</span></button>`).join('')}</div>`}
+ if(st===2){body=`<h3>Quel produit proposer derrière ?</h3><p class="faint">Produits de vos partenaires et du groupe, avec leur distributeur et leur rémunération.</p>${PRODUCTS.map(p=>`<button class="opt" data-pr="${p.id}" aria-pressed="${D.prod===p.id}"><div class="row"><b>${esc(p.t)}</b><span class="pill ${p.statut==='ok'?'good':'warn'}">${p.statut==='ok'?'Distribuable':'Statut à créer'}</span></div><span>${esc(p.partner)} · ${esc(p.dist)} · ${esc(p.com)}</span></button>`).join('')}`}
+ if(st===3){body=`<h3>Jusqu'où va le parcours chez Evoriel ?</h3><div class="grid g3">${Object.entries(MODES).map(([k,m])=>{const okm=pr.modes.includes(k);return `<button class="opt" data-mode="${k}" aria-pressed="${D.mode===k}" ${okm?'':'disabled style="opacity:.45"'}><b>${m.l}</b><span>${m.d}</span>${okm?'':'<span class="pill warn" style="margin-top:6px">Non proposé par le partenaire</span>'}</button>`}).join('')}</div>
+  <div class="card" style="margin-top:10px"><h3>Qui gère quoi</h3><table><tr><th></th><th>Lead</th><th>Souscription</th><th>Client ensuite</th></tr><tr><td><b>${esc(MODES[D.mode].l)}</b></td><td>${D.mode==='orient'?'Partenaire':'Evoriel'}</td><td>${D.mode==='sous'?'Evoriel, via le distributeur':'Partenaire'}</td><td>Partenaire, suivi par Evoriel</td></tr></table></div>`}
+ if(st===4){body=`<h3>Où le client le découvre-t-il ?</h3><div class="optgrid">${Object.entries(CHANNELS).map(([k,c])=>`<button class="opt" data-ch="${k}" aria-pressed="${D.ch.includes(k)}"><b>${c.l}</b><span>${c.d}</span></button>`).join('')}</div>
+  <label class="f" style="margin-top:10px">Accroche du widget<input type="text" id="hook" value="${esc(D.hook)}"></label>
+  <div class="row" style="margin-top:10px"><span><b>Tester une deuxième accroche</b><span class="faint" style="display:block">La moitié des clients voit la version B</span></span><button class="sw" role="switch" aria-checked="${D.ab}" id="abSw" aria-label="Test A/B"></button></div>
+  ${D.ab?`<label class="f" style="margin-top:8px">Accroche B<input type="text" id="hookB" value="${esc(D.abB||'')}"></label>`:''}`}
+ if(st===5){const C=checks(D),ko=C.some(c=>c[0]==='ko');body=`<h3>Contrôles avant mise en ligne</h3><div>${C.map(c=>`<div class="check"><span class="ic ${c[0]}">${c[0]==='ok'?'✓':c[0]==='ko'?'✕':'!'}</span><div><b>${esc(c[1])}</b><div class="faint">${esc(c[2])}</div></div></div>`).join('')}</div>
+  <div class="grid g2" style="margin-top:12px"><label class="f">Nom du parcours<input type="text" id="jname" value="${esc(D.t||pr.t+' · '+D.cible)}"></label><label class="f">Seuil de go (souscriptions / exposés, %)<input type="number" id="jseuil" step="0.1" min="0.2" value="${D.seuil}"></label></div>
+  <div class="row" style="justify-content:flex-start;gap:8px;margin-top:14px"><button class="btn pri" id="launchT" ${ko?'disabled':''}>Lancer en test sur 10 % de la cible</button><button class="btn" id="saveD">Enregistrer le brouillon</button></div>${ko?'<p class="faint" style="color:var(--bad)">Un contrôle bloquant empêche la mise en ligne.</p>':''}`}
+ const pv=S.pvs||0;
+ return head('Studio de parcours',D.id?'Modifier un parcours':'Nouveau parcours','Composez sans développement : chaque choix met à jour l\'aperçu, exactement ce que verra le client.',`<button class="btn ghost" data-go="journeys">Annuler</button>`)+
+ `<div class="studio"><div class="card steps">${DSTEPS.map((n,i)=>`<button data-st="${i}" ${st===i?'aria-current="step"':''} class="${i<st?'done':''}"><span class="n">${i<st?'✓':i+1}</span>${n}</button>`).join('')}
+  <div style="border-top:1px solid var(--line);margin-top:8px;padding-top:10px" class="faint"><b style="color:var(--ink)">${esc(mo.t)}</b><br>${esc(sv.t)}<br>→ ${esc(pr.t)}<br>${esc(MODES[D.mode].l)}</div></div>
+  <div class="card">${body}<div class="row" style="margin-top:16px">${st>0?`<button class="btn" data-st="${st-1}">Précédent</button>`:'<span></span>'}${st<5?`<button class="btn pri" data-st="${st+1}">Continuer</button>`:''}</div></div>
+  <div><div class="pvsteps">${['Widget','Service','Offre','Fin'].map((n,i)=>`<button data-pv="${i}" aria-pressed="${pv===i}">${n}</button>`).join('')}</div>${phone(D,pv)}<p class="faint" style="text-align:center;margin-top:8px">Aperçu ${S.brand==='oralia'?'Oralia':'Lamy'} · ${esc(CHANNELS[D.ch[0]||'app'].l)}</p></div></div>`}
+function phone(D,pv){const pr=P(D.prod),sv=SV(D.svc),br=S.brand==='oralia'?'oralia':'lamy';
+ let b='';
+ if(pv===0)b=`<div class="hero"><span class="tag">Pour vous en ce moment</span><b style="font-size:14px">${esc(D.hook||'Votre accroche')}</b><span>${esc(sv.t)}</span><span class="pbtn">Commencer</span></div><div class="pc"><b>Mes dossiers</b><span class="small">Tout est à jour</span></div>`;
+ if(pv===1)b=`<div class="pc"><span class="small">${esc(sv.type)} · 1 minute</span><b style="font-size:14px">${esc(sv.t)}</b><span class="small">Quelques réponses, un résultat tout de suite.</span></div><div class="pc"><span class="small">Résultat</span><span class="big">${sv.type==='Diagnostic'?'1 point à corriger':sv.type==='Comparateur'?'− 21 € / mois':'Résultat chiffré'}</span></div><span class="pbtn">Voir la solution</span>`;
+ if(pv===2)b=`<div class="pc" style="border:1.5px solid var(--ac)"><span class="small">Proposé par ${esc(pr.partner)}</span><b style="font-size:14px">${esc(pr.t)}</b><span class="small">${esc(MODES[D.mode].d)}</span></div><span class="pbtn">${D.mode==='sous'?'Souscrire':D.mode==='lead'?'Être rappelé':'Continuer chez le partenaire'}</span><span class="small">${esc(pr.dist)}. Le syndic ne perçoit aucune rémunération sur les opérations bancaires de la copropriété.</span>`;
+ if(pv===3)b=`<div class="pc"><b style="font-size:14px">${D.mode==='sous'?'C\'est fait':D.mode==='lead'?'Demande envoyée':'Vous êtes chez le partenaire'}</b><span class="small">${D.mode==='sous'?'Contrat émis, attestation envoyée.':D.mode==='lead'?'Un conseiller vous rappelle sous 48 h.':'Votre simulation vous suit.'}</span></div><div class="pc"><span class="small">Suivi</span><b>Visible dans « Mes dossiers »</b></div>`;
+ return `<div class="phone ${br}"><div class="pb"><span class="wm">${br}<i>.</i></span><div style="font-size:12px;opacity:.85;margin-top:6px">Mon espace immo · ${esc(D.cible)}</div></div><div class="pbody">${b}</div><div class="ptab"><span>Accueil</span><span>Documents</span><span class="on">Services</span><span>Profil</span></div></div>`}
+function bindStudio(v){const D=S.draft;const up=()=>{save();render()};
+ v.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{S.dstep=+b.dataset.st;S.pvs=[0,1,2,2,0,3][S.dstep];up()});
+ v.querySelectorAll('[data-pv]').forEach(b=>b.onclick=()=>{S.pvs=+b.dataset.pv;up()});
+ v.querySelectorAll('[data-cible]').forEach(b=>b.onclick=()=>{D.cible=b.dataset.cible;const m=S.moments.find(x=>x.cible===D.cible);if(m)D.moment=m.id;const s=SERVICES.find(x=>x.c.includes(D.cible));if(s)D.svc=s.id;up()});
+ v.querySelectorAll('[data-mo]').forEach(b=>b.onclick=()=>{D.moment=b.dataset.mo;up()});
+ v.querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{D.svc=b.dataset.sv;S.pvs=1;up()});
+ v.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{D.prod=b.dataset.pr;const pr=P(D.prod);if(!pr.modes.includes(D.mode))D.mode=pr.modes[0];S.pvs=2;up()});
+ v.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{D.mode=b.dataset.mode;S.pvs=2;up()});
+ v.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{const k=b.dataset.ch;D.ch=D.ch.includes(k)?D.ch.filter(x=>x!==k):D.ch.concat(k);if(!D.ch.length)D.ch=['app'];up()});
+ const h=$('hook');if(h)h.onchange=()=>{D.hook=h.value;up()};
+ const hb=$('hookB');if(hb)hb.onchange=()=>{D.abB=hb.value;save()};
+ const ab=$('abSw');if(ab)ab.onclick=()=>{D.ab=!D.ab;up()};
+ const jn=$('jname');if(jn)jn.onchange=()=>{D.t=jn.value;save()};
+ const js=$('jseuil');if(js)js.onchange=()=>{D.seuil=+js.value;save()};
+ const lt=$('launchT');if(lt)lt.onclick=()=>{D.t=($('jname').value||'Nouveau parcours');publish('test')};
+ const sd=$('saveD');if(sd)sd.onclick=()=>{D.t=($('jname').value||'Nouveau parcours');publish('draft')}}
+function publish(status){const D=S.draft;if(D.id){const j=JO(D.id);Object.assign(j,{t:D.t,cible:D.cible,moment:D.moment,svc:D.svc,prod:D.prod,mode:D.mode,ch:D.ch,seuil:D.seuil,ab:D.ab,status:status==='draft'?j.status:status,v:j.v+1})}
+ else S.journeys.unshift({id:'j'+Date.now(),t:D.t,cible:D.cible,moment:D.moment,svc:D.svc,prod:D.prod,mode:D.mode,ch:D.ch,status,seuil:D.seuil,v:1,m:[0,0,0,0],eur:0,owner:'Alexandra M.',ab:D.ab});
+ log(`Parcours « ${D.t} » ${status==='test'?'lancé en test sur 10 % de la cible':'enregistré en brouillon'}`);S.draft=null;go('journeys');toast(status==='test'?'Parcours lancé en test : premiers résultats sous 7 jours':'Brouillon enregistré')}
+
+/* ================= MOMENTS ================= */
+function vMoments(){return head('Piloter','Moments de vie','Les déclencheurs construits sur vos données de gestion : ce que seul Evoriel sait de ses clients.',`<button class="btn pri" id="newM">Nouveau moment de vie</button>`)+
+ `<div class="grid g21"><div class="card" style="padding:0"><div class="tw"><table><thead><tr><th style="padding-left:16px">Actif</th><th>Moment de vie</th><th>Source</th><th>Cible</th><th class="r">Clients / mois</th><th class="r" style="padding-right:16px">Parcours</th></tr></thead><tbody>
+ ${S.moments.map(m=>`<tr><td style="padding-left:16px"><button class="sw" role="switch" aria-checked="${m.on}" data-mtog="${m.id}" aria-label="Activer ${esc(m.t)}"></button></td><td><b>${esc(m.t)}</b></td><td>${esc(m.src)}</td><td>${esc(m.cible)}</td><td class="r">${fr(m.aud)}</td><td class="r" style="padding-right:16px">${S.journeys.filter(j=>j.moment===m.id).length}</td></tr>`).join('')}</tbody></table></div></div>
+ <div class="grid"><div class="card"><h3>Pression commerciale</h3><div class="row"><span>Offres par client et par mois</span><b>${S.cap}</b></div><input type="range" min="1" max="4" value="${S.cap}" id="cap" aria-label="Plafond d'offres" style="width:100%"><p class="faint">Au-delà, la plateforme choisit le parcours le plus utile pour le client, pas le plus rentable.</p></div>
+ <div class="card"><h3>Règle de priorité</h3><p class="muted" style="margin:0">1. Ce qui protège le client (aides, garanties)<br>2. Ce qui répond à un moment urgent (AG, appel de fonds)<br>3. Le reste, par valeur pour Evoriel</p></div>
+ <div class="card"><h3>Consentement</h3><div class="row"><span>Clients ayant consenti à la prospection</span><b>${S.consent} %</b></div><p class="faint">Les widgets dans l'app restent visibles pour tous ; seuls les e-mails dépendent du consentement.</p></div></div></div>`}
+function newMoment(){drawer('<h3 style="font-family:var(--fd);margin:0">Nouveau moment de vie</h3>',`<label class="f">Source de données<select id="nmSrc"><option>Mandats de gestion</option><option>Baux</option><option>Comptes des syndicats</option><option>Agenda des AG</option><option>Comptabilité syndic</option><option>Encaissements</option><option>Transaction</option></select></label>
+ <label class="f" style="margin-top:10px">Condition<input type="text" id="nmT" value="DPE F ou G sur un bien loué"></label><label class="f" style="margin-top:10px">Cible<select id="nmC">${CIBLES.map(c=>`<option ${c==='Bailleurs'?'selected':''}>${c}</option>`).join('')}</select></label>
+ <div class="card" style="margin-top:12px"><div class="row"><span class="muted">Clients concernés, estimation</span><b id="nmA">1 420 / mois</b></div><p class="faint">Calculée sur les données des 12 derniers mois.</p></div><button class="btn pri" id="nmGo" style="margin-top:12px">Créer le moment de vie</button>`,
+ b=>{b.querySelector('#nmGo').onclick=()=>{S.moments.push({id:'m'+Date.now(),t:$('nmT').value,src:$('nmSrc').value,cible:$('nmC').value,aud:1420,on:true});log(`Moment de vie « ${$('nmT').value} » créé`);save();closeDrawer();render();toast('Moment de vie créé : il est disponible dans le studio')}})}
+
+/* ================= OFFER ================= */
+function vOffer(){const t=S.ot||'prod';
+ return head('Distribuer','Catalogue','Les produits de vos partenaires et du groupe, et les services Obendy qui les portent.',`<button class="btn pri" id="addP">Ajouter un produit partenaire</button>`)+
+ `<div class="toolbar"><button class="chip" data-ot="prod" aria-pressed="${t==='prod'}">Produits financiers <span class="faint">${PRODUCTS.length}</span></button><button class="chip" data-ot="svc" aria-pressed="${t==='svc'}">Services <span class="faint">${SERVICES.length}</span></button></div>`+
+ (t==='prod'?`<div class="card" style="padding:0"><div class="tw"><table><thead><tr><th style="padding-left:16px">Produit</th><th>Famille</th><th>Partenaire</th><th>Distribué par</th><th>Modes possibles</th><th>Rémunération</th><th class="r" style="padding-right:16px">Parcours</th></tr></thead><tbody>
+ ${PRODUCTS.map(p=>`<tr><td style="padding-left:16px"><b>${esc(p.t)}</b> ${p.statut==='ok'?'':'<span class="pill warn">Statut à créer</span>'}</td><td>${esc(p.fam)}</td><td>${esc(p.partner)}</td><td>${esc(p.dist)}</td><td>${p.modes.map(m=>`<span class="pill" style="margin:1px">${esc(MODES[m].l.split(' ')[0])}</span>`).join('')}</td><td>${esc(p.com)}</td><td class="r" style="padding-right:16px">${S.journeys.filter(j=>j.prod===p.id).length}</td></tr>`).join('')}</tbody></table></div></div>`
+ :`<div class="grid g3">${SERVICES.map(s=>`<div class="card"><span class="pill acc">${esc(s.type)}</span><h3 style="margin:8px 0 4px">${esc(s.t)}</h3><p class="faint" style="margin:0">${s.c.map(esc).join(', ')} · utilisé dans ${S.journeys.filter(j=>j.svc===s.id).length} parcours</p></div>`).join('')}</div>`)}
+function addProduct(){drawer('<h3 style="font-family:var(--fd);margin:0">Ajouter un produit partenaire</h3>',`<p class="muted">Un nouveau partenaire est branché en six semaines en moyenne.</p>
+ <div class="tl"><div class="ok"><b>Fiche produit</b><span>Conditions, documents d'information, tarification ou règles d'éligibilité</span></div><div class="ok"><b>Statut de distribution</b><span>Qui distribue : Bélier, la société commune, le partenaire</span></div><div class="now"><b>Circuit</b><span>Où arrive le lead, ou l'API de souscription</span></div><div><b>Retours</b><span>Statuts, contrats, encours, commissions, par API ou fichier</span></div><div><b>Grille de rémunération</b><span>Pour le rapprochement automatique des commissions</span></div><div><b>Recette et mise en ligne</b><span>Le produit devient disponible dans le studio</span></div></div>
+ <label class="f">Partenaire<input type="text" value="Mutuelle partenaire F"></label><label class="f" style="margin-top:10px">Produit<input type="text" value="Assurance santé seniors"></label><button class="btn pri" style="margin-top:12px" id="apGo">Lancer l'intégration</button>`,b=>{b.querySelector('#apGo').onclick=()=>{log('Intégration lancée : Mutuelle partenaire F, assurance santé seniors');save();closeDrawer();toast('Intégration lancée : le partenaire reçoit son espace d\'onboarding')}})}
+
+/* ================= PLACEMENTS ================= */
+function vPlacements(){const brand=S.brand==='oralia'?'oralia':'lamy';
+ const slot=(k,title,d)=>`<div class="card"><h3>${title}</h3><p class="faint" style="margin:-4px 0 10px">${d}</p><div class="slot">${S.slots[k].map((id,i)=>{const j=JO(id);return j?`<div class="it"><span class="pill">${i+1}</span><b>${esc(j.t)}</b><span class="pill ${STATUS[j.status][0]}">${STATUS[j.status][1]}</span><button class="btn sm" data-up="${k}:${i}" ${i===0?'disabled':''} aria-label="Monter">↑</button></div>`:''}).join('')}</div></div>`;
+ return head('Distribuer','Diffusion','Où vos clients rencontrent les parcours : l\'app, les e-mails, les agences. Vous ordonnez, la plateforme respecte le plafond d\'offres.')+
+ `<div class="grid g2" style="margin-bottom:14px">${slot('home','Widget « Pour vous » de l\'accueil','Un seul parcours affiché à la fois, le premier éligible pour le client.')}${slot('services','Onglet Services de l\'app','Tous les parcours éligibles, rangés par thématique.')}</div>
+ <div class="grid g2"><div class="card"><h3>Liens et e-mails</h3><table><thead><tr><th>Campagne</th><th>Parcours</th><th class="r">Envois</th><th class="r">Ouvertures</th></tr></thead><tbody>
+ <tr><td>Convocation AG, travaux</td><td>Financer les travaux votés en AG</td><td class="r">380</td><td class="r">62 %</td></tr><tr><td>Appel de fonds travaux</td><td>Payer sa part des travaux</td><td class="r">5 080</td><td class="r">48 %</td></tr><tr><td>Bienvenue locataire</td><td>Emménager sans rien oublier</td><td class="r">2 900</td><td class="r">71 %</td></tr></tbody></table><p class="faint">Envoyés aux seuls clients ayant consenti.</p></div>
+ <div class="card"><h3>QR codes pour les agences</h3><div class="row" style="align-items:flex-start;gap:14px"><svg class="qr" viewBox="0 0 29 29" aria-label="QR code de démonstration">${qrMock(7)}</svg><div style="flex:1"><label class="f">Agence<select><option>${brand==='oralia'?'Oralia':'Lamy'} Lyon Bellecour</option><option>${brand==='oralia'?'Oralia':'Lamy'} Nantes Centre</option><option>${brand==='oralia'?'Oralia':'Lamy'} Pau Gare</option></select></label><label class="f" style="margin-top:8px">Parcours<select>${S.journeys.filter(j=>j.status!=='draft').map(j=>`<option>${esc(j.t)}</option>`).join('')}</select></label><button class="btn sm pri" style="margin-top:10px" data-qr="1">Générer l'affiche</button></div></div><p class="faint">Chaque QR code est tracé par agence : vous savez quelle vitrine convertit.</p></div></div>`}
+function qrMock(seed){let s='';let h=seed*2654435761>>>0;const n=29;const fin=(x,y)=>`<rect x="${x}" y="${y}" width="7" height="7" fill="#0B0F2B"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#0B0F2B"/>`;
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){if((x<8&&y<8)||(x>20&&y<8)||(x<8&&y>20))continue;h=(h*1103515245+12345)>>>0;if((h>>16)&1)s+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#0B0F2B"/>`}return s+fin(0,0)+fin(22,0)+fin(0,22)}
+
+/* ================= LEADS ================= */
+function vLeads(){const f=S.lf||'all';const list=S.leads.filter(l=>f==='all'||(f==='new'&&l.st==='Nouveau')||(f==='part'&&/partenaire|Accordé|Débloqué|Refusé/.test(l.st+l.src)));
+ return head('Distribuer','Leads et dossiers','Chaque demande, de son arrivée à la souscription chez le partenaire. Les statuts remontent tout seuls.')+
+ `<div class="grid g21"><div><div class="toolbar">${[['all','Tous'],['new','Nouveaux'],['part','Chez les partenaires']].map(([k,l])=>`<button class="chip" data-lf="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>
+ <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th style="padding-left:16px">Lead</th><th>Produit</th><th>Attribué à</th><th>Statut</th><th class="r" style="padding-right:16px">Délai</th></tr></thead><tbody>
+ ${list.map(l=>{const over=l.st==='Nouveau'&&l.age>l.sla;return `<tr class="click" data-lead="${l.id}"><td style="padding-left:16px"><b>${esc(l.client)}</b><div class="faint">${l.id} · ${esc(l.cible)}</div></td><td>${esc(P(l.prod).t)}<div class="faint">${eur(l.mont)}</div></td><td>${l.to==='Non attribué'?'<span class="pill warn">Non attribué</span>':esc(l.to)}</td><td><span class="pill ${/Débloqué|Accordé/.test(l.st)?'good':/Refusé/.test(l.st)?'bad':l.st==='Nouveau'?'acc':''}">${esc(l.st)}</span><div class="faint">${esc(l.src)}</div></td><td class="r" style="padding-right:16px"><b class="${over?'down':''}">${l.age} h</b><div class="faint">SLA ${l.sla} h</div></td></tr>`}).join('')}</tbody></table></div></div></div>
+ <div class="card"><h3>Règles de routage</h3>${S.routing.map((r,i)=>`<div class="check"><span class="ic ok">${i+1}</span><div><b>${esc(r.if)}</b><div class="faint">→ ${esc(r.then)} · SLA ${r.sla} h</div></div></div>`).join('')}<button class="btn sm" style="margin-top:8px" data-toast="Éditeur de règles : condition, destination, délai de réponse">Ajouter une règle</button></div></div>`}
+function openLead(id){const l=S.leads.find(x=>x.id===id),j=JO(l.j);
+ const steps=[['Service utilisé',true],['Demande envoyée',true],['Qualifiée',l.st!=='Nouveau'],['Transmise au partenaire',/partenaire|Accordé|Débloqué|Refusé/.test(l.st)||/Banque|Courtier/.test(l.to)],['Accord',/Accordé|Débloqué/.test(l.st)],['Souscription, déblocage',/Débloqué/.test(l.st)]];
+ drawer(`<p class="eyebrow">${l.id}</p><h3 style="font-family:var(--fd);margin:0">${esc(l.client)}</h3>`,`<div class="card" style="margin-bottom:12px"><div class="row"><span class="muted">Parcours</span><b>${esc(j?j.t:'')}</b></div><div class="row"><span class="muted">Produit</span><b>${esc(P(l.prod).t)}</b></div><div class="row"><span class="muted">Montant</span><b>${eur(l.mont)}</b></div><div class="row"><span class="muted">Dernière mise à jour</span><b>${esc(l.src)}</b></div></div>
+ <div class="tl">${steps.map(([t,d],i)=>`<div class="${d?'ok':(steps[i-1]&&steps[i-1][1]?'now':'')}"><b>${t}</b></div>`).join('')}</div>
+ <label class="f">Attribuer à<select id="ldTo">${['Conseiller patrimonial','Conseiller financement','Agence du client','Banque partenaire A','Courtier partenaire'].map(o=>`<option ${o===l.to?'selected':''}>${o}</option>`).join('')}</select></label><button class="btn pri" style="margin-top:10px" id="ldGo">Attribuer</button>`,
+ b=>{b.querySelector('#ldGo').onclick=()=>{l.to=$('ldTo').value;if(l.st==='Nouveau')l.st='Qualifié';log(`Lead ${l.id} attribué à ${l.to}`);save();closeDrawer();render();toast('Lead attribué, le conseiller est notifié')}})}
+
+/* ================= PARTNERS ================= */
+function vPartners(){return head('Partenaires','Partenaires et flux','Ce que chaque partenaire vous renvoie sur vos clients. Sans ces retours, Evoriel perd la trace de ses ventes.',`<button class="btn pri" id="addP">Ajouter un partenaire</button>`)+
+ `<div class="grid g2">${S.partners.map(p=>`<div class="card"><div class="row"><h3 style="margin:0">${esc(p.t)}</h3><span class="pill ${p.health==='ok'?'good':p.health==='warn'?'warn':'bad'}">${p.health==='ok'?'Flux à jour':p.health==='warn'?'Données partielles':'Flux en retard'}</span></div>
+ <p class="faint" style="margin:6px 0 10px">${p.prods.map(x=>esc(P(x).t)).join(', ')}</p>
+ <div class="row"><span class="muted">Intégration</span><b>${esc(p.conn)}</b></div><div class="row"><span class="muted">Dernière réception</span><b>${esc(p.sync)}</b></div><div class="row"><span class="muted">Convention</span><b>${esc(p.conv)}</b></div>
+ <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">${Object.entries({statut:'Statut du dossier',contrat:'Contrat',encours:'Encours',commission:'Commission'}).map(([k,l])=>`<span class="pill ${p.fields[k]?'good':'warn'}">${p.fields[k]?'✓':'✕'} ${l}</span>`).join('')}</div>
+ ${p.health!=='ok'?`<button class="btn sm" style="margin-top:10px" data-relance="${p.id}">Relancer le partenaire</button>`:''}</div>`).join('')}</div>`}
+
+/* ================= REVENUE ================= */
+function vRevenue(){const rexp=S.revenue.reduce((s,r)=>s+r.exp,0),rrec=S.revenue.reduce((s,r)=>s+r.rec,0);const ents={};S.revenue.forEach(r=>{ents[r.ent]=(ents[r.ent]||0)+r.exp});
+ return head('Partenaires','Revenus','Les commissions attendues d\'après les souscriptions, rapprochées de ce que les partenaires versent.',`<button class="btn" data-toast="Export CSV prêt pour la comptabilité">Exporter</button>`)+
+ `<div class="grid g4" style="margin-bottom:14px"><div class="card kpi"><span>Attendu en octobre</span><b>${keur(rexp)}</b></div><div class="card kpi"><span>Encaissé</span><b>${keur(rrec)}</b></div><div class="card kpi"><span>Écart à réclamer</span><b class="down">${keur(rexp-rrec)}</b></div><div class="card kpi"><span>Rapprochement automatique</span><b>${Math.round(S.revenue.filter(r=>r.exp===r.rec).length/S.revenue.length*100)} %</b></div></div>
+ <div class="grid g21"><div class="card" style="padding:0"><div class="tw"><table><thead><tr><th style="padding-left:16px">Partenaire</th><th>Entité</th><th class="r">Attendu</th><th class="r">Encaissé</th><th class="r">Écart</th><th style="padding-right:16px">Action</th></tr></thead><tbody>
+ ${S.revenue.map((r,i)=>{const d=r.exp-r.rec;return `<tr><td style="padding-left:16px"><b>${esc(r.p)}</b><div class="faint">${r.m}</div></td><td>${esc(r.ent)}</td><td class="r">${eur(r.exp)}</td><td class="r">${eur(r.rec)}</td><td class="r"><b class="${d?'down':'up'}">${d?'− '+eur(d):'0 €'}</b></td><td style="padding-right:16px">${d?`<button class="btn sm" data-claim="${i}">Réclamer</button>`:'<span class="pill good">Rapproché</span>'}</td></tr>`}).join('')}</tbody></table></div></div>
+ <div class="card"><h3>Par entité</h3>${Object.entries(ents).map(([e,v])=>`<div class="frow" style="margin-bottom:8px"><span>${esc(e)}</span><span class="track"><i style="width:${v/rexp*100}%"></i></span><b style="text-align:right">${keur(v)}</b></div>`).join('')}<p class="faint">La société commune remonte sa part à Evoriel en dividendes. Le syndic ne perçoit rien sur les opérations bancaires des syndicats.</p></div></div>`}
+
+/* ================= COMPLIANCE ================= */
+function vCompliance(){const C=[['ok','Aucune rémunération du syndic sur une opération bancaire','Contrôlé sur chaque parcours destiné aux conseils syndicaux'],['wa','3 conventions à faire voter en AG','Prêt collectif · Les Tilleuls, Les Érables, Le Parc'],['ok','Distributeurs immatriculés','Bélier, KoproWatt, Banque partenaire C, courtier partenaire'],['wa','Société commune : immatriculation en cours','Crédit et épargne restent en orientation ou en lead d\'ici là'],['ok','Devoir de conseil tracé','100 % des souscriptions d\'épargne et de crédit'],['ok',`Consentement à la prospection : ${S.consent} %`,'Les e-mails ne partent qu\'aux clients ayant consenti'],[S.cap<=2?'ok':'wa',`Pression commerciale : ${S.cap} offre${S.cap>1?'s':''} par client et par mois`,'Seuil conseillé : 2']];
+ return head('Encadrer','Conformité','Chaque parcours est contrôlé avant sa mise en ligne. Ici, la vue d\'ensemble et le journal.')+
+ `<div class="grid g2"><div class="card">${C.map(c=>`<div class="check"><span class="ic ${c[0]}">${c[0]==='ok'?'✓':'!'}</span><div><b>${esc(c[1])}</b><div class="faint">${esc(c[2])}</div></div></div>`).join('')}</div>
+ <div class="card"><h3>Journal</h3>${S.audit.slice(0,10).map(a=>`<div class="check"><span class="faint" style="width:84px;flex:none">${esc(a[0])}</span><div><b>${esc(a[1])}</b><div class="faint">${esc(a[2])}</div></div></div>`).join('')}</div></div>`}
+
+/* ================= SETTINGS ================= */
+function vSettings(){const R=[['Administrateur','Tout'],['Chef de produit','Parcours, studio, diffusion, résultats'],['Conseiller','Leads attribués, fiches clients'],['Agence','Leads de l\'agence, QR codes'],['Partenaire','Ses dossiers, ses retours, ses commissions']];
+ return head('Encadrer','Paramètres','Vos marques, vos équipes et leurs droits. La plateforme est en marque blanche : vos clients ne voient que Lamy et Oralia.')+
+ `<div class="grid g2"><div class="card"><h3>Marques</h3>${[['Lamy','#1B2B5E','#F05A4B'],['Oralia','#0E4F57','#E89A2C']].map(([n,a,b])=>`<div class="row" style="padding:10px 0;border-bottom:1px solid var(--line)"><b>${n}</b><span style="display:flex;gap:6px"><i style="width:22px;height:22px;border-radius:6px;background:${a};display:inline-block"></i><i style="width:22px;height:22px;border-radius:6px;background:${b};display:inline-block"></i></span><span class="faint">Couleurs indicatives</span></div>`).join('')}<p class="faint">Logo, couleurs, typographie, ton éditorial : chaque marque a son thème.</p></div>
+ <div class="card"><h3>Rôles et droits</h3><table><tbody>${R.map(([r,d])=>`<tr><td><b>${r}</b></td><td class="muted">${d}</td></tr>`).join('')}</tbody></table></div></div>`}
+
+/* ================= DRAWER, LOG, RENDER ================= */
+function drawer(title,body,bind){$('dtitle').innerHTML=title;$('dbody').innerHTML=body;$('drawer').classList.add('on');$('scrim').classList.add('on');bind&&bind($('dbody'));$('dclose').focus()}
+function closeDrawer(){$('drawer').classList.remove('on');$('scrim').classList.remove('on')}
+$('dclose').onclick=closeDrawer;$('scrim').onclick=closeDrawer;document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+function log(t){const d=new Date();S.audit.unshift([d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+', '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),'Alexandra M.',t])}
+const VIEWS={home:vHome,journeys:vJourneys,studio:vStudio,moments:vMoments,offer:vOffer,placements:vPlacements,leads:vLeads,partners:vPartners,revenue:vRevenue,compliance:vCompliance,settings:vSettings};
+function render(){renderNav();const v=$('view');v.innerHTML=VIEWS[S.view]();
+ v.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+ v.querySelectorAll('#newJ').forEach(b=>b.onclick=newDraft);
+ v.querySelectorAll('[data-open]').forEach(b=>b.onclick=e=>{e.stopPropagation();openJourney(b.dataset.open)});
+ v.querySelectorAll('[data-jf]').forEach(b=>b.onclick=()=>{S.jf=b.dataset.jf;save();render()});
+ v.querySelectorAll('[data-lf]').forEach(b=>b.onclick=()=>{S.lf=b.dataset.lf;save();render()});
+ v.querySelectorAll('[data-ot]').forEach(b=>b.onclick=()=>{S.ot=b.dataset.ot;save();render()});
+ v.querySelectorAll('[data-lead]').forEach(b=>b.onclick=()=>openLead(b.dataset.lead));
+ v.querySelectorAll('[data-mtog]').forEach(b=>b.onclick=()=>{const m=MO(b.dataset.mtog);m.on=!m.on;log(`Moment de vie « ${m.t} » ${m.on?'activé':'désactivé'}`);save();render()});
+ v.querySelectorAll('#newM').forEach(b=>b.onclick=newMoment);
+ v.querySelectorAll('#addP').forEach(b=>b.onclick=addProduct);
+ v.querySelectorAll('[data-toast]').forEach(b=>b.onclick=()=>toast(b.dataset.toast));
+ v.querySelectorAll('[data-qr]').forEach(b=>b.onclick=()=>toast('Affiche A4 générée, avec le QR code tracé pour cette agence'));
+ v.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const [k,i]=b.dataset.up.split(':');const a=S.slots[k];[a[+i-1],a[+i]]=[a[+i],a[+i-1]];save();render()});
+ v.querySelectorAll('[data-relance]').forEach(b=>b.onclick=()=>{const p=S.partners.find(x=>x.id===b.dataset.relance);log(`Relance envoyée à ${p.t}`);save();toast(`Relance envoyée à ${p.t}, avec copie à votre contact`)});
+ v.querySelectorAll('[data-claim]').forEach(b=>b.onclick=()=>{const r=S.revenue[+b.dataset.claim];log(`Réclamation de ${eur(r.exp-r.rec)} à ${r.p}`);save();toast(`Réclamation envoyée à ${r.p} avec le détail des souscriptions`)});
+ const cap=$('cap');if(cap)cap.oninput=()=>{S.cap=+cap.value;save();render()};
+ if(S.view==='studio')bindStudio(v)}
+$('q').addEventListener('input',()=>{if(S.view!=='journeys'){S.view='journeys'}render()});
+render();
+})();
+</script>
+</body>
+</html>
