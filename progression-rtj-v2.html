@@ -840,7 +840,7 @@ const RTJ_H="d951fdb29cd20760b6b913d30016b63cbc654a034c1dc2a58aa84eed302168db";l
 /* ===== accès : prénom + mot de passe (comme pour les stages). Le mot de passe d'une catégorie ouvre cette catégorie,
    celui du RTJ ouvre tout. Protection simple, côté navigateur : elle évite les erreurs et les curieux, pas un piratage. */
 const TEST_H="8be12fd7ada842acbca58697ec4f6c8eda626a559a278737dd5c95a8427978ff";
-const CODE_H={"4cf75a3923a531643fd023b6f2e279b1ad997930fadb31c6b3fb99977334ab01": "U7", "7441db8a4077f8cc8e29a1877ab65c1f33d2ca097d0474b341512e28bf40abb3": "U8", "ffc10dfcbfdb7fa2089eba0056dba605cf569c6c1875d574a1e4fa0ff21572cd": "U10", "3b01438e6135d9930f0914e386f0793cec658e6f3ebcf35483d92fe237eda1a6": "U11", "27db58a39792ea3d3bf2d8c21fc2c5594452cbb1059a8d96b8cb6ad8e2b2d65b": "U13", "3158d7deacb7daed49ca9f909de28290f4195be10742f3f76fec9a156fb2db78": "U15", "6b31f6e1ed4fe933937ca5bd2d0aa92d561476d5cbda9083e5e5eba2016bd290": "U9", "12221361d354f8a57f395eabb118417cb1fc4d3948a87f978e2ae23ca4ee7a20": "U12", "b4644d6479c545f2a05ce059393a07dcbc1be9142e514e2c6b81709f85416889": "U14"};
+const CODE_H={"4cf75a3923a531643fd023b6f2e279b1ad997930fadb31c6b3fb99977334ab01": "U7", "7441db8a4077f8cc8e29a1877ab65c1f33d2ca097d0474b341512e28bf40abb3": "U8", "ffc10dfcbfdb7fa2089eba0056dba605cf569c6c1875d574a1e4fa0ff21572cd": "U10", "27db58a39792ea3d3bf2d8c21fc2c5594452cbb1059a8d96b8cb6ad8e2b2d65b": "U13", "3158d7deacb7daed49ca9f909de28290f4195be10742f3f76fec9a156fb2db78": "U15", "6b31f6e1ed4fe933937ca5bd2d0aa92d561476d5cbda9083e5e5eba2016bd290": "U9", "12221361d354f8a57f395eabb118417cb1fc4d3948a87f978e2ae23ca4ee7a20": "U12", "b4644d6479c545f2a05ce059393a07dcbc1be9142e514e2c6b81709f85416889": "U14", "3b01438e6135d9930f0914e386f0793cec658e6f3ebcf35483d92fe237eda1a6": "U11"};
 /* 5/11/2026 : deux accès par catégorie. Le mot de passe « référent » : sa saisie est la vision concertée, c'est elle qui part au RTJ.
    Le mot de passe « éducateur » : son avis reste un brouillon personnel, il ne part jamais au RTJ ; le référent le voit pour préparer l'avis commun.
    (Le mot de passe U10 donné avant le 5/11 est devenu un accès « éducateur ».) */
@@ -849,8 +849,8 @@ let roles=get("roles",{})||{};
 const isAvis=c=>!rtj&&roles&&roles[c]==="avis";
 const sha=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t.trim().toLowerCase())))].map(b=>b.toString(16).padStart(2,"0")).join("");
 /* 6/11/2026 : nouveaux codes référent U9, U12, U14 (les anciens deviennent des accès éducateur) : on se reconnecte une fois */
-const RECO4=["U9","U12","U14"];
-const authed=()=>rtj||(Array.isArray(lock)&&lock.length>0&&get("auth2",false)&&get("auth3",false)&&(get("auth4",false)||!lock.some(c=>RECO4.includes(c))));
+const RECO4=["U9","U12","U14"],RECO5=["U11"];
+const authed=()=>rtj||(Array.isArray(lock)&&lock.length>0&&get("auth2",false)&&get("auth3",false)&&(get("auth4",false)||!lock.some(c=>RECO4.includes(c)))&&(get("auth5",false)||!lock.some(c=>RECO5.includes(c))));
 function showLogin(add){let o=document.getElementById("login");if(!o){o=document.createElement("div");o.id="login";document.body.appendChild(o)}document.body.style.overflow="hidden";
   o.innerHTML=`<div class="lgbox"><img src="${CREST_PNG}" alt=""><p class="lgey">Pau FC Academy</p><h2>${add?"Ajouter une catégorie":"Progression des joueurs"}</h2>
     <p class="lgnote">${add?"Entre le mot de passe de l'autre catégorie.":"Ton prénom et le mot de passe de ta catégorie. Le RTJ a son propre mot de passe."}</p>
@@ -866,7 +866,7 @@ function showLogin(add){let o=document.getElementById("login");if(!o){o=document
     else if(h===RTJ_H){if(SANDBOX){err("Accès test en cours : déconnecte-toi d'abord.");return}set("rtj",true);rtj=true;set("lock",null);lock=null}
     else if(CODE_H[h]||AVIS_H[h]){const c=CODE_H[h]||AVIS_H[h];roles=Object.assign({},add?roles:{},{[c]:AVIS_H[h]?"avis":"ref"});set("roles",roles);const l=(add&&Array.isArray(lock)?lock:[]).filter(x=>x!==c);l.push(c);lock=l.sort((a,b)=>CATS.indexOf(a)-CATS.indexOf(b));set("lock",lock);cat=c;set("cat",cat);if(!add){set("rtj",false);rtj=false}}
     else{err("Mot de passe inconnu. Demande-le au RTJ.");return}
-    set("who",who);set("auth2",true);set("auth3",true);set("auth4",true);o.remove();document.body.style.overflow="";render();logConn("connexion");loadRemote(cat);loadTests(cat);toast(rtj?`Bonjour ${who} · accès RTJ, toutes les catégories`:`Bonjour ${who} · ${lock.join(", ")}${lock.some(isAvis)?" · ton avis personnel (il ne part pas au RTJ)":""}`);
+    set("who",who);set("auth2",true);set("auth3",true);set("auth4",true);set("auth5",true);o.remove();document.body.style.overflow="";render();logConn("connexion");loadRemote(cat);loadTests(cat);toast(rtj?`Bonjour ${who} · accès RTJ, toutes les catégories`:`Bonjour ${who} · ${lock.join(", ")}${lock.some(isAvis)?" · ton avis personnel (il ne part pas au RTJ)":""}`);
     if(QS.get("terrain")==="1"&&!add)setTimeout(()=>openTestMode(),300)};
   q("lgok").onclick=go;o.querySelectorAll("input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")go()}));if(q("lgcancel"))q("lgcancel").onclick=()=>{o.remove();document.body.style.overflow=""};
   setTimeout(()=>{const f=q("lgwho")&&!q("lgwho").value?q("lgwho"):q("lgpw");f&&f.focus()},100)}
