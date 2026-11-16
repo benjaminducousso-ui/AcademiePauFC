@@ -2639,7 +2639,7 @@ function txtGroupHTML(){const P_=sgPer==="evol"||!sgPer?per:sgPer;const list=pla
     <div class="tbl-wrap"><table class="sgt"><thead><tr><th>Joueur</th><th>Points forts</th><th>Axes de travail</th><th>Mot de l'éducateur</th></tr></thead><tbody>${rows}</tbody></table></div>`}
 /* ----- tests du groupe : novembre (P1), février (P3), avril (P4), évolution — comme la feuille Excel du club ----- */
 
-const tVal=(p,n,id)=>{const r=store.evals[key(cat,p,n)]||evR(cat,p,n);const v=r&&r.t?r.t[id]:null;return v==null||v===""?null:+v};
+/* 16/11 : jonglage arrêté à l'objectif de la catégorie (au-delà = objectif, ex aequo) */const tCap=id=>id==="jt"?PROTO_JT[cat]:(id==="jd"||id==="jg"||id==="ja")?PROTO_J[cat]:null;const tVal=(p,n,id)=>{const r=store.evals[key(cat,p,n)]||evR(cat,p,n);const v=r&&r.t?r.t[id]:null;if(v==null||v==="")return null;const m=tCap(id);return m!=null?Math.min(+v,m):+v};
 const fmtN=v=>v==null?"":String(Math.round(v*100)/100).replace(".",",");
 function testsGroupHTML(){const T=TESTS();const list=players(cat);const A=TP_A,B=TP_B;const P_=sgPer==="evol"?"evol":(sgPer||per);const tgMode=P_==="evol"?"evol":TEST_PERIODS.includes(P_)?P_:null;
   if(!tgMode)return `<div class="ghead"><div><h3>Les tests techniques du groupe</h3><p class="note">Pas de défis techniques en période ${P_} : ils se font en période 1 (novembre), 3 (février) et 4 (avril). Choisissez P1, P3, P4 ou Saison pour les voir.</p></div></div>`;
