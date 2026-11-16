@@ -29,7 +29,7 @@ body{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-
 .sync{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--okbg);color:var(--ok);white-space:nowrap;flex:none;border:0}
 .sync.wait{background:var(--warnbg);color:var(--yellow)}.sync.off{background:#4A1E14;color:#FFB59E}
 .main{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:12px;-webkit-overflow-scrolling:touch}
-.sect{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:6px 2px 0}
+.anl{display:inline-block;margin-left:8px;font-size:11px;letter-spacing:0;text-transform:none;background:#F2C200;color:#0B2A4A;border-radius:999px;padding:3px 9px;text-decoration:none;font-weight:800;vertical-align:1px}.anl.big{display:block;margin:6px 0 2px;text-align:center;font-size:13px;padding:8px 12px}.sect{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:6px 2px 0}
 .seg{display:grid;gap:6px;grid-template-columns:repeat(var(--n,3),1fr)}
 .seg button{border:0;border-radius:12px;padding:9px 4px;background:var(--bg2);color:var(--muted);font-weight:800;font-size:13px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--yellow);color:var(--navy)}
@@ -38,7 +38,7 @@ body{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-
 .atl .l{min-width:0;flex:1}.atl b{display:block;font-size:15.5px}.atl small{display:block;font-size:12px;color:var(--muted)}
 .atl .c{font-family:var(--mono);font-size:13px;color:var(--muted);flex:none}.atl .c.done{color:var(--ok)}
 .bar{height:4px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:7px}.bar i{display:block;height:100%;background:var(--yellow)}
-.queue{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.queue::-webkit-scrollbar{display:none}
+.queue{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;flex-shrink:0;min-height:30px}.main>*{flex-shrink:0}.queue::-webkit-scrollbar{display:none}
 .queue button{flex:none;font-size:12.5px;padding:5px 11px;border-radius:999px;background:var(--bg2);color:var(--muted);border:0;cursor:pointer;font-weight:600}
 .queue button.on{background:var(--yellow);color:var(--navy);font-weight:800}.queue button.ok{color:var(--ok)}.queue button.abs{color:var(--warn);text-decoration:line-through}
 .who{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:4px 0}
@@ -196,10 +196,10 @@ function home(){const T=clubTests(V.cat);const cats=myCats();
   app.innerHTML=topBar(`Défis · ${V.cat}`,`${TP[V.per]} (P${V.per}) · ${esc(D.who)}${D.rtj?" · "+(D.role||"RTJ"):""}`,false)+`<div class="main">
     ${cats.length>1?`<div class="seg" style="--n:${Math.min(cats.length,7)}">${cats.map(c=>`<button data-c="${c}" aria-pressed="${c===V.cat}">${c}</button>`).join("")}</div>`:""}
     <div class="seg" style="--n:3">${TEST_PERIODS.map(n=>`<button data-p="${n}" aria-pressed="${n===V.per}">${TP[n]}<small>P${n}</small></button>`).join("")}</div>
-    ${groups.map(g=>`<p class="sect">${g.n}</p>${g.t.map(t=>{const d=doneOf(t),N=players(V.cat).length;return `<button class="atl" data-t="${t.id}"><span class="l"><b>${esc((x=>x.charAt(0).toUpperCase()+x.slice(1))(t.name.replace(/^Jonglerie /,"")))}</b><small>${t.kind==="count"?"Compteur de touches · 2 essais":t.kind==="value"?"Palier atteint, saisi à la fin du défi":t.combo?"Chrono − bonus de la passe · 2 essais":t.mvt?"Chrono · au 1er mouvement · 1 essai":"Chrono · 2 essais"}</small><span class="bar"><i style="width:${N?d/N*100:0}%"></i></span></span><span class="c ${d===N&&N?'done':''}">${d}/${N}</span></button>`}).join("")}`).join("")}
+    ${groups.map(g=>`<p class="sect">${g.n}${animA(g.t[0])}</p>${g.t.map(t=>{const d=doneOf(t),N=players(V.cat).length;return `<button class="atl" data-t="${t.id}"><span class="l"><b>${esc((x=>x.charAt(0).toUpperCase()+x.slice(1))(t.name.replace(/^Jonglerie /,"")))}</b><small>${t.kind==="count"?"Compteur de touches · 2 essais":t.kind==="value"?"Palier atteint, saisi à la fin du défi":t.combo?"Chrono − bonus de la passe · 2 essais":t.mvt?"Chrono · au 1er mouvement · 1 essai":"Chrono · 2 essais"}</small><span class="bar"><i style="width:${N?d/N*100:0}%"></i></span></span><span class="c ${d===N&&N?'done':''}">${d}/${N}</span></button>`}).join("")}`).join("")}
     <button class="opt" id="voice" aria-pressed="${!!D.opt.voice}"><span>🔊 Annoncer les résultats à voix haute</span><i>${D.opt.voice?"oui":"non"}</i></button>
     <div class="row">${D.rtj?"":`<button class="btn g" id="add">+ catégorie</button>`}<button class="btn g" id="out">Se déconnecter</button></div>
-    <p class="hint" style="text-align:center;opacity:.7">Version 21 · 16 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
+    <p class="hint" style="text-align:center;opacity:.7">Version 23 · 16 novembre</p><p class="hint">Chaque éducateur tient un atelier. Les résultats des autres arrivent tout seuls dans l'outil Progression.</p></div>`;
   badge();app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{V.cat=b.dataset.c;D.cat=V.cat;save();render();pull(V.cat)});
   app.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{V.per=+b.dataset.p;D.per=V.per;save();render()});
   app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{goTest(b.dataset.t,V.kid?"force":true);keepAwake()});
@@ -241,6 +241,9 @@ function moveSheet(){const t=V.test,L=players(V.cat),p=L[V.idx];if(pendingBonus(
       V.test=t2;V.idx=L.indexOf(P2);newKid()}};
   draw();document.body.appendChild(sh);sh.addEventListener("pointerdown",e=>{if(e.target===sh)sh.remove()})}
 function putTry(v,ms,m){const c=V.cur,max=V.test.one?1:2;const i=[0,1].slice(0,max).find(k=>c.v[k]==null);if(i==null)return -1;c.v[i]=v;c.ms[i]=ms??null;c.m[i]=m||null;c.n=c.v.filter(x=>x!=null).length;c.dirty=true;return i}
+/* animation de l'atelier (page en ligne sans noms) : lien sur l'accueil et sur l'écran du défi (16/11) */
+function animA(t,big){if(!t)return "";const id=String(t.id);const a=/^slalom/.test(id)?"slalom":/^huit/.test(id)?"huit":/^p[cd][dg]/.test(id)?"passe":/^v\d/.test(id)?"vitesse":"";if(!a)return "";
+  const u=`defis-animations.html?cat=${encodeURIComponent(V.cat)}#${a}`;return big?`<a class="anl big" href="${u}" target="_blank" rel="noopener">▶ Voir l'animation de l'atelier</a>`:`<a class="anl" href="${u}" target="_blank" rel="noopener">▶ animation</a>`}
 function goTest(id,keepKid){const T2=clubTests(V.cat);const t=T2.find(x=>x.id===id);if(!t)return;stopT();V.test=t;const L=players(V.cat);
   const k=keepKid&&V.kid&&(keepKid==="force"||!has(V.cat,V.kid,V.per,t.id))?L.indexOf(V.kid):-1;if(k>=0)V.idx=k;else{const ab=absOf();V.idx=Math.max(0,L.findIndex(p=>!has(V.cat,p,V.per,t.id)&&!ab[p]))}newKid()}
 /* fiche de l'enfant : tous ses résultats, et on peut aller sur un atelier en le gardant */
@@ -280,7 +283,7 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
   else if(c.loaded&&!c.dirty&&!full&&!c.live)zone=`<p class="hint" style="text-align:center">✓ Un essai déjà enregistré · fais le 2e essai si tu veux</p>`+zone;
   app.innerHTML=topBar(t.name,`${V.cat} · ${TP[V.per]} · ${L.filter(done).length}/${L.length} faits`,true)+`<div class="main">
     <div class="queue" id="q">${L.map((x,i)=>`<button data-i="${i}" class="${i===V.idx?'on':done(x)?'ok':ab[x]?'abs':''}">${done(x)&&i!==V.idx?(half(x)?'◐ ':'✓ '):''}${esc(prenom(x))}</button>`).join("")}</div>
-    ${chips}<div class="who"><small>${view?"Résultats de":"Au tour de"}</small><b>${esc(prenom(p))}</b><span>${esc(p)} · <button class="lnk" id="kid">ses résultats</button>${view?"":c.n===0&&!c.count?` · <button class="lnk" id="absent">absent ?</button>`:c.n>0?` · <button class="lnk" data-move>↪ déplacer</button>`:""}</span>
+    ${chips}<div class="who"><small>${view?"Résultats de":"Au tour de"}</small><b>${esc(prenom(p))}</b><span>${esc(p)} · <button class="lnk" id="kid">ses résultats</button>${animA(t)?` · ${animA(t)}`:""}${view?"":c.n===0&&!c.count?` · <button class="lnk" id="absent">absent ?</button>`:c.n>0?` · <button class="lnk" data-move>↪ déplacer</button>`:""}</span>
       <span>${pr?`Son record ${pr.P===1?"de novembre":"de "+TP[pr.P].toLowerCase()} : <b class="rec">${fmtV(t,pr.v)}</b> · à battre`:(t.target!=null?`Objectif de fin de saison : ${t.target} ${t.unit}`:"Premier passage : il fixe son record")}</span></div>
     <div class="tries" style="${t.one?'grid-template-columns:1fr':''}">${tryBox(0)}${t.one?"":tryBox(1)}</div>${zone}
     ${view?"":
