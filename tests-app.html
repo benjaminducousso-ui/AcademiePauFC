@@ -49,7 +49,7 @@ body{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-
 .try{border-radius:14px;padding:9px 11px;background:var(--bg2);display:flex;flex-direction:column;gap:2px;min-height:64px}
 .try small{font-size:10.5px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
 .try b{font-family:var(--mono);font-size:21px}.try i{font-style:normal;font-size:11.5px;color:var(--ok)}.try i.m{color:var(--warn)}
-.try{border:2px solid transparent}.try.best{border-color:var(--yellow)}.try.cur{border:2px dashed var(--yellow);background:var(--bg3)}.try.cur small{color:var(--yellow)}.try.wait{opacity:.55}
+.try.tap{cursor:pointer;position:relative}.btn.picked{border-color:var(--warn)!important;color:var(--warn)}.try.pick{border-color:var(--warn)!important}.rebtn{margin-top:6px;border:0;border-radius:10px;padding:8px 6px;background:var(--yellow);color:#0b1a33;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer}.try{border:2px solid transparent}.try.best{border-color:var(--yellow)}.try.cur{border:2px dashed var(--yellow);background:var(--bg3)}.try.cur small{color:var(--yellow)}.try.wait{opacity:.55}
 .row:has(.vbtn){grid-template-columns:1fr 1fr 1.4fr}
 .vbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1;padding:8px 6px;white-space:nowrap}.vbtn small{font-family:var(--mono);font-size:12.5px;font-weight:700;opacity:.85}
 .btn{white-space:nowrap}
@@ -272,7 +272,8 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
     /* l'essai « en cours » : celui dont on attend le résultat de la passe, sinon le prochain à courir */
     const pb=t.combo?[0,1].find(k=>c.v[k]!=null&&c.b[k]==null):undefined;const fe=[0,1].find(k=>c.v[k]==null);const curI=pb!=null?pb:(fe!=null?fe:2);
     const st=t.one?"":i===pb?" · passe à indiquer":c.v[i]!=null?(c.n>=2&&pb==null&&bs&&bs.i===i?" · meilleur":" · fait ✓"):i===curI?" · à faire":"";
-    return `<div class="try ${c.n>=2&&bs&&bs.i===i&&!t.one&&pb==null?'best':''} ${!t.one&&i===curI&&(c.v[i]==null||i===pb)?'cur':''} ${c.v[i]==null&&i>curI?'wait':''}"><small>${t.one?"Résultat":"Essai "+(i+1)}${st}</small><b>${main}</b>${sub?(sub.startsWith("<i")?sub:`<i>${sub}</i>`):""}</div>`};
+    return `<div ${c.v[i]!=null?`data-pick="${i}"`:''} class="try ${c.v[i]!=null?'tap':''} ${c.pick===i&&c.v[i]!=null?'pick':''} ${c.n>=2&&bs&&bs.i===i&&!t.one&&pb==null?'best':''} ${!t.one&&i===curI&&(c.v[i]==null||i===pb)?'cur':''} ${c.v[i]==null&&i>curI?'wait':''}"><small>${t.one?"Résultat":"Essai "+(i+1)}${st}</small><b>${main}</b>${sub?(sub.startsWith("<i")?sub:`<i>${sub}</i>`):""}</div>`};
+  const reLab=()=>{const k=c.pick!=null&&c.v[c.pick]!=null?c.pick:null;return max===1?"↺ Refaire l'essai":k!=null?`↺ Refaire l'essai ${k+1}`:"↺ Refaire le dernier essai"};
   const full=fullOf(t,c),needB=pendingBonus();const view=c.loaded&&!c.dirty&&full&&!needB;
   const st2=station(t);const chips=st2.length>1?`<div class="queue stq">${st2.map(x=>`<button data-st="${x.id}" class="${x.id===t.id?'on':has(V.cat,p,V.per,x.id)?'ok':''}">${has(V.cat,p,V.per,x.id)&&x.id!==t.id?'✓ ':''}${esc(SHORT[x.id]||x.name)}</button>`).join("")}</div>`:"";
   let zone="";
@@ -284,7 +285,7 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
     if(t.combo){const j=[0,1].find(i=>c.v[i]!=null&&c.b[i]==null);const jj=j!=null?j:Math.max(0,c.n-1);zone+=`<div class="bon">${PASS_BONUS[t.combo].map(o=>`<button data-b="${o.b}" aria-pressed="${c.b[jj]===o.b}" ${c.v[jj]==null?'disabled':''}>${o.l}<small>−${o.b} s</small></button>`).join("")}</div>`}
     zone+=`<div class="row" style="--n:${t.beep?2:1}">${t.beep?`<button class="opt" id="beep" aria-pressed="${D.opt["beep_"+t.id]!==false}"><span>Départ au bip</span><i>${D.opt["beep_"+t.id]!==false?"oui":"non"}</i></button>`:""}<button class="opt" id="manual" ${full?'disabled':''}><span>✎ Saisir un temps</span><i>cellules…</i></button></div>`}
   if(view)zone=`<div class="card seen"><b>✓ Résultat enregistré${c.by?" · saisi par "+esc(c.by):""}</b><button class="lnk" data-move>↪ Pas le bon joueur ou le bon exercice ? Déplacer</button><span>Résultat retenu : <b class="rec">${bs?fmtV(t,bs.v):"–"}</b></span>
-      <div class="row" style="--n:${max}">${[0,1].slice(0,max).map(i=>`<button class="btn g" data-re="${i}" ${c.v[i]==null?'disabled':''}>↺ Refaire ${max===1?"l'essai":"l'essai "+(i+1)}</button>`).join("")}</div></div>`;
+      <div class="row"><button class="btn g ${c.pick!=null?'picked':''}" id="redo">${reLab()}</button></div>${max>1?'<span class="hint">Pour refaire l\'autre essai, touche d\'abord sa case.</span>':''}</div>`;
   else if(c.loaded&&!c.dirty&&!full&&!c.live)zone=`<p class="hint" style="text-align:center">✓ Un essai déjà enregistré · fais le 2e essai si tu veux</p>`+zone;
   app.innerHTML=topBar(t.name,`${V.cat} · ${TP[V.per]} · ${L.filter(done).length}/${L.length} faits`,true)+`<div class="main">
     <div class="queue" id="q">${L.map((x,i)=>`<button data-i="${i}" class="${i===V.idx?'on':done(x)?'ok':ab[x]?'abs':''}">${done(x)&&i!==V.idx?(half(x)?'◐ ':'✓ '):''}${esc(prenom(x))}</button>`).join("")}</div>
@@ -292,10 +293,10 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
       <span>${pr?`Son record ${pr.P===1?"de novembre":"de "+TP[pr.P].toLowerCase()} : <b class="rec">${fmtV(t,pr.v)}</b> · à battre`:(t.target!=null?`Objectif de fin de saison : ${t.target} ${t.unit}`:"Premier passage : il fixe son record")}</span></div>
     <div class="tries" style="${t.one?'grid-template-columns:1fr':''}">${tryBox(0)}${t.one?"":tryBox(1)}</div>${zone}
     ${view?"":
-    `<div class="row"><button class="btn g" id="redo" ${c.n===0?'disabled':''}>↺ Refaire le dernier essai</button></div><p class="hint" style="text-align:center;margin:0">✓ Chaque essai est enregistré automatiquement dès qu'il est fini${t.combo?" et la passe choisie":""}.</p>`}
+    `<div class="row"><button class="btn g ${c.pick!=null&&c.v[c.pick]!=null?'picked':''}" id="redo" ${c.n===0?'disabled':''}>${reLab()}</button></div><p class="hint" style="text-align:center;margin:0">✓ Chaque essai est enregistré automatiquement dès qu'il est fini${t.combo?" et la passe choisie":""}.</p>`}
   </div>`;
   badge();const q=document.getElementById("q").children[V.idx];if(q)q.scrollIntoView({inline:"center",block:"nearest"});
-  const leaveOK=()=>{if(!pendingBonus()||leaveOK.w===c){return true}leaveOK.w=c;toast("Choisis d'abord le résultat de la passe (sinon l'essai n'est pas enregistré) · touche encore pour partir");return false};
+  const leaveOK=()=>{if(t.kind==="count"&&c.count>0&&!fullOf(t,c)){/* 17/11 : un comptage non validé n'est plus perdu quand on change d'enfant ou d'atelier */const n=c.count;putTry(n);c.count=0;autoSave();toast(`Essai enregistré : ${n} touches (${prenom(p)})`);return true}if(!pendingBonus()||leaveOK.w===c){return true}leaveOK.w=c;toast("Choisis d'abord le résultat de la passe (sinon l'essai n'est pas enregistré) · touche encore pour partir");return false};
   document.getElementById("back").onclick=()=>{if(!leaveOK())return;stopT();V.view="home";render()};
   document.getElementById("sync").onclick=()=>flush();
   app.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{if(!leaveOK())return;stopT();V.idx=+b.dataset.i;newKid()});
@@ -307,9 +308,10 @@ function measure(){const t=V.test,c=V.cur,L=players(V.cat),p=L[V.idx],ab=absOf()
       d.querySelectorAll("[data-foot]").forEach(b=>b.onclick=()=>{V.askFoot=false;const id=b.dataset.foot;if(id!==t.id){const t2=clubTests(V.cat).find(x=>x.id===id);if(t2){V.test=t2;V.cur={v:[null,null],ms:[null,null],b:[null,null],m:[null,null],n:0,count:0};loadKid()}}render()})}}
   document.getElementById("kid").onclick=kidSheet;app.querySelectorAll("[data-move]").forEach(b=>b.onclick=moveSheet);
   const clr=i=>{c.v[i]=null;c.ms[i]=null;c.b[i]=null;c.m[i]=null;c.n=c.v.filter(x=>x!=null).length;c.dirty=true};
-  app.querySelectorAll("[data-re]").forEach(b=>b.onclick=()=>{stopT();const i=+b.dataset.re;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire · l'autre est gardé`);render()});
+  app.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{if(e.target.closest("[data-re]"))return;const i=+b.dataset.pick;c.pick=c.pick===i?null:i;render()});
+  app.querySelectorAll("[data-re]").forEach(b=>b.onclick=e=>{e.stopPropagation();stopT();const i=+b.dataset.re;c.pick=null;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire · l'autre est gardé`);render()});
   
-  const rd=document.getElementById("redo");if(rd)rd.onclick=()=>{stopT();const i=[1,0].find(k=>c.v[k]!=null);if(i==null)return;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire`);render()};
+  const rd=document.getElementById("redo");if(rd)rd.onclick=()=>{stopT();const i=c.pick!=null&&c.v[c.pick]!=null?c.pick:[1,0].find(k=>c.v[k]!=null);c.pick=null;if(i==null)return;clr(i);toast(max===1?"Essai à refaire":`Essai ${i+1} à refaire`);render()};
   const abB=document.getElementById("absent");if(abB)abB.onclick=()=>{stopT();const sh=document.createElement("div");sh.className="sheet";
     sh.innerHTML=`<div class="card"><h2 style="font-size:18px">${esc(prenom(p))} est absent ?</h2><p class="hint">Il reste dans la liste, à rattraper en fin d'atelier. L'appli passe à l'enfant suivant.</p><div class="row"><button class="btn g" id="an">Non</button><button class="btn y" id="ay">Oui, absent</button></div></div>`;
     document.body.appendChild(sh);sh.querySelector("#an").onclick=()=>sh.remove();sh.addEventListener("pointerdown",ev=>{if(ev.target===sh)sh.remove()});
