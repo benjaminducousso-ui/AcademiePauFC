@@ -1641,7 +1641,11 @@ function stDef(x,TP){if(!TP.T.length||TP.P0==null)return {st:"na",d:0,tot:TP.T.l
 function stMatch(x){const A=typeof mtAll==="function"?Object.values(mtAll(cat)):[];const n=A.filter(f=>(f.j||[]).some(y=>y.p===x&&y.note)).length;return {n,st:n?"ok":""}}
 function aFaire(){const list=players(cat);const out=[];const P=defPer();const now=new Date(),mo=now.getMonth()+1,day=now.getDate(),wd=now.getDay();
   if(rtj){/* le RTJ voit toutes ses validations, toutes catégories (16/11) */const by={};pendingVal().forEach(x=>{by[x.c]=(by[x.c]||0)+1});const cs=Object.keys(by).sort((a,b)=>(a===cat?-1:b===cat?1:0)||parseInt(a.slice(1))-parseInt(b.slice(1)));const n=cs.reduce((s,c)=>s+by[c],0);
-    if(n)out.push({t:`${n} appréciation${n>1?"s":""} à valider`,s:cs.length>1?`${cs.length} catégories · envoyées par les éducateurs`:`${cs[0]} · envoyées par l'éducateur`,b:"Valider",go:"val",cat:cs[0],bs:cs.map(c=>({l:`${c} · ${by[c]}`,cat:c}))})}
+    if(n)out.push({t:`${n} appréciation${n>1?"s":""} à valider`,s:cs.length>1?`${cs.length} catégories · envoyées par les éducateurs`:`${cs[0]} · envoyées par l'éducateur`,b:"Valider",go:"val",cat:cs[0],bs:cs.map(c=>({l:`${c} · ${by[c]}`,cat:c}))});
+    /* 17/11 : nouvelles fiches de match, toutes catégories, depuis la dernière visite du RTJ dans chaque catégorie */
+    const NM=mtNews();const mc=Object.keys(NM).sort((a,b)=>parseInt(a.slice(1))-parseInt(b.slice(1)));const nm=mc.reduce((s,c)=>s+NM[c].length,0);
+    if(nm)out.push({t:`${nm} nouvelle${nm>1?"s":""} fiche${nm>1?"s":""} de match`,s:mc.map(c=>`${c} · ${NM[c].map(f=>f.educ||"").filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ")}`).join(" · "),b:`Voir (${mc[0]})`,go:"match-cat",cat:mc[0],bs:mc.map(c=>({l:`${c} · ${NM[c].length}`,cat:c}))});
+    mtPullAll()}
   const done=list.filter(x=>stApp(x,P).st==="ok").length;
   if(done<list.length){const part=list.filter(x=>stApp(x,P).st==="half");const miss=part.map(x=>{const r=evR(cat,x,P);return allLines(cat,x).filter(l=>!(r&&r.f&&r.f[l.id])).map(l=>l.id).join(",")});
     const same=part.length>=3&&miss.every(m=>m===miss[0]);const nNew=same?miss[0].split(",").length:0;
@@ -1707,6 +1711,7 @@ function renderFiches(){const v=document.getElementById("view-fiche");if(!v)retu
   v.querySelectorAll("[data-jper]").forEach(b=>b.onclick=()=>{if(b.dataset.jper==="S"){JSEASON=true;renderFiches();return}JSEASON=false;const n=+b.dataset.jper,P=PERIODS[n-1];if(!evalOpen(P)){toast(`La période ${n} s'évaluera à partir du ${openFrom(P)}.`);return}per=n;set("per",per);renderFiches()});
   v.querySelectorAll("[data-j]").forEach(b=>b.onclick=()=>{store.sel[cat]=b.dataset.j;save();JOPEN=true;renderFiches();if(innerWidth<=900)scrollTo(0,0);else{const f=v.querySelector(".jright");if(f&&f.getBoundingClientRect().top<0)scrollTo({top:f.offsetTop-10,behavior:"smooth"})}});
   v.querySelectorAll("[data-todo]").forEach(b=>b.onclick=()=>{const x=todo[+b.dataset.todo];const tc=b.dataset.tcat||x.cat;
+    if(x.go==="match-cat"){const go=()=>{mtSeen(tc||cat);showTab("view-match");if(typeof MT!=="undefined"){MT.edit=null;MT.player=null;renderMatch()}scrollTo(0,0)};if(tc&&tc!==cat){const cb=document.querySelector(`.cat[data-c="${tc}"]`);if(cb){cb.click();setTimeout(go,350);return}}go();return}
     if(tc&&tc!==cat){const cb=document.querySelector(`.cat[data-c="${tc}"]`);if(cb){cb.click();setTimeout(()=>{const P=pendingVal().filter(y=>y.c===tc).map(y=>y.n);if(P.length){per=Math.min(...P);set("per",per)}valOpen=true;setB("appr");showTab("view-eval");scrollTo(0,0)},350);return}}
     if(x.go==="val"&&tc){const P=pendingVal().filter(y=>y.c===tc).map(y=>y.n);if(P.length){per=Math.min(...P);set("per",per)}}
     if(x.per){per=x.per;set("per",per)}
@@ -1882,6 +1887,16 @@ function docsCarnet(){const v=document.getElementById("view-carnet");if(!v)retur
      <div class="jtd"><div><b>2 · Remettre le carnet à la famille</b><small>Juste en dessous : le carnet d'un enfant, ou ceux de tout le groupe, en PDF à imprimer ou à envoyer.</small></div></div>`;
     ri.querySelector("#rcFiches").onclick=()=>{toast("Préparation des fiches du groupe…");setTimeout(()=>{try{fjPDF(players(cat))}catch(e){toast("PDF impossible : "+e.message)}},50)}}}
 
+/* ===== 17/11 : fiches de match nouvelles pour le RTJ ===== */
+function mtSeenMap(){return Object.assign({},get("mtseen",{}))}
+function mtSeen(c){const m=mtSeenMap();m[c]=Date.now();set("mtseen",m)}
+function mtNews(){if(!rtj||typeof mtAll!=="function")return {};const m=mtSeenMap();if(!get("mtseen0",0))set("mtseen0",Date.now()-7*864e5);const d0=get("mtseen0",0);const out={};
+  CATS.forEach(c=>{let A={};try{A=mtAll(c)||{}}catch(e){}const L=Object.values(A).filter(f=>f&&f.sent&&!f.ex&&(f.ts||0)>(m[c]||d0));if(L.length)out[c]=L.sort((a,b)=>(b.ts||0)-(a.ts||0))});
+  return out}
+let _mtPA=0;function mtPullAll(){if(!rtj||typeof mtPull!=="function"||Date.now()-_mtPA<120000)return;_mtPA=Date.now();
+  Promise.all(CATS.map(c=>mtPull(c).catch(()=>{}))).then(()=>{if(get("tab")==="view-fiche"&&typeof renderFiches==="function"&&!document.querySelector(".sheet"))renderFiches()})}
+window.addEventListener("load",()=>{if(typeof renderMatch!=="function")return;const _rmS=renderMatch;renderMatch=function(){if(rtj&&get("tab")==="view-match")mtSeen(cat);return _rmS.apply(this,arguments)}});
+
 
 /* =====================================================================
    BROUILLON (11/11/2026) — onglet « Matchs » : la fiche de suivi de match dans l'outil Progression.
@@ -1905,8 +1920,8 @@ function mtExample(){const f=mtNew();Object.assign(f,{id:"ex0711",date:"2026-11-
   f.j=L.map(([p,m,n,o])=>({p,m:String(m),note:n,o}));f.pr={0:"c",1:"c",2:"c",3:"d",4:"m",5:"d",6:"m"};f.prn={3:"Aspect athlétique",5:"2 buts sur transition"};f.sent=true;f.ex=true;return f}
 async function mtPull(c){try{const r=await fetch(`${API}?prog=${encodeURIComponent(MT_CAT(c))}`,{cache:"no-store"});const a=await r.json();if(!Array.isArray(a))return;const A=mtAll(c);let n=0;
   a.forEach(x=>{let f=x.f;if(typeof f==="string"){try{f=JSON.parse(f)}catch(e){return}}if(!f||!f.id)return;const loc=A[f.id];if(!loc||(x.ts||0)>(loc.ts||0)){A[f.id]=Object.assign(f,{ts:x.ts,sent:true});n++}});if(n){save();if(get("tab")==="view-match"&&!MT.edit)renderMatch()}}catch(e){}}
-function mtSend(f){f.ts=Date.now();f.sent=true;mtAll(cat)[f.id]=f;save();
-  const payload={prog:1,cat:MT_CAT(cat),player:`${f.date}¦${f.adv}`,per:300,f,t:{},note:"fiche match (brouillon)",by:f.educ||get("who",""),ts:f.ts};
+function mtSend(f,pdf){f.ts=Date.now();f.sent=true;mtAll(cat)[f.id]=f;save();
+  const payload={prog:1,cat:MT_CAT(cat),player:`${f.date}¦${f.adv}`,per:300,f,t:{},note:"fiche match (brouillon)",by:f.educ||get("who",""),ts:f.ts};if(pdf)payload.pdf=pdf;/* 17/11 : le PDF part avec la fiche, le script l'envoie par mail au RTJ (il n'est pas stocké dans le classeur) */
   fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}}).then(()=>toast("Fiche arrivée dans le classeur (rubrique de test)")).catch(()=>toast("Fiche gardée sur l'appareil : pas de réseau"))}
 /* ---------- onglet ---------- */
 function renderMatch(){const v=document.getElementById("view-match");if(!v)return;if(MT.edit)return mtForm(v);if(MT.player)return mtPlayer(v);
@@ -1968,7 +1983,7 @@ function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNi
   v.querySelector("#mtaddj").onclick=()=>{f.j.push({p:"",m:"",note:0,o:""});keep()};
   v.querySelector("#mtcancel").onclick=()=>{MT.edit=null;renderMatch()};
   v.querySelector("#mtgo").onclick=()=>{const miss=f.j.filter(x=>x.p&&(!x.note||!x.m)).length;if(miss&&mtForm.warn!==f.id+miss){mtForm.warn=f.id+miss;toast(`${miss} joueur(s) sans note ou sans minutes · touche encore pour envoyer`);return}
-    mtSend(f);let blob=null;try{blob=mtPDF(f).output("blob")}catch(e){}MT.edit=null;renderMatch();scrollTo(0,0);if(blob)mtShare(blob,f)}}
+    let blob=null,b64=null;try{const dp=mtPDF(f);blob=dp.output("blob");b64=String(dp.output("datauristring")).split(",")[1]||null}catch(e){}mtSend(f,b64);MT.edit=null;renderMatch();scrollTo(0,0);if(blob)mtShare(blob,f)}}
 /* ---------- PDF (même mise en page que la fiche papier, 1 page en foot à 8) ---------- */
 function mtPDF(f,K){K=K||1;const {jsPDF}=window.jspdf;const d=new jsPDF({unit:"mm",format:"a4"});const N=[11,42,74],G=[110,120,135];let y=14;const BOT=280;
   const T=(t,x,yy,o={})=>{d.setFont("helvetica",o.b?"bold":"normal");if(o.bi)d.setFont("helvetica","bolditalic");if(o.i)d.setFont("helvetica","italic");d.setFontSize((o.s||9)*K);d.setTextColor(...(o.c||[20,33,58]));d.text(String(t??""),x,yy,o.a?{align:o.a}:undefined)};
