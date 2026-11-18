@@ -29,6 +29,7 @@
 .mtcomp .thobs{display:none}@media(min-width:900px){.mtcomp .th,.mtcomp .tr{grid-template-columns:76px minmax(150px,1fr) 54px 128px minmax(220px,1.4fr)!important;align-items:center}.mtcomp .obs{grid-column:auto!important;margin:0!important}.mtcomp .thobs{display:block}}
 
 .mtcomp .nt button.half{box-shadow:inset 0 0 0 2px #0B2A4A}
+.mthd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.mtlink.mtdel{color:#B4530A}.mtlink.mtdel.sure{color:#fff;background:#B4530A;text-decoration:none;border-radius:8px;padding:6px 10px}
 
 .fjcard{padding:16px 18px!important}#view-eval .toolbar [data-app],#view-eval #tEditBtn,#view-defis .toolbar [data-app]{display:none}
 .fjsec .fjt td:first-child{white-space:normal;word-break:break-word}.fjsec .fjt td,.fjsec .fjt th{padding:6px 5px}.fjnav{display:none;margin-bottom:10px}@media(max-width:900px){.fjnav{display:flex}}
@@ -1919,7 +1920,7 @@ function mtExample(){const f=mtNew();Object.assign(f,{id:"ex0711",date:"2026-11-
   const L=[["FABRE AARON",70,2,"2 buts encaissés - peu d'arrêts à effectuer"],["NZOMBO Raphael",35,3,"Bonne attitude déf - bonne compréhension du jeu"],["RANQUINE MARTIN",35,3,"Bonne attitude déf - attention à la concentration"],["COURREGES Simon",35,3,"Bonne attitude déf - bonne compréhension du jeu"],["CARSAC Mati",35,2,"Match à oublier / difficulté sur le plan athlétique"],["YATTARA Mory",60,4,"Très bon match - choix à travailler"],["DEGERLI LORAN",50,4,"Très bon match - choix à travailler"],["BOURASSIN Axel",35,3,"Occasions créées - choix dos au jeu à travailler"],["ZAAIMI Wassim",35,2,"Bonne attitude déf / en difficulté techniquement"],["OYENHART SIMON",35,3,"Qualité de percussion - choix des appels à travailler"],["EL AMMARI ISSAM",35,1,"Joueur en très grande difficulté"],["LAGRENE Michel",35,1,"Joueur en très grande difficulté"]];
   f.j=L.map(([p,m,n,o])=>({p,m:String(m),note:n,o}));f.pr={0:"c",1:"c",2:"c",3:"d",4:"m",5:"d",6:"m"};f.prn={3:"Aspect athlétique",5:"2 buts sur transition"};f.sent=true;f.ex=true;return f}
 async function mtPull(c){try{const r=await fetch(`${API}?prog=${encodeURIComponent(MT_CAT(c))}`,{cache:"no-store"});const a=await r.json();if(!Array.isArray(a))return;const A=mtAll(c);let n=0;
-  a.forEach(x=>{let f=x.f;if(typeof f==="string"){try{f=JSON.parse(f)}catch(e){return}}if(!f||!f.id)return;const loc=A[f.id];if(!loc||(x.ts||0)>(loc.ts||0)){A[f.id]=Object.assign(f,{ts:x.ts,sent:true});n++}});if(n){save();if(get("tab")==="view-match"&&!MT.edit)renderMatch()}}catch(e){}}
+  a.forEach(x=>{let f=x.f;if(typeof f==="string"){try{f=JSON.parse(f)}catch(e){return}}if(!f||!f.id)return;if(f.del){if(A[f.id]){delete A[f.id];n++}return}const loc=A[f.id];if(!loc||(x.ts||0)>(loc.ts||0)){A[f.id]=Object.assign(f,{ts:x.ts,sent:true});n++}});if(n){save();if(get("tab")==="view-match"&&!MT.edit)renderMatch()}}catch(e){}}
 function mtSend(f,pdf){f.ts=Date.now();f.sent=true;mtAll(cat)[f.id]=f;save();
   const payload={prog:1,cat:MT_CAT(cat),player:`${f.date}¦${f.adv}`,per:300,f,t:{},note:"fiche match (brouillon)",by:f.educ||get("who",""),ts:f.ts};if(pdf)payload.pdf=pdf;/* 17/11 : le PDF part avec la fiche, le script l'envoie par mail au RTJ (il n'est pas stocké dans le classeur) */
   fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}}).then(()=>toast("Fiche arrivée dans le classeur (rubrique de test)")).catch(()=>toast("Fiche gardée sur l'appareil : pas de réseau"))}
@@ -1953,7 +1954,7 @@ function mtPlayer(v){const p=MT.player;const A=Object.values(mtAll(cat)).sort((a
   v.querySelector("#mtback").onclick=()=>{MT.player=null;renderMatch()}}
 function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNice(a).localeCompare(mtNice(b),"fr"));const used=new Set(f.j.map(x=>x.p).filter(Boolean));const nb=f.j.filter(x=>x.p).length;
   v.innerHTML=`<div class="mtw mtform"><div class="mtbanner">Une fiche par match : chaque note arrive dans la fiche du joueur (usage interne, pas dans les carnets).</div>
-  <div class="mthd"><button class="mtlink" id="mtcancel">‹ Retour aux matchs</button></div>
+  <div class="mthd"><button class="mtlink" id="mtcancel">‹ Retour aux matchs</button>${mtAll(cat)[f.id]&&(rtj||!isAvis(cat)||!f.educ||f.educ===get("who",""))?`<button class="mtlink mtdel" id="mtdel">🗑 Supprimer cette fiche</button>`:""}</div>
   <div class="mtpaper"><div class="mtph"><b>FICHE DE SUIVI DE MATCH</b><span>FOOT ANIMATION (FOOT À 8) · U9 - U10 - U11</span></div>
   <div class="mtgrid"><label>Date<input type="date" data-k="date" value="${esc(f.date)}"></label><label>Catégorie<input value="${esc(cat)}" disabled></label>
    <label>Adversaire<input data-k="adv" value="${esc(f.adv)}" maxlength="40"></label><label>Lieu<select data-k="lieu">${["Domicile","Extérieur"].map(x=>`<option ${f.lieu===x?"selected":""}>${x}</option>`).join("")}</select></label>
@@ -1982,6 +1983,7 @@ function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNi
   v.querySelectorAll("[data-pn]").forEach(e=>e.oninput=()=>{f.prn[e.dataset.pn]=e.value});
   v.querySelector("#mtaddj").onclick=()=>{f.j.push({p:"",m:"",note:0,o:""});keep()};
   v.querySelector("#mtcancel").onclick=()=>{MT.edit=null;renderMatch()};
+  {const d=v.querySelector("#mtdel");if(d)d.onclick=()=>{if(mtForm.del!==f.id){mtForm.del=f.id;d.textContent="Touche encore pour supprimer définitivement";d.classList.add("sure");return}mtForm.del=null;mtDelete(f);MT.edit=null;renderMatch();toast("Fiche supprimée")}}
   v.querySelector("#mtgo").onclick=()=>{const miss=f.j.filter(x=>x.p&&(!x.note||!x.m)).length;if(miss&&mtForm.warn!==f.id+miss){mtForm.warn=f.id+miss;toast(`${miss} joueur(s) sans note ou sans minutes · touche encore pour envoyer`);return}
     let blob=null,b64=null;try{const dp=mtPDF(f);blob=dp.output("blob");b64=String(dp.output("datauristring")).split(",")[1]||null}catch(e){}mtSend(f,b64);MT.edit=null;renderMatch();scrollTo(0,0);if(blob)mtShare(blob,f)}}
 /* ---------- PDF (même mise en page que la fiche papier, 1 page en foot à 8) ---------- */
@@ -2012,6 +2014,11 @@ async function mtShare(blob,f){const name=`Fiche-match-${cat}-${f.date}-${String
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}
 
 
+
+/* 18/11 : supprimer une fiche de match (créée par erreur). Une ligne « supprimée » part dans le classeur : la fiche disparaît sur tous les appareils, rien n'est effacé du classeur. */
+function mtDelete(f){const A=mtAll(cat);delete A[f.id];save();const ts=Date.now();
+  const payload={prog:1,cat:MT_CAT(cat),player:`${f.date}¦${f.adv}`,per:300,f:Object.assign(JSON.parse(JSON.stringify(f)),{del:true,ts})/* fiche complète : les anciennes versions de l'outil ne plantent pas */,t:{},note:"fiche match supprimée",by:get("who",""),ts};
+  fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}}).catch(()=>{})}
 
 </script>
 <script>
