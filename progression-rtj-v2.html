@@ -3382,6 +3382,8 @@ if((QS.get("tests")==="1"||QS.get("terrain")==="1")&&authed())setTimeout(()=>ope
 .elv{font-size:12px;color:var(--muted);min-width:150px}.elv b{color:#0B2A4A;font-size:15px;margin-right:4px}
 .edtxt{display:grid;grid-template-columns:1fr 1fr;gap:10px}.edtxt label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:800;color:var(--muted)}.edtxt textarea{border:1px solid var(--line);border-radius:10px;padding:9px;font:inherit;font-size:15px;resize:vertical}
 @media(max-width:760px){.edkpis{grid-template-columns:1fr 1fr}.edkpis .fjk:first-child{grid-column:1/-1}.edcrit{grid-template-columns:1fr}.edtxt{grid-template-columns:1fr}.elv{min-width:0}body.isrtj nav.tabs{grid-template-columns:repeat(5,1fr)!important}.admadd{grid-template-columns:1fr 1fr}.admadd .btn{grid-column:1/-1}}
+.edkpis .fjk.go{cursor:pointer}.edkpis .fjk.go:hover{border-color:#0B2A4A}.edtag.app{background:#EEF2F8;color:#33445C!important}.edcat{grid-template-columns:78px 1fr}
+.edkh{font-size:13px;color:var(--muted);margin:-6px 0 0}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -3392,9 +3394,12 @@ if((QS.get("tests")==="1"||QS.get("terrain")==="1")&&authed())setTimeout(()=>ope
 const CFG_CAT=`CONFIG-${SEASON}`,EEV_CAT=`EDUC-EVAL-${SEASON}`;
 /* liste de départ (19/11) : le RTJ la corrige dans l'onglet Éducateurs. [nom, 1 = référent] */
 const EDUC_DEF={RTJ:[["Jamal",1],["Kyllian",0],["Ben",0]],
-  U7:[["Kyllian",1],["Ben",0]],U8:[["Kyllian",1]],U9:[["Quentin",1],["Besim",0]],U10:[["Morgane",1],["Pierre",0],["Yanis",0]],
-  U11:[["Thomas",1],["François",0]],U12:[["Kyllian",1],["Maxime",0],["Besim",0],["Mathis",0]],U13:[["Sébastien",1],["Lukas",0],["Yanis",0],["Mathis",0]],
-  U14:[["Franck",1],["Kevin",0],["Ismail",0]],U15:[["Lorenzo",1]],U16:[],U17:[],U18:[]};
+  U7:[["Kyllian",1],["Ben",0]],U8:[["Kyllian",1]],U9:[["Quentin",1],["Besim",0]],U10:[["Morgane",1],["Pierre",0]],
+  U11:[["Thomas",1],["François",0]],U12:[["Kyllian",1],["Maxime",0]],U13:[["Sébastien",1]],
+  U14:[["Franck",1],["Kevin",0]],U15:[["Lorenzo",1]],U16:[],U17:[],U18:[],
+  /* apprentis : ils se connectent, mais ne sont adjoints d'aucune catégorie (leurs avis ne comptent pas) */
+  APP:[["Lukas",0],["Mathis",0],["Yanis",0]]};
+const EGRP=()=>["RTJ",...CATS,"APP"];const EGN=c=>c==="APP"?"Apprentis":c;
 const EDUC_ALIAS={kylian:"Kyllian",benjamin:"Ben",seb:"Sébastien",sebastien:"Sébastien",francois:"François",ismael:"Ismail"};
 store.cfg=store.cfg||{};
 const cfgE=()=>store.cfg.educ=store.cfg.educ||{L:null,ign:[],ts:0};
@@ -3402,11 +3407,12 @@ const cfgF=()=>store.cfg.eff=store.cfg.eff||{add:{},del:{},ts:0};
 const nrm=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/\s+/g," ").trim();
 const educL=()=>cfgE().L||EDUC_DEF;
 const educOf=c=>(educL()[c]||[]).map(([n,r])=>({n,ref:!!r}));
-const educAll=()=>{const S=new Map();["RTJ",...CATS].forEach(c=>educOf(c).forEach(e=>{if(!S.has(nrm(e.n)))S.set(nrm(e.n),e.n)}));return [...S.values()].sort((a,b)=>a.localeCompare(b,"fr"))};
+const educAll=()=>{const S=new Map();EGRP().forEach(c=>educOf(c).forEach(e=>{if(!S.has(nrm(e.n)))S.set(nrm(e.n),e.n)}));return [...S.values()].sort((a,b)=>a.localeCompare(b,"fr"))};
 /* retrouve le nom officiel à partir de ce qui a été tapé (« kyllian », « MLAAB Jamal »…) */
 function educCanon(name){const k=nrm(name);if(!k)return null;const A=educAll();const hit=A.find(n=>nrm(n)===k);if(hit)return hit;if(EDUC_ALIAS[k]&&A.includes(EDUC_ALIAS[k]))return EDUC_ALIAS[k];
   const tk=k.split(" ");const h2=A.find(n=>tk.includes(nrm(n)));if(h2)return h2;const al=tk.map(t=>EDUC_ALIAS[t]).find(n=>n&&A.includes(n));return al||null}
 const educIn=(c,name)=>{const k=educCanon(name);if(!k)return false;return educOf(c).some(e=>e.n===k)||educOf("RTJ").some(e=>e.n===k)};
+const educApp=name=>{const k=educCanon(name);return !!k&&educOf("APP").some(e=>e.n===k)};
 const educIgn=(c,name)=>(cfgE().ign||[]).includes(c+"|"+nrm(name));
 function cfgPost(player,f){const ts=Date.now();f.ts=ts;store.queue.push({prog:1,cat:CFG_CAT,player,per:950,f,t:{},note:"configuration RTJ",by:me(),ts});save();flush()}
 function educSave(){const e=cfgE();e.L=e.L||JSON.parse(JSON.stringify(EDUC_DEF));cfgPost("EDUCATEURS",{L:e.L,ign:e.ign||[]});e.ts=Date.now();save()}
@@ -3439,7 +3445,7 @@ function lgWhoHTML(){return `<label>Ton nom<select id="lgwho"></select></label><
 function lgWhoBind(){const s=document.getElementById("lgwho");if(!s||s.tagName!=="SELECT")return;lgFill(s);s.onchange=()=>{const w=document.getElementById("lgwho2w");if(w){w.hidden=s.value!=="__autre";if(!w.hidden)document.getElementById("lgwho2").focus()}};cfgPull(true)}
 function lgWhoVal(){const s=document.getElementById("lgwho");if(!s)return get("who","");if(s.value==="__autre"){const i=document.getElementById("lgwho2");return i?i.value.trim():""}return s.value.trim()}
 /* ---------- saisies à vérifier (noms hors liste) ---------- */
-function educUnknown(){const M=new Map();const add=(c,name,ts,what)=>{if(!name||!CATS.includes(c)||educIn(c,name)||educIgn(c,name))return;const k=c+"|"+nrm(name);const o=M.get(k)||{c,name:String(name).trim(),n:0,ts:0,what:new Set()};o.n++;o.ts=Math.max(o.ts,ts||0);o.what.add(what);M.set(k,o)};
+function educUnknown(){const M=new Map();const add=(c,name,ts,what)=>{if(!name||!CATS.includes(c)||educIn(c,name)||educIgn(c,name)||educApp(name))return;const k=c+"|"+nrm(name);const o=M.get(k)||{c,name:String(name).trim(),n:0,ts:0,what:new Set()};o.n++;o.ts=Math.max(o.ts,ts||0);o.what.add(what);M.set(k,o)};
   Object.entries(store.avis||{}).forEach(([k,a])=>{const [s,c,p,n,w]=k.split("|");if(s===SEASON&&a&&(Object.values(a.f||{}).some(Boolean)||a.forts||a.axes||a.note))add(c,w,a.ts,"avis")});
   Object.entries(store.evals||{}).forEach(([k,r])=>{const [s,c,p,n]=k.split("|");if(s===SEASON&&+n>=1&&+n<=5&&r&&r.by&&Object.values(r.f||{}).some(Boolean))add(c,r.by,r.ts,"étoiles")});
   CATS.forEach(c=>{let A={};try{A=mtAll(c)||{}}catch(e){}Object.values(A).forEach(f=>{if(f&&f.sent&&!f.ex)add(c,f.educ,f.ts,"fiche de match")})});
@@ -3465,7 +3471,9 @@ const EGRID=[
   {id:"d1",short:"Climat et relation avec les joueurs",desc:"Bienveillant et exigeant, connaît chaque enfant, le plaisir se voit."},
   {id:"d2",short:"Exemplarité",desc:"Ponctualité, tenue, langage, valeurs du club sur le terrain et en dehors."},
   {id:"d3",short:"Relation avec les parents et le club",desc:"Communique clairement avec les familles, participe aux réunions, travaille avec les autres éducateurs."},
-  {id:"d4",short:"Se remettre en question",desc:"S'auto-évalue, accepte les retours, se forme, partage ses idées."}]}];
+  {id:"d4",short:"Se remettre en question",desc:"S'auto-évalue, accepte les retours, se forme, partage ses idées."},
+  {id:"d5",short:"Capacité d'adaptation",desc:"Ajuste son plan, son organisation ou ses consignes quand la situation le demande (adversaire, effectif, niveau du jour, ce qui ne marche pas), en séance comme en match, sans renier les principes de jeu."}]}];
+const ENB=EGRID.reduce((n,b)=>n+b.lines.length,0);
 const ELVL=["","À construire","En progrès","Conforme aux attentes","Très bien","Exemplaire"];
 const ECAMP=[{n:1,name:"Décembre"},{n:2,name:"Avril"}];
 store.eeval=store.eeval||{};let EDU={name:null,camp:(()=>{const m=new Date().getMonth()+1;return m>=2&&m<=7?2:1})(),manage:false};
@@ -3506,31 +3514,32 @@ function renderEduc(){const v=document.getElementById("view-educ");if(!v)return;
   <div class="card"><div class="edhead"><h3>Campagne d'évaluation</h3><div class="edseg">${ECAMP.map(c=>`<button data-camp="${c.n}" aria-pressed="${EDU.camp===c.n}">${c.name}</button>`).join("")}</div></div>
    <div class="tbl-wrap"><table class="edt"><thead><tr><th>Éducateur</th><th>Catégories</th>${EGRID.map(b=>`<th class="n" title="${esc(b.name)}">${esc(b.name)}</th>`).join("")}<th class="n">Moyenne /5</th><th>Suivi dans l'outil</th><th></th></tr></thead><tbody>
    ${names.map(n=>{const r=eeGet(n,EDU.camp);const C=eduCats(n);const S=C.map(c=>eduSuivi(n,c));const tot=S.reduce((a,s)=>a+s.N,0),et=S.reduce((a,s)=>a+s.et,0);const nb=r?Object.values(r.s).filter(Boolean).length:0;
-     return `<tr><td><button class="edlink" data-open="${esc(n)}">${esc(n)}</button>${educOf("RTJ").some(e=>e.n===n)?' <small class="edtag">RTJ</small>':""}</td><td>${C.map(c=>`${c}${educOf(c).some(e=>e.n===n&&e.ref)?"":"<small> adj.</small>"}`).join(" · ")||"–"}</td>${EGRID.map(b=>`<td class="n">${e5(eeAvg(r,b.lines.map(l=>l.id)))}</td>`).join("")}<td class="n"><b>${e5(eeAll(r))}</b>${nb&&nb<16?`<small> ${nb}/16</small>`:""}</td><td>${tot?`étoiles ${et}/${tot} · ${S.reduce((a,s)=>a+s.mt,0)} fiche(s) de match`:"–"}</td><td><button class="btn small" data-open="${esc(n)}">${nb?"Ouvrir":"Évaluer"}</button></td></tr>`}).join("")}
+     return `<tr><td><button class="edlink" data-open="${esc(n)}">${esc(n)}</button>${educOf("RTJ").some(e=>e.n===n)?' <small class="edtag">RTJ</small>':""}${educApp(n)&&!eduCats(n).length?' <small class="edtag app">apprenti</small>':""}</td><td>${C.map(c=>`${c}${educOf(c).some(e=>e.n===n&&e.ref)?"":"<small> adj.</small>"}`).join(" · ")||"–"}</td>${EGRID.map(b=>`<td class="n">${e5(eeAvg(r,b.lines.map(l=>l.id)))}</td>`).join("")}<td class="n"><b>${e5(eeAll(r))}</b>${nb&&nb<ENB?`<small> ${nb}/${ENB}</small>`:""}</td><td>${tot?`étoiles ${et}/${tot} · ${S.reduce((a,s)=>a+s.mt,0)} fiche(s) de match`:"–"}</td><td><button class="btn small" data-open="${esc(n)}">${nb?"Ouvrir":"Évaluer"}</button></td></tr>`}).join("")}
    </tbody></table></div></div>
   <div class="card"><div class="edhead"><h3>Liste des éducateurs</h3><button class="btn small" id="edManage">${EDU.manage?"✓ Terminé":"✎ Modifier la liste"}</button></div>
-   <p class="note">C'est cette liste qui s'affiche à la connexion. ★ = référent de la catégorie.</p>
-   <div class="edcats">${["RTJ",...CATS].map(c=>`<div class="edcat"><b>${c}</b><span>${educOf(c).map(e=>`<i class="edchip${e.ref?" ref":""}">${EDU.manage&&c!=="RTJ"?`<button data-ref="${c}|${esc(e.n)}" title="Référent : oui / non">${e.ref?"★":"☆"}</button>`:e.ref&&c!=="RTJ"?"★ ":""}${esc(e.n)}${EDU.manage?`<button data-rm="${c}|${esc(e.n)}" title="Retirer">✕</button>`:""}</i>`).join("")||(EDU.manage?"":'<small class="note">à compléter</small>')}${EDU.manage?`<input data-newed="${c}" placeholder="＋ prénom" list="edAllNames">`:""}</span></div>`).join("")}</div>
+   <p class="note">C'est cette liste qui s'affiche à la connexion. ★ = référent de la catégorie. Les apprentis se connectent, mais leurs avis ne comptent pas tant qu'ils ne sont pas adjoints d'une catégorie.</p>
+   <div class="edcats">${EGRP().map(c=>`<div class="edcat"><b>${EGN(c)}</b><span>${educOf(c).map(e=>`<i class="edchip${e.ref?" ref":""}">${EDU.manage&&c!=="RTJ"&&c!=="APP"?`<button data-ref="${c}|${esc(e.n)}" title="Référent : oui / non">${e.ref?"★":"☆"}</button>`:e.ref&&c!=="RTJ"&&c!=="APP"?"★ ":""}${esc(e.n)}${EDU.manage?`<button data-rm="${c}|${esc(e.n)}" title="Retirer">✕</button>`:""}</i>`).join("")||(EDU.manage?"":'<small class="note">à compléter</small>')}${EDU.manage?`<input data-newed="${c}" placeholder="＋ prénom" list="edAllNames">`:""}</span></div>`).join("")}</div>
    <datalist id="edAllNames">${names.map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div></div>`;
   v.querySelectorAll("[data-camp]").forEach(b=>b.onclick=()=>{EDU.camp=+b.dataset.camp;renderEduc()});
   v.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{EDU.name=b.dataset.open;renderEduc();scrollTo(0,0)});
   v.querySelector("#edManage").onclick=()=>{EDU.manage=!EDU.manage;renderEduc()};
-  const L=()=>{const e=cfgE();e.L=e.L||JSON.parse(JSON.stringify(EDUC_DEF));["RTJ",...CATS].forEach(c=>e.L[c]=e.L[c]||[]);return e.L};
+  const L=()=>{const e=cfgE();e.L=e.L||JSON.parse(JSON.stringify(EDUC_DEF));EGRP().forEach(c=>e.L[c]=e.L[c]||(c==="APP"?JSON.parse(JSON.stringify(EDUC_DEF.APP)):[]));return e.L};
   v.querySelectorAll("[data-uadd]").forEach(b=>b.onclick=()=>{const u=U[+b.dataset.uadd];const nm=educCanon(u.name)||u.name;const l=L();if(!l[u.c].some(x=>x[0]===nm))l[u.c].push([nm,0]);educSave();toast(`${nm} ajouté aux éducateurs ${u.c}`);renderEduc()});
   v.querySelectorAll("[data-uign]").forEach(b=>b.onclick=()=>{const u=U[+b.dataset.uign];const e=cfgE();L();e.ign=e.ign||[];e.ign.push(u.c+"|"+nrm(u.name));educSave();toast("Saisie ignorée : elle reste dans le classeur");renderEduc()});
   v.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{const [c,n]=b.dataset.rm.split("|");const l=L();l[c]=l[c].filter(x=>x[0]!==n);educSave();renderEduc()});
   v.querySelectorAll("[data-ref]").forEach(b=>b.onclick=()=>{const [c,n]=b.dataset.ref.split("|");const l=L();l[c]=l[c].map(x=>x[0]===n?[n,x[1]?0:1]:x);educSave();renderEduc()});
-  v.querySelectorAll("[data-newed]").forEach(i=>i.onchange=()=>{const c=i.dataset.newed;let n=i.value.trim();if(!n)return;n=educCanon(n)||(n.charAt(0).toUpperCase()+n.slice(1));const l=L();if(!l[c].some(x=>x[0]===n))l[c].push([n,0]);educSave();toast(`${n} ajouté en ${c}`);renderEduc()})}
+  v.querySelectorAll("[data-newed]").forEach(i=>i.onchange=()=>{const c=i.dataset.newed;let n=i.value.trim();if(!n)return;n=educCanon(n)||(n.charAt(0).toUpperCase()+n.slice(1));const l=L();if(!l[c].some(x=>x[0]===n))l[c].push([n,0]);educSave();toast(`${n} ajouté : ${EGN(c)}`);renderEduc()})}
 function eduFiche(v){const name=EDU.name,n=EDU.camp;const r=eeGet(name,n)||{s:{},forts:"",axe:"",defi:"",forma:"",dS:"",dM:""};const camp=ECAMP.find(c=>c.n===n);const other=eeGet(name,n===1?2:1);
   const C=eduCats(name);
   v.innerHTML=`<div class="edw"><button class="mtlink" id="edBack">‹ Tous les éducateurs</button>
   <div class="edhead"><h2>${esc(name)}</h2><div class="edseg">${ECAMP.map(c=>`<button data-camp="${c.n}" aria-pressed="${n===c.n}">${c.name}</button>`).join("")}</div></div>
   <p class="mtsub">${C.map(c=>`${c} · ${educOf(c).some(e=>e.n===name&&e.ref)?"référent":"adjoint"}`).join(" — ")||"Aucune catégorie"} · campagne de ${camp.name.toLowerCase()}</p>
-  <div class="edkpis"><div class="fjk"><small>Moyenne · ${camp.name}</small><b id="edTot">${e5(eeAll(r))}</b><span>sur 5 · ${Object.values(r.s).filter(Boolean).length}/16 critères notés</span></div>
-   ${EGRID.map(b=>`<div class="fjk"><small>${esc(b.name)}</small><b data-bavg="${b.id}">${e5(eeAvg(r,b.lines.map(l=>l.id)))}</b><span>${esc(b.kind)}${other&&eeAvg(other,b.lines.map(l=>l.id))!=null?` · ${n===1?"avril":"décembre"} ${e5(eeAvg(other,b.lines.map(l=>l.id)))}`:""}</span></div>`).join("")}</div>
+  <p class="edkh">Résumé de la campagne : la moyenne générale, puis la moyenne de chacun des 4 blocs de critères. Elles se calculent toutes seules à partir des notes ci-dessous. Touche un bloc pour aller à ses critères.</p>
+  <div class="edkpis"><div class="fjk"><small>Moyenne · ${camp.name}</small><b id="edTot">${e5(eeAll(r))}</b><span>sur 5 · ${Object.values(r.s).filter(Boolean).length}/${ENB} critères notés</span></div>
+   ${EGRID.map(b=>`<div class="fjk go" role="button" tabindex="0" data-goto="${b.id}" title="Voir les critères de ce bloc"><small>${esc(b.name)} ›</small><b data-bavg="${b.id}">${e5(eeAvg(r,b.lines.map(l=>l.id)))}</b><span>${esc(b.kind)}${other&&eeAvg(other,b.lines.map(l=>l.id))!=null?` · ${n===1?"avril":"décembre"} ${e5(eeAvg(other,b.lines.map(l=>l.id)))}`:""}</span></div>`).join("")}</div>
   <div class="card"><h3>Observations</h3><div class="edobs"><label>Séance observée le<input type="date" data-ek="dS" value="${esc(r.dS||"")}"></label><label>Match observé le<input type="date" data-ek="dM" value="${esc(r.dM||"")}"></label></div>
    <p class="note">Note sur 5, demi-points possibles : touche deux fois le même chiffre (2 fois sur 3 = 3,5). 1 = à construire · 2 = en progrès · 3 = conforme aux attentes · 4 = très bien · 5 = exemplaire. Un critère non observé reste vide et ne compte pas dans la moyenne.</p></div>
-  ${EGRID.map(b=>`<div class="card edbloc"><div class="edhead"><h3>${esc(b.name)} <small>${esc(b.kind)}</small></h3></div>
+  ${EGRID.map(b=>`<div class="card edbloc" id="edb-${b.id}"><div class="edhead"><h3>${esc(b.name)} <small>${esc(b.kind)}</small></h3></div>
     ${b.lines.map(l=>`<div class="edcrit"><div><b>${esc(l.short)}</b><small>${esc(l.desc)}</small></div>${eScale(r.s[l.id]||0,l.id)}</div>`).join("")}</div>`).join("")}
   <div class="card"><h3>Entretien</h3><div class="edtxt">
     <label>Points forts<textarea data-ek="forts" rows="3" placeholder="2 ou 3 points forts constatés">${esc(r.forts||"")}</textarea></label>
@@ -3538,9 +3547,10 @@ function eduFiche(v){const name=EDU.name,n=EDU.camp;const r=eeGet(name,n)||{s:{}
     <label>Son objectif pour la suite<textarea data-ek="defi" rows="2" placeholder="Ce que l'éducateur s'engage à essayer">${esc(r.defi||"")}</textarea></label>
     <label>Accompagnement ou formation proposés<textarea data-ek="forma" rows="2" placeholder="Module FFF, binôme avec un autre éducateur, séance observée…">${esc(r.forma||"")}</textarea></label></div></div>
   <div class="card"><h3>Tableau de suivi <small>calculé par l'outil, n'entre pas dans la note</small></h3>${eduSuiviHTML(name)}</div></div>`;
+  v.querySelectorAll("[data-goto]").forEach(k=>k.onclick=()=>{const e=document.getElementById("edb-"+k.dataset.goto);if(e)window.scrollTo({top:e.getBoundingClientRect().top+scrollY-12,behavior:"smooth"})});
   v.querySelector("#edBack").onclick=()=>{EDU.name=null;renderEduc();scrollTo(0,0)};
   v.querySelectorAll("[data-camp]").forEach(b=>b.onclick=()=>{EDU.camp=+b.dataset.camp;renderEduc()});
-  const upd=()=>{const q=eeRec(name,n);v.querySelector("#edTot").textContent=e5(eeAll(q));v.querySelector("#edTot").nextElementSibling.textContent=`sur 5 · ${Object.values(q.s).filter(Boolean).length}/16 critères notés`;EGRID.forEach(b=>{const e=v.querySelector(`[data-bavg="${b.id}"]`);if(e)e.textContent=e5(eeAvg(q,b.lines.map(l=>l.id)))})};
+  const upd=()=>{const q=eeRec(name,n);v.querySelector("#edTot").textContent=e5(eeAll(q));v.querySelector("#edTot").nextElementSibling.textContent=`sur 5 · ${Object.values(q.s).filter(Boolean).length}/${ENB} critères notés`;EGRID.forEach(b=>{const e=v.querySelector(`[data-bavg="${b.id}"]`);if(e)e.textContent=e5(eeAvg(q,b.lines.map(l=>l.id)))})};
   const bind=sc=>sc.querySelectorAll("button").forEach(b=>b.onclick=()=>{const id=sc.dataset.e,k=+b.dataset.n;const q=eeRec(name,n);const cur=q.s[id]||0;const nv=cur===k?(k<5?k+.5:0):cur===k+.5?0:k;q.s[id]=nv;eePush(name,n);const d=document.createElement("div");d.innerHTML=eScale(nv,id);const ns=d.firstChild;sc.replaceWith(ns);bind(ns);upd()});
   v.querySelectorAll(".escale").forEach(bind);
   v.querySelectorAll("[data-ek]").forEach(t=>{let h;const sv=()=>{const q=eeRec(name,n);if((q[t.dataset.ek]||"")===t.value)return;q[t.dataset.ek]=t.value;eePush(name,n)};t.addEventListener("input",()=>{clearTimeout(h);h=setTimeout(sv,900)});t.addEventListener("change",()=>{clearTimeout(h);sv()});t.addEventListener("blur",()=>{clearTimeout(h);sv()})})}
