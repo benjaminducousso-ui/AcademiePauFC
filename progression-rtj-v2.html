@@ -2476,9 +2476,9 @@ function renderEval(){const v=document.getElementById(FOCUS==="defis"?"view-defi
     t.addEventListener("keydown",e=>{if(e.key==="Escape"||(e.key==="Enter"&&!e.shiftKey)){e.preventDefault();t.blur();t.closest(".crit").focus()}})});
   const comboSave=id=>{const r=rec(cat,p,per);const fin=[];["","2"].forEach(k=>{const ci=v.querySelector(`[data-tc="${id}"][data-k="${k}"]`),bi=v.querySelector(`[data-tb="${id}"][data-k="${k}"]`);const ch=ci&&ci.value!==""?Math.round(+ci.value*100)/100:null;const bo=bi&&bi.value!==""?+bi.value:null;
     r.t[id+"_c"+k]=ch;r.t[id+"_b"+k]=bo;if(ch!=null&&bo!=null)fin.push(Math.max(0,Math.round((ch-bo)*100)/100))});
-    r.t[id]=fin.length?Math.min(...fin):null;push(cat,p,per);pushTest(cat,p,per,id);flashSaved(v);const f=v.querySelector(`[data-tc="${id}"]`).closest(".tcard").querySelector(".tfin");if(f)f.textContent=r.t[id]!=null?`meilleur temps final : ${fmtN(r.t[id])} s`:"choisis le résultat de la passe"};
+    r.t[id]=fin.length?Math.min(...fin):null;push(cat,p,per,true);pushTest(cat,p,per,id);flashSaved(v);const f=v.querySelector(`[data-tc="${id}"]`).closest(".tcard").querySelector(".tfin");if(f)f.textContent=r.t[id]!=null?`meilleur temps final : ${fmtN(r.t[id])} s`:"choisis le résultat de la passe"};
   v.querySelectorAll(".fiche [data-tc]").forEach(i=>i.addEventListener("change",()=>comboSave(i.dataset.tc)));v.querySelectorAll(".fiche [data-tb]").forEach(i=>i.addEventListener("change",()=>comboSave(i.dataset.tb)));
-  v.querySelectorAll(".fiche input.num[data-t]").forEach(i=>i.addEventListener("change",()=>{const r=rec(cat,p,per);const tt=T.find(x=>x.id===i.dataset.t);const dec=/^(s|km\/h)$/.test((tt&&tt.unit)||"");r.t[i.dataset.t]=i.value===""?null:(dec?Math.round(+i.value*100)/100:Math.round(+i.value));i.value=r.t[i.dataset.t]??"";push(cat,p,per);pushTest(cat,p,per,i.dataset.t);if(/^sl30[bs]$/.test(i.dataset.t)&&r.t.sl30b!=null&&r.t.sl30s!=null){r.t.itech=Math.round((r.t.sl30b-r.t.sl30s)*100)/100;push(cat,p,per);pushTest(cat,p,per,"itech");const ii=v.querySelector('.fiche input.num[data-t="itech"]');if(ii)ii.value=r.t.itech}flashSaved(v);
+  v.querySelectorAll(".fiche input.num[data-t]").forEach(i=>i.addEventListener("change",()=>{const r=rec(cat,p,per);const tt=T.find(x=>x.id===i.dataset.t);const dec=/^(s|km\/h)$/.test((tt&&tt.unit)||"");r.t[i.dataset.t]=i.value===""?null:(dec?Math.round(+i.value*100)/100:Math.round(+i.value));i.value=r.t[i.dataset.t]??"";push(cat,p,per,true);pushTest(cat,p,per,i.dataset.t);if(/^sl30[bs]$/.test(i.dataset.t)&&r.t.sl30b!=null&&r.t.sl30s!=null){r.t.itech=Math.round((r.t.sl30b-r.t.sl30s)*100)/100;push(cat,p,per,true);pushTest(cat,p,per,"itech");const ii=v.querySelector('.fiche input.num[data-t="itech"]');if(ii)ii.value=r.t.itech}flashSaved(v);
     const c=i.closest(".tcard");const val=r.t[i.dataset.t];c.classList.toggle("reached",!!(tt&&val!=null&&tt.target!=null&&(tt.lower?val<=tt.target:val>=tt.target)))}));
   v.querySelectorAll(".fiche [data-take]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();takeAvis(b,per,v.querySelector(`.fiche textarea.ta[data-k="${b.dataset.take}"]`))}));
   v.querySelectorAll(".fiche textarea.ta").forEach(t=>{autoGrow(t);let h;const sv=()=>{const r=rec(cat,p,per);const val=t.value.trim();if(r[t.dataset.k]===val)return;r[t.dataset.k]=val;push(cat,p,per);flashSaved(v)};
@@ -3382,8 +3382,9 @@ if((QS.get("tests")==="1"||QS.get("terrain")==="1")&&authed())setTimeout(()=>ope
 .elv{font-size:12px;color:var(--muted);min-width:150px}.elv b{color:#0B2A4A;font-size:15px;margin-right:4px}
 .edtxt{display:grid;grid-template-columns:1fr 1fr;gap:10px}.edtxt label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:800;color:var(--muted)}.edtxt textarea{border:1px solid var(--line);border-radius:10px;padding:9px;font:inherit;font-size:15px;resize:vertical}
 @media(max-width:760px){.edkpis{grid-template-columns:1fr 1fr}.edkpis .fjk:first-child{grid-column:1/-1}.edcrit{grid-template-columns:1fr}.edtxt{grid-template-columns:1fr}.elv{min-width:0}body.isrtj nav.tabs{grid-template-columns:repeat(5,1fr)!important}.admadd{grid-template-columns:1fr 1fr}.admadd .btn{grid-column:1/-1}}
-.edkpis .fjk.go{cursor:pointer}.edkpis .fjk.go:hover{border-color:#0B2A4A}.edtag.app{background:#EEF2F8;color:#33445C!important}.edcat{grid-template-columns:78px 1fr}
+.edkpis .fjk.go{cursor:pointer}.edkpis .fjk.go:hover{border-color:#0B2A4A}.edtag.app{background:#EEF2F8;color:#33445C!important}.edcat{grid-template-columns:96px 1fr}.edcat>b{line-height:1.15}
 .edkh{font-size:13px;color:var(--muted);margin:-6px 0 0}
+.edsv div{white-space:nowrap;line-height:1.5}.edsv .ok{color:#17803D;font-weight:700}.edsv .ko{color:#B45309}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -3398,21 +3399,23 @@ const EDUC_DEF={RTJ:[["Jamal",1],["Kyllian",0],["Ben",0]],
   U11:[["Thomas",1],["François",0]],U12:[["Kyllian",1],["Maxime",0]],U13:[["Sébastien",1]],
   U14:[["Franck",1],["Kevin",0]],U15:[["Lorenzo",1]],U16:[],U17:[],U18:[],
   /* apprentis : ils se connectent, mais ne sont adjoints d'aucune catégorie (leurs avis ne comptent pas) */
-  APP:[["Lukas",0],["Mathis",0],["Yanis",0]]};
-const EGRP=()=>["RTJ",...CATS,"APP"];const EGN=c=>c==="APP"?"Apprentis":c;
+  APP:[["Lukas",0],["Mathis",0]],STA:[["Yanis",0]],
+  /* ont quitté le club : plus dans la liste de connexion, leurs fiches de match restent */
+  OLD:[["Ismail",0]]};
+const EGRP=()=>["RTJ",...CATS,"APP","STA"];const EGN=c=>c==="APP"?"Apprentis":c==="STA"?"Stagiaires":c==="OLD"?"Ont quitté le club":c;const ENOCAT=c=>c==="RTJ"||c==="APP"||c==="STA"||c==="OLD";const educOld=name=>{const k=nrm(name);return !!k&&educOf("OLD").some(e=>{const o=nrm(e.n);return o===k||k.split(" ").includes(o)||nrm(EDUC_ALIAS[k]||"")===o})};
 const EDUC_ALIAS={kylian:"Kyllian",benjamin:"Ben",seb:"Sébastien",sebastien:"Sébastien",francois:"François",ismael:"Ismail"};
 store.cfg=store.cfg||{};
 const cfgE=()=>store.cfg.educ=store.cfg.educ||{L:null,ign:[],ts:0};
 const cfgF=()=>store.cfg.eff=store.cfg.eff||{add:{},del:{},ts:0};
 const nrm=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/\s+/g," ").trim();
 const educL=()=>cfgE().L||EDUC_DEF;
-const educOf=c=>(educL()[c]||[]).map(([n,r])=>({n,ref:!!r}));
+const educOf=c=>(educL()[c]||((c==="APP"||c==="STA"||c==="OLD")&&EDUC_DEF[c])||[]).map(([n,r])=>({n,ref:!!r}));
 const educAll=()=>{const S=new Map();EGRP().forEach(c=>educOf(c).forEach(e=>{if(!S.has(nrm(e.n)))S.set(nrm(e.n),e.n)}));return [...S.values()].sort((a,b)=>a.localeCompare(b,"fr"))};
 /* retrouve le nom officiel à partir de ce qui a été tapé (« kyllian », « MLAAB Jamal »…) */
 function educCanon(name){const k=nrm(name);if(!k)return null;const A=educAll();const hit=A.find(n=>nrm(n)===k);if(hit)return hit;if(EDUC_ALIAS[k]&&A.includes(EDUC_ALIAS[k]))return EDUC_ALIAS[k];
   const tk=k.split(" ");const h2=A.find(n=>tk.includes(nrm(n)));if(h2)return h2;const al=tk.map(t=>EDUC_ALIAS[t]).find(n=>n&&A.includes(n));return al||null}
-const educIn=(c,name)=>{const k=educCanon(name);if(!k)return false;return educOf(c).some(e=>e.n===k)||educOf("RTJ").some(e=>e.n===k)};
-const educApp=name=>{const k=educCanon(name);return !!k&&educOf("APP").some(e=>e.n===k)};
+const educIn=(c,name)=>{if(typeof educOld==="function"&&educOld(name))return true;/* parti du club : ses saisies restent */const k=educCanon(name);if(!k)return false;return educOf(c).some(e=>e.n===k)||educOf("RTJ").some(e=>e.n===k)};
+const educApp=name=>{const k=educCanon(name);return !!k&&(educOf("APP").some(e=>e.n===k)||educOf("STA").some(e=>e.n===k))};
 const educIgn=(c,name)=>(cfgE().ign||[]).includes(c+"|"+nrm(name));
 function cfgPost(player,f){const ts=Date.now();f.ts=ts;store.queue.push({prog:1,cat:CFG_CAT,player,per:950,f,t:{},note:"configuration RTJ",by:me(),ts});save();flush()}
 function educSave(){const e=cfgE();e.L=e.L||JSON.parse(JSON.stringify(EDUC_DEF));cfgPost("EDUCATEURS",{L:e.L,ign:e.ign||[]});e.ts=Date.now();save()}
@@ -3445,7 +3448,7 @@ function lgWhoHTML(){return `<label>Ton nom<select id="lgwho"></select></label><
 function lgWhoBind(){const s=document.getElementById("lgwho");if(!s||s.tagName!=="SELECT")return;lgFill(s);s.onchange=()=>{const w=document.getElementById("lgwho2w");if(w){w.hidden=s.value!=="__autre";if(!w.hidden)document.getElementById("lgwho2").focus()}};cfgPull(true)}
 function lgWhoVal(){const s=document.getElementById("lgwho");if(!s)return get("who","");if(s.value==="__autre"){const i=document.getElementById("lgwho2");return i?i.value.trim():""}return s.value.trim()}
 /* ---------- saisies à vérifier (noms hors liste) ---------- */
-function educUnknown(){const M=new Map();const add=(c,name,ts,what)=>{if(!name||!CATS.includes(c)||educIn(c,name)||educIgn(c,name)||educApp(name))return;const k=c+"|"+nrm(name);const o=M.get(k)||{c,name:String(name).trim(),n:0,ts:0,what:new Set()};o.n++;o.ts=Math.max(o.ts,ts||0);o.what.add(what);M.set(k,o)};
+function educUnknown(){const M=new Map();const add=(c,name,ts,what)=>{if(!name||!CATS.includes(c)||educIn(c,name)||educIgn(c,name)||educApp(name)||educOld(name))return;const k=c+"|"+nrm(name);const o=M.get(k)||{c,name:String(name).trim(),n:0,ts:0,what:new Set()};o.n++;o.ts=Math.max(o.ts,ts||0);o.what.add(what);M.set(k,o)};
   Object.entries(store.avis||{}).forEach(([k,a])=>{const [s,c,p,n,w]=k.split("|");if(s===SEASON&&a&&(Object.values(a.f||{}).some(Boolean)||a.forts||a.axes||a.note))add(c,w,a.ts,"avis")});
   Object.entries(store.evals||{}).forEach(([k,r])=>{const [s,c,p,n]=k.split("|");if(s===SEASON&&+n>=1&&+n<=5&&r&&r.by&&Object.values(r.f||{}).some(Boolean))add(c,r.by,r.ts,"étoiles")});
   CATS.forEach(c=>{let A={};try{A=mtAll(c)||{}}catch(e){}Object.values(A).forEach(f=>{if(f&&f.sent&&!f.ex)add(c,f.educ,f.ts,"fiche de match")})});
@@ -3491,7 +3494,7 @@ function eduPer(){try{return defPer()}catch(e){return per||1}}
 function eduSuivi(name,c){const P=eduPer();const L=players(c);const isRef=educOf(c).some(e=>e.n===name&&e.ref);const mine=x=>educCanon(x)===name;
   let et=0,full=0,sent=0,lastSent=0;
   L.forEach(p=>{if(isRef){const r=store.evals[key(c,p,P)];const nb=r?allLines(c,p).filter(l=>r.f&&r.f[l.id]).length:0;if(nb)et++;if(nb&&nb>=allLines(c,p).length)full++;if(r&&nb&&isSent(r)){sent++;lastSent=Math.max(lastSent,(r.sent&&r.sent.ts)||r.ts||0)}}
-    else{const a=Object.entries(store.avis||{}).find(([k,v])=>{const q=k.split("|");return q[0]===SEASON&&q[1]===c&&q[2]===p&&+q[3]===P&&mine(q[4])&&v&&Object.values(v.f||{}).some(Boolean)});if(a){et++;const nb=allLines(c,p).filter(l=>a[1].f[l.id]).length;if(nb>=allLines(c,p).length)full++}}});
+    else{const r=store.evals[key(c,p,P)];const nbF=r&&mine(r.by)?allLines(c,p).filter(l=>r.f&&r.f[l.id]).length:0;const a=Object.entries(store.avis||{}).find(([k,v])=>{const q=k.split("|");return q[0]===SEASON&&q[1]===c&&q[2]===p&&+q[3]===P&&mine(q.slice(4).join("|"))&&v&&Object.values(v.f||{}).some(Boolean)});const nbA=a?allLines(c,p).filter(l=>a[1].f[l.id]).length:0;const nb=Math.max(nbF,nbA);if(nb)et++;if(nb&&nb>=allLines(c,p).length)full++}});
   const T=(()=>{try{return TESTS(c)}catch(e){return []}})();let tp=0;const TP=[...TEST_PERIODS].reverse().find(n=>L.some(p=>{const r=store.evals[key(c,p,n)];return r&&T.some(t=>r.t&&r.t[t.id]!=null&&r.t[t.id]!=="")}));
   if(TP&&T.length)L.forEach(p=>{const r=store.evals[key(c,p,TP)];const nb=r?T.filter(t=>r.t&&r.t[t.id]!=null&&r.t[t.id]!=="").length:0;if(nb>=Math.ceil(T.length/2))tp++});
   let mt=0;try{mt=Object.values(mtAll(c)||{}).filter(f=>f&&f.sent&&!f.ex&&mine(f.educ)).length}catch(e){}
@@ -3505,25 +3508,26 @@ function eduSuiviHTML(name){const C=eduCats(name);if(!C.length)return `<p class=
 function eScale(v,id){return `<div class="escale" data-e="${id}">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" class="${(v||0)>=n?"on":(v||0)===n-.5?"half":""}" title="${n} · ${ELVL[n]}">${n}</button>`).join("")}<span class="elv">${v?`<b>${e5(v)}</b> ${ELVL[Math.floor(v)]}${v%1?" +":""}`:"à observer"}</span></div>`}
 function renderEduc(){const v=document.getElementById("view-educ");if(!v)return;if(!rtj){v.innerHTML=`<div class="card"><p class="note">Cet espace est réservé au RTJ.</p></div>`;return}
   cfgPull();eePull();if(!renderEduc.loaded){renderEduc.loaded=1;Promise.all(CATS.map(c=>loadRemote(c).catch(()=>{}))).then(()=>{try{mtPullAll()}catch(e){}if(get("tab")==="view-educ"&&!document.activeElement.matches("#view-educ textarea,#view-educ input"))renderEduc()})}
-  if(EDU.name&&!educAll().includes(EDU.name))EDU.name=null;
+  const oldEv=educOf("OLD").map(e=>e.n).filter(n=>eeGet(n,1)||eeGet(n,2));
+  if(EDU.name&&!educAll().includes(EDU.name)&&!oldEv.includes(EDU.name))EDU.name=null;
   if(EDU.name)return eduFiche(v);
-  const U=educUnknown();const names=educAll();
+  const U=educUnknown();const names=[...educAll(),...oldEv.filter(n=>!educAll().includes(n))];
   v.innerHTML=`<div class="edw"><h2>Éducateurs</h2><p class="mtsub">Réservé au RTJ. Faire progresser, pas classer : chaque éducateur ne verra que sa propre fiche.</p>
   ${U.length?`<div class="card edwarn"><h3>Saisies à vérifier · ${U.length}</h3><p class="note">Ces noms ne sont pas dans la liste des éducateurs de la catégorie. Leurs saisies sont gardées mais mises de côté : le référent ne les voit pas.</p>
     ${U.map((u,i)=>`<div class="edu1"><div><b>${esc(u.name)}</b> · ${u.c}<small>${u.n} saisie${u.n>1?"s":""} (${[...u.what].join(", ")})${u.ts?` · dernière le ${eduDate(u.ts)}`:""}</small></div><span><button class="btn small primary" data-uadd="${i}">Ajouter aux éducateurs ${u.c}</button><button class="btn small" data-uign="${i}">Ignorer</button></span></div>`).join("")}</div>`:""}
   <div class="card"><div class="edhead"><h3>Campagne d'évaluation</h3><div class="edseg">${ECAMP.map(c=>`<button data-camp="${c.n}" aria-pressed="${EDU.camp===c.n}">${c.name}</button>`).join("")}</div></div>
-   <div class="tbl-wrap"><table class="edt"><thead><tr><th>Éducateur</th><th>Catégories</th>${EGRID.map(b=>`<th class="n" title="${esc(b.name)}">${esc(b.name)}</th>`).join("")}<th class="n">Moyenne /5</th><th>Suivi dans l'outil</th><th></th></tr></thead><tbody>
+   <div class="tbl-wrap"><table class="edt"><thead><tr><th>Éducateur</th><th>Catégories</th>${EGRID.map(b=>`<th class="n" title="${esc(b.name)}">${esc(b.name)}</th>`).join("")}<th class="n">Moyenne /5</th><th>Ce qu'il a saisi dans l'outil · période ${eduPer()}</th><th></th></tr></thead><tbody>
    ${names.map(n=>{const r=eeGet(n,EDU.camp);const C=eduCats(n);const S=C.map(c=>eduSuivi(n,c));const tot=S.reduce((a,s)=>a+s.N,0),et=S.reduce((a,s)=>a+s.et,0);const nb=r?Object.values(r.s).filter(Boolean).length:0;
-     return `<tr><td><button class="edlink" data-open="${esc(n)}">${esc(n)}</button>${educOf("RTJ").some(e=>e.n===n)?' <small class="edtag">RTJ</small>':""}${educApp(n)&&!eduCats(n).length?' <small class="edtag app">apprenti</small>':""}</td><td>${C.map(c=>`${c}${educOf(c).some(e=>e.n===n&&e.ref)?"":"<small> adj.</small>"}`).join(" · ")||"–"}</td>${EGRID.map(b=>`<td class="n">${e5(eeAvg(r,b.lines.map(l=>l.id)))}</td>`).join("")}<td class="n"><b>${e5(eeAll(r))}</b>${nb&&nb<ENB?`<small> ${nb}/${ENB}</small>`:""}</td><td>${tot?`étoiles ${et}/${tot} · ${S.reduce((a,s)=>a+s.mt,0)} fiche(s) de match`:"–"}</td><td><button class="btn small" data-open="${esc(n)}">${nb?"Ouvrir":"Évaluer"}</button></td></tr>`}).join("")}
+     return `<tr><td><button class="edlink" data-open="${esc(n)}">${esc(n)}</button>${educOf("RTJ").some(e=>e.n===n)?' <small class="edtag">RTJ</small>':""}${oldEv.includes(n)&&!educAll().includes(n)?' <small class="edtag app">a quitté le club</small>':""}${educApp(n)&&!eduCats(n).length?` <small class="edtag app">${educOf("STA").some(e=>e.n===n)?"stagiaire":"apprenti"}</small>`:""}</td><td>${C.map(c=>`${c}${educOf(c).some(e=>e.n===n&&e.ref)?"":"<small> adj.</small>"}`).join(" · ")||"–"}</td>${EGRID.map(b=>`<td class="n">${e5(eeAvg(r,b.lines.map(l=>l.id)))}</td>`).join("")}<td class="n"><b>${e5(eeAll(r))}</b>${nb&&nb<ENB?`<small> ${nb}/${ENB}</small>`:""}</td><td class="edsv">${S.length?S.map(s=>`<div><b>${s.c}</b> ${s.et===0?`<span class="ko">aucun joueur noté</span>`:`<span class="${s.et>=s.N?"ok":""}">${s.et}/${s.N} joueurs notés</span>`}${s.isRef&&s.et?(s.sent>=s.et?` · <span class="ok">envoyé au RTJ</span>`:s.sent?` · ${s.sent} envoyés au RTJ`:` · <span class="ko">pas encore envoyé au RTJ</span>`):""}${s.mt?` · ${s.mt} fiche${s.mt>1?"s":""} de match`:""}</div>`).join(""):"–"}</td><td><button class="btn small" data-open="${esc(n)}">${nb?"Ouvrir":"Évaluer"}</button></td></tr>`}).join("")}
    </tbody></table></div></div>
   <div class="card"><div class="edhead"><h3>Liste des éducateurs</h3><button class="btn small" id="edManage">${EDU.manage?"✓ Terminé":"✎ Modifier la liste"}</button></div>
-   <p class="note">C'est cette liste qui s'affiche à la connexion. ★ = référent de la catégorie. Les apprentis se connectent, mais leurs avis ne comptent pas tant qu'ils ne sont pas adjoints d'une catégorie.</p>
-   <div class="edcats">${EGRP().map(c=>`<div class="edcat"><b>${EGN(c)}</b><span>${educOf(c).map(e=>`<i class="edchip${e.ref?" ref":""}">${EDU.manage&&c!=="RTJ"&&c!=="APP"?`<button data-ref="${c}|${esc(e.n)}" title="Référent : oui / non">${e.ref?"★":"☆"}</button>`:e.ref&&c!=="RTJ"&&c!=="APP"?"★ ":""}${esc(e.n)}${EDU.manage?`<button data-rm="${c}|${esc(e.n)}" title="Retirer">✕</button>`:""}</i>`).join("")||(EDU.manage?"":'<small class="note">à compléter</small>')}${EDU.manage?`<input data-newed="${c}" placeholder="＋ prénom" list="edAllNames">`:""}</span></div>`).join("")}</div>
+   <p class="note">C'est cette liste qui s'affiche à la connexion. ★ = référent de la catégorie. Les apprentis et les stagiaires se connectent, mais leurs avis ne comptent pas tant qu'ils ne sont pas adjoints d'une catégorie. « Ont quitté le club » : ils ne peuvent plus se connecter, leurs fiches de match restent.</p>
+   <div class="edcats">${[...EGRP(),"OLD"].map(c=>`<div class="edcat"><b>${EGN(c)}</b><span>${educOf(c).map(e=>`<i class="edchip${e.ref?" ref":""}">${EDU.manage&&!ENOCAT(c)?`<button data-ref="${c}|${esc(e.n)}" title="Référent : oui / non">${e.ref?"★":"☆"}</button>`:e.ref&&!ENOCAT(c)?"★ ":""}${esc(e.n)}${EDU.manage?`<button data-rm="${c}|${esc(e.n)}" title="Retirer">✕</button>`:""}</i>`).join("")||(EDU.manage?"":'<small class="note">à compléter</small>')}${EDU.manage?`<input data-newed="${c}" placeholder="＋ prénom" list="edAllNames">`:""}</span></div>`).join("")}</div>
    <datalist id="edAllNames">${names.map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div></div>`;
   v.querySelectorAll("[data-camp]").forEach(b=>b.onclick=()=>{EDU.camp=+b.dataset.camp;renderEduc()});
   v.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{EDU.name=b.dataset.open;renderEduc();scrollTo(0,0)});
   v.querySelector("#edManage").onclick=()=>{EDU.manage=!EDU.manage;renderEduc()};
-  const L=()=>{const e=cfgE();e.L=e.L||JSON.parse(JSON.stringify(EDUC_DEF));EGRP().forEach(c=>e.L[c]=e.L[c]||(c==="APP"?JSON.parse(JSON.stringify(EDUC_DEF.APP)):[]));return e.L};
+  const L=()=>{const e=cfgE();e.L=e.L||JSON.parse(JSON.stringify(EDUC_DEF));[...EGRP(),"OLD"].forEach(c=>e.L[c]=e.L[c]||(c==="APP"||c==="STA"||c==="OLD"?JSON.parse(JSON.stringify(EDUC_DEF[c])):[]));return e.L};
   v.querySelectorAll("[data-uadd]").forEach(b=>b.onclick=()=>{const u=U[+b.dataset.uadd];const nm=educCanon(u.name)||u.name;const l=L();if(!l[u.c].some(x=>x[0]===nm))l[u.c].push([nm,0]);educSave();toast(`${nm} ajouté aux éducateurs ${u.c}`);renderEduc()});
   v.querySelectorAll("[data-uign]").forEach(b=>b.onclick=()=>{const u=U[+b.dataset.uign];const e=cfgE();L();e.ign=e.ign||[];e.ign.push(u.c+"|"+nrm(u.name));educSave();toast("Saisie ignorée : elle reste dans le classeur");renderEduc()});
   v.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{const [c,n]=b.dataset.rm.split("|");const l=L();l[c]=l[c].filter(x=>x[0]!==n);educSave();renderEduc()});
@@ -3588,15 +3592,16 @@ function nav(){const n=document.querySelector("nav.tabs");if(!n||n.dataset.v2)re
   /* Évaluer ouvre un petit menu : Étoiles · Tests techniques · Notes de match (16/11, demande de Benjamin) */
   te.querySelector(".tl").insertAdjacentHTML("beforeend",'<i class="v2car"> ▾</i>');
   const menu=document.createElement("div");menu.className="v2evm";menu.hidden=true;menu.setAttribute("role","menu");
-  menu.innerHTML=[["etoiles","★","Étoiles"],["tests","⏱","Tests techniques"],["match","⚽","Notes de match"]].map(([k,i,l])=>`<button type="button" role="menuitem" data-evm="${k}"><span>${i}</span>${l}</button>`).join("");
+  menu.innerHTML=[["val","⏳","À valider"],["etoiles","★","Étoiles"],["tests","⏱","Tests techniques"],["match","⚽","Notes de match"]].map(([k,i,l])=>`<button type="button" role="menuitem" data-evm="${k}"><span>${i}</span>${l}</button>`).join("");
   document.body.appendChild(menu);
   const place=()=>{const r=te.getBoundingClientRect();const mob=innerWidth<=760;menu.classList.toggle("up",mob);
     menu.style.left=Math.max(8,Math.min(innerWidth-menu.offsetWidth-8,r.left+r.width/2-menu.offsetWidth/2))+"px";
     if(mob){menu.style.top="";menu.style.bottom=(innerHeight-r.top+8)+"px"}else{menu.style.bottom="";menu.style.top=(r.bottom+scrollY+6)+"px"}};
   const close=()=>{menu.hidden=true;te.classList.remove("v2evo")};
   te.addEventListener("click",ev=>{ev.stopImmediatePropagation();ev.preventDefault();if(!menu.hidden){close();return}
-    menu.querySelectorAll("[data-evm]").forEach(b=>b.setAttribute("aria-current",isEval(activeId())&&b.dataset.evm===EVSUB));menu.hidden=false;te.classList.add("v2evo");place()},true);
-  menu.querySelectorAll("[data-evm]").forEach(b=>b.onclick=()=>{close();goSub(b.dataset.evm)});
+    menu.querySelectorAll("[data-evm]").forEach(b=>b.setAttribute("aria-current",isEval(activeId())&&b.dataset.evm===EVSUB));
+    {const bv=menu.querySelector('[data-evm="val"]');let L=[];try{L=rtj?pendingVal():[]}catch(e){}bv.hidden=!L.length;bv.style.display=L.length?"":"none";if(L.length){const C=[...new Set(L.map(x=>x.c))];bv.innerHTML=`<span>⏳</span>${L.length} fiche${L.length>1?"s":""} à valider · ${C.join(", ")}`}}menu.hidden=false;te.classList.add("v2evo");place()},true);
+  menu.querySelectorAll("[data-evm]").forEach(b=>b.onclick=()=>{close();if(b.dataset.evm==="val"){valOpen=true;saveSub("etoiles");showTab("view-eval");scrollTo(0,0);return}goSub(b.dataset.evm)});
   document.addEventListener("click",ev=>{if(!menu.hidden&&!menu.contains(ev.target)&&!te.contains(ev.target))close()});
   addEventListener("resize",()=>{if(!menu.hidden)place()});addEventListener("scroll",()=>{if(!menu.hidden&&innerWidth>760)place()},{passive:true});
   /* la pastille rouge du RTJ suit l'onglet Évaluer (même bouton) */
