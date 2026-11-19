@@ -3421,6 +3421,13 @@ if((QS.get("tests")==="1"||QS.get("terrain")==="1")&&authed())setTimeout(()=>ope
 #grpIns .jsyn small{display:block}.giradbox .fjsvg{margin:-18px 0 -22px}.giradbox .note{font-size:12px;margin:2px 0 0}
 #grpIns .fjt{width:100%}#grpIns .fjt th,#grpIns .fjt td{white-space:nowrap}#grpIns .fjt td:nth-child(2){white-space:normal}
 @media(max-width:760px){.gihm{display:none}.giradbox .fjsvg{margin:-26px 0 -30px;max-width:340px}.giradbox{text-align:center}.giradbox .fjleg{justify-content:center}#grpIns .gititle h3{font-size:19px}#grpIns .fjrad{display:block}}
+.gigrid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:8px 26px;align-items:start;margin-top:6px}.gisvg{text-align:center}.gisvg .fjsvg{margin:-18px 0 -22px;max-width:340px}
+.gileg{display:flex;gap:18px;justify-content:center;font-size:14px;color:#0B2A4A}.gileg i,.gicmp th i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}.g1{background:#F2C200;border:1.5px solid #0B2A4A}.g2{background:#2F6FD0;border-radius:3px!important}
+.gicmp{width:100%;border-collapse:collapse;font-size:14px}.gicmp th{font-size:13px;text-align:left;padding:6px 8px;border-bottom:2px solid var(--line);color:#0B2A4A;white-space:nowrap}.gicmp td{padding:6px 8px;border-bottom:1px solid var(--line);color:#33445C}.gicmp .n{text-align:right;width:74px;font-variant-numeric:tabular-nums}.gicmp td.n{color:#64748B}.gicmp td.win{color:#0B2A4A;font-weight:800}
+.gicmp tr.gidom td{background:#F3F5F9;font-weight:800;color:#0B2A4A;font-size:13px;text-transform:uppercase;letter-spacing:.03em}.gicmp tr.gidom td.n{font-size:14px}
+.giradbox .gipick{justify-content:flex-start}.gipick button[data-giref="none"]{font-weight:600}
+@media(max-width:760px){.gigrid{grid-template-columns:1fr}.gisvg .fjsvg{margin:-26px 0 -30px}.gicmp{font-size:13.5px}.gicmp .n{width:62px}.gicmp td,.gicmp th{padding:6px 6px}}
+.gitbl,.gicmp td:first-child,.gicmp th:first-child{text-align:left}.gicmp tr.gidom td.n{color:#64748B;font-weight:600}.gicmp tr.gidom td.n.win{color:#0B2A4A;font-weight:800}.giradbox{text-align:left!important}.giradbox .gipick{justify-content:flex-start!important}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -3675,23 +3682,36 @@ async function giLoad(force){if(GI.busy)return;const now=Date.now();const order=
 const giHas=(c,P)=>{const a=GI.agg[c];return !!(a&&!a.err&&((a.stars&&a.stars[P])||a.tests))};
 function giRefCat(P){if(GI.ref==="none")return null;if(GI.ref&&GI.ref!==cat&&giHas(GI.ref,P))return GI.ref;return giSame(cat).find(c=>giHas(c,P))||null}
 const giCls=(a,b,eps)=>a==null||b==null?"":a>b+eps?" up":a<b-eps?" dn":"";
-/* le diagramme : le groupe en jaune, l'autre catégorie en bleu. C'est la seule partie qui change quand on choisit une catégorie. */
-function giRadar(lab,val,ref,max){let s=fjRadarSvg(lab,val,ref&&ref.some(v=>v!=null)?ref.map(v=>v==null?0:v):null,max?{max}:undefined);/* la courbe de l'autre catégorie passe au-dessus, en bleu franc */
-  const m=s.match(/<polygon points="[^"]*" fill="none" stroke="#8C9AB0" stroke-dasharray="5 4" stroke-width="1\.6"\/>/);if(!m)return s;
-  return s.replace(m[0],"").replace("</svg>",m[0].replace('stroke="#8C9AB0" stroke-dasharray="5 4" stroke-width="1.6"','stroke="#2F6FD0" stroke-width="2.4" stroke-linejoin="round"')+"</svg>")}
-function giRadBox(kind){const P=giPer();const G=giLocal(P);let R=giRefCat(P),R0=null;let A=R?GI.agg[R]:null;const D=domains(cat);let T=[];try{T=TESTS()}catch(e){}const tn=t=>t.short||t.name;
+/* le diagramme : le groupe en jaune, l'autre catégorie en bleu (courbe + points), tracée par-dessus */
+function giRadar(lab,val,ref,max){const mx=max||4;let s=fjRadarSvg(lab,val,null,max?{max}:undefined);if(!s||!ref||!ref.some(v=>v!=null))return s;
+  const n=lab.length,S=380,c=S/2,R=S/2-86;const pt=(v,i)=>{const t=-Math.PI/2+i*2*Math.PI/n,rr=R*(v||0)/mx;return [c+rr*Math.cos(t),c+rr*Math.sin(t)]};
+  const P=ref.map((v,i)=>v==null?null:pt(Math.max(0,Math.min(mx,v)),i));const ok=P.filter(Boolean);
+  let g=`<polygon points="${ok.map(z=>z.map(q=>q.toFixed(1)).join(",")).join(" ")}" fill="rgba(47,111,208,.10)" stroke="#2F6FD0" stroke-width="2.4" stroke-linejoin="round"/>`;
+  ok.forEach(([x,y])=>{g+=`<rect x="${(x-3.6).toFixed(1)}" y="${(y-3.6).toFixed(1)}" width="7.2" height="7.2" rx="1.5" fill="#2F6FD0" stroke="#fff" stroke-width="1"/>`});
+  return s.replace("</svg>",g+"</svg>")}
+function giRadBox(kind){const P=giPer();const G=giLocal(P);let R=giRefCat(P);let A=R?GI.agg[R]:null;const D=domains(cat);let T=[];try{T=TESTS()}catch(e){}const tn=t=>t.short||t.name;const L=players(cat);
   const dn0=D.filter(d=>G.stars.dom[d.name]!=null);const okS=c=>{const s=GI.agg[c].stars&&GI.agg[c].stars[P];return !!s&&dn0.length>=3&&dn0.every(d=>s.dom[d.name]!=null)};
-  const okT=c=>{const t=GI.agg[c].tests;return !!t&&T.filter(q=>G.tests.items[q.id]&&G.tests.items[q.id].ok!=null&&t.items[q.id]&&t.items[q.id].ok!=null).length>=3};
-  const opts=CATS.filter(c=>c!==cat&&giHas(c,P)&&(kind==="appr"?okS(c):okT(c)));if(R&&!opts.includes(R)){R0=R;R=opts.find(c=>GROUP_OF[c]===GROUP_OF[cat])||null;A=R?GI.agg[R]:null}
-  const pick=`<div class="gipick"><span>Superposer la courbe de</span>${opts.map(c=>`<button data-giref="${c}" aria-pressed="${c===R}">${c}</button>`).join("")}${opts.length?`<button data-giref="none" aria-pressed="${!R}">aucune</button>`:`<i class="note">${GI.busy?"chargement des autres catégories…":kind==="appr"?"aucune autre catégorie avec la même grille d'étoiles n'a encore de notes":"aucune autre catégorie n'a encore passé ces tests"}</i>`}${GI.busy?`<i class="note">${GI.done}/${GI.tot}</i>`:""}</div>`;
-  const leg=`<div class="fjleg"><span><i class="me"></i>${esc(cat)}</span>${R?`<span><i class="gir2"></i>${R}</span>`:""}</div>`;let svg="",note="";
-  if(kind==="appr"){const RS=A&&A.stars?A.stars[P]:null;const dn=D.filter(d=>G.stars.dom[d.name]!=null);const rv=RS?dn.map(d=>RS.dom[d.name]!=null?RS.dom[d.name]:null):null;
-    svg=dn.length>=3?giRadar(dn.map(d=>d.name),dn.map(d=>G.stars.dom[d.name]),rv):"";
-    note="Seules les catégories qui ont les mêmes thèmes d'étoiles sont proposées."}
-  else{const TR=T.map(t=>({t,g:G.tests.items[t.id],r:A&&A.tests?A.tests.items[t.id]:null})).filter(x=>x.g&&x.g.ok!=null);
-    const rv=TR.some(x=>x.r&&x.r.ok!=null)?TR.map(x=>x.r&&x.r.ok!=null?x.r.ok/x.r.n*100:null):null;
-    svg=TR.length>=3?giRadar(TR.map(x=>tn(x.t)),TR.map(x=>x.g.ok/x.g.n*100),rv,100):"";note="Seules les catégories qui ont passé les mêmes tests sont proposées."}
-  return svg?`${pick}${svg}${leg}${note?`<p class="note">${note}</p>`:""}`:""}
+  const TT=T.filter(t=>G.tests.items[t.id]);const okT=c=>{const t=GI.agg[c].tests;return !!t&&TT.filter(q=>t.items[q.id]).length>=3};
+  const opts=CATS.filter(c=>c!==cat&&giHas(c,P)&&(kind==="appr"?okS(c):okT(c)));if(R&&!opts.includes(R)){R=opts.find(c=>GROUP_OF[c]===GROUP_OF[cat])||null;A=R?GI.agg[R]:null}
+  const pick=`<div class="gipick"><span>Comparer ${esc(cat)} avec</span>${opts.map(c=>`<button data-giref="${c}" aria-pressed="${c===R}">${c}</button>`).join("")}${opts.length?`<button data-giref="none" aria-pressed="${!R}">personne</button>`:`<i class="note">${GI.busy?"chargement des autres catégories…":kind==="appr"?"aucune autre catégorie avec la même grille d'étoiles n'a encore de notes":"aucune autre catégorie n'a encore passé ces tests"}</i>`}${GI.busy?`<i class="note">${GI.done}/${GI.tot}</i>`:""}</div>`;
+  const leg=`<div class="gileg"><span><i class="g1"></i><b>${esc(cat)}</b></span>${R?`<span><i class="g2"></i><b>${R}</b></span>`:""}</div>`;
+  const th=`<thead><tr><th></th><th class="n"><i class="g1"></i>${esc(cat)}</th>${R?`<th class="n"><i class="g2"></i>${R}</th>`:""}</tr></thead>`;
+  /* une ligne du tableau : la meilleure des deux valeurs est en gras, avec l'écart */
+  const row=(name,a,b,lower,fmt,cls,title)=>{const best=R&&a!=null&&b!=null?(Math.abs(a-b)<1e-9?0:((lower?a<b:a>b)?1:2)):0;return `<tr class="${cls||""}"${title?` title="${esc(title)}"`:""}><td>${esc(name)}</td><td class="n${best===1?" win":""}">${a==null?"–":fmt(a)}</td>${R?`<td class="n${best===2?" win":""}">${b==null?"–":fmt(b)}</td>`:""}</tr>`};
+  let svg="",tbl="",note="";
+  if(kind==="appr"){const RS=A&&A.stars?A.stars[P]:null;if(dn0.length<3)return "";
+    svg=giRadar(dn0.map(d=>d.name),dn0.map(d=>G.stars.dom[d.name]),RS?dn0.map(d=>RS.dom[d.name]):null);
+    tbl=`<table class="gicmp">${th}<tbody>${D.map(d=>{const ls=d.lines.filter(l=>G.stars.crit[l.id]!=null);if(!ls.length)return "";return row(d.name,G.stars.dom[d.name],RS?RS.dom[d.name]:null,false,fjNb,"gidom")+ls.map(l=>row(l.short||l.name,G.stars.crit[l.id],RS?RS.crit[l.id]:null,false,fjNb,"",l.name)).join("")}).join("")}</tbody></table>`;
+    note=`Moyennes en étoiles, sur 4.${R?" En gras : la meilleure des deux.":""}`}
+  else{if(TT.length<1)return "";
+    /* échelle de chaque branche : du moins bon au meilleur enfant du groupe (comme dans la fiche joueur) */
+    const sc=t=>{const v=L.map(x=>tVal(x,G.tests.P0,t.id)).filter(x=>x!=null);if(v.length<2)return null;const best=t.lower?Math.min(...v):Math.max(...v),worst=t.lower?Math.max(...v):Math.min(...v);if(best===worst)return null;return x=>x==null?null:Math.max(.25,Math.min(4,(x-worst)/(best-worst)*4))};
+    const TR=TT.map(t=>({t,f:sc(t),g:G.tests.items[t.id],r:A&&A.tests?A.tests.items[t.id]:null})).filter(x=>x.f);
+    svg=TR.length>=3?giRadar(TR.map(x=>tn(x.t)),TR.map(x=>x.f(x.g.mean)),R?TR.map(x=>x.r?x.f(x.r.mean):null):null):"";
+    const u=t=>t.unit==="s"?" s":"";
+    tbl=`<table class="gicmp">${th}<tbody>${TT.map(t=>{const g=G.tests.items[t.id],r=A&&A.tests?A.tests.items[t.id]:null;return row(tn(t)+(t.unit&&t.unit!=="s"?"":""),g.mean,r?r.mean:null,!!t.lower,v=>fmtN(Math.round(v*100)/100)+u(t),"",`${t.name}${t.target!=null?` · objectif ${t.lower?"≤ ":""}${t.target}${u(t)} : ${g.ok} enfants sur ${g.n}`:""}`)}).join("")}</tbody></table>`;
+    note=`Moyenne du groupe à chaque test (temps en secondes : le plus petit est le meilleur).${R?" En gras : la meilleure des deux.":""} Sur le diagramme, plus le point est loin du centre, meilleur est le résultat.`}
+  return `${pick}<div class="gigrid"><div class="gisvg">${svg}${svg?leg:""}</div><div class="gitbl">${tbl}<p class="note">${note}</p></div></div>`}
 function giSoft(){["appr","def"].forEach(k=>{const b=document.getElementById("giRad-"+k);if(!b)return;b.innerHTML=giRadBox(k);b.querySelectorAll("[data-giref]").forEach(x=>x.onclick=()=>{GI.ref=x.dataset.giref;giSoft()})})}
 function giRender(soft){const v=document.getElementById("view-bilan");if(!v)return;const cur=document.getElementById("grpIns");
   if(get("tab")!=="view-bilan"||BCTX!=="joueurs"||!authed()||!players(cat).length){if(cur)cur.remove();return}
@@ -3701,11 +3721,6 @@ function giRender(soft){const v=document.getElementById("view-bilan");if(!v)retu
   if(!GI.busy&&Date.now()-GI.last>60000)setTimeout(()=>giLoad(false),50);
   const G=giLocal(P);const D=domains(cat);const T=(()=>{try{return TESTS()}catch(e){return []}})();const tn=t=>t.short||t.name;
   /* en un coup d'œil : seulement le groupe, rien ne bouge ici */
-  const gT=G.tests.tot?G.tests.ok/G.tests.tot*100:null;
-  const kpi=`<div class="fjkpis">
-    <div class="fjk"><small>Étoiles · P${P}</small><b>${fjNb(G.stars.avg)}</b><span>${G.stars.avg!=null?`sur 4 · ${G.stars.n} enfants notés`:"pas encore assez de notes"}</span></div>
-    <div class="fjk"><small>Tests techniques${G.tests.P0?" · "+TP_NAME[G.tests.P0]:""}</small><b>${giPct(gT)}</b><span>${gT!=null?"des résultats à l'objectif":"pas encore de tests"}</span></div>
-    <div class="fjk"><small>Notes de match${G.match?` · ${G.match.n} match${G.match.n>1?"s":""}`:""}</small><b>${fjNb(G.match?G.match.v:null)}</b><span>${G.match?"sur 5":"pas encore de fiche match"}</span></div></div>`;
   const FX=[],WX=[];
   T.forEach(t=>{const it=G.tests.items[t.id];if(!it||it.ok==null||it.n<5)return;const p=it.ok/it.n*100;const o={p,t:`${tn(t)} : ${it.ok} enfants sur ${it.n} à l'objectif`,ev:`objectif ${t.lower?"≤ ":""}${t.target} ${t.unit||""} · moyenne du groupe ${fmtN(it.mean)}`};if(p>=60)FX.push(o);else if(p<30)WX.push(o)});
   FX.sort((a,b)=>b.p-a.p);WX.sort((a,b)=>a.p-b.p);FX.splice(2);WX.splice(2);
@@ -3715,19 +3730,14 @@ function giRender(soft){const v=document.getElementById("view-bilan");if(!v)retu
   const li=o=>`<li>${esc(o.t)}${o.ev?`<small>${esc(o.ev)}</small>`:""}</li>`;
   const reg=`<div class="fjreg"><div class="fjbox ok"><h5>Points forts du groupe</h5>${FX.length?`<ul class="jsyn">${FX.map(li).join("")}</ul>`:`<p class="note">Rien de saillant pour l'instant.</p>`}</div><div class="fjbox w"><h5>À travailler</h5>${WX.length?`<ul class="jsyn">${WX.map(li).join("")}</ul>`:`<p class="note">Rien de saillant pour l'instant.</p>`}</div></div>
    <p class="note">L'outil ne retient que ce qui est net. Tests : au moins 6 enfants sur 10 à l'objectif (point fort), ou moins de 3 sur 10 (à travailler). Étoiles : 3 ou plus de moyenne (point fort), ou moins de 2 (à travailler).</p>`;
-  const tApp=G.stars.avg==null?`<p class="note">Pas encore assez d'étoiles en période ${P} (il faut au moins 3 enfants notés).</p>`:`<p class="note">Période ${P} · moyenne du groupe par thème, sur 4.</p>
-    <div class="fjrad"><div id="giRad-appr" class="giradbox"></div>
-    <div class="fjcrit">${D.map(d=>{const ls=d.lines.filter(l=>G.stars.crit[l.id]!=null);if(!ls.length)return "";return `<div class="fjdomc"><div class="fjdh"><b>${esc(d.name)}</b><span><b>${fjNb(G.stars.dom[d.name])}</b></span></div>${ls.map(l=>`<div class="fjl" title="${esc(l.name)}"><span>${esc(l.short||l.name)}</span><span class="fjlv"><b class="gib">${fjNb(G.stars.crit[l.id])}</b></span></div>`).join("")}</div>`}).join("")}</div></div>`;
-  const TI=T.map(t=>({t,g:G.tests.items[t.id]})).filter(x=>x.g);
-  const tDef=!TI.length?`<p class="note">Pas encore de résultats de tests pour ce groupe.</p>`:`<p class="note">Tests de ${TP_NAME[G.tests.P0]} · part des enfants qui atteignent l'objectif de leur âge.</p>
-    <div class="fjrad"><div id="giRad-def" class="giradbox"></div>
-    <div class="fjcards">${TI.map(x=>{const gp=x.g.ok!=null?x.g.ok/x.g.n*100:null;const u=x.t.unit==="s"?" s":"";return `<div class="fjc"><div class="fjch"><b>${esc(tn(x.t))}</b><span class="${gp!=null&&gp>=60?"ok":""}">${gp!=null?giPct(gp):fmtN(x.g.mean)+u}</span></div><small>${gp!=null?`${x.g.ok} sur ${x.g.n} à l'objectif (${x.t.lower?"≤ ":""}${x.t.target}${u}) · moyenne ${fmtN(x.g.mean)}${u}`:`moyenne du groupe · ${x.g.n} passés · pas d'objectif chiffré`}</small></div>`}).join("")}</div></div>`;
+  const tApp=G.stars.avg==null?`<p class="note">Pas encore assez d'étoiles en période ${P} (il faut au moins 3 enfants notés).</p>`:`<p class="note">Étoiles de la période ${P}.</p><div id="giRad-appr" class="giradbox"></div>`;
+  const tDef=!Object.keys(G.tests.items).length?`<p class="note">Pas encore de résultats de tests pour ce groupe.</p>`:`<p class="note">Tests de ${TP_NAME[G.tests.P0]}.</p><div id="giRad-def" class="giradbox"></div>`;
   const MR=giMatchRows(cat);const mg=G.match?G.match.v:null;
   const tMat=!MR.length?`<p class="note">Pas encore de fiche de match notée pour ce groupe.</p>`:`<p class="note">Note moyenne du groupe à chaque match, sur 5. Moyenne de la saison : <b>${fjNb(mg)}</b>. En vert : au-dessus de cette moyenne, en rouge : en dessous.</p>
     <div class="tbl-wrap"><table class="fjt"><thead><tr><th>Date</th><th>Adversaire</th><th class="n gihm">Enfants notés</th><th class="n">Moyenne</th></tr></thead><tbody>${MR.slice().reverse().map(r=>`<tr><td>${fjD(r.f.date)}</td><td>${esc(r.f.adv||"")}</td><td class="n gihm">${r.n}</td><td class="n"><b class="gimn${giCls(r.avg,mg,.05)}">${fjNb(r.avg)}</b></td></tr>`).join("")}</tbody></table></div>`;
   const d=document.createElement("div");d.id="grpIns";d.dataset.cat=cat;
   d.innerHTML=`<div class="gititle"><h3>Comprendre son groupe · ${esc(cat)}</h3><p class="note">Comme une fiche joueur, mais pour tout le groupe.</p></div>
-   <div class="card jblk"><h4>En un coup d'œil</h4>${kpi}${reg}</div>
+   <div class="card jblk"><h4>Ce qui ressort du groupe</h4>${reg}</div>
    <div class="card jblk"><div class="jseg" role="tablist">${[["appr","Étoiles"],["def","Tests techniques"],["mat","Notes de match"]].map(([k,l])=>`<button role="tab" data-gitab="${k}" aria-selected="${GI.tab===k}">${l}</button>`).join("")}</div>
      <div class="jtab" data-gipane="appr" ${GI.tab==="appr"?"":"hidden"}>${tApp}</div><div class="jtab" data-gipane="def" ${GI.tab==="def"?"":"hidden"}>${tDef}</div><div class="jtab" data-gipane="mat" ${GI.tab==="mat"?"":"hidden"}>${tMat}</div></div>`;
   v.appendChild(d);giSoft();
