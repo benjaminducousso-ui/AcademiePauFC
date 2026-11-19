@@ -68,7 +68,7 @@ header.top #bdesc{display:none}header.top .brand h1{font-size:26px;line-height:1
 .tab{display:inline-flex;align-items:center;gap:7px}.tab .tic svg{width:19px;height:19px;display:block}
 .jhome{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:16px;align-items:start}
 .jleft{display:flex;flex-direction:column;gap:12px;position:sticky;top:8px}.jright{display:flex;flex-direction:column;gap:12px;min-width:0}
-.jtodo{background:#FFF4C2;border:1px solid #F0D46A;border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}.jtodo.ok{background:#E6F6EE;border-color:#B9E5CE}.jtodo.grp{background:#F3F5F9;border-color:#D8DEE8}.jtodo.grp .jtodoh{color:#33445C}.jtodon{margin-top:-4px}
+.jtodo{background:#FFF4C2;border:1px solid #F0D46A;border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}.jtodo.ok{background:#E6F6EE;border-color:#B9E5CE}.jchips.ro .pied{background:#E4EDFB;color:#1E4E9A}.jtodo.grp{background:#F3F5F9;border-color:#D8DEE8}.jtodo.grp .jtodoh{color:#33445C}.jtodon{margin-top:-4px}
 .jtodo small{display:block;color:#5B6B82;font-size:12.5px}.jtodoh{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7A5B00}
 .jtd{display:flex;align-items:center;gap:10px;justify-content:space-between}.jtd b{font-size:14.5px}.jtd .btn{flex:none}
 .jcard{padding:10px 12px!important}.jperseg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.jperseg button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:5px 2px;font:inherit;cursor:pointer;line-height:1.1;color:#33445C}.jperseg button b{display:block;font-size:14px}.jperseg button small{font-size:11px;color:var(--muted)}.jperseg button[aria-pressed="true"]{border-color:#F2C200;background:#FFF4C2;box-shadow:inset 0 0 0 1px #F2C200}.jperseg button.lk{opacity:.55}
@@ -1727,8 +1727,8 @@ function ficheHtml(p,TP){const AP=fjApp(p,per),TS=fjTests(p),MT_=fjMatchs(p),RG=
   const pc=parcours(p);const seasons=[...pc.map(x=>({s:x.season,c:x.cat}))];if(!seasons.some(x=>x.s===SEASON&&x.c===cat))seasons.push({s:SEASON,c:cat});
   const done=TS.items.filter(x=>x.v!=null),top3=done.filter(x=>x.rank<=3).length;const co=carnetOpts();
   const id=`<div class="card jid"><div class="jnav"><button class="btn small jback" data-back>‹ Joueurs</button><span class="sp"></span><button class="nb" data-fj="-1" ${i<=0?"disabled":""} aria-label="Joueur précédent">‹</button><span class="cnt">${i+1}/${list.length}</span><button class="nb" data-fj="1" ${i>=list.length-1?"disabled":""} aria-label="Joueur suivant">›</button></div>
-    <div class="jidr"><span class="jav big${isGK(cat,p)?" gk":""}">${esc(initials(p))}</span><div class="jidt"><h3>${esc(nomPrenom(p))}</h3><p>${esc([cat,ageTxt(p),pr.pied?"pied "+pr.pied.toLowerCase():""].filter(Boolean).join(" · "))}</p>
-      <div class="jchips ro">${pr.main?`<span class="on">${esc(pr.main)}</span>`:""}${pr.autres.map(x=>`<span>${esc(x)}</span>`).join("")}${!pr.main&&!pr.autres.length?`<span class="miss">postes à renseigner</span>`:""}${canProf()?`<button class="btn small" data-prof>✎ Profil</button>`:""}</div></div></div>
+    <div class="jidr"><span class="jav big${isGK(cat,p)?" gk":""}">${esc(initials(p))}</span><div class="jidt"><h3>${esc(nomPrenom(p))}</h3><p>${esc([cat,ageTxt(p),""].filter(Boolean).join(" · "))}</p>
+      <div class="jchips ro">${pr.main?`<span class="on">${esc(pr.main)}</span>`:""}${pr.autres.map(x=>`<span>${esc(x)}</span>`).join("")}${!pr.main&&!pr.autres.length?`<span class="miss">postes à renseigner</span>`:""}${pr.pied?`<span class="pied">${pr.pied==="Les deux"?"🦶 deux pieds":"🦶 pied "+esc(pr.pied.toLowerCase())}</span>`:`<span class="miss">pied fort à renseigner</span>`}${canProf()?`<button class="btn small" data-prof>✎ Profil</button>`:""}</div></div></div>
     <div class="jtl" aria-label="Parcours au club">${seasons.map((x,k)=>`${k?'<span class="arr">›</span>':""}<span class="${x.s===SEASON&&x.c===cat?"on":""}" title="Saison ${esc(x.s)}">${esc(x.c)}<small>${esc(x.s.slice(2,4))}-${esc(x.s.slice(7,9))}</small></span>`).join("")}<span class="note">${seasons.length>1?`${seasons.length} saisons suivies`:"1re saison suivie dans l'outil"}</span></div></div>`;
   const kpi=`<div class="fjkpis">
     <div class="fjk"><small>Étoiles · P${per}</small><b>${fjNb(AP.avg)}</b><span>${AP.avg!=null?`sur 4 · ${fjOrd(AP.rank)} sur ${AP.N} · moy. groupe ${fjNb(AP.gavg)}`:"pas encore noté"}</span>${(q=>q.st?`<em class="jks ${q.st}">${esc(q.lab)}</em>`:"")(apSt(p,per))}</div>
@@ -3429,6 +3429,23 @@ if((QS.get("tests")==="1"||QS.get("terrain")==="1")&&authed())setTimeout(()=>ope
 @media(max-width:760px){.gigrid{grid-template-columns:1fr}.gisvg .fjsvg{margin:-26px 0 -30px}.gicmp{font-size:13.5px}.gicmp .n{width:62px}.gicmp td,.gicmp th{padding:6px 6px}}
 .gitbl,.gicmp td:first-child,.gicmp th:first-child{text-align:left}.gicmp tr.gidom td.n{color:#64748B;font-weight:600}.gicmp tr.gidom td.n.win{color:#0B2A4A;font-weight:800}.giradbox{text-align:left!important}.giradbox .gipick{justify-content:flex-start!important}
 .giwarn{background:#FFF1D6;border:2px solid #E8A33D;border-radius:14px;padding:12px 14px;margin:4px 0 12px;display:flex;flex-direction:column;gap:4px;color:#5A3A00}.giwarn b{font-size:16px;line-height:1.3;color:#7A4A00}.giwarn span{font-size:14px;line-height:1.4}
+.gih4{margin:18px 0 4px;font-size:15px;color:#0B2A4A;text-transform:uppercase;letter-spacing:.04em}
+.gists{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px 22px;margin-top:10px}.gist{border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px;background:#fff}
+.gisth{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.gisth b{color:#0B2A4A;font-size:15px}.gisth span{display:flex;gap:5px;flex-wrap:wrap}
+.gichip{font-style:normal;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px;background:#EEF2F8;color:#33445C;white-space:nowrap}.gichip.ok{background:#E3F4E9;color:#14613C}.gichip.w{background:#FDE7DB;color:#9A3412}.gichip.ref{background:#E4EDFB;color:#1E4E9A}
+.gistrip{position:relative;height:30px;margin:0 8px;background:linear-gradient(#DDE3EC,#DDE3EC) center/100% 2px no-repeat}.giband{position:absolute;top:6px;bottom:6px;background:#DCE6F5;border-radius:6px}.gimed{position:absolute;top:1px;bottom:1px;width:3px;margin-left:-1.5px;background:#0B2A4A;border-radius:2px}
+.giobj{position:absolute;top:-3px;width:0;height:0;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid #D9A400}
+.gidot{all:unset;cursor:pointer;position:absolute;top:50%;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:rgba(11,42,74,.55);border:1.5px solid #fff;box-sizing:border-box}.gidot.lag{background:#C2410C}.gidot::after{content:"";position:absolute;inset:-8px}
+.gistf{display:flex;justify-content:space-between;gap:6px;font-size:11.5px;color:#64748B;margin-top:3px}.gistf b{color:#0B2A4A}.gilag{margin:6px 0 0;font-size:12.5px;color:#9A3412;font-weight:600}
+.gifeet{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px 22px;margin-top:8px}.gifoot{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff}.gifoot .note{margin:6px 0 0;font-size:12.5px}
+.gifb{display:grid;grid-template-columns:60px 1fr 74px;gap:8px;align-items:center;font-size:13.5px;color:#33445C;padding:3px 0}.gifb b{text-align:right;color:#0B2A4A}.gift{height:12px;background:#EEF2F8;border-radius:4px;overflow:hidden}.gift span{display:block;height:100%;background:#3E5F8A;border-radius:4px}
+@media(max-width:760px){.gists,.gifeet{grid-template-columns:1fr}.gistf{font-size:11px}}
+#grpIns .giradbox .fjreg{margin-bottom:6px}.gih4{margin-top:24px!important}
+.gil1{margin:0;font-size:13.5px;color:#33445C}.gil1 b{color:#0B2A4A}.gist .gilag{margin:5px 0 0}.gidet{margin-top:6px}.gidet summary{cursor:pointer;font-size:12.5px;color:#1E4E9A;font-weight:700;list-style:none}.gidet summary::-webkit-details-marker{display:none}.gidet summary::before{content:"▸ "}.gidet[open] summary::before{content:"▾ "}.gidet .gistrip{margin-top:8px}.gidet .note{font-size:11.5px;margin:4px 0 0}.gisth{margin-bottom:5px!important}
+.gifls{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;margin-top:6px}.gifl{display:grid;grid-template-columns:150px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);font-size:14px;color:#33445C}.gifl:first-child{border-top:0}.gifl>b{color:#0B2A4A}.gifl span b{color:#0B2A4A}
+@media(max-width:760px){.gifl{grid-template-columns:1fr auto;row-gap:2px}.gifl>span{grid-column:1/-1;grid-row:2;font-size:13px}}
+i.gidot{cursor:default;position:absolute;top:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:rgba(11,42,74,.5);border:1.5px solid #fff;box-sizing:border-box}i.gidot.lag{background:#C2410C}i.gidot::after{display:none}
+.gibls{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-top:6px}.gibl{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff}.gibl>b{font-size:26px;color:#0B2A4A;min-width:34px;text-align:center}.gibl span{font-size:13.5px;color:#33445C;line-height:1.3}.gibl small{display:block;font-weight:700;color:#9A3412;font-size:12px;margin-top:2px}.gibl.ok>b{color:#14915B}.gibl.w{border-color:#F3C9B5}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -3647,9 +3664,12 @@ window.addEventListener("load",()=>{if(typeof renderCarnet!=="function")return;c
    Des autres catégories, on ne garde que des moyennes (aucun nom d'enfant).
    ===================================================================== */
 const GI={ref:null,tab:"appr",agg:{},busy:false,done:0,tot:0,last:0};
-const GI_KEY="pfc_grpagg_"+SEASON,GI_TTL=3*3600e3;
+const GI_KEY="pfc_grpagg2_"+SEASON,GI_TTL=3*3600e3;
 try{GI.agg=JSON.parse(localStorage.getItem(GI_KEY)||"{}")||{}}catch(e){GI.agg={}}
 const giMean=a=>{a=a.filter(v=>v!=null);return a.length?a.reduce((p,q)=>p+q,0)/a.length:null};
+const giQ=v=>{const s=v.slice().sort((a,b)=>a-b);const q=p=>{if(!s.length)return null;const i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo)};return [q(.1),q(.25),q(.5),q(.75),q(.9)]};
+/* étalement d'un groupe sur un test : écart entre les 10 % du bas et les 10 % du haut, rapporté à la médiane (ne dépend pas de la distance du test) */
+const giSpread=(q,lower)=>{if(!q||q[2]==null||!q[2])return null;const r=Math.abs(q[4]-q[0])/Math.abs(q[2]);const a=lower?.15:.8,b=lower?.3:1.5;return r<a?"serré":r>=b?"étalé":"moyen"};
 const giPct=v=>v==null?"–":Math.round(v)+" %";
 function giPer(){try{return typeof sgPer==="number"?sgPer:defPer()}catch(e){return 1}}
 const giSame=c=>CATS.filter(x=>x!==c&&GROUP_OF[x]===GROUP_OF[c]);
@@ -3671,7 +3691,7 @@ async function giFetchCat(c){const o={ts:Date.now(),stars:{},tests:null,match:nu
     else if(n>200&&n<300){const i=String(x.player||"").lastIndexOf("¦");if(i<0)return;const id=String(x.player).slice(i+1);let t=x.t;if(typeof t==="string"){try{t=JSON.parse(t)}catch(e){t={}}}const v=t?t[id]:null;if(v==null||v==="")return;((TR[n-200]=TR[n-200]||{})[id]=TR[n-200][id]||[]).push(+v)}});
   Object.keys(S).forEach(n=>{const s=S[n];if(s.pm.length<3)return;const crit={},dom={};D.forEach(d=>{const dv=[];d.lines.forEach(l=>{const v=s.crit[l.id];if(v&&v.length>=3){crit[l.id]=giMean(v);dv.push(crit[l.id])}});if(dv.length)dom[d.name]=giMean(dv)});o.stars[n]={avg:giMean(s.pm),n:s.pm.length,crit,dom}});
   const tp=Object.keys(TR).map(Number).filter(p=>Object.values(TR[p]).reduce((q,v)=>q+v.length,0)>=10).sort((x,y)=>y-x)[0];
-  if(tp){let T=[];try{T=TESTS(c)}catch(e){}const items={};let ok=0,tot=0;Object.entries(TR[tp]).forEach(([id,v])=>{const t=T.find(q=>q.id===id);const it={n:v.length,mean:giMean(v),ok:null};if(t&&t.target!=null){it.ok=v.filter(x=>t.lower?x<=t.target:x>=t.target).length;ok+=it.ok;tot+=it.n}items[id]=it});o.tests={P0:tp,items,ok,tot}}
+  if(tp){let T=[];try{T=TESTS(c)}catch(e){}const items={};let ok=0,tot=0;Object.entries(TR[tp]).forEach(([id,v])=>{const t=T.find(q=>q.id===id);const it={n:v.length,mean:giMean(v),ok:null,q:giQ(v)};if(t&&t.target!=null){it.ok=v.filter(x=>t.lower?x<=t.target:x>=t.target).length;ok+=it.ok;tot+=it.n}items[id]=it});o.tests={P0:tp,items,ok,tot}}
   try{const m=await fetch(`${API}?prog=${encodeURIComponent(`MATCH-DRAFT-${SEASON}-${c}`)}`,{cache:"no-store"}).then(r=>r.json());if(Array.isArray(m)){const Q={};m.forEach(x=>{let f=x.f;if(typeof f==="string"){try{f=JSON.parse(f)}catch(e){return}}if(!f||!f.id)return;if(!Q[f.id]||(x.ts||0)>=Q[f.id].ts)Q[f.id]={f,ts:x.ts||0}});
     const av=Object.values(Q).map(q=>q.f).filter(f=>!f.del&&!f.ex).map(f=>giMean((f.j||[]).map(y=>+y.note||0).filter(Boolean))).filter(v=>v!=null);if(av.length)o.match={v:giMean(av),n:av.length}}}catch(e){}
   return o}
@@ -3704,16 +3724,44 @@ function giRadBox(kind){const P=giPer();const G=giLocal(P);let R=giRefCat(P);let
     svg=giRadar(dn0.map(d=>d.name),dn0.map(d=>G.stars.dom[d.name]),RS?dn0.map(d=>RS.dom[d.name]):null);
     tbl=`<table class="gicmp">${th}<tbody>${D.map(d=>{const ls=d.lines.filter(l=>G.stars.crit[l.id]!=null);if(!ls.length)return "";return row(d.name,G.stars.dom[d.name],RS?RS.dom[d.name]:null,false,fjNb,"gidom")+ls.map(l=>row(l.short||l.name,G.stars.crit[l.id],RS?RS.crit[l.id]:null,false,fjNb,"",l.name)).join("")}).join("")}</tbody></table>`;
     note=`Moyennes en étoiles, sur 4.${R?" En gras : la meilleure des deux.":""}`}
-  else{if(TT.length<1)return "";
-    /* échelle de chaque branche : du moins bon au meilleur enfant du groupe (comme dans la fiche joueur) */
-    const sc=t=>{const v=L.map(x=>tVal(x,G.tests.P0,t.id)).filter(x=>x!=null);if(v.length<2)return null;const best=t.lower?Math.min(...v):Math.max(...v),worst=t.lower?Math.max(...v):Math.min(...v);if(best===worst)return null;return x=>x==null?null:Math.max(.25,Math.min(4,(x-worst)/(best-worst)*4))};
-    const TR=TT.map(t=>({t,f:sc(t),g:G.tests.items[t.id],r:A&&A.tests?A.tests.items[t.id]:null})).filter(x=>x.f);
-    svg=TR.length>=3?giRadar(TR.map(x=>tn(x.t)),TR.map(x=>x.f(x.g.mean)),R?TR.map(x=>x.r?x.f(x.r.mean):null):null):"";
-    const u=t=>t.unit==="s"?" s":"";
-    tbl=`<table class="gicmp">${th}<tbody>${TT.map(t=>{const g=G.tests.items[t.id],r=A&&A.tests?A.tests.items[t.id]:null;return row(tn(t)+(t.unit&&t.unit!=="s"?"":""),g.mean,r?r.mean:null,!!t.lower,v=>fmtN(Math.round(v*100)/100)+u(t),"",`${t.name}${t.target!=null?` · objectif ${t.lower?"≤ ":""}${t.target}${u(t)} : ${g.ok} enfants sur ${g.n}`:""}`)}).join("")}</tbody></table>`;
-    note=`Moyenne du groupe à chaque test (temps en secondes : le plus petit est le meilleur).${R?" En gras : la meilleure des deux.":""} Sur le diagramme, plus le point est loin du centre, meilleur est le résultat.`}
+  else return giTestsBox(P,G,R,A,T,TT,L,pick,tn);
   return `${pick}<div class="gigrid"><div class="gisvg">${svg}${svg?leg:""}</div><div class="gitbl">${tbl}<p class="note">${note}</p></div></div>`}
-function giSoft(){["appr","def"].forEach(k=>{const b=document.getElementById("giRad-"+k);if(!b)return;b.innerHTML=giRadBox(k);b.querySelectorAll("[data-giref]").forEach(x=>x.onclick=()=>{GI.ref=x.dataset.giref;giSoft()})})}
+/* --- tests techniques : comment le groupe se répartit, et l'écart entre les deux pieds --- */
+function giTestsBox(P,G,R,A,T,TT,L,pick,tn){if(!TT.length)return "";const P0=G.tests.P0;const u=t=>t.unit==="s"?" s":"";const F=(t,v)=>fmtN(Math.round(v*100)/100)+u(t);
+  const short=x=>`${prenom(x)} ${String(x).replace(prenom(x),"").trim().charAt(0)}.`;const lag={};
+  const rows=TT.map(t=>{const V=L.map(x=>({x,v:tVal(x,P0,t.id)})).filter(o=>o.v!=null);if(V.length<4)return "";const vals=V.map(o=>o.v);const q=giQ(vals);
+    const best=t.lower?Math.min(...vals):Math.max(...vals),worst=t.lower?Math.max(...vals):Math.min(...vals);if(best===worst)return "";const pos=v=>Math.max(0,Math.min(100,(v-worst)/(best-worst)*100));
+    /* décroché : nettement derrière le gros du groupe */
+    const iqr=Math.abs(q[3]-q[1]);const lim=t.lower?q[3]+iqr:q[1]-iqr;const isLag=v=>iqr>0&&(t.lower?v>lim:v<lim);const LG=V.filter(o=>isLag(o.v));LG.forEach(o=>{(lag[o.x]=lag[o.x]||[]).push(tn(t))});
+    const sp=giSpread(q,!!t.lower);const g=G.tests.items[t.id];const a=pos(t.lower?q[3]:q[1]),b=pos(t.lower?q[1]:q[3]);
+    const verdict=sp==="serré"?`<i class="gichip ok">niveaux proches</i>`:sp==="étalé"?`<i class="gichip w">niveaux très différents</i>`:`<i class="gichip">niveaux assez proches</i>`;
+    return `<div class="gist"><div class="gisth"><b>${esc(tn(t))}</b><span>${verdict}</span></div>
+      <p class="gil1">Moyenne du groupe : <b>${F(t,g.mean)}</b>${g.ok!=null?` · ${g.ok} enfant${g.ok>1?"s":""} sur ${g.n} à l'objectif (${t.lower?"≤ ":""}${t.target}${u(t)})`:""}</p>
+      ${LG.length?`<p class="gilag">${LG.length} enfant${LG.length>1?"s":""} nettement en difficulté</p>`:""}
+      <details class="gidet"><summary>Voir la répartition</summary><div class="gistrip"><span class="giband" style="left:${Math.min(a,b)}%;width:${Math.abs(b-a)}%"></span><span class="gimed" style="left:${pos(q[2])}%"></span>${V.map(o=>`<i class="gidot${isLag(o.v)?" lag":""}" style="left:${pos(o.v)}%"></i>`).join("")}</div>
+      <div class="gistf"><span>moins bon · ${F(t,worst)}</span><span>${F(t,best)} · meilleur</span></div><p class="note">Un point par enfant, sans nom. En rouge : nettement en difficulté.</p></details></div>`}).join("");
+  /* pied droit, pied gauche : une phrase par test */
+  const PAIRS=[["jd","jg","Jonglerie"],["pcd","pcg","Passe sur cône"],["pdd","pdg","Passe dosée"]];
+  const feet=PAIRS.map(([d,gk,name])=>{const td=T.find(t=>t.id===d),tg=T.find(t=>t.id===gk);const a=G.tests.items[d],b=G.tests.items[gk];if(!td||!tg||!a||!b||a.n<4||b.n<4)return null;const lower=!!td.lower;
+    const r=Math.min(a.mean,b.mean)/Math.max(a.mean,b.mean)*100;const weak=(lower?a.mean>b.mean:a.mean<b.mean)?"gauche … droit":"";const wk=(lower?a.mean>b.mean:a.mean<b.mean)?"droit":"gauche";const net=r<(lower?87:70);
+    return {name,net,weak:wk,html:`<div class="gifl"><b>${name}</b><span>droit <b>${F(td,a.mean)}</b> · gauche <b>${F(tg,b.mean)}</b></span><i class="gichip ${net?"w":"ok"}">${net?`pied ${wk} à travailler`:"deux pieds proches"}</i></div>`}}).filter(Boolean);
+  /* avec ballon / sans ballon : qui est freiné par le ballon, qui manque de vitesse (des nombres, jamais de noms) */
+  const tb=T.find(t=>t.id==="slalom10")||T.find(t=>t.id==="huit5")||T.find(t=>t.id==="sl30b"),tv=T.find(t=>t.id==="v20")||T.find(t=>t.id==="v10")||T.find(t=>t.id==="v30")||T.find(t=>t.id==="sl30s");let ball="";
+  if(tb&&tv){const B=L.map(x=>({b:tVal(x,P0,tb.id),v:tVal(x,P0,tv.id)})).filter(o=>o.b!=null&&o.v!=null);if(B.length>=6){const mb=giQ(B.map(o=>o.b))[2],mv=giQ(B.map(o=>o.v))[2];const n=(fb,fv)=>B.filter(o=>(o.b<=mb)===fb&&(o.v<=mv)===fv).length;
+    const li=(k,t,s,c)=>`<div class="gibl ${c||""}"><b>${k}</b><span>${t}${s?`<small>${s}</small>`:""}</span></div>`;
+    ball=`<h4 class="gih4">Avec ballon, sans ballon</h4><p class="note">On croise ${esc(tn(tb))} (avec ballon) et ${esc(tn(tv))} (sans ballon), pour ${B.length} enfants : est-ce le ballon qui freine, ou la course ?</p>
+     <div class="gibls">${li(n(true,true),"rapides avec et sans ballon","","ok")}${li(n(false,true),"rapides à la course, mais freinés par le ballon","à travailler : conduite de balle","w")}${li(n(true,false),"moins rapides à la course, mais à l'aise avec le ballon","à travailler : vitesse et appuis","w")}${li(n(false,false),"en retrait avec et sans ballon","")}</div>`}}
+  const coll=TT.map(t=>({t,g:G.tests.items[t.id]})).filter(x=>x.g&&x.g.ok!=null&&x.g.n>=5&&x.g.ok/x.g.n<.3).map(x=>`${tn(x.t)} : ${x.g.ok?`seulement ${x.g.ok} enfant${x.g.ok>1?"s":""} sur ${x.g.n}`:`aucun enfant sur ${x.g.n}`} à l'objectif`);
+  feet.filter(f=>f.net).forEach(f=>coll.push(`${f.name} : le pied ${f.weak} est nettement en retrait`));
+  const nInd=Object.values(lag).filter(a=>a.length>=2).length;
+  const head=`<div class="fjreg"><div class="fjbox w"><h5>À travailler avec tout le groupe</h5>${coll.length?`<ul class="jsyn">${coll.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>`:`<p class="note">Rien de net pour l'instant.</p>`}</div><div class="fjbox"><h5>Écarts dans le groupe</h5><p class="gil1">${nInd?`<b>${nInd} enfant${nInd>1?"s":""}</b> ${nInd>1?"sont":"est"} nettement en difficulté sur au moins deux tests.`:"Aucun enfant n'est nettement en difficulté sur plusieurs tests."}</p><p class="note">Ici on regarde le groupe, sans nommer personne. Pour un enfant en particulier : Fiches joueurs.</p></div></div>`;
+  return `${head}
+   ${feet.length?`<h4 class="gih4">Pied droit, pied gauche</h4><div class="gifls">${feet.map(f=>f.html).join("")}</div>`:""}
+   ${ball}
+   <h4 class="gih4">Test par test</h4>
+   <p class="note"><b>Niveaux proches</b> : même travail pour tous. <b>Niveaux très différents</b> : travail par groupes de niveau.</p>
+   <div class="gists">${rows}</div>`}
+function giSoft(){["appr","def"].forEach(k=>{const b=document.getElementById("giRad-"+k);if(!b)return;b.innerHTML=giRadBox(k);b.querySelectorAll("[data-giref]").forEach(x=>x.onclick=()=>{GI.ref=x.dataset.giref;giSoft()});})}
 function giRender(soft){const v=document.getElementById("view-bilan");if(!v)return;const cur=document.getElementById("grpIns");
   if(get("tab")!=="view-bilan"||BCTX!=="joueurs"||!authed()||!players(cat).length){if(cur)cur.remove();return}
   if(soft&&cur&&cur.dataset.cat===cat){giSoft();return}
@@ -3732,7 +3780,7 @@ function giRender(soft){const v=document.getElementById("view-bilan");if(!v)retu
   const reg=`<div class="fjreg"><div class="fjbox ok"><h5>Points forts du groupe</h5>${FX.length?`<ul class="jsyn">${FX.map(li).join("")}</ul>`:`<p class="note">Rien de saillant pour l'instant.</p>`}</div><div class="fjbox w"><h5>À travailler</h5>${WX.length?`<ul class="jsyn">${WX.map(li).join("")}</ul>`:`<p class="note">Rien de saillant pour l'instant.</p>`}</div></div>
    <p class="note">L'outil ne retient que ce qui est net. Tests : au moins 6 enfants sur 10 à l'objectif (point fort), ou moins de 3 sur 10 (à travailler). Étoiles : 3 ou plus de moyenne (point fort), ou moins de 2 (à travailler).</p>`;
   const tApp=G.stars.avg==null?`<p class="note">Pas encore assez d'étoiles en période ${P} (il faut au moins 3 enfants notés).</p>`:`<p class="note">Étoiles de la période ${P}.</p><div id="giRad-appr" class="giradbox"></div>`;
-  const tDef=!Object.keys(G.tests.items).length?`<p class="note">Pas encore de résultats de tests pour ce groupe.</p>`:`${G.tests.P0===TEST_PERIODS[0]?`<div class="giwarn" role="note"><b>⚠️ Première séance de tests : ne vous fiez pas aux comparaisons entre catégories.</b><span>Pour cette séance de ${TP_NAME[G.tests.P0]}, les distances n'étaient pas tout à fait les mêmes d'une catégorie à l'autre. Les résultats restent valables à l'intérieur de votre groupe. Ce sera corrigé pour la 2e période de tests, en ${TP_NAME[TEST_PERIODS[1]]}.</span></div>`:""}<p class="note">Tests de ${TP_NAME[G.tests.P0]}.</p><div id="giRad-def" class="giradbox"></div>`;
+  const tDef=!Object.keys(G.tests.items).length?`<p class="note">Pas encore de résultats de tests pour ce groupe.</p>`:`${G.tests.P0===TEST_PERIODS[0]?`<div class="giwarn" role="note"><b>⚠️ Première séance de tests : on ne compare pas les résultats entre catégories.</b><span>En ${TP_NAME[G.tests.P0]}, les distances n'étaient pas tout à fait les mêmes d'une catégorie à l'autre. On regarde donc ce qui reste fiable : la répartition de votre groupe et l'écart entre les deux pieds. Ce sera corrigé pour la 2e période de tests, en ${TP_NAME[TEST_PERIODS[1]]}.</span></div>`:""}<p class="note">Tests de ${TP_NAME[G.tests.P0]}.</p><div id="giRad-def" class="giradbox"></div>`;
   const MR=giMatchRows(cat);const mg=G.match?G.match.v:null;
   const tMat=!MR.length?`<p class="note">Pas encore de fiche de match notée pour ce groupe.</p>`:`<p class="note">Note moyenne du groupe à chaque match, sur 5. Moyenne de la saison : <b>${fjNb(mg)}</b>. En vert : au-dessus de cette moyenne, en rouge : en dessous.</p>
     <div class="tbl-wrap"><table class="fjt"><thead><tr><th>Date</th><th>Adversaire</th><th class="n gihm">Enfants notés</th><th class="n">Moyenne</th></tr></thead><tbody>${MR.slice().reverse().map(r=>`<tr><td>${fjD(r.f.date)}</td><td>${esc(r.f.adv||"")}</td><td class="n gihm">${r.n}</td><td class="n"><b class="gimn${giCls(r.avg,mg,.05)}">${fjNb(r.avg)}</b></td></tr>`).join("")}</tbody></table></div>`;
