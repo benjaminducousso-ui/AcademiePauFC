@@ -1906,6 +1906,11 @@ window.addEventListener("load",()=>{if(typeof renderMatch!=="function")return;co
    ===================================================================== */
 const MT_CAT=c=>`MATCH-DRAFT-${SEASON}-${c}`;
 const MT_SYS=["3-3-1","3-2-2","2-3-2","3-1-3","2-4-1","Autre"];
+/* 19/11 : U14-U15 en foot à 11 : fiche « préformation » du club (6 principes, systèmes à 11) */
+const mtIs11=()=>/^U1[45]$/.test(String(cat));
+const MT_SYS11=["4-4-2","4-3-3","4-2-3-1","4-3-1-2","3-5-2","4-5-1","Autre"];
+const MT_PR11=[["OFFENSIF","Conserver le ballon / Progresser vers le but adverse"],["OFFENSIF","Déséquilibrer / Finir (prise de risque, finition)"],["DÉFENSIF","S'opposer à la progression adverse"],["DÉFENSIF","Protéger son but / Défendre la surface"],["TRANSITION","De l'attaque à la défense (réaction à la perte de balle)"],["TRANSITION","De la défense à l'attaque (réaction à la récupération)"]];
+const mtPRs=()=>mtIs11()?MT_PR11:MT_PR;const mtSYS=()=>mtIs11()?MT_SYS11:MT_SYS;
 const MT_PR=[["OFFENSIF","Conserver le ballon / faire circuler le jeu"],["OFFENSIF","Progresser vers le but adverse (dribble, passe)"],["OFFENSIF","Finir l'action (tir, prise de risque devant le but)"],["DÉFENSIF","S'opposer au porteur de balle (gêner, récupérer)"],["DÉFENSIF","Revenir se replacer / protéger son but"],["TRANSITION","Réagir vite après une perte de balle"],["TRANSITION","Réagir vite après une récupération de balle"]];
 const mtNice=p=>{const w=String(p).split(/\s+/);const up=x=>x===x.toUpperCase()&&/[A-ZÀ-Ý]/.test(x);const f=w.filter(x=>!up(x)),n=w.filter(up);const cap=x=>x.charAt(0)+x.slice(1).toLowerCase();if(!f.length)return cap(w[w.length-1])+" "+w.slice(0,-1).map(cap).join(" ");return f.join(" ")+" "+n.map(cap).join(" ")};
 /* notes au demi-point (16/11) : 1, 1,5 … 5 ; on touche 2 fois le même chiffre pour ajouter ½ */
@@ -1914,7 +1919,7 @@ const mtAll=c=>{store.match=store.match||{};return store.match[c]=store.match[c]
 const mtFmt=d=>{const [y,m,j]=String(d||"").split("-");return j?`${j}.${m}.${y.slice(2)}`:d};
 let MT={edit:null,player:null};
 function mtNew(){const t=new Date();const iso=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
-  return {id:"m"+Date.now(),date:iso,adv:"",lieu:"Domicile",educ:get("who",""),org:"",orgA:"",obj:"",cons:"",voir:"",advp:[["","",""],["","",""],["","",""]],j:Array.from({length:12},()=>({p:"",m:"",note:0,o:""})),pr:{},prn:{},forts:"",axes:"",mental:"",sent:false}}
+  return {id:"m"+Date.now(),date:iso,adv:"",lieu:"Domicile",educ:get("who",""),org:"",orgA:"",obj:"",cons:"",voir:"",advp:[["","",""],["","",""],["","",""]],j:Array.from({length:mtIs11()?14:12},()=>({p:"",m:"",note:0,o:""})),pr:{},prn:{},forts:"",axes:"",mental:"",sent:false}}
 /* exemple réel : fiche de Thomas, U11, 07/11 (pour voir à quoi ça ressemble) */
 function mtExample(){const f=mtNew();Object.assign(f,{id:"ex0711",date:"2026-11-07",adv:"FC 2 Vallées",lieu:"Domicile",educ:"Thomas",org:"3-3-1",obj:"Retrouver ce que l'on a travaillé sur la phase DÉSÉQUILIBRER / FINIR",cons:"Le terrain est découpé en 3 couloirs - Insister sur un couloir latéral et trouver celui à l'opposé",voir:"Redoubler les passes dans un couloir latéral - Trouver des points de fixation - Voir et être vu à l'opposé",forts:"Principes de jeu en Déséquilibré / Finir retrouvé sur ce match / Organisation bloc équipe haut",axes:"Insister sur le jeu combiné / Engagement dans les duels déf",mental:"Confiance - concentration - résilience"});
   const L=[["FABRE AARON",70,2,"2 buts encaissés - peu d'arrêts à effectuer"],["NZOMBO Raphael",35,3,"Bonne attitude déf - bonne compréhension du jeu"],["RANQUINE MARTIN",35,3,"Bonne attitude déf - attention à la concentration"],["COURREGES Simon",35,3,"Bonne attitude déf - bonne compréhension du jeu"],["CARSAC Mati",35,2,"Match à oublier / difficulté sur le plan athlétique"],["YATTARA Mory",60,4,"Très bon match - choix à travailler"],["DEGERLI LORAN",50,4,"Très bon match - choix à travailler"],["BOURASSIN Axel",35,3,"Occasions créées - choix dos au jeu à travailler"],["ZAAIMI Wassim",35,2,"Bonne attitude déf / en difficulté techniquement"],["OYENHART SIMON",35,3,"Qualité de percussion - choix des appels à travailler"],["EL AMMARI ISSAM",35,1,"Joueur en très grande difficulté"],["LAGRENE Michel",35,1,"Joueur en très grande difficulté"]];
@@ -1955,10 +1960,10 @@ function mtPlayer(v){const p=MT.player;const A=Object.values(mtAll(cat)).sort((a
 function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNice(a).localeCompare(mtNice(b),"fr"));const used=new Set(f.j.map(x=>x.p).filter(Boolean));const nb=f.j.filter(x=>x.p).length;
   v.innerHTML=`<div class="mtw mtform"><div class="mtbanner">Une fiche par match : chaque note arrive dans la fiche du joueur (usage interne, pas dans les carnets).</div>
   <div class="mthd"><button class="mtlink" id="mtcancel">‹ Retour aux matchs</button>${mtAll(cat)[f.id]&&(rtj||!isAvis(cat)||!f.educ||f.educ===get("who",""))?`<button class="mtlink mtdel" id="mtdel">🗑 Supprimer cette fiche</button>`:""}</div>
-  <div class="mtpaper"><div class="mtph"><b>FICHE DE SUIVI DE MATCH</b><span>FOOT ANIMATION (FOOT À 8) · U9 - U10 - U11</span></div>
+  <div class="mtpaper"><div class="mtph"><b>FICHE DE SUIVI DE MATCH</b><span>${mtIs11()?"PRÉFORMATION (FOOT À 11) · U12 - U13 - U14 - U15":"FOOT ANIMATION (FOOT À 8) · U9 - U10 - U11"}</span></div>
   <div class="mtgrid"><label>Date<input type="date" data-k="date" value="${esc(f.date)}"></label><label>Catégorie<input value="${esc(cat)}" disabled></label>
    <label>Adversaire<input data-k="adv" value="${esc(f.adv)}" maxlength="40"></label><label>Lieu<select data-k="lieu">${["Domicile","Extérieur"].map(x=>`<option ${f.lieu===x?"selected":""}>${x}</option>`).join("")}</select></label>
-   <label>Éducateur<input data-k="educ" value="${esc(f.educ)}" maxlength="30"></label><label>Organisation de départ<select data-k="org"><option value="">—</option>${MT_SYS.map(x=>`<option ${f.org===x?"selected":""}>${x}</option>`).join("")}</select></label></div>
+   <label>Éducateur<input data-k="educ" value="${esc(f.educ)}" maxlength="30"></label><label>Organisation de départ<select data-k="org"><option value="">—</option>${mtSYS().map(x=>`<option ${f.org===x?"selected":""}>${x}</option>`).join("")}</select></label></div>
   <h3>1. Causerie d'avant-match</h3>
   <label>Objectif du match<textarea data-k="obj" maxlength="220">${esc(f.obj)}</textarea></label><label>Consignes clés (2-3 points simples)<textarea data-k="cons" maxlength="220">${esc(f.cons)}</textarea></label><label>Ce qu'on veut voir chez les joueurs<textarea data-k="voir" maxlength="220">${esc(f.voir)}</textarea></label>
   <label>Joueurs adverses à suivre</label><div class="mttab mtadv"><div class="th"><span>N°</span><span>Nom / poste</span><span>Point fort</span></div>${f.advp.map((r,i)=>`<div class="tr">${r.map((x,k)=>`<input data-a="${i}" data-c="${k}" value="${esc(x)}" maxlength="${k?40:3}">`).join("")}</div>`).join("")}</div>
@@ -1970,7 +1975,7 @@ function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNi
   <button type="button" class="mtlink" id="mtaddj">+ une ligne</button>
   <h3>3. Évaluation collective des principes de jeu</h3>
   <div class="mttab mtpr"><div class="th"><span>Principe évalué</span><span>Maîtrisé</span><span>En cours</span><span>En difficulté</span></div>
-  ${MT_PR.map(([ph,l],i)=>`<div class="tr"><span><small>${ph}</small><br>${esc(l)}</span>${["m","c","d"].map(k=>`<button type="button" class="box ${f.pr[i]===k?"on":""}" data-p="${i}" data-v="${k}">${f.pr[i]===k?"X":""}</button>`).join("")}<input class="note" data-pn="${i}" placeholder="Notes" maxlength="40" value="${esc(f.prn[i]||"")}"></div>`).join("")}</div>
+  ${mtPRs().map(([ph,l],i)=>`<div class="tr"><span><small>${ph}</small><br>${esc(l)}</span>${["m","c","d"].map(k=>`<button type="button" class="box ${f.pr[i]===k?"on":""}" data-p="${i}" data-v="${k}">${f.pr[i]===k?"X":""}</button>`).join("")}<input class="note" data-pn="${i}" placeholder="Notes" maxlength="40" value="${esc(f.prn[i]||"")}"></div>`).join("")}</div>
   <h3>4. Bilan synthétique de l'éducateur</h3>
   <label>Points forts collectifs<textarea data-k="forts" maxlength="220">${esc(f.forts)}</textarea></label><label>Axes de progression prioritaires<textarea data-k="axes" maxlength="220">${esc(f.axes)}</textarea></label><label>Comportement & mental<textarea data-k="mental" maxlength="160">${esc(f.mental)}</textarea></label></div>
   <div class="mtsend"><button class="mtbtn" id="mtgo">Envoyer la fiche<small>${nb} joueurs · ${f.j.filter(x=>x.p&&x.note).length} notés · PDF + partage</small></button></div></div>`;
@@ -1992,7 +1997,7 @@ function mtPDF(f,K){K=K||1;const {jsPDF}=window.jspdf;const d=new jsPDF({unit:"m
   const wrap=(t,x,yy,w,o={})=>{d.setFontSize((o.s||9)*K);const Ls=d.splitTextToSize(String(t||""),w).slice(0,o.max||3);Ls.forEach((l,i)=>T(l,x,yy+i*(o.lh||3.9)*K,o));return Math.max(1,Ls.length)};
   const need=(h,again)=>{if(y+h>BOT){d.addPage();y=16;if(again)again()}};
   try{d.addImage(CREST_PNG,"PNG",14,8,16,16)}catch(e){}
-  T("FICHE DE SUIVI DE MATCH",34,15,{bi:1,s:15,c:N});T("FOOT ANIMATION (FOOT À 8) · U9 - U10 - U11",34,21,{bi:1,s:10,c:[212,166,0]});d.setDrawColor(242,194,0);d.setLineWidth(1);d.line(14,27,196,27);y=34;
+  T("FICHE DE SUIVI DE MATCH",34,15,{bi:1,s:15,c:N});T(mtIs11()?"PRÉFORMATION (FOOT À 11) · U12 - U13 - U14 - U15":"FOOT ANIMATION (FOOT À 8) · U9 - U10 - U11",34,21,{bi:1,s:10,c:[212,166,0]});d.setDrawColor(242,194,0);d.setLineWidth(1);d.line(14,27,196,27);y=34;
   const F=(l,v,x,yy)=>{T(l,x,yy,{b:1,s:8.5,c:N});T(v,x+24,yy,{s:10});d.setDrawColor(220,226,236);d.setLineWidth(.2);d.line(x+23,yy+1.2,x+88,yy+1.2)};
   F("Date :",mtFmt(f.date),14,y);F("Catégorie :",cat,108,y);F("Adversaire :",f.adv,14,y+7);F("Lieu :",f.lieu,108,y+7);F("Éducateur :",f.educ,14,y+14);F("Organisation :",f.org,108,y+14);y+=24;
   const H=t=>{T(t,14,y,{b:1,s:11,c:N});y+=Math.max(4.8,5*K)};
@@ -2004,11 +2009,11 @@ function mtPDF(f,K){K=K||1;const {jsPDF}=window.jspdf;const d=new jsPDF({unit:"m
     T(i===0?"Gardien de but":"Joueur "+(i+1),cx[0]+1.5,y+2.4*K,{s:7.8,c:G});T(mtNice(x.p),cx[1]+1.5,y+2.4*K,{s:fs});T(x.m,cx[2]+6,y+2.4*K,{s:fs,a:"center"});T(x.note?mtN(x.note):"",cx[3]+6,y+2.4*K,{b:1,s:fs+.5,a:"center"});Ls.forEach((l,k)=>T(l,cx[4]+1.5,y+2.4*K+k*3.5*K,{s:os}));y+=h});
   y+=4*K;need(7*6.4*K+12);H("3. Évaluation collective des principes de jeu");
   const px=[14,38,120,134,148,162];d.setFillColor(...N);d.rect(14,y-3.6,182,5.6,"F");["Phase","Principe évalué","Maîtrisé","En cours","En difficulté"].forEach((h,i)=>T(h,i<2?px[i]+1.5:px[i]+7,y,{b:1,s:7,c:[255,255,255],a:i<2?undefined:"center"}));T("Notes",px[5]+1.5,y,{b:1,s:7,c:[255,255,255]});y+=4.5;
-  MT_PR.forEach(([ph,l],i)=>{const bg=ph==="DÉFENSIF"?[232,237,244]:ph==="TRANSITION"?[243,246,250]:[255,248,214];d.setFillColor(...bg);d.rect(14,y-1.6,182,6.4*K,"F");T(ph,px[0]+1.5,y+2.6*K,{b:1,s:7.2,c:N});d.setFontSize(7.6*K);T(d.splitTextToSize(l,80)[0],px[1]+1.5,y+2.6*K,{s:7.6});
+  mtPRs().forEach(([ph,l],i)=>{const bg=ph==="DÉFENSIF"?[232,237,244]:ph==="TRANSITION"?[243,246,250]:[255,248,214];d.setFillColor(...bg);d.rect(14,y-1.6,182,6.4*K,"F");T(ph,px[0]+1.5,y+2.6*K,{b:1,s:7.2,c:N});d.setFontSize(7.6*K);T(d.splitTextToSize(l,80)[0],px[1]+1.5,y+2.6*K,{s:7.6});
     const k=["m","c","d"].indexOf(f.pr[i]);if(k>=0)T("X",px[2+k]+7,y+2.8*K,{b:1,s:11,a:"center"});d.setFontSize(6.6*K);const NL=d.splitTextToSize(f.prn[i]||"",33).slice(0,2);NL.forEach((l,kk)=>T(l,px[5]+1,y+((NL.length>1?1.5:2.6)+kk*2.9)*K,{s:6.6}));y+=6.4*K});
   y+=5*K;need(16);H("4. Bilan synthétique de l'éducateur");[["Points forts collectifs",f.forts],["Axes de progression prioritaires",f.axes],["Comportement & mental",f.mental]].forEach(([l,v])=>{need(12);T(l+" :",14,y,{b:1,s:8,c:G});y+=3.8*K;y+=wrap(v,14,y,182,{s:9})*3.9*K+1.2*K});
-  const np=d.getNumberOfPages();for(let k=1;k<=np;k++){d.setPage(k);T("PAU FC ACADEMY — Pôle Animation — Foot à 8 — "+cat+(np>1?`   ·   ${k}/${np}`:""),105,289,{i:1,s:7.5,c:G,a:"center"})}
-  if(np>1&&J.length<=12&&K>.76)return mtPDF(f,K>.95?.9:K>.86?.82:.75);return d}
+  const np=d.getNumberOfPages();for(let k=1;k<=np;k++){d.setPage(k);T((mtIs11()?"PAU FC ACADEMY — Pôle Préformation — Foot à 11 — ":"PAU FC ACADEMY — Pôle Animation — Foot à 8 — ")+cat+(np>1?`   ·   ${k}/${np}`:""),105,289,{i:1,s:7.5,c:G,a:"center"})}
+  if(np>1&&J.length<=(mtIs11()?16:12)&&K>.76)return mtPDF(f,K>.95?.9:K>.86?.82:.75);return d}
 async function mtShare(blob,f){const name=`Fiche-match-${cat}-${f.date}-${String(f.adv).replace(/[^A-Za-zÀ-ÿ0-9]+/g,"-")}.pdf`;const file=new File([blob],name,{type:"application/pdf"});const txt=`Fiche de suivi de match ${cat} · ${mtFmt(f.date)} · ${f.adv} (${f.educ})`;
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:txt,text:txt});return}}catch(e){if(e&&e.name==="AbortError")return}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}
