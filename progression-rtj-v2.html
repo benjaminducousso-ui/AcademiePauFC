@@ -3462,6 +3462,11 @@ i.gidot{cursor:default;position:absolute;top:50%;width:11px;height:11px;margin:-
 @media(max-width:760px){.gicr{grid-template-columns:1fr 40px;row-gap:2px}.gicr .gicn{grid-column:1/-1;grid-row:2}.gicr .gichip{grid-column:1/-1;grid-row:3;justify-self:start}}
 #grpIns .jtab>.giradbox{width:100%;align-self:stretch}
 @media(min-width:761px){.gicr{grid-template-columns:minmax(0,1.3fr) 44px minmax(0,1.6fr) 160px!important}.gicr>i:empty{display:block!important}.gicr .gichip{justify-self:end}}
+
+.giadv{margin:4px 0 0;font-size:13.5px;font-weight:700;color:#33445C}
+
+.gigrp{margin-top:10px;display:flex;flex-direction:column;gap:6px}.gigt{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#33445C}.gig{border-left:4px solid #94A3B8;background:#F3F5F9;border-radius:8px;padding:7px 10px}.gig.ga{border-color:#14915B}.gig.gc{border-color:#C2410C}.gigh{font-size:13.5px;color:#0B2A4A}.gigh small{display:block;color:var(--muted);font-size:12px}.gig p{margin:3px 0 0;font-size:14px;line-height:1.4;color:#0B2A4A}
+.gists{align-items:start}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -3744,33 +3749,41 @@ function giRadBox(kind){const P=giPer();const G=giLocal(P);let R=giRefCat(P);let
   return `${pick}<div class="gigrid"><div class="gisvg">${svg}${svg?leg:""}</div><div class="gitbl">${tbl}<p class="note">${note}</p></div></div>`}
 /* --- tests techniques : comment le groupe se répartit, et l'écart entre les deux pieds --- */
 function giTestsBox(P,G,R,A,T,TT,L,pick,tn){if(!TT.length)return "";const P0=G.tests.P0;const u=t=>t.unit==="s"?" s":"";const F=(t,v)=>fmtN(Math.round(v*100)/100)+u(t);
-  const short=x=>`${prenom(x)} ${String(x).replace(prenom(x),"").trim().charAt(0)}.`;const lag={};
+  const short=x=>{const pn=String(prenom(x)||"");const cap=pn.toLowerCase().replace(/(^|[\s-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());return `${cap} ${String(x).replace(pn,"").trim().charAt(0).toUpperCase()}.`};const lag={};const ETA=[];
   const rows=TT.map(t=>{const V=L.map(x=>({x,v:tVal(x,P0,t.id)})).filter(o=>o.v!=null);if(V.length<4)return "";const vals=V.map(o=>o.v);const q=giQ(vals);
     const best=t.lower?Math.min(...vals):Math.max(...vals),worst=t.lower?Math.max(...vals):Math.min(...vals);if(best===worst)return "";const pos=v=>Math.max(0,Math.min(100,(v-worst)/(best-worst)*100));
     /* décroché : nettement derrière le gros du groupe */
     const iqr=Math.abs(q[3]-q[1]);const lim=t.lower?q[3]+iqr:q[1]-iqr;const isLag=v=>iqr>0&&(t.lower?v>lim:v<lim);const LG=V.filter(o=>isLag(o.v));LG.forEach(o=>{(lag[o.x]=lag[o.x]||[]).push(tn(t))});
-    const sp=giSpread(q,!!t.lower);const g=G.tests.items[t.id];const a=pos(t.lower?q[3]:q[1]),b=pos(t.lower?q[1]:q[3]);
+    const sp=giSpread(q,!!t.lower);if(sp==="étalé")ETA.push(t);const g=G.tests.items[t.id];const a=pos(t.lower?q[3]:q[1]),b=pos(t.lower?q[1]:q[3]);
+    const grpReco=(V,t,sp)=>{const S=V.slice().sort((a,b)=>t.lower?a.v-b.v:b.v-a.v);const k=sp==="étalé"&&S.length>=6?3:sp==="serré"||S.length<4?1:2;
+      if(k===1)return `<div class="gigrp"><b class="gigt">Groupes de travail conseillés</b><p class="note">Niveaux proches : un seul groupe, le même travail pour tous.</p></div>`;
+      const cuts=[];for(let i=1;i<k;i++){let c=Math.round(S.length*i/k);while(c<S.length&&c>0&&S[c].v===S[c-1].v)c++;cuts.push(c)}
+      const parts=[];let a=0;[...cuts,S.length].forEach(c=>{if(c>a)parts.push(S.slice(a,c));a=c});if(parts.length<2)return `<div class="gigrp"><b class="gigt">Groupes de travail conseillés</b><p class="note">Résultats trop proches pour faire des groupes.</p></div>`;
+      const lab=parts.length===3?["les plus à l'aise","niveau intermédiaire","à accompagner"]:["les plus à l'aise","à accompagner"];
+      return `<div class="gigrp"><b class="gigt">Groupes de travail conseillés</b>${parts.map((p,i)=>`<div class="gig g${i===0?"a":i===parts.length-1?"c":"b"}"><div class="gigh"><b>Groupe ${i+1}</b> · ${lab[i]}<small>${p.length} joueur${p.length>1?"s":""} · ${p[0].v===p[p.length-1].v?F(t,p[0].v):`de ${F(t,p[0].v)} à ${F(t,p[p.length-1].v)}`}</small></div><p>${p.map(o=>esc(short(o.x))).join(", ")}</p></div>`).join("")}</div>`};
     const verdict=sp==="serré"?`<i class="gichip ok">niveaux proches</i>`:sp==="étalé"?`<i class="gichip w">niveaux très différents</i>`:`<i class="gichip">niveaux assez proches</i>`;
     return `<div class="gist"><div class="gisth"><b>${esc(tn(t))}</b><span>${verdict}</span></div>
       <p class="gil1">Moyenne du groupe : <b>${F(t,g.mean)}</b>${g.ok!=null?` · ${g.ok} enfant${g.ok>1?"s":""} sur ${g.n} à l'objectif (${t.lower?"≤ ":""}${t.target}${u(t)})`:""}</p>
-      ${LG.length?`<p class="gilag">${LG.length} enfant${LG.length>1?"s":""} nettement en difficulté</p>`:""}
-      <details class="gidet"><summary>Voir la répartition</summary><div class="gistrip"><span class="giband" style="left:${Math.min(a,b)}%;width:${Math.abs(b-a)}%"></span><span class="gimed" style="left:${pos(q[2])}%"></span>${V.map(o=>`<i class="gidot${isLag(o.v)?" lag":""}" style="left:${pos(o.v)}%"></i>`).join("")}</div>
-      <div class="gistf"><span>moins bon · ${F(t,worst)}</span><span>${F(t,best)} · meilleur</span></div><p class="note">Un point par enfant, sans nom. En rouge : nettement en difficulté.</p></details></div>`}).join("");
+      <p class="giadv">${sp==="étalé"?"→ à travailler par groupes de niveau":sp==="serré"?"→ même travail pour tout le groupe":"→ même travail, avec une variante plus simple et une plus difficile"}</p>
+      <details class="gidet"><summary>Voir la répartition et les groupes de travail</summary><div class="gistrip"><span class="giband" style="left:${Math.min(a,b)}%;width:${Math.abs(b-a)}%"></span><span class="gimed" style="left:${pos(q[2])}%"></span>${V.map(o=>`<i class="gidot" style="left:${pos(o.v)}%"></i>`).join("")}</div>
+      <div class="gistf"><span>moins bon · ${F(t,worst)}</span><span>${F(t,best)} · meilleur</span></div><p class="note">Un point par enfant. Bande claire : la moitié du groupe.</p>${grpReco(V,t,sp)}</details></div>`}).join("");
   /* pied droit, pied gauche : une phrase par test */
   const PAIRS=[["jd","jg","Jonglerie"],["pcd","pcg","Passe sur cône"],["pdd","pdg","Passe dosée"]];
   const feet=PAIRS.map(([d,gk,name])=>{const td=T.find(t=>t.id===d),tg=T.find(t=>t.id===gk);const a=G.tests.items[d],b=G.tests.items[gk];if(!td||!tg||!a||!b||a.n<4||b.n<4)return null;const lower=!!td.lower;
     const r=Math.min(a.mean,b.mean)/Math.max(a.mean,b.mean)*100;const weak=(lower?a.mean>b.mean:a.mean<b.mean)?"gauche … droit":"";const wk=(lower?a.mean>b.mean:a.mean<b.mean)?"droit":"gauche";const net=r<(lower?87:70);
     return {name,net,weak:wk,html:`<div class="gifl"><b>${name}</b><span>droit <b>${F(td,a.mean)}</b> · gauche <b>${F(tg,b.mean)}</b></span><i class="gichip ${net?"w":"ok"}">${net?`pied ${wk} à travailler`:"deux pieds proches"}</i></div>`}}).filter(Boolean);
   /* avec ballon / sans ballon : qui est freiné par le ballon, qui manque de vitesse (des nombres, jamais de noms) */
-  const tb=T.find(t=>t.id==="slalom10")||T.find(t=>t.id==="huit5")||T.find(t=>t.id==="sl30b"),tv=T.find(t=>t.id==="v20")||T.find(t=>t.id==="v10")||T.find(t=>t.id==="v30")||T.find(t=>t.id==="sl30s");let ball="";
+  const tb=T.find(t=>t.id==="slalom10")||T.find(t=>t.id==="huit5")||T.find(t=>t.id==="sl30b"),tv=T.find(t=>t.id==="v20")||T.find(t=>t.id==="v10")||T.find(t=>t.id==="v30")||T.find(t=>t.id==="sl30s");let ball="",BN=null;
   if(tb&&tv){const B=L.map(x=>({b:tVal(x,P0,tb.id),v:tVal(x,P0,tv.id)})).filter(o=>o.b!=null&&o.v!=null);if(B.length>=6){const mb=giQ(B.map(o=>o.b))[2],mv=giQ(B.map(o=>o.v))[2];const n=(fb,fv)=>B.filter(o=>(o.b<=mb)===fb&&(o.v<=mv)===fv).length;
-    const li=(k,t,s,c)=>`<div class="gibl ${c||""}"><b>${k}</b><span>${t}${s?`<small>${s}</small>`:""}</span></div>`;
+    BN=[n(false,true),n(true,false)];const li=(k,t,s,c)=>`<div class="gibl ${c||""}"><b>${k}</b><span>${t}${s?`<small>${s}</small>`:""}</span></div>`;
     ball=`<h4 class="gih4">Avec ballon, sans ballon</h4><p class="note">On croise ${esc(tn(tb))} (avec ballon) et ${esc(tn(tv))} (sans ballon), pour ${B.length} enfants : est-ce le ballon qui freine, ou la course ?</p>
      <div class="gibls">${li(n(true,true),"rapides avec et sans ballon","","ok")}${li(n(false,true),"rapides à la course, mais freinés par le ballon","à travailler : conduite de balle","w")}${li(n(true,false),"moins rapides à la course, mais à l'aise avec le ballon","à travailler : vitesse et appuis","w")}${li(n(false,false),"en retrait avec et sans ballon","")}</div>`}}
-  const coll=TT.map(t=>({t,g:G.tests.items[t.id]})).filter(x=>x.g&&x.g.ok!=null&&x.g.n>=5&&x.g.ok/x.g.n<.3).map(x=>`${tn(x.t)} : ${x.g.ok?`seulement ${x.g.ok} enfant${x.g.ok>1?"s":""} sur ${x.g.n}`:`aucun enfant sur ${x.g.n}`} à l'objectif`);
+  const collT=TT.map(t=>({t,g:G.tests.items[t.id]})).filter(x=>x.g&&x.g.ok!=null&&x.g.n>=5&&x.g.ok/x.g.n<.3);const coll=collT.map(x=>`${tn(x.t)} : ${x.g.ok?`seulement ${x.g.ok} enfant${x.g.ok>1?"s":""} sur ${x.g.n}`:`aucun enfant sur ${x.g.n}`} à l'objectif`);
   feet.filter(f=>f.net).forEach(f=>coll.push(`${f.name} : le pied ${f.weak} est nettement en retrait`));
-  const nInd=Object.values(lag).filter(a=>a.length>=2).length;
-  const head=`<div class="fjreg"><div class="fjbox w"><h5>À travailler avec tout le groupe</h5>${coll.length?`<ul class="jsyn">${coll.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>`:`<p class="note">Rien de net pour l'instant.</p>`}</div><div class="fjbox"><h5>Écarts dans le groupe</h5><p class="gil1">${nInd?`<b>${nInd} enfant${nInd>1?"s":""}</b> ${nInd>1?"sont":"est"} nettement en difficulté sur au moins deux tests.`:"Aucun enfant n'est nettement en difficulté sur plusieurs tests."}</p><p class="note">Ici on regarde le groupe, sans nommer personne. Pour un enfant en particulier : Fiches joueurs.</p></div></div>`;
+  const niv=[];const E2=ETA.filter(t=>!collT.some(x=>x.t.id===t.id));
+  if(E2.length)niv.push(`${E2.map(t=>tn(t)).join(", ")} : niveaux très différents, prévoir des ateliers par niveau`);
+  if(BN){if(BN[0]>=2)niv.push(`Conduite de balle : ${BN[0]} enfants rapides à la course mais freinés par le ballon`);if(BN[1]>=2)niv.push(`Vitesse et appuis : ${BN[1]} enfants à l'aise avec le ballon mais moins rapides à la course`)}
+  const head=`<div class="fjreg"><div class="fjbox w"><h5>À travailler avec tout le groupe</h5>${coll.length?`<ul class="jsyn">${coll.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>`:`<p class="note">Rien de net pour l'instant.</p>`}</div><div class="fjbox"><h5>À travailler par groupes de niveau</h5>${niv.length?`<ul class="jsyn">${niv.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>`:`<p class="note">Les niveaux sont proches : le même travail convient à tout le groupe.</p>`}<p class="note">Les joueurs de chaque groupe : « Voir la répartition et les groupes de travail », sous chaque test.</p></div></div>`;
   return `${head}
    ${feet.length?`<h4 class="gih4">Pied droit, pied gauche</h4><div class="gifls">${feet.map(f=>f.html).join("")}</div>`:""}
    ${ball}
