@@ -3467,6 +3467,7 @@ i.gidot{cursor:default;position:absolute;top:50%;width:11px;height:11px;margin:-
 
 .gigrp{margin-top:10px;display:flex;flex-direction:column;gap:6px}.gigt{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#33445C}.gig{border-left:4px solid #94A3B8;background:#F3F5F9;border-radius:8px;padding:7px 10px}.gig.ga{border-color:#14915B}.gig.gc{border-color:#C2410C}.gigh{font-size:13.5px;color:#0B2A4A}.gigh small{display:block;color:var(--muted);font-size:12px}.gig p{margin:3px 0 0;font-size:14px;line-height:1.4;color:#0B2A4A}
 .gists{align-items:start}
+.giblx{margin-top:8px}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -3774,10 +3775,11 @@ function giTestsBox(P,G,R,A,T,TT,L,pick,tn){if(!TT.length)return "";const P0=G.t
     return {name,net,weak:wk,html:`<div class="gifl"><b>${name}</b><span>droit <b>${F(td,a.mean)}</b> · gauche <b>${F(tg,b.mean)}</b></span><i class="gichip ${net?"w":"ok"}">${net?`pied ${wk} à travailler`:"deux pieds proches"}</i></div>`}}).filter(Boolean);
   /* avec ballon / sans ballon : qui est freiné par le ballon, qui manque de vitesse (des nombres, jamais de noms) */
   const tb=T.find(t=>t.id==="slalom10")||T.find(t=>t.id==="huit5")||T.find(t=>t.id==="sl30b"),tv=T.find(t=>t.id==="v20")||T.find(t=>t.id==="v10")||T.find(t=>t.id==="v30")||T.find(t=>t.id==="sl30s");let ball="",BN=null;
-  if(tb&&tv){const B=L.map(x=>({b:tVal(x,P0,tb.id),v:tVal(x,P0,tv.id)})).filter(o=>o.b!=null&&o.v!=null);if(B.length>=6){const mb=giQ(B.map(o=>o.b))[2],mv=giQ(B.map(o=>o.v))[2];const n=(fb,fv)=>B.filter(o=>(o.b<=mb)===fb&&(o.v<=mv)===fv).length;
+  if(tb&&tv){const B=L.map(x=>({x,b:tVal(x,P0,tb.id),v:tVal(x,P0,tv.id)})).filter(o=>o.b!=null&&o.v!=null);if(B.length>=6){const mb=giQ(B.map(o=>o.b))[2],mv=giQ(B.map(o=>o.v))[2];const n=(fb,fv)=>B.filter(o=>(o.b<=mb)===fb&&(o.v<=mv)===fv).length;
     BN=[n(false,true),n(true,false)];const li=(k,t,s,c)=>`<div class="gibl ${c||""}"><b>${k}</b><span>${t}${s?`<small>${s}</small>`:""}</span></div>`;
     ball=`<h4 class="gih4">Avec ballon, sans ballon</h4><p class="note">On croise ${esc(tn(tb))} (avec ballon) et ${esc(tn(tv))} (sans ballon), pour ${B.length} enfants : est-ce le ballon qui freine, ou la course ?</p>
-     <div class="gibls">${li(n(true,true),"rapides avec et sans ballon","","ok")}${li(n(false,true),"rapides à la course, mais freinés par le ballon","à travailler : conduite de balle","w")}${li(n(true,false),"moins rapides à la course, mais à l'aise avec le ballon","à travailler : vitesse et appuis","w")}${li(n(false,false),"en retrait avec et sans ballon","")}</div>`}}
+     <div class="gibls">${li(n(true,true),"rapides avec et sans ballon","","ok")}${li(n(false,true),"rapides à la course, mais freinés par le ballon","à travailler : conduite de balle","w")}${li(n(true,false),"moins rapides à la course, mais à l'aise avec le ballon","à travailler : vitesse et appuis","w")}${li(n(false,false),"en retrait avec et sans ballon","")}</div>
+     <details class="gidet giblx"><summary>Voir les joueurs de chaque groupe</summary><div class="gigrp">${[[true,true,"Rapides avec et sans ballon","","a"],[false,true,"Rapides à la course, freinés par le ballon","à travailler : conduite de balle","b"],[true,false,"À l'aise avec le ballon, moins rapides à la course","à travailler : vitesse et appuis","b"],[false,false,"En retrait avec et sans ballon","à accompagner sur les deux","c"]].map(([fb,fv,t,s2,c])=>{const P2=B.filter(o=>(o.b<=mb)===fb&&(o.v<=mv)===fv);return P2.length?`<div class="gig g${c}"><div class="gigh"><b>${t}</b><small>${P2.length} joueur${P2.length>1?"s":""}${s2?" · "+s2:""}</small></div><p>${P2.map(o=>esc(short(o.x))).join(", ")}</p></div>`:""}).join("")}</div></details>`}}
   const collT=TT.map(t=>({t,g:G.tests.items[t.id]})).filter(x=>x.g&&x.g.ok!=null&&x.g.n>=5&&x.g.ok/x.g.n<.3);const coll=collT.map(x=>`${tn(x.t)} : ${x.g.ok?`seulement ${x.g.ok} enfant${x.g.ok>1?"s":""} sur ${x.g.n}`:`aucun enfant sur ${x.g.n}`} à l'objectif`);
   feet.filter(f=>f.net).forEach(f=>coll.push(`${f.name} : le pied ${f.weak} est nettement en retrait`));
   const niv=[];const E2=ETA.filter(t=>!collT.some(x=>x.t.id===t.id));
