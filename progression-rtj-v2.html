@@ -31,6 +31,11 @@
 .mtcomp .nt button.half{box-shadow:inset 0 0 0 2px #0B2A4A}
 .mthd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.mtlink.mtdel{color:#B4530A}.mtlink.mtdel.sure{color:#fff;background:#B4530A;text-decoration:none;border-radius:8px;padding:6px 10px}
 
+.mtdet{grid-column:1/-1;margin-top:2px}.mtdet summary{cursor:pointer;font-size:13px;font-weight:700;color:#234A9A;padding:4px 0}.mtdet summary i{font-style:normal;font-size:11px;font-weight:800;background:#DCF3E6;color:#14915B;border-radius:6px;padding:1px 6px;margin-left:6px}
+.mtdg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}.mtdg label{display:flex;flex-direction:column;gap:3px;margin:0}.mtdg span{font-size:12px;font-weight:800}.mtdg .p span{color:#14915B}.mtdg .m span{color:#C2410C}.mtdg textarea{border:1px solid var(--line);border-radius:8px;padding:7px 8px;font:inherit;font-size:16px;resize:vertical;min-height:54px;background:#fff}.mtdg .p textarea{border-left:3px solid #14915B}.mtdg .m textarea{border-left:3px solid #C2410C}
+@media(max-width:700px){.mtdg{grid-template-columns:1fr}}
+.mtdv{margin-top:4px;font-size:13px;line-height:1.4}.mtdv b{font-size:12px}.mtdv .p b{color:#14915B}.mtdv .m b{color:#C2410C}
+
 .fjcard{padding:16px 18px!important}#view-eval .toolbar [data-app],#view-eval #tEditBtn,#view-defis .toolbar [data-app]{display:none}
 .fjsec .fjt td:first-child{white-space:normal;word-break:break-word}.fjsec .fjt td,.fjsec .fjt th{padding:6px 5px}.fjnav{display:none;margin-bottom:10px}@media(max-width:900px){.fjnav{display:flex}}
 .fjkpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}@media(max-width:700px){.fjkpis{grid-template-columns:1fr}}
@@ -1757,7 +1762,7 @@ function ficheHtml(p,TP){const AP=fjApp(p,per),TS=fjTests(p),MT_=fjMatchs(p),RG=
     <div class="fjcards">${TS.items.map(x=>`<div class="fjc${x.v==null?" off":""}"><div class="fjch"><b>${esc(x.short)}</b><span class="${x.ok?"ok":""}">${x.v==null?"—":fmtN(x.v)+(x.t.unit==="s"?" s":"")}</span></div><small>${fjRankTxt(x)} · moy. groupe ${fmtN(x.t.unit==="s"?Math.round(x.mean*100)/100:Math.round(x.mean*10)/10)}${x.t.unit==="s"?" s":""}${x.ok?" · objectif atteint":""}${x.ev!=null&&x.ev!==0?` · <i class="${(x.t.lower?x.ev<0:x.ev>0)?"up":"dn"}">${x.ev>0?"+":""}${fmtN(x.ev)} depuis ${TP_NAME[TS.Ps[0]]}</i>`:""}</small>${fjCurveSvg(x)}</div>`).join("")}</div>
     <p class="note">Courbe = répartition du groupe · trait foncé = ${esc(prenom(p))} · pointillés = moyenne du groupe.</p><button class="btn" data-go="view-defis">Défis du groupe ›</button>`;
   const tMat=!MT_.n?`<p class="note">Pas encore de fiche match pour ${esc(prenom(p))}. Les notes arrivent ici dès qu'une fiche match est envoyée.</p><button class="btn" data-go="match-new">Remplir une fiche match ›</button>`:`${fjMatchSvg(MT_)}<p class="note">Jaune = ${esc(prenom(p))} · pointillés = moyenne du groupe · zone grise = de la note la plus basse à la plus haute.</p>
-    <div class="tbl-wrap"><table class="fjt"><thead><tr><th>Date</th><th>Adversaire</th><th class="n">Temps</th><th class="n">Note</th><th class="n">Moy. groupe</th><th>Mot de l'éducateur</th></tr></thead><tbody>${MT_.rows.slice().reverse().map(q=>`<tr><td>${fjD(q.f.date)}</td><td>${esc(q.f.adv)}</td><td class="n">${esc(q.x.m||"–")} min</td><td class="n"><b class="fjy">${(q.x.note?String(q.x.note).replace(".",","):"–")}/5</b></td><td class="n">${fjNb(q.med)}</td><td>${esc(q.x.o||"")}</td></tr>`).join("")}</tbody></table></div><button class="btn" data-go="view-match" data-mp="1">Ses matchs ›</button>`;
+    <div class="tbl-wrap"><table class="fjt"><thead><tr><th>Date</th><th>Adversaire</th><th class="n">Temps</th><th class="n">Note</th><th class="n">Moy. groupe</th><th>Mot de l'éducateur</th></tr></thead><tbody>${MT_.rows.slice().reverse().map(q=>`<tr><td>${fjD(q.f.date)}</td><td>${esc(q.f.adv)}</td><td class="n">${esc(q.x.m||"–")} min</td><td class="n"><b class="fjy">${(q.x.note?String(q.x.note).replace(".",","):"–")}/5</b></td><td class="n">${fjNb(q.med)}</td><td>${esc(q.x.o||"")}${typeof mtDetHtml==="function"?mtDetHtml(q.x):""}</td></tr>`).join("")}</tbody></table></div><button class="btn" data-go="view-match" data-mp="1">Ses matchs ›</button>`;
   return `${id}
    <div class="card jblk"><h4>En un coup d'œil</h4>${kpi}${reg}<p class="note">Ce que l'outil retient en croisant les commentaires, les étoiles, les tests et les matchs.</p></div>
    <div class="card jblk"><h4>Évolution des étoiles</h4>${evoSvg(p)||`<p class="note">La courbe apparaît dès la première période notée.</p>`}</div>
@@ -1944,6 +1949,10 @@ function mtSend(f,pdf){f.ts=Date.now();f.sent=true;mtAll(cat)[f.id]=f;save();
   const payload={prog:1,cat:MT_CAT(cat),player:`${f.date}¦${f.adv}`,per:300,f,t:{},note:"fiche match (brouillon)",by:f.educ||get("who",""),ts:f.ts};if(pdf)payload.pdf=pdf;/* 17/11 : le PDF part avec la fiche, le script l'envoie par mail au RTJ (il n'est pas stocké dans le classeur) */
   fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}}).then(()=>toast("Fiche arrivée dans le classeur (rubrique de test)")).catch(()=>toast("Fiche gardée sur l'appareil : pas de réseau"))}
 /* ---------- onglet ---------- */
+/* 20/11 (test, U10 seulement) : commentaire détaillé par joueur : offensif + / − et défensif + / − */
+const MTD=[["op","Offensif +","Ce qu'il a bien fait avec le ballon"],["om","Offensif −","Ce qu'il doit améliorer avec le ballon"],["dp","Défensif +","Ce qu'il a bien fait sans le ballon"],["dm","Défensif −","Ce qu'il doit améliorer sans le ballon"]];
+const mtDetOn=()=>cat==="U10";const mtDetHas=x=>!!(x&&x.d&&MTD.some(([k])=>String(x.d[k]||"").trim()));
+function mtDetHtml(x){if(!mtDetHas(x))return "";return `<div class="mtdv">${MTD.filter(([k])=>String(x.d[k]||"").trim()).map(([k,l])=>`<div class="${k[1]==="p"?"p":"m"}"><b>${l}</b> ${esc(x.d[k])}</div>`).join("")}</div>`}
 function renderMatch(){const v=document.getElementById("view-match");if(!v)return;if(MT.edit)return mtForm(v);if(MT.player)return mtPlayer(v);
   const A=Object.values(mtAll(cat)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));const L=players(cat);
   const stats=L.map(p=>{const m=A.map(f=>f.j.find(x=>x.p===p)).filter(Boolean);const nt=m.filter(x=>x.note);return {p,n:m.length,min:m.reduce((a,x)=>a+(+x.m||0),0),avg:nt.length?nt.reduce((a,x)=>a+x.note,0)/nt.length:null}});
@@ -1969,7 +1978,7 @@ function mtPlayer(v){const p=MT.player;const A=Object.values(mtAll(cat)).sort((a
   svg+=`</svg>`;
   v.innerHTML=`<div class="mtw"><button class="mtlink" id="mtback">‹ Tous les joueurs</button><h2>${esc(mtNice(p))} · notes de match</h2>
    <p class="mtsub">Trait bleu = sa note sur 5 · pointillés = médiane du groupe sur le match.</p>${n?svg:`<p class="mtempty">Pas encore de match.</p>`}
-   <table class="mttb"><tr><th>Date</th><th>Adversaire</th><th>Temps</th><th>Note</th><th>Groupe</th><th>Observations</th></tr>${rows.map(r=>`<tr><td>${mtFmt(r.f.date)}</td><td>${esc(r.f.adv)}</td><td>${esc(r.x.m)} min</td><td><b>${r.x.note?mtN(r.x.note):"–"}</b>/5</td><td>${r.med!=null?String(r.med).replace(".",","):"–"}</td><td>${esc(r.x.o)}</td></tr>`).join("")}</table></div>`;
+   <table class="mttb"><tr><th>Date</th><th>Adversaire</th><th>Temps</th><th>Note</th><th>Groupe</th><th>Observations</th></tr>${rows.map(r=>`<tr><td>${mtFmt(r.f.date)}</td><td>${esc(r.f.adv)}</td><td>${esc(r.x.m)} min</td><td><b>${r.x.note?mtN(r.x.note):"–"}</b>/5</td><td>${r.med!=null?String(r.med).replace(".",","):"–"}</td><td>${esc(r.x.o)}${mtDetHtml(r.x)}</td></tr>`).join("")}</table></div>`;
   v.querySelector("#mtback").onclick=()=>{MT.player=null;renderMatch()}}
 function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNice(a).localeCompare(mtNice(b),"fr"));const used=new Set(f.j.map(x=>x.p).filter(Boolean));const nb=f.j.filter(x=>x.p).length;
   v.innerHTML=`<div class="mtw mtform"><div class="mtbanner">Une fiche par match : chaque note arrive dans la fiche du joueur (usage interne, pas dans les carnets).</div>
@@ -1982,10 +1991,10 @@ function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNi
   <label>Objectif du match<textarea data-k="obj" maxlength="220">${esc(f.obj)}</textarea></label><label>Consignes clés (2-3 points simples)<textarea data-k="cons" maxlength="220">${esc(f.cons)}</textarea></label><label>Ce qu'on veut voir chez les joueurs<textarea data-k="voir" maxlength="220">${esc(f.voir)}</textarea></label>
   <label>Joueurs adverses à suivre</label><div class="mttab mtadv"><div class="th"><span>N°</span><span>Nom / poste</span><span>Point fort</span></div>${f.advp.map((r,i)=>`<div class="tr">${r.map((x,k)=>`<input data-a="${i}" data-c="${k}" value="${esc(x)}" maxlength="${k?40:3}">`).join("")}</div>`).join("")}</div>
   <h3>2. Composition d'équipe et temps de jeu (minutes) — ${nb} joueurs</h3>
-  <div class="mttab mtcomp"><div class="th"><span>Poste</span><span>Nom / prénom</span><span>Temps</span><span title="Touche 2 fois le même chiffre pour ajouter un demi-point">Note /5 <small style="font-weight:600;opacity:.75">(2× = ½)</small></span><span class="thobs">Observations</span></div>
+  <div class="mttab mtcomp"><div class="th"><span>Poste</span><span>Nom / prénom</span><span>Temps</span><span title="Touche 2 fois le même chiffre pour ajouter un demi-point">Note /5 <small style="font-weight:600;opacity:.75">(2× = ½)</small></span><span class="thobs">${mtDetOn()?"Comportement":"Observations"}</span></div>
   ${f.j.map((x,i)=>`<div class="tr"><span class="pos">${i===0?"Gardien de but":"Joueur "+(i+1)}</span><select data-j="${i}" data-f="p"><option value="">—</option>${L.filter(p=>p===x.p||!used.has(p)).map(p=>`<option value="${esc(p)}" ${p===x.p?"selected":""}>${esc(mtNice(p))}</option>`).join("")}</select>
     <input data-j="${i}" data-f="m" inputmode="numeric" placeholder="min" value="${esc(x.m)}" maxlength="3"><div class="nt">${[1,2,3,4,5].map(k=>`<button type="button" data-jn="${i}" data-v="${k}" class="${Math.floor(x.note||0)===k?"on":""}${x.note===k+.5?" half":""}">${x.note===k+.5?k+"½":k}</button>`).join("")}</div>
-    <input class="obs" data-j="${i}" data-f="o" placeholder="Observations / comportement" value="${esc(x.o)}" maxlength="90"></div>`).join("")}</div>
+    <input class="obs" data-j="${i}" data-f="o" placeholder="${mtDetOn()?"Comportement / état d'esprit":"Observations / comportement"}" value="${esc(x.o)}" maxlength="90">${mtDetOn()&&x.p?`<details class="mtdet" data-jo="${i}" ${(MT.detOpen||{})[i]?"open":""}><summary>Commentaire détaillé · offensif et défensif${mtDetHas(x)?` <i>rempli</i>`:""}</summary><div class="mtdg">${MTD.map(([k,l,ph])=>`<label class="${k[1]==="p"?"p":"m"}"><span>${l}</span><textarea data-jd="${i}" data-f="${k}" maxlength="200" rows="2" placeholder="${ph}">${esc((x.d||{})[k]||"")}</textarea></label>`).join("")}</div></details>`:""}</div>`).join("")}</div>
   <button type="button" class="mtlink" id="mtaddj">+ une ligne</button>
   <h3>3. Évaluation collective des principes de jeu</h3>
   <div class="mttab mtpr"><div class="th"><span>Principe évalué</span><span>Maîtrisé</span><span>En cours</span><span>En difficulté</span></div>
@@ -1997,6 +2006,8 @@ function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNi
   v.querySelectorAll("[data-k]").forEach(e=>e.oninput=e.onchange=()=>{f[e.dataset.k]=e.value});
   v.querySelectorAll("[data-a]").forEach(e=>e.oninput=()=>{f.advp[+e.dataset.a][+e.dataset.c]=e.value});
   v.querySelectorAll("[data-j]").forEach(e=>{if(e.tagName==="SELECT")e.onchange=()=>{f.j[+e.dataset.j].p=e.value;keep()};else e.oninput=()=>{f.j[+e.dataset.j][e.dataset.f]=e.value}});
+  v.querySelectorAll("[data-jd]").forEach(e=>e.oninput=()=>{const x=f.j[+e.dataset.jd];x.d=x.d||{};x.d[e.dataset.f]=e.value});
+  v.querySelectorAll("details.mtdet").forEach(d=>d.ontoggle=()=>{MT.detOpen=MT.detOpen||{};MT.detOpen[d.dataset.jo]=d.open});
   v.querySelectorAll("[data-jn]").forEach(b=>b.onclick=()=>{const x=f.j[+b.dataset.jn],k=+b.dataset.v;x.note=x.note===k?(k<5?k+.5:0):x.note===k+.5?0:k;keep()});
   v.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const i=b.dataset.p;f.pr[i]=f.pr[i]===b.dataset.v?null:b.dataset.v;keep()});
   v.querySelectorAll("[data-pn]").forEach(e=>e.oninput=()=>{f.prn[e.dataset.pn]=e.value});
@@ -2309,7 +2320,7 @@ function pushTest(c,p,P,id){const r=rec(c,p,P);/* corrigé dans l'outil : ce n'e
   store.tst[key(c,p,P)+"|"+id]={t,by,ts};store.queue.push({prog:1,cat:apiCat(c),player:p+"¦"+id,per:200+P,f:{},t,note:"",by,ts});save();flush()}
 function overlayTests(k){const r=store.evals[k];if(!r)return;r.t=r.t||{};Object.entries(store.tst).forEach(([kk,v])=>{if(kk.slice(0,kk.lastIndexOf("|"))===k)Object.assign(r.t,v.t||{})})}
 /* journal des connexions : une ligne « LOG-CONNEXIONS » dans le Google Sheet à chaque connexion, et au plus une visite toutes les 4 h par personne et par navigateur */
-function logConn(how){try{if(SANDBOX||!authed())return;const now=Date.now();const acc=rtj?"RTJ":(lock||[]).map(c=>c+(roles[c]==="avis"?" (avis)":"")).join(", ");const k=acc+"|"+me();
+function logConn(how){try{if(SANDBOX||!authed())return;if(typeof educCanon!=="function"&&document.readyState==="loading"){document.addEventListener("DOMContentLoaded",()=>logConn(how),{once:true});return}if(typeof educCanon==="function"){const _w=get("who",""),_c=_w?educCanon(_w):null;if(_c&&_c!==_w)set("who",_c)}const now=Date.now();const acc=rtj?"RTJ":(lock||[]).map(c=>c+(roles[c]==="avis"?" (avis)":"")).join(", ");const k=acc+"|"+me();
   if(how!=="connexion"&&store.lastLog&&store.lastLog.k===k&&now-store.lastLog.ts<4*3600e3)return;store.lastLog={k,ts:now};
   const ua=navigator.userAgent||"";const nav=/Edg\//.test(ua)?"Edge":/Chrome|CriOS/.test(ua)?"Chrome":/Firefox|FxiOS/.test(ua)?"Firefox":/Safari/.test(ua)?"Safari":"autre";
   store.queue.push({prog:1,cat:"LOG-CONNEXIONS",player:me(),per:900,f:{acces:acc,type:how,appareil:/Mobi|iPhone|iPad|Android/i.test(ua)?"téléphone":"ordinateur",navigateur:nav,onglet:get("tab","")},t:{},note:how+" · "+acc,by:me(),ts:now});save();flush()}catch(e){}}
@@ -3553,13 +3564,13 @@ const EGRID=[
   {id:"c2",short:"Lecture du match et consignes",desc:"Observe plus qu'il ne parle, donne peu de consignes mais utiles, se sert de la mi-temps et des pauses."},
   {id:"c3",short:"Comportement sur le banc",desc:"Calme et positif ; encourage et valorise ; respecte l'arbitre, l'adversaire et les parents."},
   {id:"c4",short:"Temps de jeu et remplaçants",desc:"Temps de jeu équilibré, remplaçants impliqués, chacun essaie plusieurs postes."},
-  {id:"c5",short:"Après le match",desc:"Retour à chaud positif, fiche de match remplie, collation, bilan à froid à la séance suivante."}]},
+  {id:"c5",short:"Après le match",desc:"Retour à chaud positif, fiche de match remplie, collation, bilan à froid à la séance suivante."},
+  {id:"d5",short:"Capacité d'adaptation",desc:"Ajuste son plan, son organisation ou ses consignes en cours de match quand la situation le demande (adversaire, effectif, score, ce qui ne marche pas), sans renier les principes de jeu."}]},
  {id:"d",name:"Posture et relations",kind:"Savoir-être",lines:[
   {id:"d1",short:"Climat et relation avec les joueurs",desc:"Bienveillant et exigeant, connaît chaque enfant, le plaisir se voit."},
   {id:"d2",short:"Exemplarité",desc:"Ponctualité, tenue, langage, valeurs du club sur le terrain et en dehors."},
   {id:"d3",short:"Relation avec les parents et le club",desc:"Communique clairement avec les familles, participe aux réunions, travaille avec les autres éducateurs."},
-  {id:"d4",short:"Se remettre en question",desc:"S'auto-évalue, accepte les retours, se forme, partage ses idées."},
-  {id:"d5",short:"Capacité d'adaptation",desc:"Ajuste son plan, son organisation ou ses consignes quand la situation le demande (adversaire, effectif, niveau du jour, ce qui ne marche pas), en séance comme en match, sans renier les principes de jeu."}]}];
+  {id:"d4",short:"Se remettre en question",desc:"S'auto-évalue, accepte les retours, se forme, partage ses idées."}]}];
 const ENB=EGRID.reduce((n,b)=>n+b.lines.length,0);
 const ELVL=["","À construire","En progrès","Conforme aux attentes","Très bien","Exemplaire"];
 const ECAMP=[{n:1,name:"Décembre"},{n:2,name:"Avril"}];
@@ -3681,6 +3692,8 @@ function renderFam(){const v=document.getElementById("view-carnet");if(!v)return
   v.querySelectorAll("[data-fampdf]").forEach(b=>b.onclick=()=>openBook([b.dataset.fampdf],"view-carnet",{only:"ent",n:E.n}));
   v.querySelectorAll("[data-famfill]").forEach(b=>b.onclick=()=>{store.sel[cat]=b.dataset.famfill;save();showTab("view-ent");scrollTo(0,0)})}
 window.addEventListener("load",()=>{if(typeof renderCarnet!=="function")return;const _rcF=renderCarnet;renderCarnet=function(){try{renderFam()}catch(e){return _rcF.apply(this,arguments)}}});
+/* 20/11 : un ancien nom gardé par l'appareil (« MLAAB Jamal ») est ramené au nom de la liste (« Jamal ») : une seule signature, une seule ligne au journal */
+try{const _w=get("who","");const _c=_w?educCanon(_w):null;if(_c&&_c!==_w){set("who",_c);document.querySelectorAll("input.who").forEach(i=>{i.value=_c});if(typeof renderWho==="function")renderWho()}}catch(e){}
 </script><script>/* =====================================================================
    19/11/2026 (v2) · Bilan du groupe : la « fiche du groupe »
    Construite comme une fiche joueur : le groupe en trait plein, une autre catégorie en pointillés.
