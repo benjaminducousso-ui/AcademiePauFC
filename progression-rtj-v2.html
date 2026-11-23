@@ -3919,14 +3919,14 @@ const prDay=iso=>{try{const [y,m,d]=String(iso).split("-").map(Number);return ne
 const prDayL=iso=>{try{const [y,m,d]=String(iso).split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}catch(e){return iso}};
 let PRS={date:null,abs:null,dirty:false,sort:null,last:{}};
 async function presPull(c){try{const r=await fetch(`${API}?prog=${encodeURIComponent(PRES_CAT(c))}`,{cache:"no-store"});const a=await r.json();if(!Array.isArray(a))return false;const A=prAll(c);let n=0;
-  a.forEach(x=>{let f=x.f;if(typeof f==="string"){try{f=JSON.parse(f)}catch(e){return}}const d=String(x.player||"");if(!/^\d{4}-\d\d-\d\d$/.test(d)||!f)return;const loc=A[d];if(!loc||(x.ts||0)>(loc.ts||0)){A[d]={abs:f.abs||{},del:!!f.del,ts:x.ts||0,by:x.by||""};n++}});
+  a.forEach(x=>{let f=x.f;if(typeof f==="string"){try{f=JSON.parse(f)}catch(e){return}}let d=String(x.player||"");/* le classeur transforme la date en date-heure (ex. 2026-08-26T07:00:00.000Z) */if(/^\d{4}-\d\d-\d\dT/.test(d)){const t=new Date(d);if(!isNaN(t))d=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0")}if(!/^\d{4}-\d\d-\d\d$/.test(d)||!f)return;const loc=A[d];if(!loc||(x.ts||0)>(loc.ts||0)){A[d]={abs:f.abs||{},nc:Array.isArray(f.nc)?f.nc:[],del:!!f.del,ts:x.ts||0,by:x.by||""};n++}});
   if(n)save();return n>0}catch(e){return false}}
 function presPullOnce(c,then){if(Date.now()-(PRS.last[c]||0)<120000)return;PRS.last[c]=Date.now();
   const before=JSON.stringify([Object.keys(prAll(c)).length,...(typeof mtBand==="function"?mtBand(c):[c]).map(x=>{try{return Object.keys(mtAll(x)||{}).length}catch(e){return 0}})]);
   const J=[presPull(c)];if(!MT_NOMATCH.includes(c)&&typeof mtPull==="function")(typeof mtBand==="function"?mtBand(c):[c]).forEach(x=>J.push(Promise.resolve(mtPull(x)).catch(()=>{})));
   Promise.all(J).then(r=>{const after=JSON.stringify([Object.keys(prAll(c)).length,...(typeof mtBand==="function"?mtBand(c):[c]).map(x=>{try{return Object.keys(mtAll(x)||{}).length}catch(e){return 0}})]);if((r[0]||before!==after)&&then)then()}).catch(()=>{})}
-function presSave(c,d,abs){const ts=Date.now();prAll(c)[d]={abs:Object.assign({},abs),ts,by:get("who","")};save();
-  const payload={prog:1,cat:PRES_CAT(c),player:d,per:500,f:{abs,nb:players(c).length},t:{},note:"présences entraînement",by:get("who",""),ts};
+function presSave(c,d,abs){const ts=Date.now();const old=prAll(c)[d];const nc=(old&&old.nc||[]).filter(p=>!abs[p]);prAll(c)[d]={abs:Object.assign({},abs),nc,ts,by:get("who","")};save();
+  const payload={prog:1,cat:PRES_CAT(c),player:d,per:500,f:{abs,nc,nb:players(c).length},t:{},note:"présences entraînement",by:get("who",""),ts};
   return fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}}).then(()=>true).catch(()=>false)}
 
 /* ---------- chiffres par joueur ---------- */
@@ -3936,11 +3936,13 @@ function pmStats(c){const mx=typeof MT_MIX!=="undefined"?MT_MIX[c]:null;const se
   const S=prAll(c);const ses=Object.keys(S).filter(d=>S[d]&&!S[d].del).sort();
   const rows=players(c).map(p=>{const M=F.filter(x=>(x.f.j||[]).some(y=>y.p===p));const nc=M.filter(x=>x.t===c).length,nm=mx?M.filter(x=>x.t===mx).length:0,n=M.length;
     const min=M.reduce((a,x)=>a+(+((x.f.j.find(y=>y.p===p)||{}).m)||0),0);const abM=F.filter(x=>x.f.abs&&x.f.abs[p]).length;
-    const ab={exc:0,nex:0,bl:0};ses.forEach(d=>{const k=(S[d].abs||{})[p];if(k&&ab[k]!=null)ab[k]++});const tp=ses.length-ab.exc-ab.nex-ab.bl;
-    const pct=ses.length?tp/ses.length:null,share=n?nc/n:null;
+    /* nc : séances où l'enfant n'est pas compté (pas encore au club, pas dans le tableau d'origine) */
+    const mine=ses.filter(d=>!(S[d].nc||[]).includes(p));
+    const ab={exc:0,nex:0,bl:0};mine.forEach(d=>{const k=(S[d].abs||{})[p];if(k&&ab[k]!=null)ab[k]++});const tp=mine.length-ab.exc-ab.nex-ab.bl;
+    const pct=mine.length?tp/mine.length:null,share=n?nc/n:null;
     /* 24/11 : deux signaux indépendants : peu présent à l'entraînement ; joue surtout dans l'équipe U10/U11 */
-    const flagP=!!(ses.length>=3&&pct<.6),flagM=!!(mx&&n>=3&&share<1/3);
-    return {p,nc,nm,na:n-nc-nm,n,min,abM,ab,tp,ns:ses.length,pct,share,flagP,flagM,flag:flagP||flagM}});
+    const flagP=!!(mine.length>=3&&pct<.6),flagM=!!(mx&&n>=3&&share<1/3);
+    return {p,nc,nm,na:n-nc-nm,n,min,abM,ab,tp,ns:mine.length,pct,share,flagP,flagM,flag:flagP||flagM}});
   return {rows,Ncat,Nmx,mx,ns:ses.length,F}}
 const prPills=(r,c,mx)=>`${r.flagP?`<i class="prpill pr-p" title="Moins de 60 % de présence à l'entraînement">peu présent</i>`:""}${r.flagM?`<i class="prpill" title="Plus de deux matchs sur trois joués en ${esc(mx||"")}">souvent en ${esc(mx||"")}</i>`:""}`;
 const prPct=v=>v==null?"–":Math.round(v*100)+" %";
