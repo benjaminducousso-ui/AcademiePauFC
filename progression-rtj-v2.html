@@ -41,6 +41,10 @@
 @media(max-width:700px){.mtcard{align-items:flex-start}.mtcard em{white-space:normal;max-width:46%}}
 .mtxc{display:inline-block;background:#EEF2F8;color:#33445C;border-radius:6px;padding:0 6px;font-size:11px;font-weight:700;white-space:nowrap}
 @media(max-width:700px){.mtgrid .mteq{grid-column:1/-1}}
+.mtseg{margin:6px 0 10px;flex-wrap:wrap}.mtseg button small{font-weight:600;opacity:.7;margin-left:3px}.mtro{margin:0 0 8px;font-size:13.5px;color:var(--muted)}
+.mtpaper input:disabled,.mtpaper select:disabled,.mtpaper textarea:disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:transparent}.mtpaper button:disabled{cursor:default}
+@media(max-width:899px){.mtcomp .th,.mtcomp .tr{grid-template-columns:72px minmax(0,1fr)!important}.mtcomp .tr select,.mtcomp .tr input{min-width:0;width:100%;box-sizing:border-box}.mtcomp .nt{min-width:0}}
+.mtobsro{font-size:15px;line-height:1.4;color:var(--ink);padding:4px 2px;white-space:normal;overflow-wrap:anywhere}
 
 .fjcard{padding:16px 18px!important}#view-eval .toolbar [data-app],#view-eval #tEditBtn,#view-defis .toolbar [data-app]{display:none}
 .fjsec .fjt td:first-child{white-space:normal;word-break:break-word}.fjsec .fjt td,.fjsec .fjt th{padding:6px 5px}.fjnav{display:none;margin-bottom:10px}@media(max-width:900px){.fjnav{display:flex}}
@@ -1957,30 +1961,38 @@ function mtSend(f,pdf){const _old=mtAll(cat)[f.id];const _re=!!(_old&&_old.sent&
 /* ---------- onglet ---------- */
 /* 20/11 (test, U10 seulement) : commentaire détaillé par joueur : offensif + / − et défensif + / − */
 const MTD=[["op","Offensif +","Ce qu'il a bien fait avec le ballon"],["om","Offensif −","Ce qu'il doit améliorer avec le ballon"],["dp","Défensif +","Ce qu'il a bien fait sans le ballon"],["dm","Défensif −","Ce qu'il doit améliorer sans le ballon"]];
-const mtDetOn=()=>cat==="U10";const mtDetHas=x=>!!(x&&x.d&&MTD.some(([k])=>String(x.d[k]||"").trim()));
+const mtDetOn=()=>true;/* 24/11 : généralisé à toutes les catégories (facultatif) */const mtDetHas=x=>!!(x&&x.d&&MTD.some(([k])=>String(x.d[k]||"").trim()));
 function mtDetHtml(x){if(!mtDetHas(x))return "";return `<div class="mtdv">${MTD.filter(([k])=>String(x.d[k]||"").trim()).map(([k,l])=>`<div class="${k[1]==="p"?"p":"m"}"><b>${l}</b> ${esc(x.d[k])}</div>`).join("")}</div>`}
 /* 23/11 : équipes mixtes et surclassements : dans la fiche de match, on peut choisir un joueur des catégories voisines */
 const MT_BAND=[["U7","U8"],["U9","U10","U11"],["U12","U13"],["U14","U15","U16"],["U16","U17","U18"]];
-const mtBand=c=>{const i=CATS.indexOf(c);const near=[CATS[i-1],CATS[i+1]].filter(Boolean);return [c,...near,...CATS.filter(x=>x!==c&&!near.includes(x))]};/* 23/11 : tous les joueurs du club, le groupe de l'éducateur d'abord puis U7 → U18 */
+/* 24/11 : joueurs du même pôle seulement (U8-U9, U10-U11, U12-U13, U14-U15), équipe par équipe au-delà ; le groupe de l'éducateur d'abord */
+const MT_POLES=[["U7"],["U8","U9"],["U10","U11"],["U12","U13"],["U14","U15"],["U16"],["U17"],["U18"]];
+const mtBand=c=>{const P=MT_POLES.find(p=>p.includes(c))||[c];return [c,...P.filter(x=>x!==c&&CATS.includes(x))]};/* 23/11 : tous les joueurs du club, le groupe de l'éducateur d'abord puis U7 → U18 */
 /* équipes du calendrier du club (jeunes.html) : mêmes noms, pour dire quelle équipe a joué */
 const MT_TEAMS=["U7","U8","U9","U10","U11","U10/U11 équipe mixte","U12","U13","U12/U13 équipe mixte","U14","U15","U16","U17","U18"];
 const mtAllBand=()=>mtBand(cat).flatMap(c=>{let A={};try{A=mtAll(c)||{}}catch(e){}return Object.values(A).filter(f=>f&&!f.del).map(f=>c===cat?f:Object.assign({},f,{xc:c}))});
 const mtForP=p=>mtAllBand().filter(f=>!f.xc||(f.j||[]).some(y=>y.p===p));
 let _mtBP={};function mtBandPull(){const k=cat;if(typeof rtj!=="undefined"&&rtj)return;if(Date.now()-(_mtBP[k]||0)<600000)return;_mtBP[k]=Date.now();const O=mtBand(cat).filter(c=>c!==cat);(async()=>{for(let i=0;i<O.length;i+=3)await Promise.all(O.slice(i,i+3).map(c=>Promise.resolve(mtPull(c)).catch(()=>{})))})()}
 const mtMiss=f=>(f.j||[]).filter(x=>x.p&&!x.note).length;const mtDay=ts=>{try{return new Date(ts).toLocaleDateString("fr-FR",{day:"numeric",month:"long"})}catch(e){return ""}};
-function renderMatch(){const v=document.getElementById("view-match");if(!v)return;if(MT.edit)return mtForm(v);if(MT.player)return mtPlayer(v);
-  const A=Object.values(mtAll(cat)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));const L=players(cat);
+function renderMatch(){const v=document.getElementById("view-match");if(!v)return;if(MT.edit)return mtForm(v);MT.ro=null;if(MT.player)return mtPlayer(v);
+  /* 24/11 : un onglet par catégorie du pôle ; la sienne d'abord, l'autre en lecture seule */
+  const PB=mtBand(cat);if(!MT.vc||!PB.includes(MT.vc)||MT.vcOf!==cat){MT.vc=cat;MT.vcOf=cat}const VC=MT.vc,own=VC===cat;
+  const AV=c=>{let o={};try{o=mtAll(c)||{}}catch(e){}return Object.values(o).filter(f=>f&&!f.del&&(c===cat||!f.ex))};
+  const A=AV(VC).sort((a,b)=>String(b.date).localeCompare(String(a.date)));const L=players(cat);
   const AB=mtAllBand();const stats=L.map(p=>{const m=AB.map(f=>(f.j||[]).find(x=>x.p===p)).filter(Boolean);const nt=m.filter(x=>x.note);return {p,n:m.length,min:m.reduce((a,x)=>a+(+x.m||0),0),avg:nt.length?nt.reduce((a,x)=>a+x.note,0)/nt.length:null}});
   const med=(()=>{const v=stats.map(s=>s.avg).filter(x=>x!=null).sort((a,b)=>a-b);return v.length?(v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2):null})();
   v.innerHTML=`<div class="mtw"><div class="mtbanner">Les notes de match restent entre éducateurs : elles vont dans la fiche de chaque joueur, jamais dans les carnets des familles.</div>
-   <div class="mthd"><h2>Notes de match · ${esc(cat)}</h2><button class="mtbtn" id="mtnew">+ Nouvelle fiche de match</button></div>
-   ${A.length?`<div class="mtlist">${A.map(f=>`<button class="mtcard" data-f="${f.id}"><span><b>${esc(f.adv||"Adversaire ?")}</b><small>${mtFmt(f.date)}${f.eq&&f.eq!==cat?` · ${esc(f.eq)}`:""} · ${esc(f.lieu)} · ${esc(f.educ)} · ${f.j.filter(x=>x.p).length} joueurs${f.ex?" · exemple":""}</small></span><em class="${f.sent&&!mtMiss(f)?"ok":""}">${!f.sent?"Brouillon":mtMiss(f)?`À compléter · ${mtMiss(f)} sans note`:"✓ Envoyée"}${f.sent&&f.rev?`<small>modifiée le ${mtDay(f.mod||f.ts)}</small>`:""}<small class="mtmodl">Modifier ›</small></em></button>`).join("")}</div>`:`<p class="mtempty">Aucune fiche pour l'instant.</p>`}
-   ${cat==="U11"&&!mtAll(cat).ex0711?`<button class="mtlink" id="mtex">Voir l'exemple : fiche de Thomas du 07/11 (FC 2 Vallées)</button>`:""}
-   <h3 class="mth3">Par joueur${med!=null?` <small>médiane du groupe : ${med.toFixed(1).replace(".",",")}/5</small>`:""}</h3>
-   <div class="mtpl">${stats.map(s=>`<button data-p="${esc(s.p)}"><span>${esc(mtNice(s.p))}</span><span>${s.n} match${s.n>1?"s":""} · ${s.min} min</span><b class="${s.avg==null?"":s.avg>=(med??3)?"up":"dn"}">${s.avg==null?"–":s.avg.toFixed(1).replace(".",",")}</b></button>`).join("")}</div></div>`;
-  v.querySelector("#mtnew").onclick=()=>{MT.edit=mtNew();renderMatch();scrollTo(0,0)};
+   <div class="mthd"><h2>Matchs · ${esc(VC)}</h2>${own?`<button class="mtbtn" id="mtnew">+ Nouvelle fiche de match</button>`:""}</div>
+   ${PB.length>1?`<div class="edseg mtseg" role="tablist">${PB.map(c=>`<button role="tab" data-vc="${c}" aria-pressed="${c===VC}">${c===cat?`${c} · ton groupe`:c} <small>${AV(c).length}</small></button>`).join("")}</div>`:""}
+   ${own?"":`<p class="mtro">Fiches remplies par les éducateurs ${esc(VC)}. Tu peux les ouvrir pour les lire, pas les modifier.</p>`}
+   ${A.length?`<div class="mtlist">${A.map(f=>`<button class="mtcard" data-f="${f.id}"><span><b>${esc(f.adv||"Adversaire ?")}</b><small>${mtFmt(f.date)}${f.eq&&f.eq!==cat?` · ${esc(f.eq)}`:""} · ${esc(f.lieu)} · ${esc(f.educ)} · ${f.j.filter(x=>x.p).length} joueurs${f.ex?" · exemple":""}</small></span><em class="${f.sent&&!mtMiss(f)?"ok":""}">${!f.sent?"Brouillon":mtMiss(f)?`À compléter · ${mtMiss(f)} sans note`:"✓ Envoyée"}${f.sent&&f.rev?`<small>modifiée le ${mtDay(f.mod||f.ts)}</small>`:""}<small class="mtmodl">${own?"Modifier ›":"Voir ›"}</small></em></button>`).join("")}</div>`:`<p class="mtempty">Aucune fiche pour l'instant.</p>`}
+   ${own&&cat==="U11"&&!mtAll(cat).ex0711?`<button class="mtlink" id="mtex">Voir l'exemple : fiche de Thomas du 07/11 (FC 2 Vallées)</button>`:""}
+   ${own?`<h3 class="mth3">Par joueur${med!=null?` <small>médiane du groupe : ${med.toFixed(1).replace(".",",")}/5</small>`:""}</h3>
+   <div class="mtpl">${stats.map(s=>`<button data-p="${esc(s.p)}"><span>${esc(mtNice(s.p))}</span><span>${s.n} match${s.n>1?"s":""} · ${s.min} min</span><b class="${s.avg==null?"":s.avg>=(med??3)?"up":"dn"}">${s.avg==null?"–":s.avg.toFixed(1).replace(".",",")}</b></button>`).join("")}</div>`:""}</div>`;
+  {const nb_=v.querySelector("#mtnew");if(nb_)nb_.onclick=()=>{MT.edit=mtNew();renderMatch();scrollTo(0,0)}}
+  v.querySelectorAll("[data-vc]").forEach(b=>b.onclick=()=>{MT.vc=b.dataset.vc;renderMatch();if(MT.vc!==cat)Promise.resolve(mtPull(MT.vc)).then(()=>{if(get("tab")==="view-match"&&!MT.edit&&!MT.player&&MT.vc===b.dataset.vc)renderMatch()}).catch(()=>{})});
   const ex=v.querySelector("#mtex");if(ex)ex.onclick=()=>{const f=mtExample();mtAll(cat)[f.id]=f;save();renderMatch()};
-  v.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{MT.edit=JSON.parse(JSON.stringify(mtAll(cat)[b.dataset.f]));renderMatch();scrollTo(0,0)});
+  v.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{const g=JSON.parse(JSON.stringify(mtAll(VC)[b.dataset.f]));if(!own){if(!g.eq)g.eq=VC;MT.ro=VC}MT.edit=g;renderMatch();scrollTo(0,0)});
   v.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{MT.player=b.dataset.p;renderMatch();scrollTo(0,0)});
   mtPull(cat);mtBandPull()}
 function mtPlayer(v){const p=MT.player;const A=mtForP(p).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
@@ -2028,7 +2040,11 @@ function mtForm(v){const f=MT.edit;if(!f.eq)f.eq=cat;const _o=mtAll(cat)[f.id];c
   v.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const i=b.dataset.p;f.pr[i]=f.pr[i]===b.dataset.v?null:b.dataset.v;keep()});
   v.querySelectorAll("[data-pn]").forEach(e=>e.oninput=()=>{f.prn[e.dataset.pn]=e.value});
   v.querySelector("#mtaddj").onclick=()=>{f.j.push({p:"",m:"",note:0,o:""});keep()};
-  v.querySelector("#mtcancel").onclick=()=>{MT.edit=null;renderMatch()};
+  v.querySelector("#mtcancel").onclick=()=>{MT.edit=null;MT.ro=null;renderMatch()};
+  if(MT.ro){["#mtgo","#mtdel","#mtaddj"].forEach(q=>{const e=v.querySelector(q);if(e)(e.closest(".mtsend")||e).style.display="none"});v.querySelectorAll(".mtpaper input,.mtpaper select,.mtpaper textarea,.mtpaper button").forEach(e=>{e.disabled=true});v.querySelectorAll("details.mtdet").forEach(d=>{if(d.querySelector("summary i"))d.open=true;else d.remove()});v.querySelectorAll(".mtpaper input,.mtpaper textarea").forEach(e=>{e.placeholder=""});
+    v.querySelectorAll(".mtcomp .tr").forEach(tr=>{const se=tr.querySelector("select[data-j]");if(se&&!se.value){tr.style.display="none";return}const ob=tr.querySelector("input.obs");if(ob){const d=document.createElement("div");d.className="obs mtobsro";d.textContent=ob.value;if(ob.value)ob.replaceWith(d);else ob.remove()}});
+    requestAnimationFrame(()=>v.querySelectorAll(".mtpaper textarea").forEach(t=>{t.style.height="auto";t.style.height=(t.scrollHeight+4)+"px"}));
+    const ph=v.querySelector(".mtpaper");if(ph)ph.insertAdjacentHTML("beforebegin",`<div class="mtmodb"><b>Fiche des ${esc(MT.ro)}, en lecture seule.</b> Seul l'éducateur qui l'a remplie peut la modifier.</div>`)}
   {const d=v.querySelector("#mtdel");if(d)d.onclick=()=>{if(mtForm.del!==f.id){mtForm.del=f.id;d.textContent="Touche encore pour supprimer définitivement";d.classList.add("sure");return}mtForm.del=null;mtDelete(f);MT.edit=null;renderMatch();toast("Fiche supprimée")}}
   v.querySelector("#mtgo").onclick=()=>{const miss=f.j.filter(x=>x.p&&(!x.note||!x.m)).length;if(miss&&mtForm.warn!==f.id+miss){mtForm.warn=f.id+miss;toast(`${miss} joueur(s) sans note ou sans minutes · touche encore pour envoyer`);return}
     let blob=null,b64=null;try{const dp=mtPDF(f);blob=dp.output("blob");b64=String(dp.output("datauristring")).split(",")[1]||null}catch(e){}mtSend(f,b64);MT.edit=null;renderMatch();scrollTo(0,0);if(blob)mtShare(blob,f)}}
@@ -2968,7 +2984,7 @@ function testsBanner(){const v=document.getElementById("view-defis");if(FOCUS!==
     vc.querySelectorAll("[data-vp]").forEach(inp=>inp.addEventListener("change",()=>{const p=inp.dataset.vp,id=inp.dataset.vt;const s=inp.value.trim().replace(",",".");const n=s===""?null:+s;if(s!==""&&!(n>=6&&n<=30)){inp.style.borderColor="#d97706";toast("Vitesse entre 6 et 30 km/h");return}inp.style.borderColor="";const r=rec(cat,p,per);r.t=r.t||{};r.t[id]=n;pushTest(cat,p,per,id);toast(n==null?`${prenom(p)} : VMA effacée`:`${prenom(p)} : ${String(n).replace(".",",")} km/h enregistré`)}))}}
   v.classList.toggle("tview",!window.TCORR);bar.querySelector("#tcorrBtn").onclick=()=>{window.TCORR=!window.TCORR;renderEval();if(window.TCORR){const f=v.querySelector(".evlayout");if(f)f.scrollIntoView({behavior:"smooth"})}};bindTestsGroup()}}}
 {const _rcB=renderCats;renderCats=function(){_rcB();const t=document.getElementById("tab-eval");if(!t)return;const o=t.querySelector(".tbadge");if(o)o.remove();if(!rtj)return;const n=pendingVal().filter(x=>x.c===cat).length;if(n)t.insertAdjacentHTML("beforeend",`<i class="tbadge" title="${n} fiche${n>1?"s":""} ${cat} envoyée${n>1?"s":""} par l'éducateur, à valider par le RTJ">${n}<span class="tbl"> à valider</span></i>`)}}
-{const _rmT=renderMatch;renderMatch=function(){_rmT();if(MT.edit||MT.player)return;const v=document.getElementById("view-match");if(!v||v.querySelector("#mtTable"))return;const c=document.createElement("div");c.className="card";c.id="mtTable";c.innerHTML=matchsTableHTML();const w=v.querySelector(".mtw")||v;const h=w.querySelector(".mth3");if(h)w.insertBefore(c,h);else w.appendChild(c)}}
+{const _rmT=renderMatch;renderMatch=function(){_rmT();if(MT.edit||MT.player||(MT.vc&&MT.vc!==cat))return;const v=document.getElementById("view-match");if(!v||v.querySelector("#mtTable"))return;const c=document.createElement("div");c.className="card";c.id="mtTable";c.innerHTML=matchsTableHTML();const w=v.querySelector(".mtw")||v;const h=w.querySelector(".mth3");if(h)w.insertBefore(c,h);else w.appendChild(c)}}
 {const _rc2=renderCarnet;renderCarnet=function(){cwAuto();_rc2();rencIntro();docsCarnet()}}
 {const _rb=renderBilan;renderBilan=function(){_rb();const v=document.getElementById("view-bilan");if(BCTX==="joueurs"){v.insertAdjacentHTML("afterbegin",jSeg("g"));bindJSeg(v);const c=document.createElement("div");c.className="card";c.id="matchCard";c.innerHTML=matchsGroupHTML();const t=document.getElementById("txtCard");v.insertBefore(c,t||null)}else{apSeg("view-bilan");const t=document.getElementById("testsCard");if(t&&v.contains(t))t.remove();const h=v.querySelector("h2");if(h)h.textContent=cat+" · Étoiles";const n=[...v.querySelectorAll("p.note")].find(x=>/coup d'œil/.test(x.textContent));if(n)n.textContent="Le tableau du groupe : touche une étoile pour noter, tu vois où tu as placé les autres. Choisis une période (P1 à P5) ou toute la saison. Le bilan écrit (P2 et P4) est en bas."}}}
 {const _re2=renderEval;renderEval=function(){_re2();if(FOCUS!=="defis")apSeg("view-eval");docsEval()}}
