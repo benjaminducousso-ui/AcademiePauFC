@@ -36,6 +36,10 @@
 @media(max-width:700px){.mtdg{grid-template-columns:1fr}}
 .mtdv{margin-top:4px;font-size:13px;line-height:1.4}.mtdv b{font-size:12px}.mtdv .p b{color:#14915B}.mtdv .m b{color:#C2410C}
 
+.mtcard em{text-align:right;white-space:nowrap}.mtcard em small{font-weight:600;color:var(--muted);font-size:11.5px}.mtcard em .mtmodl{color:#234A9A;font-weight:700}
+.mtmodb{background:#EAF1FB;border:1px solid #C7D8F2;border-left:5px solid #2F6FD0;border-radius:12px;padding:10px 14px;margin:8px 0;font-size:14px;line-height:1.45;color:#0B2A4A}
+@media(max-width:700px){.mtcard{align-items:flex-start}.mtcard em{white-space:normal;max-width:46%}}
+
 .fjcard{padding:16px 18px!important}#view-eval .toolbar [data-app],#view-eval #tEditBtn,#view-defis .toolbar [data-app]{display:none}
 .fjsec .fjt td:first-child{white-space:normal;word-break:break-word}.fjsec .fjt td,.fjsec .fjt th{padding:6px 5px}.fjnav{display:none;margin-bottom:10px}@media(max-width:900px){.fjnav{display:flex}}
 .fjkpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}@media(max-width:700px){.fjkpis{grid-template-columns:1fr}}
@@ -1652,8 +1656,8 @@ function aFaire(){const list=players(cat);const out=[];const P=defPer();const no
     if(n)out.push({t:`${n} appréciation${n>1?"s":""} à valider`,s:(cs.length>1?`${cs.length} catégories · envoyées par les éducateurs`:`${cs[0]} · envoyées par l'éducateur`)+" · disparaît quand tout est validé",b:"Valider",go:"val",rt:1,cat:cs[0],bs:cs.map(c=>({l:`${c} · ${by[c]}`,cat:c}))});
     /* 17/11 : nouvelles fiches de match, toutes catégories, depuis la dernière visite du RTJ dans chaque catégorie */
     const NM=mtNews();const mc=Object.keys(NM).sort((a,b)=>parseInt(a.slice(1))-parseInt(b.slice(1)));const nm=mc.reduce((s,c)=>s+NM[c].length,0);
-    {const ALL=mc.flatMap(c=>NM[c].map(f=>({c,f}))).sort((x,y)=>(y.f.ts||0)-(x.f.ts||0));const MAX=4;
-      ALL.slice(0,MAX).forEach(({c,f})=>out.push({t:`Nouvelle fiche de match · ${c}${f.adv?` contre ${f.adv}`:""}`,s:`${f.educ||"éducateur"} · match du ${fjD(f.date)} · disparaît une fois ouverte`,b:"Ouvrir la fiche",go:"match-one",rt:1,cat:c,fid:f.id}));
+    {const ALL=mc.flatMap(c=>NM[c].map(f=>({c,f}))).sort((x,y)=>String(y.f.date||"").localeCompare(String(x.f.date||""))||(y.f.ts||0)-(x.f.ts||0));/* 23/11 : par date du match, le plus récent d'abord */const MAX=4;
+      ALL.slice(0,MAX).forEach(({c,f})=>out.push({t:`${f.rev?"Fiche de match modifiée":"Nouvelle fiche de match"} · ${c}${f.adv?` contre ${f.adv}`:""}`,s:`${f.educ||"éducateur"} · match du ${fjD(f.date)}${(f.j||[]).some(x=>x.p&&!x.note)?" · notes à compléter":""} · disparaît une fois ouverte`,b:"Ouvrir la fiche",go:"match-one",rt:1,cat:c,fid:f.id}));
       if(ALL.length>MAX){const R_={};ALL.slice(MAX).forEach(x=>{R_[x.c]=(R_[x.c]||0)+1});const rc=Object.keys(R_);out.push({t:`${ALL.length-MAX} autre${ALL.length-MAX>1?"s":""} fiche${ALL.length-MAX>1?"s":""} de match`,s:"Ouvre la catégorie pour les voir toutes",b:`Voir (${rc[0]})`,go:"match-cat",rt:1,cat:rc[0],bs:rc.map(c=>({l:`${c} · ${R_[c]}`,cat:c}))})}}
     mtPullAll()}
   const done=list.filter(x=>stApp(x,P).st==="ok").length;
@@ -1945,21 +1949,22 @@ function mtExample(){const f=mtNew();Object.assign(f,{id:"ex0711",date:"2026-11-
   f.j=L.map(([p,m,n,o])=>({p,m:String(m),note:n,o}));f.pr={0:"c",1:"c",2:"c",3:"d",4:"m",5:"d",6:"m"};f.prn={3:"Aspect athlétique",5:"2 buts sur transition"};f.sent=true;f.ex=true;return f}
 async function mtPull(c){try{const r=await fetch(`${API}?prog=${encodeURIComponent(MT_CAT(c))}`,{cache:"no-store"});const a=await r.json();if(!Array.isArray(a))return;const A=mtAll(c);let n=0;
   a.forEach(x=>{let f=x.f;if(typeof f==="string"){try{f=JSON.parse(f)}catch(e){return}}if(!f||!f.id)return;if(f.del){if(A[f.id]){delete A[f.id];n++}return}const loc=A[f.id];if(!loc||(x.ts||0)>(loc.ts||0)){A[f.id]=Object.assign(f,{ts:x.ts,sent:true});n++}});if(n){save();if(get("tab")==="view-match"&&!MT.edit)renderMatch()}}catch(e){}}
-function mtSend(f,pdf){f.ts=Date.now();f.sent=true;mtAll(cat)[f.id]=f;save();
-  const payload={prog:1,cat:MT_CAT(cat),player:`${f.date}¦${f.adv}`,per:300,f,t:{},note:"fiche match (brouillon)",by:f.educ||get("who",""),ts:f.ts};if(pdf)payload.pdf=pdf;/* 17/11 : le PDF part avec la fiche, le script l'envoie par mail au RTJ (il n'est pas stocké dans le classeur) */
-  fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}}).then(()=>toast("Fiche arrivée dans le classeur (rubrique de test)")).catch(()=>toast("Fiche gardée sur l'appareil : pas de réseau"))}
+function mtSend(f,pdf){const _old=mtAll(cat)[f.id];const _re=!!(_old&&_old.sent&&!_old.ex);if(_re){f.rev=(_old.rev||0)+1;f.ts0=_old.ts0||_old.ts||null}f.ts=Date.now();if(_re)f.mod=f.ts;f.sent=true;mtAll(cat)[f.id]=f;save();
+  const payload={prog:1,cat:MT_CAT(cat),player:`${f.date}¦${f.adv}`,per:300,f,t:{},note:_re?"fiche match (modifiée)":"fiche match (brouillon)",by:f.educ||get("who",""),ts:f.ts};if(pdf)payload.pdf=pdf;/* 17/11 : le PDF part avec la fiche, le script l'envoie par mail au RTJ (il n'est pas stocké dans le classeur) */
+  fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}}).then(()=>toast(_re?"Fiche modifiée renvoyée au RTJ : elle remplace l'ancienne":"Fiche arrivée dans le classeur (rubrique de test)")).catch(()=>toast("Fiche gardée sur l'appareil : pas de réseau"))}
 /* ---------- onglet ---------- */
 /* 20/11 (test, U10 seulement) : commentaire détaillé par joueur : offensif + / − et défensif + / − */
 const MTD=[["op","Offensif +","Ce qu'il a bien fait avec le ballon"],["om","Offensif −","Ce qu'il doit améliorer avec le ballon"],["dp","Défensif +","Ce qu'il a bien fait sans le ballon"],["dm","Défensif −","Ce qu'il doit améliorer sans le ballon"]];
 const mtDetOn=()=>cat==="U10";const mtDetHas=x=>!!(x&&x.d&&MTD.some(([k])=>String(x.d[k]||"").trim()));
 function mtDetHtml(x){if(!mtDetHas(x))return "";return `<div class="mtdv">${MTD.filter(([k])=>String(x.d[k]||"").trim()).map(([k,l])=>`<div class="${k[1]==="p"?"p":"m"}"><b>${l}</b> ${esc(x.d[k])}</div>`).join("")}</div>`}
+const mtMiss=f=>(f.j||[]).filter(x=>x.p&&!x.note).length;const mtDay=ts=>{try{return new Date(ts).toLocaleDateString("fr-FR",{day:"numeric",month:"long"})}catch(e){return ""}};
 function renderMatch(){const v=document.getElementById("view-match");if(!v)return;if(MT.edit)return mtForm(v);if(MT.player)return mtPlayer(v);
   const A=Object.values(mtAll(cat)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));const L=players(cat);
   const stats=L.map(p=>{const m=A.map(f=>f.j.find(x=>x.p===p)).filter(Boolean);const nt=m.filter(x=>x.note);return {p,n:m.length,min:m.reduce((a,x)=>a+(+x.m||0),0),avg:nt.length?nt.reduce((a,x)=>a+x.note,0)/nt.length:null}});
   const med=(()=>{const v=stats.map(s=>s.avg).filter(x=>x!=null).sort((a,b)=>a-b);return v.length?(v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2):null})();
   v.innerHTML=`<div class="mtw"><div class="mtbanner">Les notes de match restent entre éducateurs : elles vont dans la fiche de chaque joueur, jamais dans les carnets des familles.</div>
    <div class="mthd"><h2>Notes de match · ${esc(cat)}</h2><button class="mtbtn" id="mtnew">+ Nouvelle fiche de match</button></div>
-   ${A.length?`<div class="mtlist">${A.map(f=>`<button class="mtcard" data-f="${f.id}"><span><b>${esc(f.adv||"Adversaire ?")}</b><small>${mtFmt(f.date)} · ${esc(f.lieu)} · ${esc(f.educ)} · ${f.j.filter(x=>x.p).length} joueurs${f.ex?" · exemple":""}</small></span><em class="${f.sent?"ok":""}">${f.sent?"✓ Envoyée":"Brouillon"}</em></button>`).join("")}</div>`:`<p class="mtempty">Aucune fiche pour l'instant.</p>`}
+   ${A.length?`<div class="mtlist">${A.map(f=>`<button class="mtcard" data-f="${f.id}"><span><b>${esc(f.adv||"Adversaire ?")}</b><small>${mtFmt(f.date)} · ${esc(f.lieu)} · ${esc(f.educ)} · ${f.j.filter(x=>x.p).length} joueurs${f.ex?" · exemple":""}</small></span><em class="${f.sent&&!mtMiss(f)?"ok":""}">${!f.sent?"Brouillon":mtMiss(f)?`À compléter · ${mtMiss(f)} sans note`:"✓ Envoyée"}${f.sent&&f.rev?`<small>modifiée le ${mtDay(f.mod||f.ts)}</small>`:""}<small class="mtmodl">Modifier ›</small></em></button>`).join("")}</div>`:`<p class="mtempty">Aucune fiche pour l'instant.</p>`}
    ${cat==="U11"&&!mtAll(cat).ex0711?`<button class="mtlink" id="mtex">Voir l'exemple : fiche de Thomas du 07/11 (FC 2 Vallées)</button>`:""}
    <h3 class="mth3">Par joueur${med!=null?` <small>médiane du groupe : ${med.toFixed(1).replace(".",",")}/5</small>`:""}</h3>
    <div class="mtpl">${stats.map(s=>`<button data-p="${esc(s.p)}"><span>${esc(mtNice(s.p))}</span><span>${s.n} match${s.n>1?"s":""} · ${s.min} min</span><b class="${s.avg==null?"":s.avg>=(med??3)?"up":"dn"}">${s.avg==null?"–":s.avg.toFixed(1).replace(".",",")}</b></button>`).join("")}</div></div>`;
@@ -1980,9 +1985,10 @@ function mtPlayer(v){const p=MT.player;const A=Object.values(mtAll(cat)).sort((a
    <p class="mtsub">Trait bleu = sa note sur 5 · pointillés = médiane du groupe sur le match.</p>${n?svg:`<p class="mtempty">Pas encore de match.</p>`}
    <table class="mttb"><tr><th>Date</th><th>Adversaire</th><th>Temps</th><th>Note</th><th>Groupe</th><th>Observations</th></tr>${rows.map(r=>`<tr><td>${mtFmt(r.f.date)}</td><td>${esc(r.f.adv)}</td><td>${esc(r.x.m)} min</td><td><b>${r.x.note?mtN(r.x.note):"–"}</b>/5</td><td>${r.med!=null?String(r.med).replace(".",","):"–"}</td><td>${esc(r.x.o)}${mtDetHtml(r.x)}</td></tr>`).join("")}</table></div>`;
   v.querySelector("#mtback").onclick=()=>{MT.player=null;renderMatch()}}
-function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNice(a).localeCompare(mtNice(b),"fr"));const used=new Set(f.j.map(x=>x.p).filter(Boolean));const nb=f.j.filter(x=>x.p).length;
+function mtForm(v){const f=MT.edit;const _o=mtAll(cat)[f.id];const was=!!(_o&&_o.sent&&!_o.ex);const L=players(cat).slice().sort((a,b)=>mtNice(a).localeCompare(mtNice(b),"fr"));const used=new Set(f.j.map(x=>x.p).filter(Boolean));const nb=f.j.filter(x=>x.p).length;
   v.innerHTML=`<div class="mtw mtform"><div class="mtbanner">Une fiche par match : chaque note arrive dans la fiche du joueur (usage interne, pas dans les carnets).</div>
   <div class="mthd"><button class="mtlink" id="mtcancel">‹ Retour aux matchs</button>${mtAll(cat)[f.id]&&(rtj||!isAvis(cat)||!f.educ||f.educ===get("who",""))?`<button class="mtlink mtdel" id="mtdel">🗑 Supprimer cette fiche</button>`:""}</div>
+  ${was?`<div class="mtmodb"><b>Fiche déjà envoyée${_o.ts?` le ${mtDay(_o.mod||_o.ts)}`:""}.</b> Tu peux la compléter ou la corriger (notes, temps de jeu, bilan), puis la renvoyer : la nouvelle version remplace l'ancienne dans les fiches des joueurs et le RTJ est prévenu.</div>`:""}
   <div class="mtpaper"><div class="mtph"><b>FICHE DE SUIVI DE MATCH</b><span>${mtIs11()?"PRÉFORMATION (FOOT À 11) · U12 - U13 - U14 - U15":"FOOT ANIMATION (FOOT À 8) · U9 - U10 - U11"}</span></div>
   <div class="mtgrid"><label>Date<input type="date" data-k="date" value="${esc(f.date)}"></label><label>Catégorie<input value="${esc(cat)}" disabled></label>
    <label>Adversaire<input data-k="adv" value="${esc(f.adv)}" maxlength="40"></label><label>Lieu<select data-k="lieu">${["Domicile","Extérieur"].map(x=>`<option ${f.lieu===x?"selected":""}>${x}</option>`).join("")}</select></label>
@@ -2001,7 +2007,7 @@ function mtForm(v){const f=MT.edit;const L=players(cat).slice().sort((a,b)=>mtNi
   ${mtPRs().map(([ph,l],i)=>`<div class="tr"><span><small>${ph}</small><br>${esc(l)}</span>${["m","c","d"].map(k=>`<button type="button" class="box ${f.pr[i]===k?"on":""}" data-p="${i}" data-v="${k}">${f.pr[i]===k?"X":""}</button>`).join("")}<input class="note" data-pn="${i}" placeholder="Notes" maxlength="40" value="${esc(f.prn[i]||"")}"></div>`).join("")}</div>
   <h3>4. Bilan synthétique de l'éducateur</h3>
   <label>Points forts collectifs<textarea data-k="forts" maxlength="220">${esc(f.forts)}</textarea></label><label>Axes de progression prioritaires<textarea data-k="axes" maxlength="220">${esc(f.axes)}</textarea></label><label>Comportement & mental<textarea data-k="mental" maxlength="160">${esc(f.mental)}</textarea></label></div>
-  <div class="mtsend"><button class="mtbtn" id="mtgo">Envoyer la fiche<small>${nb} joueurs · ${f.j.filter(x=>x.p&&x.note).length} notés · PDF + partage</small></button></div></div>`;
+  <div class="mtsend"><button class="mtbtn" id="mtgo">${was?"Renvoyer la fiche modifiée au RTJ":"Envoyer la fiche"}<small>${nb} joueurs · ${f.j.filter(x=>x.p&&x.note).length} notés · PDF + partage</small></button></div></div>`;
   const keep=()=>{const y=scrollY;renderMatch();scrollTo(0,y)};
   v.querySelectorAll("[data-k]").forEach(e=>e.oninput=e.onchange=()=>{f[e.dataset.k]=e.value});
   v.querySelectorAll("[data-a]").forEach(e=>e.oninput=()=>{f.advp[+e.dataset.a][+e.dataset.c]=e.value});
