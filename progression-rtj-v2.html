@@ -1813,7 +1813,11 @@ let BCTX=(()=>{try{return get("bctx","appr")}catch(e){return "appr"}})();
 const setB=x=>{BCTX=x;set("bctx",x)};
 function jSeg(on){return `<div class="apseg jsegtop"><div class="jseg" role="tablist" aria-label="Joueurs ou groupe"><button role="tab" aria-selected="${on==="j"}" data-jg="j">Fiches joueurs</button><button role="tab" aria-selected="${on==="g"}" data-jg="g">Bilan du groupe</button></div><span class="note">${on==="g"?"Tout le groupe d'un coup d'œil : étoiles, tests techniques, notes de match.":"Un enfant à la fois : sa fiche complète."}</span></div>`}
 function bindJSeg(root){root.querySelectorAll("[data-jg]").forEach(b=>b.onclick=()=>{if(b.dataset.jg==="g"){setB("joueurs");showTab("view-bilan")}else showTab("view-fiche");scrollTo(0,0)})}
-function matchsGroupHTML(){const A=typeof mtAll==="function"?Object.values(mtAll(cat)).sort((a,b)=>String(b.date).localeCompare(String(a.date))):[];const list=players(cat);
+/* 24/11 : mêmes fiches partout (les siennes + celles de l'équipe U10/U11 enregistrées dans l'autre catégorie du pôle) */
+function mtGroupSheets(c){if(typeof mtAll!=="function")return [];const own=Object.values(mtAll(c)||{}).filter(f=>f&&!f.del);const seen=new Set(own.map(f=>f.id));const mx=typeof MT_MIX!=="undefined"?MT_MIX[c]:null;
+  const oth=mx&&typeof mtBand==="function"?mtBand(c).filter(x=>x!==c).flatMap(x=>{let o={};try{o=mtAll(x)||{}}catch(e){}return Object.values(o).filter(f=>f&&!f.del&&!f.ex&&!seen.has(f.id)&&mtEq(f,x)===mx).map(f=>Object.assign({},f,{_sc:x}))}):[];
+  return own.concat(oth).sort((a,b)=>String(a.date).localeCompare(String(b.date)))}
+function matchsGroupHTML(){const A=mtGroupSheets(cat).reverse();const list=players(cat);
   if(!A.length)return `<div class="ghead"><div><h3>Les notes de match du groupe</h3><p class="note">Pas encore de fiche match. Elles se remplissent dans la rubrique Matchs ; les notes de chaque enfant arrivent ici et dans sa fiche.</p></div></div>`;
   const S=list.map(p=>{const m=A.map(f=>(f.j||[]).find(x=>x.p===p)).filter(Boolean);const nt=m.filter(x=>x.note);return {p,n:m.length,min:m.reduce((a,x)=>a+(+x.m||0),0),avg:nt.length?nt.reduce((a,x)=>a+x.note,0)/nt.length:null,last:m[0]&&m[0].note||null}});
   const g=fjMean(S.map(x=>x.avg));const gm=fjMean(S.filter(x=>x.n).map(x=>x.min));
@@ -1822,9 +1826,7 @@ function matchsGroupHTML(){const A=typeof mtAll==="function"?Object.values(mtAll
    <tr class="tmain"><td class="name"><b>Moyenne du groupe</b></td><td class="tval"></td><td class="tval"><b>${fjNb(gm)}</b></td><td class="tval"><b>${fjNb(g)}</b></td><td></td></tr></tbody></table></div>`}
 /* --- Notes de match : le tableau du groupe (un joueur par ligne, un match par colonne, moyennes) --- */
 function matchsTableHTML(){const PS=typeof pmStats==="function"&&!MT_NOMATCH.includes(cat)?pmStats(cat):null;/* 24/11 : on ajoute les fiches U10/U11 remplies dans l'autre catégorie du pôle (sans doublon) */
-  const A=(()=>{if(typeof mtAll!=="function")return [];const own=Object.values(mtAll(cat)).filter(f=>f&&!f.del);const seen=new Set(own.map(f=>f.id));const mx=typeof MT_MIX!=="undefined"?MT_MIX[cat]:null;
-    const oth=mx&&typeof mtBand==="function"?mtBand(cat).filter(c=>c!==cat).flatMap(c=>{let o={};try{o=mtAll(c)||{}}catch(e){}return Object.values(o).filter(f=>f&&!f.del&&!f.ex&&!seen.has(f.id)&&mtEq(f,c)===mx).map(f=>Object.assign({},f,{_sc:c}))}):[];
-    return own.concat(oth).sort((a,b)=>String(a.date).localeCompare(String(b.date)))})();const list=players(cat);
+  const A=mtGroupSheets(cat);const list=players(cat);
   if(!A.length)return `<div class="ghead"><div><h3>Le tableau des notes de match</h3><p class="note">Il se remplit tout seul à chaque fiche envoyée : une colonne par match, la moyenne de chaque joueur et celle du groupe.</p></div></div>`;
   const rows=list.map(p=>{const c=A.map(f=>(f.j||[]).find(x=>x.p===p));const n=c.filter(x=>x&&x.note).map(x=>x.note);return {p,c,avg:n.length?n.reduce((a,b)=>a+b,0)/n.length:null,min:c.reduce((a,x)=>a+(x?+x.m||0:0),0),nb:c.filter(Boolean).length}});
   const g=fjMean(rows.map(r=>r.avg));const colAvg=A.map((f,i)=>fjMean(rows.map(r=>r.c[i]&&r.c[i].note?r.c[i].note:null)));
@@ -3563,6 +3565,8 @@ i.gidot{cursor:default;position:absolute;top:50%;width:11px;height:11px;margin:-
 .synflash{box-shadow:0 0 0 3px #F2C200!important;transition:box-shadow .3s}
 @media(max-width:760px){.sysub{font-size:9px}}
 @media(max-width:760px){.synavs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}.synavs span{flex:0 0 auto;font-size:11.5px}.synav{flex:0 0 auto;padding:5px 9px;font-size:12px}}
+span.plk{cursor:pointer;color:var(--navy-2,#1d3b6e);text-decoration:underline;text-decoration-color:#C9D6EA;text-underline-offset:3px}span.plk:hover{text-decoration-color:currentColor}
+@media print{span.plk{text-decoration:none;color:inherit}}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -4162,4 +4166,17 @@ nav();try{decor()}catch(e){}
 /* les morceaux d'écran redessinés à part (barre des périodes…) passent aussi au mot « tests » */
 try{const mo=new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)words(n);else if(n.nodeType===3&&n.parentNode)words(n.parentNode)}))});const m=document.querySelector("main");if(m)mo.observe(m,{childList:true,subtree:true})}catch(e){}
 })();
+</script><script>/* 24/11 : un clic sur le nom d'un joueur (Bilan, tableau des notes, présences) ouvre sa fiche joueur, sur le bon onglet */
+const nmKey=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z ]/g," ").split(/\s+/).filter(Boolean).sort().join(" ");
+function goFiche(p,tab){store.sel[cat]=p;save();JOPEN=true;JTAB=tab||"appr";if(typeof setB==="function")setB("joueurs");showTab("view-fiche");scrollTo({top:0})}
+function nmTab(td){const c=td.closest("#testsCard,#matchCard,#mtTable,#presBil,.prw,#synBil");const id=c?c.id:"";return id==="testsCard"?"def":(id==="matchCard"||id==="mtTable"||id==="presBil"||(c&&c.classList.contains("prw")))?"mat":"appr"}
+function nmDecor(){const M={};players(cat).forEach(p=>M[nmKey(p)]=p);
+  document.querySelectorAll("#view-bilan tbody td.name,#mtTable tbody td.name,#view-pres tbody td.name").forEach(td=>{if(td.dataset.pl||td.closest("tr.tmain")||td.querySelector(".golink"))return;
+    const tn=[...td.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!tn)return;const p=M[nmKey(tn.textContent)];if(!p)return;
+    const s=document.createElement("span");s.className="plk";s.setAttribute("role","link");s.tabIndex=0;s.title="Ouvrir la fiche de "+tn.textContent.trim();s.textContent=tn.textContent;tn.replaceWith(s);td.dataset.pl=p})}
+document.addEventListener("click",e=>{const s=e.target.closest&&e.target.closest("span.plk");if(!s)return;const td=s.closest("td[data-pl]");if(!td)return;e.preventDefault();e.stopPropagation();goFiche(td.dataset.pl,nmTab(td))},true);
+document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const s=e.target.closest&&e.target.closest("span.plk");if(s)s.click()});
+["renderBilan","renderMatch","renderPres"].forEach(n=>{const f=window[n];if(typeof f!=="function")return;window[n]=function(){const r=f.apply(this,arguments);try{nmDecor()}catch(e){console.error(e)}return r}});
+/* les tableaux du Bilan se redessinent aussi après coup (données reçues, tri) : on repasse dessus à chaque changement */
+{let q=0;new MutationObserver(()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;try{nmDecor()}catch(e){}})}).observe(document.body,{childList:true,subtree:true})}
 </script></body></html>
