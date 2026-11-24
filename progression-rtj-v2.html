@@ -48,6 +48,7 @@
 .mteqb{display:inline-block;font-style:normal;font-size:11px;font-weight:800;background:#EEF2F8;color:#0B2A4A;border-radius:6px;padding:1px 7px;margin-right:7px;vertical-align:2px}.mteqb.mx{background:#FFF1C9;color:#7A5600}
 .mtabs{margin:10px 0 4px}.mtabs b{color:#0B2A4A;font-size:14px}.mtabs small{color:var(--muted);font-size:12px}.mtabl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .mtab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;font:inherit;font-size:13px;color:#33445C;cursor:pointer}.mtab.on{font-weight:700;color:#fff}.mtab.exc{background:#5B7BA6;border-color:#5B7BA6}.mtab.nex{background:#C2410C;border-color:#C2410C}.mtab.bl{background:#6B7280;border-color:#6B7280}
+.mtw>*{min-width:0;max-width:100%}.mttb{table-layout:auto}.mttb td,.mttb th{white-space:normal;overflow-wrap:anywhere}.mttb td:last-child{min-width:180px}
 
 .fjcard{padding:16px 18px!important}#view-eval .toolbar [data-app],#view-eval #tEditBtn,#view-defis .toolbar [data-app]{display:none}
 .fjsec .fjt td:first-child{white-space:normal;word-break:break-word}.fjsec .fjt td,.fjsec .fjt th{padding:6px 5px}.fjnav{display:none;margin-bottom:10px}@media(max-width:900px){.fjnav{display:flex}}
@@ -1828,9 +1829,9 @@ function matchsTableHTML(){const PS=typeof pmStats==="function"&&!MT_NOMATCH.inc
   const rows=list.map(p=>{const c=A.map(f=>(f.j||[]).find(x=>x.p===p));const n=c.filter(x=>x&&x.note).map(x=>x.note);return {p,c,avg:n.length?n.reduce((a,b)=>a+b,0)/n.length:null,min:c.reduce((a,x)=>a+(x?+x.m||0:0),0),nb:c.filter(Boolean).length}});
   const g=fjMean(rows.map(r=>r.avg));const colAvg=A.map((f,i)=>fjMean(rows.map(r=>r.c[i]&&r.c[i].note?r.c[i].note:null)));
   return `<div class="ghead"><div><h3>Le tableau des notes de match</h3><p class="note">${A.length} match${A.length>1?"s":""} · note sur 5 · moyenne du groupe <b>${fjNb(g)}</b>. En vert : au-dessus de la moyenne du groupe, en rouge : en dessous.</p></div></div>
-  <div class="tbl-wrap"><table class="sgt mgt"><thead><tr><th>Joueur</th>${A.map(f=>`<th class="thtest">${esc(fjD(f.date))}<small>${esc(String(f.adv).slice(0,14))}</small>${PS&&PS.mx?`<i class="mteqb${mtIsMix(mtEq(f,f._sc||cat))?" mx":""}">${esc(mtEq(f,f._sc||cat))}</i>`:""}</th>`).join("")}<th>Moyenne</th>${PS&&PS.mx?`<th>Matchs ${esc(cat)}</th><th>Matchs ${esc(PS.mx)}</th>`:`<th>Matchs</th>`}<th>Minutes</th>${PS?`<th>Entraîn.</th>`:""}</tr></thead><tbody>
-  ${rows.map(r=>`<tr><td class="name">${esc(r.p)}${PS?(()=>{const q=PS.rows.find(x=>x.p===r.p);return q?prPills(q,cat,PS.mx):""})():""}</td>${r.c.map((x,i)=>`<td class="tval">${x?(x.note?`<b>${String(x.note).replace(".",",")}</b>`:"·"):"–"}${x&&x.m?`<small class="mmin">${esc(x.m)}'</small>`:""}</td>`).join("")}<td class="tval ${r.avg==null||g==null?"":r.avg>g+.05?"up":r.avg<g-.05?"down":""}"><b>${r.avg==null?"–":fjNb(r.avg)}</b></td>${(()=>{const q=PS?PS.rows.find(x=>x.p===r.p):null;if(PS&&PS.mx)return `<td class="tval"><b>${q?q.nc:0}</b><small class="mmin">/${PS.Ncat}</small></td><td class="tval"><b>${q?q.nm:0}</b><small class="mmin">/${PS.Nmx}</small></td><td class="tval">${q&&q.n?q.min+"'":"–"}</td>`;return `<td class="tval">${r.nb||"–"}</td><td class="tval">${r.nb?r.min+"'":"–"}</td>`})()}${PS?(()=>{const q=PS.rows.find(x=>x.p===r.p);return `<td class="tval ${q?prCls(q.pct):""}"><b>${q?prPct(q.pct):"–"}</b>${q&&q.ns?`<small class="mmin">${q.tp}/${q.ns}</small>`:""}</td>`})():""}</tr>`).join("")}
-  <tr class="tmain"><td class="name"><b>Moyenne du groupe</b></td>${colAvg.map(v=>`<td class="tval"><b>${fjNb(v)}</b></td>`).join("")}<td class="tval"><b>${fjNb(g)}</b></td>${PS&&PS.mx?"<td></td>":""}<td></td><td></td>${PS?"<td></td>":""}</tr></tbody></table></div>${PS&&PS.mx?`<p class="note">Matchs ${esc(cat)} / ${esc(PS.mx)} : comptés sur toutes les fiches du pôle (les tiennes et celles des autres éducateurs). Entraînements : présences notées dans Évaluer › Présences.</p>`:""}`}
+  <div class="tbl-wrap"><table class="sgt mgt"><thead><tr><th>Joueur</th>${A.map(f=>`<th class="thtest">${esc(fjD(f.date))}<small>${esc(String(f.adv).slice(0,14))}</small>${PS&&PS.mx?`<i class="mteqb${mtIsMix(mtEq(f,f._sc||cat))?" mx":""}">${esc(mtEq(f,f._sc||cat))}</i>`:""}</th>`).join("")}<th>Moyenne</th>${PS&&PS.mx?`<th>Matchs ${esc(cat)}</th><th>Matchs ${esc(PS.mx)}</th><th>% ${esc(PS.mx)}</th>`:`<th>Matchs</th>`}<th>Minutes</th>${PS?`<th>Assiduité</th>`:""}</tr></thead><tbody>
+  ${rows.map(r=>`<tr><td class="name">${esc(r.p)}${PS?(()=>{const q=PS.rows.find(x=>x.p===r.p);return q?prPills(q,cat,PS.mx):""})():""}</td>${r.c.map((x,i)=>`<td class="tval">${x?(x.note?`<b>${String(x.note).replace(".",",")}</b>`:"·"):"–"}${x&&x.m?`<small class="mmin">${esc(x.m)}'</small>`:""}</td>`).join("")}<td class="tval ${r.avg==null||g==null?"":r.avg>g+.05?"up":r.avg<g-.05?"down":""}"><b>${r.avg==null?"–":fjNb(r.avg)}</b></td>${(()=>{const q=PS?PS.rows.find(x=>x.p===r.p):null;if(PS&&PS.mx)return `<td class="tval"><b>${q?q.nc:0}</b><small class="mmin">/${PS.Ncat}</small></td><td class="tval"><b>${q?q.nm:0}</b><small class="mmin">/${PS.Nmx}</small></td><td class="tval${q&&q.flagM?" prmx":""}"><b>${q&&q.n?prPct(q.mxs):"–"}</b></td><td class="tval">${q&&q.n?q.min+"'":"–"}</td>`;return `<td class="tval">${r.nb||"–"}</td><td class="tval">${r.nb?r.min+"'":"–"}</td>`})()}${PS?(()=>{const q=PS.rows.find(x=>x.p===r.p);return `<td class="tval ${q?prCls(q.pct):""}"><b>${q?prPct(q.pct):"–"}</b>${q&&q.ev?`<small class="mmin">${q.tp+q.n}/${q.ev}</small>`:""}</td>`})():""}</tr>`).join("")}
+  <tr class="tmain"><td class="name"><b>Moyenne du groupe</b></td>${colAvg.map(v=>`<td class="tval"><b>${fjNb(v)}</b></td>`).join("")}<td class="tval"><b>${fjNb(g)}</b></td>${PS&&PS.mx?"<td></td><td></td>":""}<td></td><td></td>${PS?"<td></td>":""}</tr></tbody></table></div>${PS&&PS.mx?`<p class="note">Matchs ${esc(cat)} / ${esc(PS.mx)} : comptés sur toutes les fiches du pôle (les tiennes et celles des autres éducateurs). Assiduité : entraînements (Évaluer › Présences) et matchs, une absence en match compte comme une absence.</p>`:""}`}
 /* --- Bilan écrit en P1 (ou P3) avant la simplification du 9/11 : proposé à la reprise dans le bilan de P2 (ou P4), jamais recopié tout seul --- */
 function repPrev(p,n){if(!WRITE(n)||WRITE(n-1)||n<2)return [];const pr=evR(cat,p,n-1);if(!pr)return [];const a={};["forts","note","axes"].forEach(k=>{if(String(pr[k]||"").trim())a[k]=pr[k]});return Object.keys(a).length?[{w:`écrit en P${n-1}`,a}]:[]}
 
@@ -1988,23 +1989,25 @@ let _mtBP={};function mtBandPull(){const k=cat;if(typeof rtj!=="undefined"&&rtj)
 const mtMiss=f=>(f.j||[]).filter(x=>x.p&&!x.note).length;const mtDay=ts=>{try{return new Date(ts).toLocaleDateString("fr-FR",{day:"numeric",month:"long"})}catch(e){return ""}};
 function renderMatch(){const v=document.getElementById("view-match");if(!v)return;if(MT.edit)return mtForm(v);MT.ro=null;if(MT.player)return mtPlayer(v);
   /* 24/11 : un onglet par catégorie du pôle ; la sienne d'abord, l'autre en lecture seule */
-  const PB=mtBand(cat);if(!MT.vc||!PB.includes(MT.vc)||MT.vcOf!==cat){MT.vc=cat;MT.vcOf=cat}const VC=MT.vc,own=VC===cat;
-  const AV=c=>{let o={};try{o=mtAll(c)||{}}catch(e){}return Object.values(o).filter(f=>f&&!f.del&&(c===cat||!f.ex))};
+  /* 24/11 : + un onglet pour l'équipe U10/U11 (ou U12/U13) : les fiches des deux catégories, sans doublon */
+  const MXT=MT_MIX[cat]||null;const PB=mtBand(cat).concat(MXT?[MXT]:[]);if(!MT.vc||!PB.includes(MT.vc)||MT.vcOf!==cat){MT.vc=cat;MT.vcOf=cat}const VC=MT.vc,own=VC===cat,isMx=VC===MXT;
+  const AV=c=>{if(c===MXT){const seen=new Set(),o=[];mtBand(cat).forEach(sc=>{let a={};try{a=mtAll(sc)||{}}catch(e){}Object.values(a).forEach(f=>{if(f&&!f.del&&!f.ex&&!seen.has(f.id)&&mtEq(f,sc)===MXT){seen.add(f.id);o.push(Object.assign({},f,{_sc:sc}))}})});return o}
+    let o={};try{o=mtAll(c)||{}}catch(e){}return Object.values(o).filter(f=>f&&!f.del&&(c===cat||!f.ex)).map(f=>Object.assign({},f,{_sc:c}))};
   const A=AV(VC).sort((a,b)=>String(b.date).localeCompare(String(a.date)));const L=players(cat);
   const AB=mtAllBand();const stats=L.map(p=>{const m=AB.map(f=>(f.j||[]).find(x=>x.p===p)).filter(Boolean);const nt=m.filter(x=>x.note);return {p,n:m.length,min:m.reduce((a,x)=>a+(+x.m||0),0),avg:nt.length?nt.reduce((a,x)=>a+x.note,0)/nt.length:null}});
   const med=(()=>{const v=stats.map(s=>s.avg).filter(x=>x!=null).sort((a,b)=>a-b);return v.length?(v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2):null})();
   v.innerHTML=`<div class="mtw"><div class="mtbanner">Les notes de match restent entre éducateurs : elles vont dans la fiche de chaque joueur, jamais dans les carnets des familles.</div>
-   <div class="mthd"><h2>Matchs · ${esc(VC)}</h2>${own?`<button class="mtbtn" id="mtnew">+ Nouvelle fiche de match</button>`:""}</div>
-   ${PB.length>1?`<div class="edseg mtseg" role="tablist">${PB.map(c=>`<button role="tab" data-vc="${c}" aria-pressed="${c===VC}">${c===cat?`${c} · ton groupe`:c} <small>${AV(c).length}</small></button>`).join("")}</div>`:""}
-   ${own?"":`<p class="mtro">Fiches remplies par les éducateurs ${esc(VC)}. Tu peux les ouvrir pour les lire, pas les modifier.</p>`}
-   ${A.length?`<div class="mtlist">${A.map(f=>`<button class="mtcard" data-f="${f.id}"><span><b>${MT_MIX[VC]?`<i class="mteqb${mtIsMix(mtEq(f,VC))?" mx":""}">${esc(mtEq(f,VC))}</i>`:""}${esc(f.adv||"Adversaire ?")}</b><small>${mtFmt(f.date)} · ${esc(f.lieu)} · ${esc(f.educ)} · ${f.j.filter(x=>x.p).length} joueurs${f.ex?" · exemple":""}</small></span><em class="${f.sent&&!mtMiss(f)?"ok":""}">${!f.sent?"Brouillon":mtMiss(f)?`À compléter · ${mtMiss(f)} sans note`:"✓ Envoyée"}${f.sent&&f.rev?`<small>modifiée le ${mtDay(f.mod||f.ts)}</small>`:""}<small class="mtmodl">${own?"Modifier ›":"Voir ›"}</small></em></button>`).join("")}</div>`:`<p class="mtempty">Aucune fiche pour l'instant.</p>`}
+   <div class="mthd"><h2>Matchs · ${esc(VC)}</h2>${own||isMx?`<button class="mtbtn" id="mtnew">+ Nouvelle fiche de match</button>`:""}</div>
+   ${PB.length>1?`<div class="edseg mtseg" role="tablist">${PB.map(c=>`<button role="tab" data-vc="${c}" aria-pressed="${c===VC}">${c===cat?`${c} · ton groupe`:c===MXT?`Équipe ${c}`:c} <small>${AV(c).length}</small></button>`).join("")}</div>`:""}
+   ${own?"":isMx?`<p class="mtro">Toutes les fiches de l'équipe ${esc(VC)}, remplies en ${esc(mtBand(cat).join(" ou en "))}. Tu modifies les tiennes, les autres sont en lecture seule.</p>`:`<p class="mtro">Fiches remplies par les éducateurs ${esc(VC)}. Tu peux les ouvrir pour les lire, pas les modifier.</p>`}
+   ${A.length?`<div class="mtlist">${A.map(f=>`<button class="mtcard" data-f="${f.id}" data-sc="${f._sc||VC}"><span><b>${MT_MIX[VC]?`<i class="mteqb${mtIsMix(mtEq(f,VC))?" mx":""}">${esc(mtEq(f,VC))}</i>`:""}${esc(f.adv||"Adversaire ?")}</b><small>${mtFmt(f.date)} · ${esc(f.lieu)} · ${esc(f.educ)} · ${f.j.filter(x=>x.p).length} joueurs${f.ex?" · exemple":""}</small></span><em class="${f.sent&&!mtMiss(f)?"ok":""}">${!f.sent?"Brouillon":mtMiss(f)?`À compléter · ${mtMiss(f)} sans note`:"✓ Envoyée"}${f.sent&&f.rev?`<small>modifiée le ${mtDay(f.mod||f.ts)}</small>`:""}<small class="mtmodl">${(f._sc||VC)===cat?"Modifier ›":"Voir ›"}</small></em></button>`).join("")}</div>`:`<p class="mtempty">Aucune fiche pour l'instant.</p>`}
    ${own&&cat==="U11"&&!mtAll(cat).ex0711?`<button class="mtlink" id="mtex">Voir l'exemple : fiche de Thomas du 07/11 (FC 2 Vallées)</button>`:""}
    ${own?`<h3 class="mth3">Par joueur${med!=null?` <small>médiane du groupe : ${med.toFixed(1).replace(".",",")}/5</small>`:""}</h3>
    <div class="mtpl">${stats.map(s=>`<button data-p="${esc(s.p)}"><span>${esc(mtNice(s.p))}</span><span>${s.n} match${s.n>1?"s":""} · ${s.min} min</span><b class="${s.avg==null?"":s.avg>=(med??3)?"up":"dn"}">${s.avg==null?"–":s.avg.toFixed(1).replace(".",",")}</b></button>`).join("")}</div>`:""}</div>`;
-  {const nb_=v.querySelector("#mtnew");if(nb_)nb_.onclick=()=>{MT.edit=mtNew();renderMatch();scrollTo(0,0)}}
-  v.querySelectorAll("[data-vc]").forEach(b=>b.onclick=()=>{MT.vc=b.dataset.vc;renderMatch();if(MT.vc!==cat)Promise.resolve(mtPull(MT.vc)).then(()=>{if(get("tab")==="view-match"&&!MT.edit&&!MT.player&&MT.vc===b.dataset.vc)renderMatch()}).catch(()=>{})});
+  {const nb_=v.querySelector("#mtnew");if(nb_)nb_.onclick=()=>{MT.edit=mtNew();if(isMx)MT.edit.eq=MXT;renderMatch();scrollTo(0,0)}}
+  v.querySelectorAll("[data-vc]").forEach(b=>b.onclick=()=>{MT.vc=b.dataset.vc;renderMatch();if(MT.vc!==cat)Promise.all(mtBand(cat).map(c=>Promise.resolve(mtPull(c)).catch(()=>{}))).then(()=>{if(get("tab")==="view-match"&&!MT.edit&&!MT.player&&MT.vc===b.dataset.vc)renderMatch()}).catch(()=>{})});
   const ex=v.querySelector("#mtex");if(ex)ex.onclick=()=>{const f=mtExample();mtAll(cat)[f.id]=f;save();renderMatch()};
-  v.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{const g=JSON.parse(JSON.stringify(mtAll(VC)[b.dataset.f]));if(!own){if(!g.eq)g.eq=VC;MT.ro=VC}MT.edit=g;renderMatch();scrollTo(0,0)});
+  v.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{const sc=b.dataset.sc||VC;const g=JSON.parse(JSON.stringify(mtAll(sc)[b.dataset.f]));if(sc!==cat){if(!g.eq)g.eq=sc;MT.ro=sc}MT.edit=g;renderMatch();scrollTo(0,0)});
   v.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{MT.player=b.dataset.p;renderMatch();scrollTo(0,0)});
   mtPull(cat);mtBandPull()}
 function mtPlayer(v){const p=MT.player;const A=mtForP(p).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
@@ -3551,6 +3554,10 @@ i.gidot{cursor:default;position:absolute;top:50%;width:11px;height:11px;margin:-
 @media(max-width:760px){.prt td.name{max-width:104px;min-width:88px}.prt .prpill{font-size:9.5px;padding:1px 5px;margin-left:0;white-space:normal;line-height:1.25}}
 @media(max-width:760px){.prt .prnx{display:none}.prt th,.prt td{padding-left:4px!important;padding-right:4px!important}}
 .thtest .mtsc{display:block;font-size:9.5px;font-weight:600;color:var(--muted);text-transform:none}
+.prt td.prmx b,.mgt td.prmx b{background:#FFF1C9;color:#7A5600;border-radius:6px;padding:0 5px}
+.syt td.tval small{display:block}
+@media(max-width:760px){.syt td.tval small{display:none}.syt .prsort{white-space:normal;line-height:1.15}.syt th{vertical-align:bottom}.syt td.name{max-width:96px;min-width:80px}}
+@media(max-width:760px){.syt th,.syt td{padding-left:3px!important;padding-right:3px!important}.syt td.tval b{font-size:13.5px}.syt td.name{font-size:13.5px;max-width:84px;min-width:70px}.syt th .prs{font-size:10.5px}}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -3943,31 +3950,33 @@ function pmStats(c){const mx=typeof MT_MIX!=="undefined"?MT_MIX[c]:null;const se
     /* nc : séances où l'enfant n'est pas compté (pas encore au club, pas dans le tableau d'origine) */
     const mine=ses.filter(d=>!(S[d].nc||[]).includes(p));
     const ab={exc:0,nex:0,bl:0};mine.forEach(d=>{const k=(S[d].abs||{})[p];if(k&&ab[k]!=null)ab[k]++});const tp=mine.length-ab.exc-ab.nex-ab.bl;
-    const pct=mine.length?tp/mine.length:null,share=n?nc/n:null;
-    /* 24/11 : deux signaux indépendants : peu présent à l'entraînement ; joue surtout dans l'équipe U10/U11 */
-    const flagP=!!(mine.length>=3&&pct<.6),flagM=!!(mx&&n>=3&&share<1/3);
-    return {p,nc,nm,na:n-nc-nm,n,min,abM,ab,tp,ns:mine.length,pct,share,flagP,flagM,flag:flagP||flagM}});
+    /* 24/11 : assiduité = entraînements + matchs (une absence en match compte comme une absence) */
+    const tpct=mine.length?tp/mine.length:null,ev=mine.length+n+abM,pct=ev?(tp+n)/ev:null,share=n?nc/n:null,mxs=mx&&n?nm/n:null;
+    const mp=F.filter(x=>(x.f.j||[]).some(y=>y.p===p&&y.note)).map(x=>x.f.j.find(y=>y.p===p).note);const navg=mp.length?mp.reduce((a,b)=>a+b,0)/mp.length:null;
+    /* deux signaux indépendants : peu présent ; joue surtout dans l'équipe U10/U11 */
+    const flagP=!!(ev>=3&&pct<.6),flagM=!!(mx&&n>=3&&mxs>2/3);
+    return {p,nc,nm,na:n-nc-nm,n,min,abM,ab,tp,ns:mine.length,tpct,ev,pct,share,mxs,navg,flagP,flagM,flag:flagP||flagM}});
   return {rows,Ncat,Nmx,mx,ns:ses.length,F}}
-const prPills=(r,c,mx)=>`${r.flagP?`<i class="prpill pr-p" title="Moins de 60 % de présence à l'entraînement">peu présent</i>`:""}${r.flagM?`<i class="prpill" title="Plus de deux matchs sur trois joués en ${esc(mx||"")}">souvent en ${esc(mx||"")}</i>`:""}`;
+const prPills=(r,c,mx)=>`${r.flagP?`<i class="prpill pr-p" title="Moins de 60 % d'assiduité (entraînements et matchs)">peu présent</i>`:""}${r.flagM?`<i class="prpill" title="Plus de deux matchs sur trois joués en ${esc(mx||"")}">souvent en ${esc(mx||"")}</i>`:""}`;
 const prPct=v=>v==null?"–":Math.round(v*100)+" %";
 const prCls=v=>v==null?"":v>=.8?"ok":v<.6?"ko":"";
 
 /* ---------- le tableau « Présences et équipes » ---------- */
 function presTableHTML(c,ctx){const S=pmStats(c);const noM=MT_NOMATCH.includes(c);const mx=S.mx;let R=S.rows.slice();const k=PRS.sort;
-  const val={nom:r=>mtNice(r.p),pres:r=>r.pct==null?-1:r.pct,cat:r=>r.nc,mx:r=>r.nm,part:r=>r.share==null?2:r.share,min:r=>r.min,n:r=>r.n};
+  const val={nom:r=>mtNice(r.p),pres:r=>r.pct==null?-1:r.pct,cat:r=>r.nc,mx:r=>r.nm,part:r=>r.mxs==null?-1:r.mxs,min:r=>r.min,n:r=>r.n};
   if(k&&val[k.c]){const f=val[k.c];R.sort((a,b)=>{const x=f(a),y=f(b);return (typeof x==="string"?x.localeCompare(y,"fr"):x-y)*(k.d?-1:1)})}
   const th=(c_,l,cl,sh)=>`<th class="${cl||""}"><button class="prsort${k&&k.c===c_?" on":""}" data-ps="${c_}"><span class="prl">${l}</span><span class="prs">${sh||l}</span>${k&&k.c===c_?(k.d?" ▼":" ▲"):""}</button></th>`;
   const nP=R.filter(r=>r.flagP).length,nM=R.filter(r=>r.flagM).length;
-  const head=`<tr>${th("nom","Joueur","name")}${th("pres","Entraînements","","Entraîn.")}${noM?"":mx?th("cat",`Matchs ${esc(c)}`,"",esc(c))+th("mx",`Matchs ${esc(mx)}`,"",esc(mx))+th("part",`Part en ${esc(c)}`,"",`% ${esc(c)}`):th("n","Matchs")}${noM?"":th("min","Minutes","prmin","Min.")}</tr>`;
+  const head=`<tr>${th("nom","Joueur","name")}${th("pres","Assiduité","","Assid.")}${noM?"":mx?th("cat",`Matchs ${esc(c)}`,"",esc(c))+th("mx",`Matchs ${esc(mx)}`,"",esc(mx))+th("part",`% en ${esc(mx)}`,"",`% ${esc(mx)}`):th("n","Matchs")}${noM?"":th("min","Minutes","prmin","Min.")}</tr>`;
   const body=R.map(r=>`<tr${r.flag?' class="prflag"':""}><td class="name">${esc(mtNice(r.p))}${prPills(r,c,mx)}</td>
-    <td class="tval ${prCls(r.pct)}"><b>${prPct(r.pct)}</b>${r.ns?`<small>${r.tp}/${r.ns}${r.ab.nex?`<span class="prnx"> · ${r.ab.nex} non exc.</span>`:""}</small>`:""}</td>
-    ${noM?"":mx?`<td class="tval"><b>${r.nc}</b><small>/${S.Ncat}</small></td><td class="tval"><b>${r.nm}</b><small>/${S.Nmx}</small></td><td class="tval"><b>${r.n?prPct(r.share):"–"}</b>${r.abM?`<small>${r.abM} abs. match</small>`:""}</td>`:`<td class="tval"><b>${r.n}</b><small>/${S.Ncat}</small>${r.abM?`<small>${r.abM} abs.</small>`:""}</td>`}
+    <td class="tval ${prCls(r.pct)}"><b>${prPct(r.pct)}</b>${r.ev?`<small>${r.tp+r.n}/${r.ev}<span class="prnx">${r.ns?` · entr. ${r.tp}/${r.ns}`:""}${r.abM?` · ${r.abM} abs. match`:""}</span></small>`:""}</td>
+    ${noM?"":mx?`<td class="tval"><b>${r.nc}</b><small>/${S.Ncat}</small></td><td class="tval"><b>${r.nm}</b><small>/${S.Nmx}</small></td><td class="tval${r.flagM?" prmx":""}"><b>${r.n?prPct(r.mxs):"–"}</b></td>`:`<td class="tval"><b>${r.n}</b><small>/${S.Ncat}</small>${r.abM?`<small>${r.abM} abs.</small>`:""}</td>`}
     ${noM?"":`<td class="tval prmin">${r.n?r.min+"'":"–"}</td>`}</tr>`).join("");
   const info=[S.ns?`${S.ns} séance${S.ns>1?"s":""} d'entraînement notée${S.ns>1?"s":""}`:"Aucune séance notée pour l'instant",noM?"":mx?`${S.Ncat} match${S.Ncat>1?"s":""} en ${esc(c)}, ${S.Nmx} en ${esc(mx)}`:`${S.Ncat} match${S.Ncat>1?"s":""}`].filter(Boolean).join(" · ");
   return `<div class="ghead"><div><h3>Présences${noM?"":" et équipes"} · ${esc(c)}</h3><p class="note">${info}. Touche un titre de colonne pour trier.</p></div></div>
    <div class="tbl-wrap"><table class="sgt prt"><thead>${head}</thead><tbody>${body}</tbody></table></div>
-   <p class="note prleg">${noM?"":`${mx?`<b>Part en ${esc(c)}</b> (% ${esc(c)}) : matchs joués en ${esc(c)} sur tous ses matchs. `:""}`}Entraînements en <b class="ok">vert</b> : 80 % ou plus · en <b class="ko">rouge</b> : moins de 60 %.</p>
-   <p class="note prleg"><i class="prpill pr-p">peu présent</i> moins de 60 % de présence à l'entraînement (à partir de 3 séances notées)${nP?` : <b>${nP} enfant${nP>1?"s":""}</b>`:""}.${mx&&!noM?`<br><i class="prpill">souvent en ${esc(mx)}</i> plus de deux matchs sur trois joués en ${esc(mx)} (à partir de 3 matchs)${nM?` : <b>${nM} enfant${nM>1?"s":""}</b>`:""}. À regarder pour comprendre pourquoi.`:""}</p>`}
+   <p class="note prleg">${noM?"":`${mx?`<b>% ${esc(mx)}</b> : part de ses matchs joués en ${esc(mx)}. `:""}`}<b>Assiduité</b> : présence aux entraînements et aux matchs (une absence en match compte comme une absence) · en <b class="ok">vert</b> : 80 % ou plus · en <b class="ko">rouge</b> : moins de 60 %.</p>
+   <p class="note prleg"><i class="prpill pr-p">peu présent</i> moins de 60 % d'assiduité (à partir de 3 séances ou matchs)${nP?` : <b>${nP} enfant${nP>1?"s":""}</b>`:""}.${mx&&!noM?`<br><i class="prpill">souvent en ${esc(mx)}</i> plus de deux matchs sur trois joués en ${esc(mx)} (à partir de 3 matchs)${nM?` : <b>${nM} enfant${nM>1?"s":""}</b>`:""}. À regarder pour comprendre pourquoi.`:""}</p>`}
 function prRe(sel,ctx){const t=document.querySelector(sel);if(!t)return;t.innerHTML=presTableHTML(cat,ctx);presBind(t,()=>prRe(sel,ctx))}
 function presBind(root,re){root.querySelectorAll("[data-ps]").forEach(b=>b.onclick=()=>{const c_=b.dataset.ps;PRS.sort=PRS.sort&&PRS.sort.c===c_?(PRS.sort.d?null:{c:c_,d:true}):{c:c_,d:false};re()})}
 
@@ -3992,14 +4001,14 @@ function renderPres(){const v=document.getElementById("view-pres");if(!v)return;
   presPullOnce(c,()=>{if(get("tab")==="view-pres"&&!PRS.dirty){PRS.abs=null;renderPres()}});if(typeof mtBandPull==="function")mtBandPull()}
 
 /* ---------- dans la fiche du joueur (onglet Matchs) ---------- */
-function presStrip(p){const S=pmStats(cat);const r=S.rows.find(x=>x.p===p);if(!r||(!r.ns&&!r.n))return "";const noM=MT_NOMATCH.includes(cat);
-  return `${r.flag?`<p class="prstripp">${prPills(r,cat,S.mx)}</p>`:""}<div class="prstrip"><div><small>Entraînements</small><b class="${prCls(r.pct)}">${prPct(r.pct)}</b><span>${r.ns?`${r.tp} sur ${r.ns}`:"pas encore noté"}${r.ab.exc+r.ab.nex+r.ab.bl?` · absences : ${[r.ab.exc?r.ab.exc+" exc.":"",r.ab.nex?r.ab.nex+" non exc.":"",r.ab.bl?r.ab.bl+" blessé":""].filter(Boolean).join(", ")}`:""}</span></div>
-   ${noM?"":S.mx?`<div><small>Matchs en ${esc(cat)}</small><b>${r.nc}</b><span>sur ${S.Ncat}</span></div><div><small>Matchs en ${esc(S.mx)}</small><b>${r.nm}</b><span>sur ${S.Nmx}</span></div><div><small>Part en ${esc(cat)}</small><b>${r.n?prPct(r.share):"–"}</b><span>${r.min} min jouées</span></div>`:`<div><small>Matchs joués</small><b>${r.n}</b><span>sur ${S.Ncat} · ${r.min} min</span></div>`}</div>`}
+function presStrip(p){const S=pmStats(cat);const r=S.rows.find(x=>x.p===p);if(!r||(!r.ev))return "";const noM=MT_NOMATCH.includes(cat);
+  return `${r.flag?`<p class="prstripp">${prPills(r,cat,S.mx)}</p>`:""}<div class="prstrip"><div><small>Assiduité</small><b class="${prCls(r.pct)}">${prPct(r.pct)}</b><span>${r.ev?`${r.tp+r.n} sur ${r.ev}${r.ns?` · entr. ${r.tp}/${r.ns}`:""}${r.abM?` · ${r.abM} abs. match`:""}`:"pas encore noté"}${r.ab.exc+r.ab.nex+r.ab.bl?` · absences : ${[r.ab.exc?r.ab.exc+" exc.":"",r.ab.nex?r.ab.nex+" non exc.":"",r.ab.bl?r.ab.bl+" blessé":""].filter(Boolean).join(", ")}`:""}</span></div>
+   ${noM?"":S.mx?`<div><small>Matchs en ${esc(cat)}</small><b>${r.nc}</b><span>sur ${S.Ncat}</span></div><div><small>Matchs en ${esc(S.mx)}</small><b>${r.nm}</b><span>sur ${S.Nmx}</span></div><div><small>% en ${esc(S.mx)}</small><b>${r.n?prPct(r.mxs):"–"}</b><span>${r.min} min jouées</span></div>`:`<div><small>Matchs joués</small><b>${r.n}</b><span>sur ${S.Ncat} · ${r.min} min</span></div>`}</div>`}
 
 /* ---------- branchements ---------- */
 window.addEventListener("load",()=>{
   /* Bilan du groupe : le tableau, pour le RTJ et les éducateurs */
-  if(typeof renderBilan==="function"){const _rb=renderBilan;renderBilan=function(){const out=_rb.apply(this,arguments);try{presBilan()}catch(e){}return out}}
+  if(typeof renderBilan==="function"){const _rb=renderBilan;renderBilan=function(){const out=_rb.apply(this,arguments);try{presBilan()}catch(e){}try{synBilan()}catch(e){console.error(e)}return out}}
   /* Notes de match : pas de fiche de match en U7-U8 */
   if(typeof renderMatch==="function"){const _rm=renderMatch;renderMatch=function(){if(MT_NOMATCH.includes(cat)){const v=document.getElementById("view-match");if(v)v.innerHTML=`<div class="mtw"><p class="mtempty">Pas de fiche de match en ${esc(cat)} (plateaux) : seulement les présences.</p><button class="mtbtn" id="mtgopres">Noter les présences ›</button></div>`;const b=document.getElementById("mtgopres");if(b)b.onclick=()=>{if(typeof goSub==="function")goSub("pres");else showTab("view-pres")};return}const o=_rm.apply(this,arguments);try{presPullOnce(cat,()=>{if(get("tab")==="view-match"&&!MT.edit)renderMatch()})}catch(e){}return o}}
 });
@@ -4008,7 +4017,34 @@ function presBilan(){const v=document.getElementById("view-bilan");if(!v)return;
   const d=cur||document.createElement("div");d.id="presBil";d.className="card jblk prtab";d.innerHTML=presTableHTML(cat,"bilan");
   if(!cur){const g=document.getElementById("grpIns");if(g)g.before(d);else v.appendChild(d)}
   presBind(d,()=>prRe("#presBil","bilan"));
-  presPullOnce(cat,()=>{if(get("tab")==="view-bilan")presBilan()});if(typeof mtBandPull==="function")mtBandPull()}
+  presPullOnce(cat,()=>{if(get("tab")==="view-bilan"){presBilan();synBilan()}});if(typeof mtBandPull==="function")mtBandPull()}
+
+/* ---------- 24/11 : synthèse du groupe (1er tableau du Bilan) : étoiles, tests, notes de match, % équipe U10/U11, assiduité ---------- */
+let SYN={sort:null};
+function synTableHTML(c){const S=pmStats(c);const noM=MT_NOMATCH.includes(c);const mx=S.mx;const P=typeof per!=="undefined"?per:1;
+  const mean=a=>{const v=a.filter(x=>x!=null&&!isNaN(x));return v.length?v.reduce((p,q)=>p+q,0)/v.length:null};
+  let R=S.rows.map(r=>{let st=null;try{st=fjAvg(r.p,P)}catch(e){}let tu=null,tn=0;try{const T=fjTests(r.p).items.filter(x=>x.v!=null&&x.mean!=null&&x.N>=3);tn=T.length;tu=T.filter(x=>x.t.lower?x.v<x.mean:x.v>x.mean).length}catch(e){}
+    return Object.assign({},r,{st,tu,tn,tr:tn?tu/tn:null})});
+  const G={st:mean(R.map(r=>r.st)),tr:mean(R.map(r=>r.tr)),na:mean(R.map(r=>r.navg)),mx:mean(R.map(r=>r.n?r.mxs:null)),pc:mean(R.map(r=>r.pct))};
+  const k=SYN.sort;const val={nom:r=>mtNice(r.p),st:r=>r.st==null?-1:r.st,te:r=>r.tr==null?-1:r.tr,na:r=>r.navg==null?-1:r.navg,mx:r=>r.mxs==null?-1:r.mxs,pc:r=>r.pct==null?-1:r.pct};
+  if(k&&val[k.c]){const f=val[k.c];R.sort((a,b)=>{const x=f(a),y=f(b);return (typeof x==="string"?x.localeCompare(y,"fr"):x-y)*(k.d?-1:1)})}
+  const th=(c_,l,sh,cl)=>`<th class="${cl||""}"><button class="prsort${k&&k.c===c_?" on":""}" data-ss="${c_}"><span class="prl">${l}</span><span class="prs">${sh||l}</span>${k&&k.c===c_?(k.d?" ▼":" ▲"):""}</button></th>`;
+  const cmp=(v,g,d)=>v==null||g==null?"":v>=g+d?"ok":v<=g-d?"ko":"";const nb=v=>v==null?"–":(Math.round(v*100)/100).toString().replace(".",",");
+  const head=`<tr>${th("nom","Joueur","Joueur","name")}${th("st",`Étoiles P${P}`,`★ P${P}`)}${th("te","Tests techniques","Tests")}${noM?"":th("na","Notes de match","Match")}${th("pc","Assiduité","Assid.")}${!noM&&mx?th("mx",`% en ${esc(mx)}`,`% ${esc(mx)}`):""}</tr>`;
+  const body=R.map(r=>`<tr><td class="name">${esc(mtNice(r.p))}${prPills(r,c,mx)}</td>
+    <td class="tval ${cmp(r.st,G.st,.15)}"><b>${nb(r.st)}</b></td>
+    <td class="tval ${r.tr==null?"":r.tr>=.6?"ok":r.tr<=.4?"ko":""}"><b>${r.tn?`${r.tu}/${r.tn}`:"–"}</b></td>
+    ${noM?"":`<td class="tval ${cmp(r.navg,G.na,.15)}"><b>${nb(r.navg)}</b>${r.n?`<small>${r.n} match${r.n>1?"s":""}</small>`:""}</td>`}
+    <td class="tval ${prCls(r.pct)}"><b>${prPct(r.pct)}</b></td>${!noM&&mx?`<td class="tval${r.flagM?" prmx":""}"><b>${r.n?prPct(r.mxs):"–"}</b></td>`:""}</tr>`).join("");
+  const foot=`<tr class="tmain"><td class="name"><b>Moyenne du groupe</b></td><td class="tval"><b>${nb(G.st)}</b></td><td class="tval"><b>${(()=>{const T=R.filter(r=>r.tn);if(!T.length)return "–";const N=T.map(r=>r.tn).sort((a,b)=>T.filter(r=>r.tn===b).length-T.filter(r=>r.tn===a).length)[0];return nb(mean(T.filter(r=>r.tn===N).map(r=>r.tu)))+"/"+N})()}</b></td>${noM?"":`<td class="tval"><b>${nb(G.na)}</b></td>`}<td class="tval"><b>${prPct(G.pc)}</b></td>${!noM&&mx?`<td class="tval"><b>${prPct(G.mx)}</b></td>`:""}</tr>`;
+  return `<div class="ghead"><div><h3>Synthèse du groupe · ${esc(c)}</h3><p class="note">Pour chaque enfant, l'essentiel en une ligne, comparé à la moyenne du groupe. Touche un titre de colonne pour trier.</p></div></div>
+   <div class="tbl-wrap"><table class="sgt prt syt"><thead>${head}</thead><tbody>${body}${foot}</tbody></table></div>
+   <p class="note prleg">En <b class="ok">vert</b> : au-dessus de la moyenne du groupe · en <b class="ko">rouge</b> : en dessous. <b>Étoiles</b> : moyenne de la période ${P}. <b>Tests</b> : nombre de tests où l'enfant fait mieux que la moyenne du groupe.${noM?"":` <b>Match</b> : note moyenne sur 5.${mx?` <b>% ${esc(mx)}</b> : part de ses matchs joués en ${esc(mx)}.`:""}`} <b>Assiduité</b> : entraînements et matchs (vert : 80 % ou plus, rouge : moins de 60 %).</p>`}
+function synBind(d){d.querySelectorAll("[data-ss]").forEach(b=>b.onclick=()=>{const c_=b.dataset.ss;SYN.sort=SYN.sort&&SYN.sort.c===c_?(SYN.sort.d?null:{c:c_,d:true}):{c:c_,d:false};d.innerHTML=synTableHTML(cat);synBind(d)})}
+function synBilan(){const v=document.getElementById("view-bilan");if(!v)return;const cur=document.getElementById("synBil");
+  if(get("tab")!=="view-bilan"||typeof BCTX==="undefined"||BCTX!=="joueurs"||!authed()||!players(cat).length){if(cur)cur.remove();return}
+  const d=cur||document.createElement("div");d.id="synBil";d.className="card jblk prtab";d.innerHTML=synTableHTML(cat);synBind(d);
+  if(!cur){const first=[...v.querySelectorAll(".card")].find(x=>x.id!=="synBil");if(first)first.before(d);else v.appendChild(d)}}
 </script><script>/* =====================================================================
    PROTOTYPE V2 (16/11, demande de Benjamin) : autre façon d'entrer dans l'outil.
    4 onglets : Fiches joueurs · Bilan du groupe · Évaluer (Étoiles / Tests techniques / Notes de match) · Rencontres famille.
@@ -4034,14 +4070,14 @@ function nav(){const n=document.querySelector("nav.tabs");if(!n||n.dataset.v2)re
   /* Évaluer ouvre un petit menu : Étoiles · Tests techniques · Notes de match (16/11, demande de Benjamin) */
   te.querySelector(".tl").insertAdjacentHTML("beforeend",'<i class="v2car"> ▾</i>');
   const menu=document.createElement("div");menu.className="v2evm";menu.hidden=true;menu.setAttribute("role","menu");
-  menu.innerHTML=[["val","⏳","À valider"],["etoiles","★","Étoiles"],["tests","⏱","Tests techniques"],["match","⚽","Notes de match"]].map(([k,i,l])=>`<button type="button" role="menuitem" data-evm="${k}"><span>${i}</span>${l}</button>`).join("");
+  menu.innerHTML=[["val","⏳","À valider"],["etoiles","★","Étoiles"],["tests","⏱","Tests techniques"],["match","⚽","Notes de match"],["pres","✓","Présences"]].map(([k,i,l])=>`<button type="button" role="menuitem" data-evm="${k}"><span>${i}</span>${l}</button>`).join("");
   document.body.appendChild(menu);
   const place=()=>{const r=te.getBoundingClientRect();const mob=innerWidth<=760;menu.classList.toggle("up",mob);
     menu.style.left=Math.max(8,Math.min(innerWidth-menu.offsetWidth-8,r.left+r.width/2-menu.offsetWidth/2))+"px";
     if(mob){menu.style.top="";menu.style.bottom=(innerHeight-r.top+8)+"px"}else{menu.style.bottom="";menu.style.top=(r.bottom+scrollY+6)+"px"}};
   const close=()=>{menu.hidden=true;te.classList.remove("v2evo")};
   te.addEventListener("click",ev=>{ev.stopImmediatePropagation();ev.preventDefault();if(!menu.hidden){close();return}
-    menu.querySelectorAll("[data-evm]").forEach(b=>b.setAttribute("aria-current",isEval(activeId())&&b.dataset.evm===EVSUB));
+    menu.querySelectorAll("[data-evm]").forEach(b=>b.setAttribute("aria-current",isEval(activeId())&&b.dataset.evm===EVSUB));{const bm=menu.querySelector('[data-evm="match"]');if(bm)bm.style.display=(typeof MT_NOMATCH!=="undefined"&&MT_NOMATCH.includes(cat))?"none":""}
     {const bv=menu.querySelector('[data-evm="val"]');let L=[];try{L=rtj?pendingVal():[]}catch(e){}bv.hidden=!L.length;bv.style.display=L.length?"":"none";if(L.length){const C=[...new Set(L.map(x=>x.c))];bv.innerHTML=`<span>⏳</span>${L.length} fiche${L.length>1?"s":""} à valider · ${C.join(", ")}`}}menu.hidden=false;te.classList.add("v2evo");place()},true);
   menu.querySelectorAll("[data-evm]").forEach(b=>b.onclick=()=>{close();if(b.dataset.evm==="val"){valOpen=true;saveSub("etoiles");showTab("view-eval");scrollTo(0,0);return}goSub(b.dataset.evm)});
   document.addEventListener("click",ev=>{if(!menu.hidden&&!menu.contains(ev.target)&&!te.contains(ev.target))close()});
