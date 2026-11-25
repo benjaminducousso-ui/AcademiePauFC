@@ -1780,14 +1780,14 @@ function ficheHtml(p,TP){const AP=fjApp(p,per),TS=fjTests(p),MT_=fjMatchs(p),RG=
   return `${id}
    <div class="card jblk"><h4>En un coup d'œil</h4>${kpi}${reg}<p class="note">Ce que l'outil retient en croisant les commentaires, les étoiles, les tests et les matchs.</p></div>
    <div class="card jblk"><h4>Évolution des étoiles</h4>${evoSvg(p)||`<p class="note">La courbe apparaît dès la première période notée.</p>`}</div>
-   <div class="card jblk"><div class="jseg" role="tablist">${[["appr","Étoiles"],["def","Tests techniques"],["mat","Notes de match"]].map(([k,l])=>`<button role="tab" data-jt="${k}" aria-selected="${JTAB===k}">${l}</button>`).join("")}</div>
-     <div class="jtab" ${JTAB==="appr"?"":"hidden"}>${tApp}</div><div class="jtab" ${JTAB==="def"?"":"hidden"}>${tDef}</div><div class="jtab" ${JTAB==="mat"?"":"hidden"}>${tMat}</div></div>
+   <div class="card jblk"><div class="jseg" role="tablist">${[["appr","Étoiles"],["def","Tests techniques"],["mat","Notes de match"],["pres","Présences"]].map(([k,l])=>`<button role="tab" data-jt="${k}" aria-selected="${JTAB===k}">${l}</button>`).join("")}</div>
+     <div class="jtab" ${JTAB==="appr"?"":"hidden"}>${tApp}</div><div class="jtab" ${JTAB==="def"?"":"hidden"}>${tDef}</div><div class="jtab" ${JTAB==="mat"?"":"hidden"}>${tMat}</div><div class="jtab" ${JTAB==="pres"?"":"hidden"}>${typeof presFicheHTML==="function"?presFicheHTML(p):""}</div></div>
    ${docsFicheHtml()}`}
 function bindFiche(v,p,list){
   const go=x=>{store.sel[cat]=x;save();renderFiches()};
   v.querySelectorAll("[data-fj]").forEach(b=>b.onclick=()=>{const k=list.indexOf(p)+(+b.dataset.fj);if(list[k])go(list[k])});
   const bk=v.querySelector("[data-back]");if(bk)bk.onclick=()=>{JOPEN=false;renderFiches();scrollTo(0,0)};
-  v.querySelectorAll("[data-jt]").forEach(b=>b.onclick=()=>{JTAB=b.dataset.jt;v.querySelectorAll("[data-jt]").forEach(x=>x.setAttribute("aria-selected",x===b));const T=v.querySelectorAll(".jtab");["appr","def","mat"].forEach((k,i)=>T[i].hidden=k!==JTAB)});
+  v.querySelectorAll("[data-jt]").forEach(b=>b.onclick=()=>{JTAB=b.dataset.jt;v.querySelectorAll("[data-jt]").forEach(x=>x.setAttribute("aria-selected",x===b));const T=v.querySelectorAll(".jtab");["appr","def","mat","pres"].forEach((k,i)=>{if(T[i])T[i].hidden=k!==JTAB})});
   v.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{const g=b.dataset.go;if(g==="appr"){evMode="saisie";set("evMode",evMode);showTab("view-eval")}else if(g==="match-new"){showTab("view-match");if(typeof MT!=="undefined"){MT.player=null;MT.edit=mtNew();renderMatch()}}else{if(typeof MT!=="undefined"){MT.edit=null;MT.player=b.dataset.mp?p:null}showTab(g)}scrollTo(0,0)});
   v.querySelectorAll("[data-val]").forEach(b=>b.onclick=()=>{validate(cat,p,per,b.dataset.val==="1");toast(b.dataset.val==="1"?`Appréciation de ${prenom(p)} validée`:"Validation retirée");renderFiches()});
   const pf=v.querySelector("[data-prof]");if(pf)pf.onclick=()=>profSheet(p);
@@ -3576,6 +3576,23 @@ span.plk{cursor:pointer;color:var(--navy-2,#1d3b6e);text-decoration:underline;te
 #view-fiche .fjt tr.fjcm .mtdv{margin-top:2px}
 @media(max-width:760px){#view-fiche .fjt td:nth-child(2){white-space:normal;min-width:120px}#view-fiche .fjt .mtxc{display:none}}
 @media(max-width:760px){#view-fiche .fjt th,#view-fiche .fjt td{padding:6px 4px;font-size:12.5px}#view-fiche .fjt td:nth-child(2){min-width:96px}#view-fiche .fjt th .hm{display:none}#view-fiche .fjt .mteqb{font-size:10.5px}}
+.prst{display:flex;flex-direction:column;gap:8px;margin:4px 0 10px}
+.prtodo{background:#FFF4E5;border:1px solid #F5C58A;border-radius:12px;padding:10px 12px}.prtodo>b{color:#9A3412;display:block}.prtodo>span{font-size:12.5px;color:#7A4A12}
+.prok{background:#E7F6EE;border:1px solid #A9DDBF;border-radius:12px;padding:9px 12px;color:#14653F;font-weight:700}
+.prhist{background:#F3F5F9;border-radius:12px;padding:8px 12px}.prhist summary{cursor:pointer;font-weight:700;color:#0B2A4A}.prm{margin-top:6px}.prm small{text-transform:capitalize;color:var(--muted);font-weight:800}
+.prchip.todo{border-color:#F5A25D;background:#fff;color:#9A3412}.prchip.done{background:#fff}.prchip i{font-style:normal;font-size:10.5px;color:var(--muted);margin-left:5px}
+.prstate{border-radius:10px;padding:8px 11px;font-size:13.5px;margin:6px 0 4px;font-weight:700}.prstate.ok{background:#E7F6EE;color:#14653F}.prstate.no{background:#FFF4E5;color:#9A3412}
+.prstate .lnk{background:none;border:0;color:#5B6B82;text-decoration:underline;font-weight:500;font-size:12.5px;cursor:pointer;padding:0;margin-left:6px}
+.prpill.pr-b{background:#E3ECFA;color:#1F4E8C}
+.prbl{background:#EEF3FB!important}.prbl b{color:#1F4E8C!important}
+.prcall{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:#0B2A4A;color:#fff;border:0;border-radius:14px;padding:12px 14px;margin:2px 0 10px;cursor:pointer}.prcall b{font-size:16px}.prcall span{font-size:13px;color:#F2C200}
+.prsave{position:sticky;bottom:calc(70px + env(safe-area-inset-bottom));z-index:5}
+.prfh{margin:12px 0 4px;font-size:15px;color:#0B2A4A}
+.prmotif{font-style:normal;font-size:12px;font-weight:700;border-radius:6px;padding:2px 7px}.prmotif.exc{background:#FFF1C9;color:#7A5600}.prmotif.nex{background:#FDE4D8;color:#9A3412}.prmotif.bl{background:#E3ECFA;color:#1F4E8C}
+.prft td:first-child{white-space:nowrap}
+#view-fiche .jblk>.jseg{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;max-width:100%}
+#view-fiche .jblk>.jseg button{min-width:0;white-space:normal;line-height:1.15;padding-left:4px;padding-right:4px}
+@media(max-width:600px){#view-fiche .jblk>.jseg button{font-size:12.5px}}
 </style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
@@ -3964,18 +3981,18 @@ function pmStats(c){const mx=typeof MT_MIX!=="undefined"?MT_MIX[c]:null;const se
   const Ncat=F.filter(x=>x.t===c).length,Nmx=mx?F.filter(x=>x.t===mx).length:0;
   const S=prAll(c);const ses=Object.keys(S).filter(d=>S[d]&&!S[d].del).sort();
   const rows=players(c).map(p=>{const M=F.filter(x=>(x.f.j||[]).some(y=>y.p===p));const nc=M.filter(x=>x.t===c).length,nm=mx?M.filter(x=>x.t===mx).length:0,n=M.length;
-    const min=M.reduce((a,x)=>a+(+((x.f.j.find(y=>y.p===p)||{}).m)||0),0);const abM=F.filter(x=>x.f.abs&&x.f.abs[p]).length;
+    const min=M.reduce((a,x)=>a+(+((x.f.j.find(y=>y.p===p)||{}).m)||0),0);const abMa=F.filter(x=>x.f.abs&&x.f.abs[p]);const blM=abMa.filter(x=>x.f.abs[p]==="bl").length;const abM=abMa.length-blM;
     /* nc : séances où l'enfant n'est pas compté (pas encore au club, pas dans le tableau d'origine) */
     const mine=ses.filter(d=>!(S[d].nc||[]).includes(p));
-    const ab={exc:0,nex:0,bl:0};mine.forEach(d=>{const k=(S[d].abs||{})[p];if(k&&ab[k]!=null)ab[k]++});const tp=mine.length-ab.exc-ab.nex-ab.bl;
+    const ab={exc:0,nex:0,bl:0};mine.forEach(d=>{const k=(S[d].abs||{})[p];if(k&&ab[k]!=null)ab[k]++});const tp=mine.length-ab.exc-ab.nex-ab.bl;/* 25/11 : une séance « blessé » sort du calcul (décision de Benjamin) */const blD=mine.filter(d=>(S[d].abs||{})[p]==="bl");const nsC=mine.length-ab.bl;
     /* 24/11 : assiduité = entraînements + matchs (une absence en match compte comme une absence) */
-    const tpct=mine.length?tp/mine.length:null,ev=mine.length+n+abM,pct=ev?(tp+n)/ev:null,share=n?nc/n:null,mxs=mx&&n?nm/n:null;
+    const tpct=nsC?tp/nsC:null,ev=nsC+n+abM,pct=ev?(tp+n)/ev:null,share=n?nc/n:null,mxs=mx&&n?nm/n:null;
     const mp=F.filter(x=>(x.f.j||[]).some(y=>y.p===p&&y.note)).map(x=>x.f.j.find(y=>y.p===p).note);const navg=mp.length?mp.reduce((a,b)=>a+b,0)/mp.length:null;
     /* deux signaux indépendants : peu présent ; joue surtout dans l'équipe U10/U11 */
     const flagP=!!(ev>=3&&pct<.6),flagM=!!(mx&&n>=3&&mxs>2/3);
-    return {p,nc,nm,na:n-nc-nm,n,min,abM,ab,tp,ns:mine.length,tpct,ev,pct,share,mxs,navg,flagP,flagM,flag:flagP||flagM}});
+    return {p,nc,nm,na:n-nc-nm,n,min,abM,ab,tp,ns:nsC,bl:ab.bl+blM,blT:ab.bl,blM,blD,tpct,ev,pct,share,mxs,navg,flagP,flagM,flag:flagP||flagM}});
   return {rows,Ncat,Nmx,mx,ns:ses.length,F}}
-const prPills=(r,c,mx)=>`${r.flagP?`<i class="prpill pr-p" title="Moins de 60 % d'assiduité (entraînements et matchs)">peu présent</i>`:""}${r.flagM?`<i class="prpill" title="Plus de deux matchs sur trois joués en ${esc(mx||"")}">souvent en ${esc(mx||"")}</i>`:""}`;
+const prPills=(r,c,mx)=>`${r.bl?`<i class="prpill pr-b" title="Séances manquées pour blessure : elles ne comptent pas dans l'assiduité">blessé ${r.bl}</i>`:""}${r.flagP?`<i class="prpill pr-p" title="Moins de 60 % d'assiduité (entraînements et matchs)">peu présent</i>`:""}${r.flagM?`<i class="prpill" title="Plus de deux matchs sur trois joués en ${esc(mx||"")}">souvent en ${esc(mx||"")}</i>`:""}`;
 const prPct=v=>v==null?"–":Math.round(v*100)+" %";
 const prCls=v=>v==null?"":v>=.8?"ok":v<.6?"ko":"";
 
@@ -4000,16 +4017,32 @@ function presBind(root,re){root.querySelectorAll("[data-ps]").forEach(b=>b.oncli
 
 /* ---------- l'écran « Présences » (Évaluer) ---------- */
 function renderPres(){const v=document.getElementById("view-pres");if(!v)return;const c=cat;const L=players(c);
-  if(!PRS.date||PRS.cat!==c){PRS.date=prToday();PRS.cat=c;PRS.abs=null;PRS.dirty=false}
+  if(!PRS.date||PRS.cat!==c){PRS.date=prToday();PRS.cat=c;PRS.abs=null;PRS.dirty=false;try{PRS.skip=get("prskip_"+c,[])||[]}catch(e){PRS.skip=[]}}
   const A=prAll(c);const ex=A[PRS.date];if(!PRS.abs)PRS.abs=Object.assign({},ex&&ex.abs||{});
-  const nA=L.filter(p=>PRS.abs[p]).length;const ses=Object.keys(A).filter(d=>A[d]&&!A[d].del).sort().reverse().slice(0,8);
+  const nA=L.filter(p=>PRS.abs[p]).length;const all=Object.keys(A).filter(d=>A[d]&&!A[d].del).sort();
+  /* 25/11 : voir d'un coup d'œil ce qui est saisi. Jours d'entraînement habituels = jours de la semaine des séances déjà saisies (6 dernières semaines) */
+  const iso=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");const tdy=new Date();tdy.setHours(12,0,0,0);
+  const recent=all.filter(d=>(tdy-new Date(d+"T12:00:00"))/864e5<=42);const wd={};recent.forEach(d=>{const k=new Date(d+"T12:00:00").getDay();wd[k]=(wd[k]||0)+1});
+  const usual=Object.keys(wd).filter(k=>wd[k]>=2).map(Number);const todo=[];
+  const wk=x=>{const y=new Date(x);y.setDate(y.getDate()-((y.getDay()+6)%7));return iso(y)};const wkHas=new Set(all.map(d=>wk(new Date(d+"T12:00:00"))));
+  const first=all.length?new Date(all[0]+"T12:00:00"):null;const span=first?Math.min(300,Math.round((tdy-first)/864e5)):14;
+  for(let i=0;i<=span;i++){const x=new Date(tdy);x.setDate(x.getDate()-i);const d=iso(x);if(!usual.includes(x.getDay())||A[d]||(PRS.skip||[]).includes(d))continue;if(i>14&&!wkHas.has(wk(x)))continue;todo.push(d)}
+  const byM={};all.slice().reverse().forEach(d=>{const k=d.slice(0,7);(byM[k]=byM[k]||[]).push(d)});
+  const mName=k=>{const [y,m]=k.split("-").map(Number);return new Date(y,m-1,1).toLocaleDateString("fr-FR",{month:"long"})};
   v.innerHTML=`<div class="prw"><div class="mthd"><h2>Présences · ${esc(c)}</h2></div>
-   <p class="note">Tous les enfants sont présents par défaut : touche ceux qui manquent, puis choisis le motif.</p>
-   <div class="prdate"><label>Séance du<input type="date" id="prd" value="${esc(PRS.date)}" max="${prToday()}"></label>${ex?`<span class="prdone">✓ déjà enregistrée${ex.by?` par ${esc(ex.by)}`:""}</span>`:""}</div>
-   ${ses.length?`<div class="prses">${ses.map(d=>`<button class="prchip${d===PRS.date?" on":""}" data-d="${d}">${esc(prDay(d))}</button>`).join("")}</div>`:""}
+   ${usual.includes(tdy.getDay())&&!A[iso(tdy)]?`<button class="prcall" id="prcall"><b>📋 Appel d'aujourd'hui</b><span>${esc(prDayL(iso(tdy)))} · touche seulement les absents</span></button>`:""}
+   <div class="prst">
+     ${todo.length?`<div class="prtodo"><b>À saisir</b><span>${todo.length} séance${todo.length>1?"s":""} habituelle${todo.length>1?"s":""} sans présences depuis le début de la saison (hors vacances)</span><div class="prses">${todo.map(d=>`<button class="prchip todo${d===PRS.date?" on":""}" data-d="${d}">${esc(prDay(d))}</button>`).join("")}</div></div>`:`<div class="prok">✓ Tout est à jour${all.length?` · ${all.length} séance${all.length>1?"s":""} saisie${all.length>1?"s":""}`:""}</div>`}
+     ${all.length?`<details class="prhist"><summary>Séances déjà saisies (${all.length})</summary>${Object.keys(byM).map(k=>`<div class="prm"><small>${esc(mName(k))}</small><div class="prses">${byM[k].map(d=>{const n=Object.keys(A[d].abs||{}).length;return `<button class="prchip done${d===PRS.date?" on":""}" data-d="${d}">✓ ${esc(prDay(d))}<i>${n?n+" abs.":"tous là"}</i></button>`}).join("")}</div></div>`).join("")}</details>`:""}
+   </div>
+   <p class="note"><b>Déclare seulement les absents</b> : tous les enfants sont présents par défaut. Touche un nom pour le passer absent, puis le motif (excusé, non excusé, blessé). Un enfant blessé ne perd pas d'assiduité.</p>
+   <div class="prdate"><label>Séance du<input type="date" id="prd" value="${esc(PRS.date)}" max="${prToday()}"></label>${ex?``:""}</div>
+   <div class="prstate ${ex?"ok":"no"}">${ex?`✓ Séance enregistrée${ex.by?` par ${esc(ex.by)}`:""} · ${Object.keys(ex.abs||{}).length} absent${Object.keys(ex.abs||{}).length>1?"s":""}`:`Pas encore saisie : déclare les absents puis enregistre`}${!ex?` <button class="lnk" id="prskip">pas d'entraînement ce jour-là</button>`:""}</div>
    <div class="prlist">${L.map(p=>{const k=PRS.abs[p];return `<div class="prrow${k?" off":""}"><button class="prname" data-p="${esc(p)}"><span class="prck">${k?"✕":"✓"}</span><span>${esc(mtNice(p))}</span><small>${k?"absent":"présent"}</small></button>${k?`<div class="prmot">${MT_ABS.map(([kk,l])=>`<button class="${k===kk?"on "+kk:""}" data-m="${kk}" data-p="${esc(p)}">${l}</button>`).join("")}</div>`:""}</div>`}).join("")}</div>
    <div class="prsave"><button class="mtbtn" id="prgo">${ex?"Mettre à jour":"Enregistrer"} les présences<small>${prDayL(PRS.date)} · ${L.length-nA} présent${L.length-nA>1?"s":""} · ${nA} absent${nA>1?"s":""}</small></button></div>
    <div class="card prtab" id="prTab">${presTableHTML(c,"pres")}</div></div>`;
+  const sk=v.querySelector("#prskip");if(sk)sk.onclick=()=>{PRS.skip=(PRS.skip||[]).concat(PRS.date);try{set("prskip_"+c,PRS.skip)}catch(e){}toast("Noté : pas d'entraînement ce jour-là");renderPres()};
+  const pc=v.querySelector("#prcall");if(pc)pc.onclick=()=>{PRS.date=iso(tdy);PRS.abs=null;renderPres();const l=document.querySelector("#view-pres .prlist");if(l)l.scrollIntoView({behavior:"smooth",block:"start"})};
   v.querySelector("#prd").onchange=e=>{if(!e.target.value)return;PRS.date=e.target.value;PRS.abs=null;renderPres()};
   v.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{PRS.date=b.dataset.d;PRS.abs=null;renderPres()});
   v.querySelectorAll(".prname").forEach(b=>b.onclick=()=>{const p=b.dataset.p;if(PRS.abs[p])delete PRS.abs[p];else PRS.abs[p]="exc";PRS.dirty=true;const y=scrollY;renderPres();scrollTo(0,y)});
@@ -4020,7 +4053,7 @@ function renderPres(){const v=document.getElementById("view-pres");if(!v)return;
 
 /* ---------- dans la fiche du joueur (onglet Matchs) ---------- */
 function presStrip(p){const S=pmStats(cat);const r=S.rows.find(x=>x.p===p);if(!r||(!r.ev))return "";const noM=MT_NOMATCH.includes(cat);
-  return `${r.flag?`<p class="prstripp">${prPills(r,cat,S.mx)}</p>`:""}<div class="prstrip"><div><small>Assiduité</small><b class="${prCls(r.pct)}">${prPct(r.pct)}</b><span>${r.ev?`${r.ns?`entr. ${r.tp}/${r.ns}`:""}${r.ns&&(r.n+r.abM)?" · ":""}${r.n+r.abM?`match ${r.n}/${r.n+r.abM}`:""}`:"pas encore noté"}${r.ab.exc+r.ab.nex+r.ab.bl?` · absences : ${[r.ab.exc?r.ab.exc+" exc.":"",r.ab.nex?r.ab.nex+" non exc.":"",r.ab.bl?r.ab.bl+" blessé":""].filter(Boolean).join(", ")}`:""}</span></div>
+  return `${r.flag?`<p class="prstripp">${prPills(r,cat,S.mx)}</p>`:""}<div class="prstrip"><div><small>Assiduité</small><b class="${prCls(r.pct)}">${prPct(r.pct)}</b><span>${r.ev?`${r.ns?`entr. ${r.tp}/${r.ns}`:""}${r.ns&&(r.n+r.abM)?" · ":""}${r.n+r.abM?`match ${r.n}/${r.n+r.abM}`:""}`:"pas encore noté"}${r.ab.exc+r.ab.nex?` · absences : ${[r.ab.exc?r.ab.exc+" exc.":"",r.ab.nex?r.ab.nex+" non exc.":""].filter(Boolean).join(", ")}`:""}</span></div>${r.bl?`<div class="prbl"><small>Blessure</small><b>${r.bl} séance${r.bl>1?"s":""}</b><span>${r.blD.length?r.blD.map(prDay).join(", "):""}${r.blM?`${r.blD.length?" · ":""}${r.blM} match${r.blM>1?"s":""}`:""} · hors calcul de l'assiduité</span></div>`:""}
    ${noM?"":S.mx?`<div><small>Matchs en ${esc(cat)}</small><b>${r.nc}</b><span>sur ${S.Ncat}</span></div><div><small>Matchs en ${esc(S.mx)}</small><b>${r.nm}</b><span>sur ${S.Nmx}</span></div><div><small>% en ${esc(S.mx)}</small><b>${r.n?prPct(r.mxs):"–"}</b><span>${r.min} min jouées</span></div>`:`<div><small>Matchs joués</small><b>${r.n}</b><span>sur ${S.Ncat} · ${r.min} min</span></div>`}</div>`}
 
 /* ---------- branchements ---------- */
@@ -4067,6 +4100,15 @@ function synBilan(){const v=document.getElementById("view-bilan");if(!v)return;c
   if(get("tab")!=="view-bilan"||typeof BCTX==="undefined"||BCTX!=="joueurs"||!authed()||!players(cat).length){if(cur)cur.remove();return}
   const d=cur||document.createElement("div");d.id="synBil";d.className="card jblk prtab";d.innerHTML=synTableHTML(cat);synBind(d);
   if(!cur){const first=[...v.querySelectorAll(".card")].find(x=>x.id!=="synBil");if(first)first.before(d);else v.appendChild(d)}}
+
+/* 25/11 : onglet « Présences » de la fiche joueur : chiffres, blessure, et le détail des absences */
+function presFicheHTML(p){const c=cat;const S=pmStats(c);const r=S.rows.find(x=>x.p===p);const A=prAll(c);const all=Object.keys(A).filter(d=>A[d]&&!A[d].del).sort();
+  if(!all.length&&!(r&&r.ev))return `<p class="note">Pas encore de présences saisies pour ${esc(c)}. Elles se remplissent dans Évaluer › Présences.</p><button class="btn" data-go="view-pres">Saisir les présences ›</button>`;
+  const L={exc:"excusé",nex:"non excusé",bl:"blessé"};const rows=[];
+  all.forEach(d=>{if((A[d].nc||[]).includes(p))return;const k=(A[d].abs||{})[p];if(k)rows.push({d,k,t:"Entraînement"})});
+  (S.F||[]).forEach(x=>{const k=x.f.abs&&x.f.abs[p];if(k)rows.push({d:String(x.f.date||""),k,t:"Match"+(x.f.adv?" · "+x.f.adv:"")})});
+  rows.sort((a,b)=>b.d.localeCompare(a.d));
+  return `${presStrip(p)}<h4 class="prfh">Ses absences${rows.length?` (${rows.length})`:""}</h4>${rows.length?`<div class="tbl-wrap"><table class="fjt prft"><thead><tr><th>Date</th><th>Séance</th><th>Motif</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(prDay(x.d))}</td><td>${esc(x.t)}</td><td><i class="prmotif ${x.k}">${L[x.k]||x.k}</i></td></tr>`).join("")}</tbody></table></div>`:`<p class="note">Aucune absence sur les ${all.length} séances saisies.</p>`}<p class="note">Une absence pour blessure ne compte pas dans l'assiduité. Pour corriger : Évaluer › Présences, puis la date.</p><button class="btn" data-go="view-pres">Présences du groupe ›</button>`}
 </script><script>/* =====================================================================
    PROTOTYPE V2 (16/11, demande de Benjamin) : autre façon d'entrer dans l'outil.
    4 onglets : Fiches joueurs · Bilan du groupe · Évaluer (Étoiles / Tests techniques / Notes de match) · Rencontres famille.
