@@ -842,7 +842,7 @@ textarea.ta{width:100%;box-sizing:border-box;min-height:64px;border:1px solid va
 
 /* ===== téléphone (≤ 700 px) : une colonne, rien ne déborde, tout reste lisible au pouce ===== */
 @media (max-width:700px){
-  html,body{overflow-x:hidden}
+  html,body{overflow-x:clip}
   .hm{display:none}
   header.top .brand{flex-wrap:wrap!important;gap:8px!important;min-width:0}
   header.top .whoslot{order:3;flex:1 1 100%!important;display:flex!important;flex-wrap:nowrap;align-items:center;gap:6px;margin-top:4px;min-width:0}
@@ -3608,14 +3608,18 @@ span.plk{cursor:pointer;color:var(--navy-2,#1d3b6e);text-decoration:underline;te
 .prpill.pr-b{background:#E3ECFA;color:#1F4E8C}
 .prbl{background:#EEF3FB!important}.prbl b{color:#1F4E8C!important}
 .prcall{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:#0B2A4A;color:#fff;border:0;border-radius:14px;padding:12px 14px;margin:2px 0 10px;cursor:pointer}.prcall b{font-size:16px}.prcall span{font-size:13px;color:#F2C200}
-.prsave{position:sticky;bottom:calc(70px + env(safe-area-inset-bottom));z-index:5}
+.prsave{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:5}@media(min-width:761px){.prsave{bottom:12px}}
 .prfh{margin:12px 0 4px;font-size:15px;color:#0B2A4A}
 .prmotif{font-style:normal;font-size:12px;font-weight:700;border-radius:6px;padding:2px 7px}.prmotif.exc{background:#FFF1C9;color:#7A5600}.prmotif.nex{background:#FDE4D8;color:#9A3412}.prmotif.bl{background:#E3ECFA;color:#1F4E8C}
 .prft td:first-child{white-space:nowrap}
 #view-fiche .jblk>.jseg{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;max-width:100%}
 #view-fiche .jblk>.jseg button{min-width:0;white-space:normal;line-height:1.15;padding-left:4px;padding-right:4px}
 @media(max-width:600px){#view-fiche .jblk>.jseg button{font-size:12.5px}}
-</style><script>/* =====================================================================
+
+.prdate select{border:1px solid var(--line);border-radius:10px;padding:9px 10px;font:inherit;font-size:16px;color:#0B2A4A;background:#fff;min-width:240px;max-width:100%}
+.prdx{display:flex;gap:14px;flex-wrap:wrap;padding-bottom:10px}.prdx .lnk{background:none;border:0;color:#33445C;text-decoration:underline;font-size:13px;cursor:pointer;padding:0}.prdx .lnk.warn{color:#C2410C;font-weight:700}
+.prchgd{flex-basis:100%}
+@media(max-width:760px){.prdate select{width:100%;min-width:0}.prdate label{flex:1 1 100%}}</style><script>/* =====================================================================
    19/11/2026 · Administration RTJ
    1. Liste officielle des éducateurs (connexion par liste déroulante, saisies à vérifier)
    2. Effectif : ajouter ou retirer un joueur (RTJ)
@@ -3985,6 +3989,14 @@ const prAll=c=>store.pres[c]=store.pres[c]||{};
 const prToday=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 const prDay=iso=>{try{const [y,m,d]=String(iso).split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}catch(e){return iso}};
 const prDayL=iso=>{try{const [y,m,d]=String(iso).split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}catch(e){return iso}};
+/* 26/11 : jours d'entraînement de chaque catégorie (0 = dimanche … 6 = samedi), donnés par Benjamin. Les autres catégories gardent le repérage automatique. */
+const PR_SCHED={U7:[3],U8:[1,3,6],U9:[1,3,6],U10:[2,3,5,6],U11:[2,3,5,6],U12:[1,2,4,6],U13:[1,2,4,6]};
+const PR_SCHED_FROM={U8:{1:"2026-11-23"}};/* U8 : le lundi seulement depuis le 23/11 */
+function prIsSched(c,d){const S=PR_SCHED[c];if(!S)return null;const w=new Date(d+"T12:00:00").getDay();if(!S.includes(w))return false;const f=PR_SCHED_FROM[c]&&PR_SCHED_FROM[c][w];return !(f&&d<f)}
+function prDefDate(c){const t=prToday();if(!PR_SCHED[c])return t;const A=prAll(c);for(let i=0;i<=14;i++){const x=new Date(t+"T12:00:00");x.setDate(x.getDate()-i);const d=x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");if(prIsSched(c,d)&&!(A[d]&&A[d].del))return d}return t}
+function presDel(c,d){const ts=Date.now();prAll(c)[d]={abs:{},nc:[],del:true,ts,by:get("who","")};save();
+  const payload={prog:1,cat:PRES_CAT(c),player:d,per:500,f:{abs:{},nc:[],del:true,nb:players(c).length},t:{},note:"pas de séance ce jour-là",by:get("who",""),ts};
+  return fetch(API,{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}}).then(()=>true).catch(()=>false)}
 let PRS={date:null,abs:null,dirty:false,sort:null,last:{}};
 async function presPull(c){try{const r=await fetch(`${API}?prog=${encodeURIComponent(PRES_CAT(c))}`,{cache:"no-store"});const a=await r.json();if(!Array.isArray(a))return false;const A=prAll(c);let n=0;
   a.forEach(x=>{let f=x.f;if(typeof f==="string"){try{f=JSON.parse(f)}catch(e){return}}let d=String(x.player||"");/* le classeur transforme la date en date-heure (ex. 2026-08-26T07:00:00.000Z) */if(/^\d{4}-\d\d-\d\dT/.test(d)){const t=new Date(d);if(!isNaN(t))d=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0")}if(!/^\d{4}-\d\d-\d\d$/.test(d)||!f)return;const loc=A[d];if(!loc||(x.ts||0)>(loc.ts||0)){A[d]={abs:f.abs||{},nc:Array.isArray(f.nc)?f.nc:[],del:!!f.del,ts:x.ts||0,by:x.by||""};n++}});
@@ -4039,31 +4051,38 @@ function presBind(root,re){root.querySelectorAll("[data-ps]").forEach(b=>b.oncli
 
 /* ---------- l'écran « Présences » (Évaluer) ---------- */
 function renderPres(){const v=document.getElementById("view-pres");if(!v)return;const c=cat;const L=players(c);
-  if(!PRS.date||PRS.cat!==c){PRS.date=prToday();PRS.cat=c;PRS.abs=null;PRS.dirty=false;try{PRS.skip=get("prskip_"+c,[])||[]}catch(e){PRS.skip=[]}}
+  if(!PRS.date||PRS.cat!==c){PRS.date=prDefDate(c);PRS.cat=c;PRS.abs=null;PRS.dirty=false;try{PRS.skip=get("prskip_"+c,[])||[]}catch(e){PRS.skip=[]}}
   const A=prAll(c);const ex=A[PRS.date];if(!PRS.abs)PRS.abs=Object.assign({},ex&&ex.abs||{});
   const nA=L.filter(p=>PRS.abs[p]).length;const all=Object.keys(A).filter(d=>A[d]&&!A[d].del).sort();
   /* 25/11 : voir d'un coup d'œil ce qui est saisi. Jours d'entraînement habituels = jours de la semaine des séances déjà saisies (6 dernières semaines) */
   const iso=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");const tdy=new Date();tdy.setHours(12,0,0,0);
   const recent=all.filter(d=>(tdy-new Date(d+"T12:00:00"))/864e5<=42);const wd={};recent.forEach(d=>{const k=new Date(d+"T12:00:00").getDay();wd[k]=(wd[k]||0)+1});
-  const usual=Object.keys(wd).filter(k=>wd[k]>=2).map(Number);const todo=[];
+  const usual=Object.keys(wd).filter(k=>wd[k]>=2).map(Number);const SC=!!PR_SCHED[c];const isS=(d,x)=>SC?prIsSched(c,d):usual.includes(x.getDay());const todo=[];
   const wk=x=>{const y=new Date(x);y.setDate(y.getDate()-((y.getDay()+6)%7));return iso(y)};const wkHas=new Set(all.map(d=>wk(new Date(d+"T12:00:00"))));
   const first=all.length?new Date(all[0]+"T12:00:00"):null;const span=first?Math.min(300,Math.round((tdy-first)/864e5)):14;
-  for(let i=0;i<=span;i++){const x=new Date(tdy);x.setDate(x.getDate()-i);const d=iso(x);if(!usual.includes(x.getDay())||A[d]||(PRS.skip||[]).includes(d))continue;if(i>14&&!wkHas.has(wk(x)))continue;todo.push(d)}
+  for(let i=0;i<=span;i++){const x=new Date(tdy);x.setDate(x.getDate()-i);const d=iso(x);if(!isS(d,x)||A[d]||(PRS.skip||[]).includes(d))continue;if(i>14&&!wkHas.has(wk(x)))continue;todo.push(d)}
+  const optS=new Set(todo);for(let i=0;i<=42;i++){const x=new Date(tdy);x.setDate(x.getDate()-i);const d=iso(x);if(isS(d,x)&&!(A[d]&&A[d].del))optS.add(d)}all.forEach(d=>optS.add(d));if(PRS.date&&PRS.date<=prToday())optS.add(PRS.date);const opts=[...optS].filter(d=>d<=prToday()).sort().reverse();
   const byM={};all.slice().reverse().forEach(d=>{const k=d.slice(0,7);(byM[k]=byM[k]||[]).push(d)});
   const mName=k=>{const [y,m]=k.split("-").map(Number);return new Date(y,m-1,1).toLocaleDateString("fr-FR",{month:"long"})};
   v.innerHTML=`<div class="prw"><div class="mthd"><h2>Présences · ${esc(c)}</h2></div>
-   ${usual.includes(tdy.getDay())&&!A[iso(tdy)]?`<button class="prcall" id="prcall"><b>📋 Appel d'aujourd'hui</b><span>${esc(prDayL(iso(tdy)))} · touche seulement les absents</span></button>`:""}
+   ${isS(iso(tdy),tdy)&&!A[iso(tdy)]?`<button class="prcall" id="prcall"><b>📋 Appel d'aujourd'hui</b><span>${esc(prDayL(iso(tdy)))} · touche seulement les absents</span></button>`:""}
    <div class="prst">
      ${todo.length?`<div class="prtodo"><b>À saisir</b><span>${todo.length} séance${todo.length>1?"s":""} habituelle${todo.length>1?"s":""} sans présences depuis le début de la saison (hors vacances)</span><div class="prses">${todo.map(d=>`<button class="prchip todo${d===PRS.date?" on":""}" data-d="${d}">${esc(prDay(d))}</button>`).join("")}</div></div>`:`<div class="prok">✓ Tout est à jour${all.length?` · ${all.length} séance${all.length>1?"s":""} saisie${all.length>1?"s":""}`:""}</div>`}
      ${all.length?`<details class="prhist"><summary>Séances déjà saisies (${all.length})</summary>${Object.keys(byM).map(k=>`<div class="prm"><small>${esc(mName(k))}</small><div class="prses">${byM[k].map(d=>{const n=Object.keys(A[d].abs||{}).length;return `<button class="prchip done${d===PRS.date?" on":""}" data-d="${d}">✓ ${esc(prDay(d))}<i>${n?n+" abs.":"tous là"}</i></button>`}).join("")}</div></div>`).join("")}</details>`:""}
    </div>
    <p class="note"><b>Déclare seulement les absents</b> : tous les enfants sont présents par défaut. Touche un nom pour le passer absent, puis le motif (excusé, non excusé, blessé). Un enfant blessé ne perd pas d'assiduité.</p>
-   <div class="prdate"><label>Séance du<input type="date" id="prd" value="${esc(PRS.date)}" max="${prToday()}"></label>${ex?``:""}</div>
+   <div class="prdate">${SC?`<label>Séance du<select id="prd">${opts.map(d=>`<option value="${d}"${d===PRS.date?" selected":""}>${esc(prDayL(d))}${A[d]&&!A[d].del?" · saisie ✓":""}</option>`).join("")}</select></label>`:`<label>Séance du<input type="date" id="prd" value="${esc(PRS.date)}" max="${prToday()}"></label>`}
+     ${SC?`<span class="prdx"><button class="lnk" id="prchg" type="button">${ex?"changer la date de cette séance":"autre date"}</button>${ex?`<button class="lnk" id="prdel" type="button">supprimer cette séance</button>`:""}</span><label class="prchgd" id="prchgd" hidden>Nouvelle date<input type="date" id="prnd" max="${prToday()}"></label>`:""}</div>
    <div class="prstate ${ex?"ok":"no"}">${ex?`✓ Séance enregistrée${ex.by?` par ${esc(ex.by)}`:""} · ${Object.keys(ex.abs||{}).length} absent${Object.keys(ex.abs||{}).length>1?"s":""}`:`Pas encore saisie : déclare les absents puis enregistre`}${!ex?` <button class="lnk" id="prskip">pas d'entraînement ce jour-là</button>`:""}</div>
    <div class="prlist">${L.map(p=>{const k=PRS.abs[p];return `<div class="prrow${k?" off":""}"><button class="prname" data-p="${esc(p)}"><span class="prck">${k?"✕":"✓"}</span><span>${esc(mtNice(p))}</span><small>${k?"absent":"présent"}</small></button>${k?`<div class="prmot">${MT_ABS.map(([kk,l])=>`<button class="${k===kk?"on "+kk:""}" data-m="${kk}" data-p="${esc(p)}">${l}</button>`).join("")}</div>`:""}</div>`}).join("")}</div>
    <div class="prsave"><button class="mtbtn" id="prgo">${ex?"Mettre à jour":"Enregistrer"} les présences<small>${prDayL(PRS.date)} · ${L.length-nA} présent${L.length-nA>1?"s":""} · ${nA} absent${nA>1?"s":""}</small></button></div>
    <div class="card prtab" id="prTab">${presTableHTML(c,"pres")}</div></div>`;
-  const sk=v.querySelector("#prskip");if(sk)sk.onclick=()=>{PRS.skip=(PRS.skip||[]).concat(PRS.date);try{set("prskip_"+c,PRS.skip)}catch(e){}toast("Noté : pas d'entraînement ce jour-là");renderPres()};
+  const sk=v.querySelector("#prskip");if(sk)sk.onclick=()=>{const d=PRS.date;PRS.skip=(PRS.skip||[]).concat(d);try{set("prskip_"+c,PRS.skip)}catch(e){}presDel(c,d);toast("Noté : pas d'entraînement ce jour-là");PRS.date=null;renderPres()};
+  const pd=v.querySelector("#prdel");if(pd)pd.onclick=()=>{if(pd.dataset.armed!=="1"){pd.dataset.armed="1";pd.textContent="confirmer la suppression ?";pd.classList.add("warn");return}const d=PRS.date;presDel(c,d).then(ok=>toast(ok?`Séance du ${prDayL(d)} supprimée`:"Suppression gardée sur l'appareil : pas de réseau"));PRS.date=null;renderPres()};
+  const pg=v.querySelector("#prchg");if(pg)pg.onclick=()=>{const b=v.querySelector("#prchgd");b.hidden=!b.hidden;if(!b.hidden){const i=b.querySelector("input");i.focus();try{i.showPicker&&i.showPicker()}catch(e){}}};
+  const nd=v.querySelector("#prnd");if(nd)nd.onchange=e=>{const n=e.target.value;if(!n||n===PRS.date)return;const old=PRS.date,was=A[old]&&!A[old].del;
+    if(was){if(A[n]&&!A[n].del){toast("Il y a déjà une séance ce jour-là : choisis-la dans la liste");return}const abs=Object.assign({},A[old].abs||{});presSave(c,n,abs).then(()=>presDel(c,old));toast(`Séance déplacée au ${prDayL(n)}`)}
+    PRS.date=n;PRS.abs=null;renderPres()};
   const pc=v.querySelector("#prcall");if(pc)pc.onclick=()=>{PRS.date=iso(tdy);PRS.abs=null;renderPres();const l=document.querySelector("#view-pres .prlist");if(l)l.scrollIntoView({behavior:"smooth",block:"start"})};
   v.querySelector("#prd").onchange=e=>{if(!e.target.value)return;PRS.date=e.target.value;PRS.abs=null;renderPres()};
   v.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{PRS.date=b.dataset.d;PRS.abs=null;renderPres()});
