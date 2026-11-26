@@ -4071,8 +4071,10 @@ function renderPres(){const v=document.getElementById("view-pres");if(!v)return;
   const wd={};all.filter(d=>(tdy-new Date(d+"T12:00:00"))/864e5<=42).forEach(d=>{const k=new Date(d+"T12:00:00").getDay();wd[k]=(wd[k]||0)+1});
   const usual=Object.keys(wd).filter(k=>wd[k]>=2).map(Number);
   const isS=d=>SC?prIsSched(c,d):usual.includes(new Date(d+"T12:00:00").getDay());
+  /* 27/11 : un jour de match (fiche de match de la catégorie ou de l'équipe U10/U11, U12/U13…), l'assiduité vient de la fiche : pas d'appel à faire */
+  const MD=new Set();try{const S_=pmStats(c);(S_.F||[]).forEach(x=>{if(x.t!==c&&x.t!==S_.mx)return;const d=String(x.f.date||"").slice(0,10);if(/^\d{4}-\d\d-\d\d$/.test(d))MD.add(d)})}catch(e){}
   const todo=[];{const st=SC?(all.length&&all[0]<PR_START?all[0]:PR_START):(all.length?all[0]:iso(new Date(tdy-14*864e5)));const x=new Date(st+"T12:00:00");
-    while(iso(x)<=T0){const d=iso(x);if(isS(d)&&!A[d]&&!prVac(d)&&!(PRS.skip||[]).includes(d))todo.push(d);x.setDate(x.getDate()+1)}}
+    while(iso(x)<=T0){const d=iso(x);if(isS(d)&&!A[d]&&!MD.has(d)&&!prVac(d)&&!(PRS.skip||[]).includes(d))todo.push(d);x.setDate(x.getDate()+1)}}
   todo.reverse();
   const open=PRS.open&&PRS.date;const d0=PRS.date;const ex=open?A[d0]:null;const exOk=ex&&!ex.del;
   if(open&&!PRS.abs)PRS.abs=Object.assign({},exOk&&ex.abs||{});
@@ -4080,7 +4082,7 @@ function renderPres(){const v=document.getElementById("view-pres");if(!v)return;
   const byM=o=>{const m={};o.forEach(d=>{const k=d.slice(0,7);(m[k]=m[k]||[]).push(d)});return m};
   const mName=k=>{const [y,m]=k.split("-").map(Number);return new Date(y,m-1,1).toLocaleDateString("fr-FR",{month:"long"})};
   const TM=byM(todo),DM=byM(all.slice().reverse());
-  const callToday=isS(T0)&&!A[T0];
+  const callToday=isS(T0)&&!A[T0]&&!MD.has(T0);
   const list=open?`<div class="prpanel" id="prpanel">
      <div class="prph"><div><small>Séance du</small><b>${esc(prDayL(d0))}</b></div><button class="prx" id="prclose" type="button" aria-label="Fermer">✕ Fermer</button></div>
      <div class="prstate ${exOk?"ok":"no"}">${exOk?`✓ Déjà enregistrée${ex.by?` par ${esc(ex.by)}`:""} · tu peux corriger puis mettre à jour`:`Touche les absents, puis enregistre. Tous les autres sont comptés présents.`}</div>
@@ -4091,7 +4093,7 @@ function renderPres(){const v=document.getElementById("view-pres");if(!v)return;
   v.innerHTML=`<div class="prw"><div class="mthd"><h2>Présences · ${esc(c)}</h2></div>
    ${!open&&callToday?`<button class="prcall" data-d="${T0}"><b>📋 Faire l'appel d'aujourd'hui</b><span>${esc(prDayL(T0))} · touche seulement les absents</span></button>`:""}
    ${open?list:`<div class="prst">
-     ${todo.length?`<div class="prtodo"><b>À saisir · ${todo.length} séance${todo.length>1?"s":""}</b><span>Touche une date pour faire l'appel. Une séance qui n'a pas eu lieu : ouvre-la puis « pas d'entraînement ce jour-là ».</span>${Object.keys(TM).map(k=>`<div class="prm"><small>${esc(mName(k))}</small><div class="prses wrap">${TM[k].map(d=>`<button class="prchip todo" data-d="${d}">${esc(prDay(d))}</button>`).join("")}</div></div>`).join("")}</div>`:`<div class="prok">✓ Tout est à jour${all.length?` · ${all.length} séance${all.length>1?"s":""} saisie${all.length>1?"s":""}`:""}</div>`}
+     ${todo.length?`<div class="prtodo"><b>À saisir · ${todo.length} séance${todo.length>1?"s":""}</b><span>Touche une date pour faire l'appel. Une séance qui n'a pas eu lieu : ouvre-la puis « pas d'entraînement ce jour-là ».${MD.size?" Les jours de match sont comptés avec la fiche de match.":""}</span>${Object.keys(TM).map(k=>`<div class="prm"><small>${esc(mName(k))}</small><div class="prses wrap">${TM[k].map(d=>`<button class="prchip todo" data-d="${d}">${esc(prDay(d))}</button>`).join("")}</div></div>`).join("")}</div>`:`<div class="prok">✓ Tout est à jour${all.length?` · ${all.length} séance${all.length>1?"s":""} saisie${all.length>1?"s":""}`:""}</div>`}
      ${all.length?`<details class="prhist"><summary>Séances déjà saisies (${all.length}) · touche une date pour corriger</summary>${Object.keys(DM).map(k=>`<div class="prm"><small>${esc(mName(k))}</small><div class="prses wrap">${DM[k].map(d=>{const n=Object.keys(A[d].abs||{}).length;return `<button class="prchip done" data-d="${d}">✓ ${esc(prDay(d))}<i>${n?n+" abs.":"tous là"}</i></button>`}).join("")}</div></div>`).join("")}</details>`:""}
      <div class="prother"><button class="lnk" id="prother" type="button">+ une séance à une autre date</button><label class="prchgd" id="prod" hidden>Date de la séance<input type="date" id="prodi" max="${T0}"></label></div>
    </div>
