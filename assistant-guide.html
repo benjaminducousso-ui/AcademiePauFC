@@ -37,15 +37,68 @@ svg.f{width:100%;height:auto;display:block;border-radius:12px;margin-top:8px;bac
 .typing{display:inline-flex;gap:4px}.typing i{width:6px;height:6px;border-radius:50%;background:var(--mut);animation:b 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes b{50%{opacity:.2}}
 dialog{border:0;border-radius:16px;background:var(--card);color:#fff;max-width:420px;width:calc(100% - 32px)}dialog input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:16px;margin:8px 0}dialog button{border:0;border-radius:10px;padding:10px 14px;font-weight:800;background:var(--y);color:#0E2440}
 @media (prefers-reduced-motion:reduce){.ib.rec,section.new{animation:none}}
-</style></head><body><div class="w">
-<div class="eb">Pau FC Académie · Préparer · séance</div>
-<h1>Ta séance, en une phrase</h1>
-<div class="chat" id="chat"></div>
-<div class="chips" id="chips"></div>
+
+/* ===== v2 : accueil épuré, dictée visible, réponse près de la barre, partage ===== */
+.w{padding-bottom:170px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.acts{display:flex;gap:6px;flex-wrap:nowrap;justify-content:flex-end;margin-top:2px}
+.acts button{border:0;border-radius:999px;padding:9px 13px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;background:var(--card2);color:#fff;white-space:nowrap}
+.acts #share{background:var(--y);color:#0E2440}
+body.empty .acts{display:none}
+body:not(.empty) h1{font-size:18px}
+.hero{display:none;text-align:center;padding:4vh 0 10px}
+body.empty .hero{display:block}
+.hero .lead{color:var(--mut);font-size:15px;margin:0 0 22px;line-height:1.45}
+.bigmic{width:112px;height:112px;border-radius:50%;border:0;background:var(--y);color:#0E2440;font-size:46px;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.35);display:inline-grid;place-items:center}
+.bigmic.rec{background:#E53935;color:#fff;animation:pulse 1s infinite}
+.micl{font-weight:800;margin:12px 0 22px;font-size:15px}
+.hin{display:flex;gap:8px;align-items:flex-end;text-align:left}
+.hin textarea,.dock textarea{flex:1;min-height:50px;max-height:40vh;resize:none;border-radius:16px;border:1.5px solid var(--line);background:var(--card);color:#fff;padding:13px 14px;font:inherit;font-size:16px;line-height:1.35}
+.hin textarea:focus,.dock textarea:focus{outline:none;border-color:var(--y)}
+.hero .chips{justify-content:center;margin-top:14px}
+.ai-badge{display:inline-block;margin-top:16px;font-size:12px;color:var(--mut)}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(14,36,64,0),var(--bg) 18%);pointer-events:none}
+.dock>*{max-width:700px;margin-left:auto;margin-right:auto;pointer-events:auto}
+.dock .row{display:flex;gap:8px;align-items:flex-end}
+body.empty .dock .row,body.empty .dock .chips{display:none}
+body.empty .dock{background:none}
+.dock .chips{margin:0 auto 8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.dock .chips::-webkit-scrollbar{display:none}.dock .chips button{white-space:nowrap;flex:0 0 auto}
+.bubble{position:relative;background:#fff;color:#0E2440;border-radius:16px;padding:12px 40px 12px 14px;margin-bottom:10px;font-size:15px;line-height:1.42;box-shadow:0 8px 24px rgba(0,0,0,.35);animation:up .25s ease-out}
+.bubble b{color:#0E2440}.bubble small{color:#5A6B82}
+.bubble button.x{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:0;background:#E8EDF4;color:#0E2440;font-weight:900;cursor:pointer}
+.bubble .typing i{background:#8C9AB0}
+.bubble .lnk{display:block;margin-top:6px;font-size:12px;word-break:break-all;color:#22426A}
+@keyframes up{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.listen{background:var(--card);border:2px solid #E53935;border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:up .2s ease-out}
+.listen .lt{display:flex;align-items:center;gap:8px;font-size:14px}
+.listen .dot{width:12px;height:12px;border-radius:50%;background:#E53935;animation:pulse 1s infinite}
+.listen.done{border-color:var(--line)}.listen.done .dot{background:var(--mut);animation:none}
+.wave{display:inline-flex;gap:3px;align-items:center;height:18px;margin-left:auto}.wave i{width:3px;height:6px;background:#E53935;border-radius:2px;animation:wv .9s infinite}.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}
+.listen.done .wave{display:none}
+@keyframes wv{50%{height:18px}}
+.ltx{font-size:19px;line-height:1.4;font-weight:600;min-height:54px;max-height:34vh;overflow:auto;margin:10px 0 12px;color:#fff}
+.ltx .ph{color:var(--mut);font-weight:500}.ltx i{color:var(--mut);font-style:normal}
+.lb{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.lb button{border:0;border-radius:12px;padding:11px 15px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;background:#22426A;color:#fff}.lb .ok{background:var(--y);color:#0E2440}.lb button[disabled]{opacity:.45}
+.busy .row textarea,.busy .hin textarea{opacity:.6}
+@media (min-width:760px){.hero{padding-top:8vh}}
+@media (prefers-reduced-motion:reduce){.bigmic.rec,.listen .dot,.wave i,.bubble,.listen{animation:none}}
+</style></head><body class="empty"><div class="w">
+<header class="top"><div><div class="eb">Pau FC Académie · Préparer · séance</div><h1 id="ttl">Ta séance, en une phrase</h1></div><div class="acts"><button id="share">↗ Partager</button><button id="neu" aria-label="Nouvelle séance" title="Nouvelle séance">＋</button></div></header>
+<div class="hero" id="hero">
+<p class="lead">Dis-moi la catégorie, la durée, le nombre de joueurs et ce que tu veux travailler.</p>
+<button class="bigmic" id="mic0" aria-label="Parler">🎤</button><div class="micl">Touche et parle</div>
+<div class="hin"><textarea id="q0" rows="1" placeholder="Ou écris ta séance ici…"></textarea><button class="ib send" id="go0" aria-label="Envoyer">➤</button></div>
+<div class="chips" id="chips0"></div>
+<div class="ai-badge">✨ Propulsé par l'IA Claude</div>
+</div>
 <div id="out"></div>
 </div>
-<div class="bar"><div class="in"><button class="ib" id="mic" title="Parler" aria-label="Dicter">🎤</button><textarea id="q" rows="1" placeholder="Ex. : U7, 1 h 15, 8 joueurs, conduite et duel"></textarea><button class="ib send" id="go" aria-label="Envoyer">➤</button></div><div class="mode" id="mode"></div></div>
-<dialog id="dlg"><b>Code de l'assistant</b><p style="color:var(--mut);font-size:13.5px">Pour utiliser l'IA Claude, entre le code donné par le club. Sans code, l'assistant fonctionne en mode simple.</p><input id="dlgc" type="password" autocomplete="off"><div style="display:flex;gap:8px;justify-content:flex-end"><button id="dlgno" style="background:#22426A;color:#fff">Plus tard</button><button id="dlgok">Valider</button></div></dialog>
+<div class="dock" id="dock">
+<div class="listen" id="lis" hidden><div class="lt"><span class="dot"></span><b id="lisst">J'écoute…</b><span class="wave"><i></i><i></i><i></i><i></i></span></div><div class="ltx" id="listx"></div><div class="lb"><button id="lisno">Annuler</button><button id="lisre" hidden>↻ Recommencer</button><button id="lisok" class="ok">✓ Envoyer</button></div></div>
+<div class="bubble" id="bub" hidden><div id="bubt"></div><button class="x" id="bubx" aria-label="Fermer">✕</button></div>
+<div class="chips" id="chips"></div>
+<div class="row"><button class="ib" id="mic" aria-label="Parler">🎤</button><textarea id="q" rows="1" placeholder="Modifier la séance…"></textarea><button class="ib send" id="go" aria-label="Envoyer">➤</button></div>
+</div>
 <script>
 /* ===================== réglages ===================== */
 const API="https://script.google.com/macros/s/AKfycbw_lyvwhgyF-4i9jM-mNnHTCkdS-q0W92UeU7QGwgmaayAjGTtJCGB1n2K-VlgkKuEGEg/exec";
@@ -166,31 +219,46 @@ function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
   if(th.length){se.brief.th=[...new Set(th.concat(se.brief.th||[]))];const keep=se.brief;S.se=compose(keep);return `C'est noté : j'ai mis plus de <b>${th.join(", ")}</b> dans la séance.`}
   return null}
 /* ===================== IA Claude (via le script Google du club, la clé reste côté serveur) ===================== */
-async function askClaude(text){if(!S.code)return null;
+async function askClaude(text){
   const cat=(S.se&&S.se.brief.cat)||parseBrief(text).cat;const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th}));
-  const body={ai:1,code:S.code,message:text,seance:S.se||null,catalogue:lib,consigne:"Tu es l'assistant séance du Pau FC. Réponds en JSON : {reply:'phrase courte en français', brief:{cat,dur,eff,th:[]}, blocks:[{k:'accueil'|'lib'|'pause'|'bilan', id?:'id du catalogue', role?:'Mise en train'|'Atelier 1'|'Atelier 2'|'Atelier 3'|'Match', m:minutes}]}. Utilise seulement les id du catalogue. La somme des minutes = durée demandée."};
+  const body={ai:1,code:S.code||"",message:text,seance:S.se||null,catalogue:lib,consigne:"Tu es l'assistant séance du Pau FC. Réponds en JSON : {reply:'phrase courte en français', brief:{cat,dur,eff,th:[]}, blocks:[{k:'accueil'|'lib'|'pause'|'bilan', id?:'id du catalogue', role?:'Mise en train'|'Atelier 1'|'Atelier 2'|'Atelier 3'|'Match', m:minutes}]}. Utilise seulement les id du catalogue. La somme des minutes = durée demandée."};
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});const j=await r.json();if(!j||!j.blocks)return j&&j.error?{err:j.error}:null;
     const ok=j.blocks.every(x=>x.k!=="lib"||LIB.some(y=>y.id===x.id));if(!ok)return null;S.se={brief:Object.assign({cat,dur:75,eff:8,th:[]},j.brief||{}),blocks:j.blocks,titre:S.se?S.se.titre:cat};return {reply:j.reply||"Voilà ta séance."}}catch(e){return null}}
 /* ===================== affichage ===================== */
-const chat=document.getElementById("chat"),out=document.getElementById("out");
-function msg(html,who){const d=document.createElement("div");d.className="msg "+(who||"ai");d.innerHTML=html;chat.appendChild(d);(S.hist=S.hist||[]).push([who||"ai",html]);S.hist=S.hist.slice(-20);save();return d}
-function chips(list){const c=document.getElementById("chips");c.innerHTML=list.map(x=>`<button>${x}</button>`).join("");c.querySelectorAll("button").forEach(b=>b.onclick=()=>send(b.textContent))}
-function render(flash){if(TM)stopTimer(false);const se=S.se;if(!se){out.innerHTML=`<div class="empty"><b>Comment ça marche</b><br>Écris ou dis ta séance : la catégorie, la durée, l'effectif et ce que tu veux travailler. L'assistant te propose une séance complète avec des ateliers animés. Ensuite, tu peux tout changer en une phrase : « change l'atelier 2 », « plus de duel », « 1 heure seulement ».</div>`;return}
+const out=document.getElementById("out"),$=id=>document.getElementById(id);
+const libB=id=>LIB.find(x=>x.id===id);
+/* bulle de réponse, juste au-dessus de la barre */
+let bubT=null;
+function bubble(html,keep){const b=$("bub");$("bubt").innerHTML=html;b.hidden=false;b.style.animation="none";void b.offsetWidth;b.style.animation="";clearTimeout(bubT);if(!keep)bubT=setTimeout(()=>{b.hidden=true},14000)}
+function hideBubble(){clearTimeout(bubT);$("bub").hidden=true}
+$("bubx").onclick=hideBubble;
+function chips(){const a=S.se?["Change l'atelier 2","Plus de duel","Remplace la mise en train","1 heure seulement","10 joueurs"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe","U9, 1 h 30, dribble et frappe"];
+  const c=$(S.se?"chips":"chips0");c.innerHTML=a.map(x=>`<button>${x}</button>`).join("");c.querySelectorAll("button").forEach(b=>b.onclick=()=>send(b.textContent));$(S.se?"chips0":"chips").innerHTML=""}
+function render(flash){if(TM)stopTimer(false);const se=S.se;flash=flash||[];document.body.classList.toggle("empty",!se);
+  if(!se){out.innerHTML="";$("ttl").textContent="Ta séance, en une phrase";chips();return}
   const b=se.brief;const tot=se.blocks.reduce((a,x)=>a+x.m,0);const N=Math.max(2,Math.floor(b.eff/2));const sz=N<=3?[15,10]:N<=4?[20,15]:[25,18];
-  const libB=id=>LIB.find(x=>x.id===id);const colOf=x=>x.k==="lib"?libB(x.id).col:FIX[x.k].col;const nomOf=x=>x.k==="lib"?libB(x.id).nom:FIX[x.k].nom;
+  $("ttl").textContent=`Séance ${b.cat} · ${tot} min`;
+  const colOf=x=>x.k==="lib"?libB(x.id).col:FIX[x.k].col;const nomOf=x=>x.k==="lib"?libB(x.id).nom:FIX[x.k].nom;
   let t0=0;out.innerHTML=`<div class="sum"><span>${b.cat}</span><span>${tot} min</span><span>${b.eff} joueurs</span><span>${(b.th||[]).join(" · ")||"thème libre"}</span></div><div class="tl">${se.blocks.map((x,i)=>`<a href="#b${i}" style="width:${x.m/tot*100}%;background:${colOf(x)}">${x.m>=10?x.m+"'":""}</a>`).join("")}</div>`+
    se.blocks.map((x,i)=>{const L=x.k==="lib"?libB(x.id):null;let h=L?L.html:FIX[x.k].html;if(L&&L.id==="match")h=h.replace(/\{N\}/g,N).replace("{L}",sz[0]).replace("{l}",sz[1]).replace("{REGLE}",(b.th||[]).includes("duel")||(b.th||[]).includes("conduite")?"<b>Règle du jour</b> : un but marqué en conduisant le ballon dans le but compte double.":"<b>Règle du jour</b> : un but après une passe compte double.");
-     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash===i?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L?L.th.map(t=>`<span class="tag">${t}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt"><button data-sw="${i}">⇄ Autre atelier</button></div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
+     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash.includes(i)?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L?L.th.map(t=>`<span class="tag">${t}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt"><button data-sw="${i}">⇄ Autre atelier</button></div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
   se.blocks.forEach((x,i)=>{if(x.k!=="lib")return;const box=out.querySelector(`[data-an="${i}"]`);const L=libB(x.id);const tmp=document.createElement("div");const F=field(tmp,[0,0,1,1]);const A=L.an(F);F.s.setAttribute("viewBox",A.vb.join(" "));box.appendChild(F.s);anim(box,F,A)});
-  bindTimers();
-  out.querySelectorAll("[data-sw]").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.sw;const old=libB(S.se.blocks[i].id).nom;const nw=swapBlock(S.se,i);if(nw){msg(`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`);save();render(i);document.getElementById("b"+i).scrollIntoView({behavior:"smooth",block:"start"})}else msg("Je n'ai pas d'autre atelier de ce type pour cette catégorie.")})}
-async function send(text){text=String(text||"").trim();if(!text)return;msg(text.replace(/</g,"&lt;"),"me");document.getElementById("q").value="";
-  const wait=msg(`<span class="typing"><i></i><i></i><i></i></span>`);
-  let reply=null,flash=null;const ai=await askClaude(text);
-  const isNew=/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text));
-  if(ai&&ai.reply)reply=ai.reply;else{const e=S.se&&!isNew?localEdit(text):null;if(e)reply=e;else{const b=parseBrief(text,S.se?S.se.brief:null);if(!["U7","U8","U9"].includes(b.cat)){reply=`Pour l'instant, les ateliers animés existent pour les U7, U8 et U9. Les autres catégories arrivent ensuite.`}else{S.se=compose(b);reply=`Voilà une séance <b>${S.se.brief.cat}</b> de <b>${S.se.brief.dur} min</b> pour <b>${S.se.brief.eff} joueurs</b>. Touche ▶ pour voir chaque atelier. Tu peux me dire par exemple « change l'atelier 2 » ou « plus de frappe ».`}}}
-  if(ai&&ai.err)reply=`<small style="color:var(--mut)">IA Claude : ${ai.err}. Je réponds en mode simple.</small><br>`+reply;
-  wait.remove();S.hist.pop();msg(reply);save();render(flash);chips(S.se?["Change l'atelier 2","Plus de duel","Remplace la mise en train","1 heure seulement","10 joueurs"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe","U9, 1 h 30, dribble et frappe"])}
+  bindTimers();chips();
+  out.querySelectorAll("[data-sw]").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.sw;const old=libB(S.se.blocks[i].id).nom;const nw=swapBlock(S.se,i);if(nw){save();render([i]);goTo(i);bubble(`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`)}else bubble("Je n'ai pas d'autre atelier de ce type pour cette catégorie.")})}
+function goTo(i){const el=$("b"+i);if(!el)return;const y=el.getBoundingClientRect().top+scrollY-12;scrollTo({top:Math.max(0,y),behavior:"smooth"})}
+const sig=x=>x?[x.k,x.id||"",x.role||"",x.m].join("|"):"";
+let BUSY=false;
+async function send(text){text=String(text||"").trim();if(!text||BUSY)return;BUSY=true;document.body.classList.add("busy");stopListen(true);
+  ["q","q0"].forEach(id=>{$(id).value="";grow($(id))});document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
+  const isNew=!S.se||/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text));const before=S.se?S.se.blocks.map(sig):[];
+  bubble(`<span class="typing"><i></i><i></i><i></i></span> &nbsp;${isNew?"Je prépare ta séance…":"Je modifie ta séance…"}<br><small>« ${text.replace(/</g,"&lt;")} »</small>`,true);
+  let reply=null;let ai=null;try{ai=await askClaude(text)}catch(e){}
+  if(ai&&ai.reply)reply=ai.reply;else{const e=S.se&&!isNew?localEdit(text):null;if(e)reply=e;else{const b=parseBrief(text,S.se?S.se.brief:null);if(!["U7","U8","U9"].includes(b.cat)){reply=`Pour l'instant, les ateliers animés existent pour les U7, U8 et U9. Les autres catégories arrivent ensuite.`}else{S.se=compose(b);reply=`Voilà ta séance <b>${S.se.brief.cat}</b> de <b>${S.se.brief.dur} min</b> pour <b>${S.se.brief.eff} joueurs</b>. Touche ▶ pour voir chaque atelier.`}}}
+  if(ai&&ai.err)reply=reply+`<br><small>(IA momentanément indisponible : ${ai.err}. Séance faite en mode simple.)</small>`;
+  save();const now=S.se?S.se.blocks.map(sig):[];const changed=isNew?[]:now.map((s,i)=>s!==before[i]?i:-1).filter(i=>i>=0);
+  render(changed);BUSY=false;document.body.classList.remove("busy");
+  if(isNew||!changed.length)scrollTo({top:0,behavior:"smooth"});else goTo(changed[0]);
+  bubble(reply+(isNew&&S.se?`<br><small>Tu peux ensuite me dire : « change l'atelier 2 », « plus de frappe »…</small>`:""))}
 /* ===================== chrono de chaque bloc : bip + vibration à la fin, petit bip 30 s avant ===================== */
 let AC=null,TM=null,WL=null;
 function beep(n,len,f){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();for(let k=0;k<n;k++){const o=AC.createOscillator(),g=AC.createGain();o.type="square";o.frequency.value=f||880;o.connect(g);g.connect(AC.destination);const t=AC.currentTime+k*(len+.15);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.35,t+.02);g.gain.setValueAtTime(.35,t+len-.03);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.start(t);o.stop(t+len+.02)}}catch(e){}}
@@ -208,17 +276,40 @@ function bindTimers(){out.querySelectorAll("[data-tm]").forEach(btn=>btn.onclick
       if(r<=0){clearInterval(TM.h);TM=null;wake(false);btn.classList.remove("on");btn.textContent="✓ Terminé";sec.classList.remove("now");sec.classList.add("end");beep(3,.45,880);vib([400,200,400,200,400]);
         const nx=document.getElementById("b"+(i+1));if(nx)setTimeout(()=>nx.scrollIntoView({behavior:"smooth",block:"start"}),1200)}},250)}});
   out.querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>{const i=+b.dataset.tr;if(TM&&TM.i===i)stopTimer(false);const el=document.getElementById("tm"+i);el.dataset.left="";el.textContent=fmt(S.se.blocks[i].m*60);const t=out.querySelector(`[data-tm="${i}"]`);t.textContent=`⏱ Lancer ${S.se.blocks[i].m} min`;document.getElementById("b"+i).classList.remove("end")})}
-/* ===================== voix : dictée du téléphone ===================== */
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const mic=document.getElementById("mic");let rec=null;
-mic.onclick=()=>{if(!SR){msg("La dictée directe n'est pas disponible dans ce navigateur. Utilise le micro de ton clavier (🎤 à côté de la barre d'espace) dans la zone de texte.");document.getElementById("q").focus();return}
-  if(rec){rec.stop();return}rec=new SR();rec.lang="fr-FR";rec.interimResults=true;rec.maxAlternatives=1;let fin="";mic.classList.add("rec");
-  rec.onresult=e=>{let t="";for(const r of e.results)t+=r[0].transcript;document.getElementById("q").value=t;fin=t};rec.onerror=()=>{};rec.onend=()=>{mic.classList.remove("rec");rec=null;if(fin.trim())send(fin)};try{rec.start()}catch(e){mic.classList.remove("rec");rec=null}};
-document.getElementById("go").onclick=()=>send(document.getElementById("q").value);
-document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send(e.target.value)}});
-/* code IA */
-const dlg=document.getElementById("dlg");const md=document.getElementById("mode");const setMode=()=>{md.innerHTML=S.code?"IA Claude activée · <a href='#' id='off' style='color:var(--mut)'>désactiver</a>":"Mode simple (sans IA) · <a href='#' id='on' style='color:var(--y)'>activer l'IA Claude</a>";const a=document.getElementById(S.code?"off":"on");a.onclick=e=>{e.preventDefault();if(S.code){S.code="";save();setMode()}else dlg.showModal()}};
-document.getElementById("dlgok").onclick=()=>{S.code=document.getElementById("dlgc").value.trim();save();dlg.close();setMode()};document.getElementById("dlgno").onclick=()=>dlg.close();setMode();
+/* ===================== voix : on voit en direct ce que l'assistant entend ===================== */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,LT={fin:"",tmp:"",want:false,stopT:null};
+function grow(t){t.style.height="auto";t.style.height=Math.min(t.scrollHeight,innerHeight*.4)+"px"}
+function lisShow(state,msgTxt){const p=$("lis");p.hidden=false;p.classList.toggle("done",state!=="on");$("lisst").textContent=state==="on"?"J'écoute… parle normalement":(msgTxt||"C'est bien ça ?");
+  const txt=(LT.fin+" "+LT.tmp).trim();$("listx").innerHTML=txt?`${LT.fin.replace(/</g,"&lt;")} <i>${LT.tmp.replace(/</g,"&lt;")}</i>`:`<span class="ph">${state==="on"?"Ex. : « U7, une heure quinze, huit joueurs, conduite et duel »":"Je n'ai rien entendu."}</span>`;
+  $("lisok").disabled=!txt;$("lisre").hidden=state==="on";$("lisok").textContent=state==="on"?"✓ J'ai fini":"✓ Envoyer";$("listx").scrollTop=1e6;
+  ["mic","mic0"].forEach(id=>$(id).classList.toggle("rec",state==="on"))}
+function stopListen(silent){if(rec){LT.want=false;try{rec.abort()}catch(e){}rec=null}clearTimeout(LT.stopT);if(silent){$("lis").hidden=true;["mic","mic0"].forEach(id=>$(id).classList.remove("rec"))}}
+function startListen(){hideBubble();
+  if(!SR){bubble("La dictée directe n'est pas disponible dans ce navigateur. Touche la zone de texte puis le 🎤 de ton clavier.");const q=$(S.se?"q":"q0");q.focus();return}
+  if(rec){finishListen();return}
+  LT={fin:"",tmp:"",want:false,stopT:null};beep(1,.01);
+  const r=new SR();rec=r;r.lang="fr-FR";r.interimResults=true;r.continuous=true;r.maxAlternatives=1;
+  r.onresult=e=>{if(rec!==r)return;let f="",t="";for(let k=0;k<e.results.length;k++){const x=e.results[k];if(x.isFinal)f+=x[0].transcript;else t+=x[0].transcript}LT.fin=f.trim();LT.tmp=t.trim();lisShow("on")};
+  r.onerror=e=>{if(rec!==r)return;const m={"not-allowed":"Le micro est bloqué : autorise-le pour ce site dans les réglages du navigateur.","service-not-allowed":"Le micro est bloqué : autorise-le pour ce site dans les réglages du navigateur.","no-speech":"Je n'ai rien entendu. Recommence en parlant près du téléphone.","audio-capture":"Aucun micro trouvé.","network":"La dictée a besoin d'internet."}[e.error];if(m)LT.err=m};
+  r.onend=()=>{if(rec!==r)return;rec=null;clearTimeout(LT.stopT);const txt=(LT.fin+" "+LT.tmp).trim();if(LT.want&&txt){send(txt);return}LT.fin=txt;LT.tmp="";lisShow("done",txt?"C'est bien ça ? Envoie ou recommence.":(LT.err||"Je n'ai rien entendu."))};
+  lisShow("on");try{r.start()}catch(e){rec=null;lisShow("done","Le micro n'a pas démarré, touche Recommencer.")}}
+function finishListen(){const txt=(LT.fin+" "+LT.tmp).trim();if(rec){LT.want=true;try{rec.stop()}catch(e){}/* sécurité : certains téléphones ne rendent pas la main */LT.stopT=setTimeout(()=>{if(rec){const r=rec;rec=null;try{r.abort()}catch(e){}}const t=(LT.fin+" "+LT.tmp).trim();if(t)send(t);else lisShow("done")},1500)}else if(txt)send(txt)}
+$("mic").onclick=$("mic0").onclick=startListen;
+$("lisok").onclick=finishListen;$("lisno").onclick=()=>stopListen(true);$("lisre").onclick=()=>{stopListen(false);startListen()};
+["q","q0"].forEach(id=>{const t=$(id);t.addEventListener("input",()=>grow(t));t.addEventListener("focus",hideBubble);t.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send(t.value)}})});
+$("go").onclick=()=>send($("q").value);$("go0").onclick=()=>send($("q0").value);
+/* ===================== partage par lien ===================== */
+const b64e=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const b64d=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/"))));
+function shareLink(){const se=S.se;const z={v:1,b:se.brief,k:se.blocks.map(x=>[x.k,x.id||0,x.role||0,x.m])};return location.origin+location.pathname+"#s="+b64e(JSON.stringify(z))}
+$("share").onclick=async()=>{if(!S.se)return;const url=shareLink();const tot=S.se.blocks.reduce((a,x)=>a+x.m,0);const title=`Séance ${S.se.brief.cat} · ${tot} min · ${(S.se.brief.th||[]).join(", ")}`;
+  if(navigator.share){try{await navigator.share({title,text:title+" (Pau FC)",url});return}catch(e){if(e&&e.name==="AbortError")return}}
+  try{await navigator.clipboard.writeText(url);bubble("🔗 <b>Lien copié !</b> Colle-le dans WhatsApp pour l'envoyer aux éducateurs.")}catch(e){bubble(`Copie ce lien pour partager la séance :<span class="lnk">${url}</span>`,true)}};
+$("neu").onclick=()=>{stopListen(true);hideBubble();S.se=null;save();render();scrollTo({top:0})};
+function loadShared(){const m=location.hash.match(/^#s=([A-Za-z0-9_-]+)/);if(!m)return false;try{const z=JSON.parse(b64d(m[1]));const blocks=z.k.map(a=>{const x={k:a[0],m:+a[3]};if(a[1])x.id=a[1];if(a[2])x.role=a[2];return x});
+  if(!blocks.length||!blocks.every(x=>x.k==="lib"?!!libB(x.id):!!FIX[x.k])||!blocks.every(x=>x.m>0&&x.m<200))throw 0;
+  S.se={brief:Object.assign({cat:"U7",dur:75,eff:8,th:[]},z.b||{}),blocks,titre:""};save();history.replaceState(null,"",location.pathname);return true}catch(e){history.replaceState(null,"",location.pathname);return "bad"}}
 /* démarrage */
-if(S.hist&&S.hist.length){S.hist.slice(-6).forEach(([w,h])=>{const d=document.createElement("div");d.className="msg "+w;d.innerHTML=h;chat.appendChild(d)})}else msg("Bonjour ! Dis-moi ta séance : la <b>catégorie</b>, la <b>durée</b>, le <b>nombre de joueurs</b> et ce que tu veux <b>travailler</b>. Tu peux écrire ou toucher 🎤 pour parler.");
-render();chips(S.se?["Change l'atelier 2","Plus de duel","Remplace la mise en train","1 heure seulement"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe","U9, 1 h 30, dribble et frappe"]);
+const shared=loadShared();delete S.hist;save();render();
+if(shared===true)bubble("📥 <b>Séance reçue.</b> Tu peux la lancer telle quelle ou me demander des changements.");else if(shared==="bad")bubble("Ce lien de séance est incomplet. Demande à l'éducateur de te le renvoyer.");
 </script></body></html>
