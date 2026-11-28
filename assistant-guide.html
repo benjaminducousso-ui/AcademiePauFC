@@ -41,6 +41,10 @@ dialog{border:0;border-radius:16px;background:var(--card);color:#fff;max-width:4
 .rp{width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:13px;text-align:center}.rp th,.rp td{border:1px solid var(--line);padding:6px 4px}.rp th{color:var(--mut);font-weight:700}.rp td{font-weight:900;color:var(--y);font-size:15px}
 .st{background:var(--card2);border-radius:14px;padding:12px;margin-top:12px;border-left:4px solid var(--c)}.st h3{margin:0 0 2px;font-size:15.5px;display:flex;align-items:center;gap:8px}.sl{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--y);color:#0E2440;font-weight:900;font-size:14px}
 .tour{font-size:14px;color:#DCE5F1;margin-top:6px;min-height:0}.tour b{color:var(--y)}.tour.go{animation:flash 1.2s}
+.tag.ia{background:#B39DDB;color:#1B1036}
+.perio{margin-top:8px;padding:9px 11px;border-radius:12px;background:#FFF4CC;font-size:14px;line-height:1.4}.perio.ok{background:#E3F2E6}.perio button{display:block;margin-top:8px;border:0;border-radius:10px;padding:9px 12px;font-weight:800;font-size:13.5px;background:#0E2440;color:#fff;cursor:pointer;font-family:inherit}
+.moment{margin:18px 0 4px;text-align:left;background:var(--card);border-radius:16px;padding:12px}.moment .mh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--y);margin-bottom:8px}
+.moment button{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:#fff;padding:10px 2px;font:inherit;font-size:14.5px;cursor:pointer}.moment button b{color:var(--y);min-width:30px}.moment .mn{font-size:11.5px;color:var(--mut);margin-top:6px}
 /* ===== v2 : accueil épuré, dictée visible, réponse près de la barre, partage ===== */
 .w{padding-bottom:170px}
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
@@ -91,6 +95,7 @@ body.empty .dock{background:none}
 <p class="lead">Dis-moi la catégorie, la durée, le nombre de joueurs et ce que tu veux travailler.</p>
 <button class="bigmic" id="mic0" aria-label="Parler">🎤</button><div class="micl">Touche et parle</div>
 <div class="hin"><textarea id="q0" rows="1" placeholder="Ou écris ta séance ici…"></textarea><button class="ib send" id="go0" aria-label="Envoyer">➤</button></div>
+<div class="moment" id="moment"></div>
 <div class="chips" id="chips0"></div>
 <div class="ai-badge">✨ Propulsé par l'IA Claude</div>
 </div>
@@ -211,15 +216,24 @@ const FIX={accueil:{nom:"Accueil et rituel",col:"#8C9AB0",html:`<p>Chacun son ba
  bilan:{nom:"Retour au calme et bilan",col:"#8C9AB0",html:`<p>En cercle : une question sur le thème du jour, chacun montre ce qu'il a appris. On range ensemble.</p>`}};
 const TH={conduite:["conduite","conduire","conduis"],dribble:["dribble","dribbl","feinte","crochet","eliminer","éliminer"],surfaces:["surface","interieur","intérieur","exterieur","extérieur","semelle","toutes les surfaces"],duel:["duel","1 contre 1","1c1","un contre un","defendre","défendre","defense","défense"],passe:["passe","partenaire","passer"],controle:["controle","contrôle","controler","contrôler","recevoir","reception","réception","amorti"],frappe:["frappe","tir","tirer","viser","marquer"],motricite:["motricite","motricité","courir","coordination"],finition:["finition","finir","2 contre 1","2c1","but"]};
 const nrm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+/* ===================== thèmes de la saison par catégorie et par période (proposition faite au RTJ le 28/11, à valider) ===================== */
+const PERIODES=[["P1","2026-09-14","2026-10-17"],["P2","2026-11-02","2026-12-19"],["P3","2027-01-04","2027-02-13"],["P4","2027-03-01","2027-04-10"],["P5","2027-04-26","2027-06-19"]];
+const PTH_U89={P1:{t:"Conduite et dribble, agrandir l'espace",th:["conduite","surfaces","dribble"]},P2:{t:"Trouver son partenaire",th:["passe","controle"]},P3:{t:"Le duel : attaquer et défendre en 1 contre 1",th:["duel","dribble"]},P4:{t:"Construire depuis son but, défendre l'axe",th:["passe","controle"]},P5:{t:"Finir l'action : 2 contre 1",th:["finition","frappe","dribble"]}};
+const PTH={U7:{P1:{t:"Motricité et découverte du ballon",th:["conduite","motricite"]},P2:{t:"Garder son ballon face à un adversaire",th:["conduite","dribble","duel"]},P3:{t:"Viser et marquer",th:["frappe","finition"]},P4:{t:"Jouer avec un partenaire",th:["passe"]},P5:{t:"Défendre son but et jouer",th:["duel","finition"]}},U8:PTH_U89,U9:PTH_U89};
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+function periodeOf(d){d=d||today();for(const [p,a,b] of PERIODES){if(d<=b)return {p,n:+p[1],from:a,to:b,vac:d<a}}return {p:"P5",n:5}}
+function themePer(cat){const P=periodeOf();const T=(PTH[cat]||{})[P.p];return T?Object.assign({p:P.p,n:P.n},T):null}
+const THN={conduite:"conduite",dribble:"dribble",surfaces:"toutes surfaces",duel:"duel",passe:"passe",controle:"contrôle",frappe:"frappe",motricite:"motricité",finition:"finition"};
 /* ===================== composer une séance (mode simple, sans IA) ===================== */
 function parseBrief(t,prev){const s=nrm(t);const b=Object.assign({cat:"U7",dur:75,eff:8,th:[]},prev||{});
   const c=s.match(/\bu ?(7|8|9|10|11|12|13)\b/);if(c)b.cat="U"+c[1];
   let m=s.match(/(\d)\s*h\s*(\d{1,2})?/);if(m)b.dur=(+m[1])*60+(+(m[2]||0));else{m=s.match(/(\d{2,3})\s*(min|mn|minutes)/);if(m)b.dur=+m[1]}
   m=s.match(/(\d{1,2})\s*(joueurs|enfants|gamins|joueuses)/);if(m)b.eff=+m[1];
   if(/tournant|rotation|station|circuit|qui tourne|tourner/.test(s))b.rot=true;
+  if(/theme (de la|du|de cette) (periode|moment|cycle)|theme actuel|theme en cours/.test(s)){const T=themePer(b.cat);if(T)b.th=T.th.slice()}
   const th=Object.keys(TH).filter(k=>TH[k].some(w=>s.includes(nrm(w))));if(th.length)b.th=th;return b}
 const score=(x,th)=>th.reduce((a,t)=>a+(x.th.includes(t)?(x.th.indexOf(t)===0?3:2):0),0);
-function compose(b){const lib=LIB.filter(x=>x.cats.includes(b.cat));const th=b.th.length?b.th:["conduite","duel"];const used=new Set(b.exclude||[]);
+function compose(b){const lib=LIB.filter(x=>x.cats.includes(b.cat));if(!b.th.length){const T=themePer(b.cat);b.th=T?T.th.slice():["conduite","duel"]}const th=b.th;const used=new Set(b.exclude||[]);
   const pick=(type,n,avoid)=>lib.filter(x=>x.type===type&&!used.has(x.id)&&!(avoid||[]).includes(x.id)).sort((p,q)=>score(q,th)-score(p,th)).slice(0,n);
   const mt=pick("mt",1)[0];const ats=pick("at",3);const nAt=b.dur>=70?3:b.dur>=55?2:1;
   let blocks=[{k:"accueil"},{k:"lib",id:mt.id,role:"Mise en train"}];
@@ -231,9 +245,30 @@ function compose(b){const lib=LIB.filter(x=>x.cats.includes(b.cat));const th=b.t
   return {brief:b,blocks,titre:`${b.cat} · ${th.map(t=>({conduite:"conduite",dribble:"dribble",surfaces:"toutes surfaces",duel:"duel",passe:"passe",controle:"contrôle",frappe:"frappe",motricite:"motricité",finition:"finition"})[t]).join(", ")}`}}
 function swapBlock(se,i,want){const b=se.blocks[i];if(!b||b.k!=="lib")return null;const cur=LIB.find(x=>x.id===b.id);const ids=se.blocks.filter(x=>x.k==="lib").map(x=>x.id);
   const th=want&&want.length?want:se.brief.th.length?se.brief.th:cur.th;const c=LIB.filter(x=>x.cats.includes(se.brief.cat)&&x.type===cur.type&&!ids.includes(x.id)).sort((p,q)=>score(q,th)-score(p,th));if(!c.length)return null;b.id=c[0].id;return c[0]}
-function usedIds(se){const u=[];se.blocks.forEach(x=>{if(x.k==="lib")u.push(x.id);if(x.k==="rot")u.push(...x.stations)});return u}
-function swapStation(se,i,j){const b=se.blocks[i];const cur=libB(b.stations[j]);const used=usedIds(se);const th=se.brief.th.length?se.brief.th:cur.th;
+function usedIds(se){const u=[];se.blocks.forEach(x=>{if(x.k==="lib")u.push(x.id);if(x.k==="rot")x.stations.forEach(v=>{if(typeof v==="string")u.push(v)})});return u}
+function swapStation(se,i,j){const b=se.blocks[i];const cur=getL(b.stations[j]);const used=usedIds(se);const th=se.brief.th.length?se.brief.th:cur.th;
   const c=LIB.filter(x=>x.cats.includes(se.brief.cat)&&x.type==="at"&&!used.includes(x.id)).sort((p,q)=>score(q,th)-score(p,th));if(!c.length)return null;b.stations[j]=c[0].id;return c[0]}
+/* atelier créé par l'IA : texte + schéma (plots, joueurs, flèches) animé */
+const escH=x=>String(x==null?"":x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const clampN=(v,a,b,d)=>{v=+v;return isFinite(v)?Math.min(b,Math.max(a,v)):d};
+function mkNew(a){a=a||{};const th=(Array.isArray(a.th)?a.th:[]).filter(t=>THN[t]).slice(0,4);const cons=(Array.isArray(a.consignes)?a.consignes:[]).slice(0,5);
+  const html=`<p>${escH(a.orga)}</p>${cons.length?`<ul>${cons.map(c=>`<li>${escH(c)}</li>`).join("")}</ul>`:""}${a.regarde?`<p><b>On regarde</b> : ${escH(a.regarde)}</p>`:""}${a.variante?`<p><b>Variante</b> : ${escH(a.variante)}</p>`:""}`;
+  return {id:null,nom:String(a.nom||"Atelier").slice(0,60),type:a.type==="mt"?"mt":"at",th,col:"#B39DDB",html,ia:true,an:F=>schemaAnim(F,a.schema||{})}}
+function schemaAnim(F,sc){const w=clampN(sc.w,6,40,20),h=clampN(sc.h,6,40,15);const P=a=>Array.isArray(a)?a.filter(q=>Array.isArray(q)&&q.length>=2).slice(0,16).map(q=>[clampN(q[0],-2,w+2,0),clampN(q[1],-2,h+2,0)].concat(q.slice(2))):[];
+  F.rect(0,0,w,h);P(sc.plots).forEach(([x,y])=>F.cone(x,y));P(sc.buts).forEach(([x,y,v])=>F.goal(x,y,2,!!v||x<=.5||x>=w-.5));
+  const fl=P(sc.fleches).filter(q=>q.length>=4).map(q=>[q[0],q[1],clampN(q[2],-2,w+2,0),clampN(q[3],-2,h+2,0),q[4]||"course",q[5]]);
+  fl.forEach(([x1,y1,x2,y2,ty])=>{const L=Math.hypot(x2-x1,y2-y1)||1,ux=(x2-x1)/L,uy=(y2-y1)/L,hx=x2-ux*.5,hy=y2-uy*.5;const c=ty==="passe"?"rgba(255,255,255,.75)":ty==="conduite"?"rgba(255,235,59,.75)":"rgba(255,255,255,.4)";
+    F.el("line",{x1,y1,x2:hx,y2:hy,stroke:c,"stroke-width":.1,"stroke-dasharray":ty==="passe"?".35 .25":ty==="course"?".15 .2":"none"});F.el("polygon",{points:`${x2},${y2} ${hx-uy*.25},${hy+ux*.25} ${hx+uy*.25},${hy-ux*.25}`,fill:c})});
+  const pl=P(sc.bleus).map(([x,y])=>({kind:undefined,pos:[x,y],path:[[0,x,y]]})).concat(P(sc.rouges).map(([x,y])=>({kind:"def",pos:[x,y],path:[[0,x,y]]})));
+  const b0=P(sc.ballon)[0]||(fl[0]?[fl[0][0]+.5,fl[0][1]]:null);const ball=b0?[[0,b0[0],b0[1]]]:[];let t=.6;const say=[];
+  fl.forEach(([x1,y1,x2,y2,ty,lab])=>{const d=Math.max(.7,Math.hypot(x2-x1,y2-y1)/(ty==="passe"?9:5));
+    if(lab)say.push([t,String(lab).slice(0,70)]);
+    if(ty==="passe"){ball.push([t,x1,y1],[t+d,x2,y2])}else{let best=null,bd=1e9;pl.forEach(o=>{const dd=Math.hypot(o.pos[0]-x1,o.pos[1]-y1);if(dd<bd){bd=dd;best=o}});
+      if(best&&bd<3){best.path.push([t,best.pos[0],best.pos[1]],[t+d,x2,y2]);best.pos=[x2,y2]}if(ty==="conduite")ball.push([t,x1+.5,y1],[t+d,x2+.5,y2])}
+    t+=d+.25});
+  const actors=pl.map(o=>({kind:o.kind,path:o.path}));if(ball.length)actors.push({path:[[0,-9,-9],[t,-9,-9]],ball});
+  return {vb:[-1.5,-1.5,w+3,h+3],T:t+.3,intro:"Schéma créé par l'IA. Touche ▶ pour le voir bouger.",actors,say}}
+const getL=x=>typeof x==="string"?LIB.find(y=>y.id===x):x&&x.k==="lib"?LIB.find(y=>y.id===x.id):x&&x.k==="new"?mkNew(x.at):x&&typeof x==="object"&&x.nom?mkNew(x):null;
 /* commandes de changement en mode simple */
 function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
   const libIdx=se.blocks.map((x,i)=>x.k==="lib"?i:-1).filter(i=>i>=0);
@@ -249,20 +284,23 @@ function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
   return null}
 /* ===================== IA Claude (via le script Google du club, la clé reste côté serveur) ===================== */
 async function askClaude(text,isNew){
-  const prev=S.se&&S.se.brief;const cat=parseBrief(text).cat!=="U7"||/\bu ?7\b/.test(nrm(text))?parseBrief(text).cat:(prev?prev.cat:"U7");
-  const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th}));
+  const prev=S.se&&S.se.brief;let TP=null;const cat=parseBrief(text).cat!=="U7"||/\bu ?7\b/.test(nrm(text))?parseBrief(text).cat:(prev?prev.cat:"U7");
+  const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th}));TP=themePer(cat);
   const message=(isNew&&prev&&!/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text))?`(Catégorie habituelle : ${prev.cat}, ${prev.eff} joueurs) `:"")+text;
   const consigne="Tu es l'assistant séance du Pau FC (football, enfants de "+cat+"). "+
    (isNew?"C'est une NOUVELLE séance : ignore toute séance précédente et compose-la à partir de la demande. ":"L'éducateur modifie la séance actuelle : garde tout ce qu'il ne demande pas de changer. ")+
+   (TP?"Thème de la période "+TP.p+" en "+cat+" (proposé au RTJ) : « "+TP.t+" » (thèmes "+TP.th.join(", ")+"). Si l'éducateur ne précise pas de thème, construis la séance sur ce thème ; s'il demande autre chose, respecte sa demande. ":"")+
    "Choisis en priorité les ateliers du catalogue dont les thèmes correspondent à la demande (passe, controle, conduite, dribble, duel, frappe, finition, surfaces, motricite). "+
+   "Si le catalogue n'a pas d'atelier adapté, ou si l'éducateur demande de créer un atelier, CRÉE-le (2 au maximum par séance) avec un bloc {\"k\":\"new\",\"role\":\"Atelier 1\",\"m\":12,\"at\":{\"nom\":\"…\",\"type\":\"at\",\"th\":[\"passe\"],\"orga\":\"organisation : espace en mètres, matériel, groupes\",\"consignes\":[\"règle 1\",\"règle 2\"],\"regarde\":\"critère de réussite\",\"variante\":\"…\",\"schema\":{\"w\":20,\"h\":15,\"plots\":[[x,y]],\"buts\":[[x,y]],\"bleus\":[[x,y]],\"rouges\":[[x,y]],\"ballon\":[[x,y]],\"fleches\":[[x1,y1,x2,y2,\"passe|conduite|course\",\"courte phrase\"]]}}} (coordonnées en mètres dans le terrain w × h, 2 à 6 flèches dans l'ordre de l'action ; une flèche course ou conduite part de la position d'un joueur). Dans un bloc rot, une station peut aussi être un objet atelier créé de la même forme que at. Adapte au niveau "+cat+" : ludique, beaucoup de ballons, peu d'attente. "+
    "Si l'éducateur parle d'ateliers tournants, de rotation ou de stations, mets UN bloc {\"k\":\"rot\",\"stations\":[id,id,id],\"m\":minutes} : les groupes tournent sur 2 ou 3 ateliers de type at (3 si 9 joueurs ou plus), m divisible par le nombre d'ateliers. "+
    "Réponds UNIQUEMENT avec un objet JSON valide (guillemets doubles, aucun texte autour), au format : {\"reply\":\"1 ou 2 phrases en français qui disent ce que tu as fait\",\"brief\":{\"cat\":\""+cat+"\",\"dur\":75,\"eff\":8,\"th\":[\"passe\",\"controle\"]},\"blocks\":[{\"k\":\"accueil\",\"m\":5},{\"k\":\"lib\",\"id\":\"id du catalogue\",\"role\":\"Mise en train\",\"m\":12},{\"k\":\"rot\",\"stations\":[\"id\",\"id\",\"id\"],\"m\":36},{\"k\":\"pause\",\"m\":3},{\"k\":\"lib\",\"id\":\"match\",\"role\":\"Match\",\"m\":15},{\"k\":\"bilan\",\"m\":3}]}. "+
    "k vaut accueil, lib, rot, pause ou bilan ; role vaut Mise en train, Atelier 1, Atelier 2, Atelier 3 ou Match. Utilise seulement les id du catalogue, sans doublon. La somme des minutes = durée demandée. Si le catalogue n'a pas assez d'ateliers sur le thème, dis-le dans reply.";
   const body={ai:1,code:S.code||"",message,seance:isNew?null:(S.se||null),catalogue:lib,consigne};
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});const j=await r.json();if(!j||!j.blocks)return j&&j.error?{err:j.error}:null;
-    const okB=x=>x.k==="lib"?LIB.some(y=>y.id===x.id):x.k==="rot"?Array.isArray(x.stations)&&x.stations.length>=2&&x.stations.every(id=>LIB.some(y=>y.id===id)):!!FIX[x.k];
+    const okS=v=>typeof v==="string"?LIB.some(y=>y.id===v):!!(v&&typeof v==="object"&&v.nom);
+    const okB=x=>x.k==="lib"?LIB.some(y=>y.id===x.id):x.k==="new"?!!(x.at&&x.at.nom):x.k==="rot"?Array.isArray(x.stations)&&x.stations.length>=2&&x.stations.length<=4&&x.stations.every(okS):!!FIX[x.k];
     if(!j.blocks.length||!j.blocks.every(x=>okB(x)&&+x.m>0))return {err:"séance incomplète"};
-    j.blocks.forEach(x=>{x.m=Math.round(+x.m);if(x.k!=="lib")delete x.id;if(x.k!=="rot")delete x.stations});
+    j.blocks.forEach(x=>{x.m=Math.round(+x.m);if(x.k!=="lib")delete x.id;if(x.k!=="rot")delete x.stations;if(x.k!=="new")delete x.at});
     S.se={brief:Object.assign({cat,dur:75,eff:prev?prev.eff:8,th:[]},j.brief||{}),blocks:j.blocks,titre:""};return {reply:j.reply||"Voilà ta séance."}}catch(e){return null}}
 /* ===================== affichage ===================== */
 const out=document.getElementById("out"),$=id=>document.getElementById(id);
@@ -278,24 +316,25 @@ function render(flash){if(TM)stopTimer(false);const se=S.se;flash=flash||[];docu
   if(!se){out.innerHTML="";$("ttl").textContent="Ta séance, en une phrase";chips();return}
   const b=se.brief;const tot=se.blocks.reduce((a,x)=>a+x.m,0);const N=Math.max(2,Math.floor(b.eff/2));const sz=N<=3?[15,10]:N<=4?[20,15]:[25,18];
   $("ttl").textContent=`Séance ${b.cat} · ${tot} min`;
-  const colOf=x=>x.k==="lib"?libB(x.id).col:x.k==="rot"?"#26C6DA":FIX[x.k].col;const nomOf=x=>x.k==="lib"?libB(x.id).nom:x.k==="rot"?"Ateliers tournants":FIX[x.k].nom;
+  const colOf=x=>x.k==="lib"||x.k==="new"?getL(x).col:x.k==="rot"?"#26C6DA":FIX[x.k].col;const nomOf=x=>x.k==="lib"||x.k==="new"?getL(x).nom:x.k==="rot"?"Ateliers tournants":FIX[x.k].nom;
   let t0=0;out.innerHTML=`<div class="sum"><span>${b.cat}</span><span>${tot} min</span><span>${b.eff} joueurs</span><span>${(b.th||[]).join(" · ")||"thème libre"}</span></div><div class="tl">${se.blocks.map((x,i)=>`<a href="#b${i}" style="width:${x.m/tot*100}%;background:${colOf(x)}">${x.m>=10?x.m+"'":""}</a>`).join("")}</div>`+
-   se.blocks.map((x,i)=>{if(x.k==="rot"){const s=rotHTML(x,i,b,t0);t0+=x.m;return s}const L=x.k==="lib"?libB(x.id):null;let h=L?L.html:FIX[x.k].html;if(L&&L.id==="match")h=h.replace(/\{N\}/g,N).replace("{L}",sz[0]).replace("{l}",sz[1]).replace("{REGLE}",(b.th||[]).includes("duel")||(b.th||[]).includes("conduite")?"<b>Règle du jour</b> : un but marqué en conduisant le ballon dans le but compte double.":"<b>Règle du jour</b> : un but après une passe compte double.");
-     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash.includes(i)?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L?L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt"><button data-sw="${i}">⇄ Autre atelier</button></div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
+   se.blocks.map((x,i)=>{if(x.k==="rot"){const s=rotHTML(x,i,b,t0);t0+=x.m;return s}const L=x.k==="lib"||x.k==="new"?getL(x):null;let h=L?L.html:FIX[x.k].html;if(L&&L.id==="match")h=h.replace(/\{N\}/g,N).replace("{L}",sz[0]).replace("{l}",sz[1]).replace("{REGLE}",(b.th||[]).includes("duel")||(b.th||[]).includes("conduite")?"<b>Règle du jour</b> : un but marqué en conduisant le ballon dans le but compte double.":"<b>Règle du jour</b> : un but après une passe compte double.");
+     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash.includes(i)?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L&&L.ia?`<span class="tag ia">✨ créé par l'IA</span>`:""}${L?L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt">${L.ia?`<button data-ask="Remplace l'atelier « ${escH(L.nom)} » par un autre">⇄ Autre atelier</button>`:`<button data-sw="${i}">⇄ Autre atelier</button>`}</div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
   const mount=(box,L)=>{const tmp=document.createElement("div");const F=field(tmp,[0,0,1,1]);const A=L.an(F);F.s.setAttribute("viewBox",A.vb.join(" "));box.appendChild(F.s);anim(box,F,A)};
-  se.blocks.forEach((x,i)=>{if(x.k==="lib")mount(out.querySelector(`[data-an="${i}"]`),libB(x.id));if(x.k==="rot")x.stations.forEach((id,j)=>mount(out.querySelector(`[data-an="${i}-${j}"]`),libB(id)))});
+  se.blocks.forEach((x,i)=>{try{if(x.k==="lib"||x.k==="new")mount(out.querySelector(`[data-an="${i}"]`),getL(x));if(x.k==="rot")x.stations.forEach((v,j)=>mount(out.querySelector(`[data-an="${i}-${j}"]`),getL(v)))}catch(e){}});
+  out.querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>send(b.dataset.ask));
   bindTimers();chips();
-  out.querySelectorAll("[data-sws]").forEach(btn=>btn.onclick=()=>{const [i,j]=btn.dataset.sws.split("-").map(Number);const old=libB(S.se.blocks[i].stations[j]).nom;const nw=swapStation(S.se,i,j);if(nw){save();render([i]);const el=out.querySelector(`[data-st="${i}-${j}"]`);if(el){const y=el.getBoundingClientRect().top+scrollY-12;scrollTo({top:y,behavior:"smooth"})}bubble(`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b> dans les ateliers tournants.`)}else bubble("Je n'ai pas d'autre atelier disponible pour cette catégorie.")});
+  out.querySelectorAll("[data-sws]").forEach(btn=>btn.onclick=()=>{const [i,j]=btn.dataset.sws.split("-").map(Number);const old=getL(S.se.blocks[i].stations[j]).nom;const nw=swapStation(S.se,i,j);if(nw){save();render([i]);const el=out.querySelector(`[data-st="${i}-${j}"]`);if(el){const y=el.getBoundingClientRect().top+scrollY-12;scrollTo({top:y,behavior:"smooth"})}bubble(`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b> dans les ateliers tournants.`)}else bubble("Je n'ai pas d'autre atelier disponible pour cette catégorie.")});
   out.querySelectorAll("[data-sw]").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.sw;const old=libB(S.se.blocks[i].id).nom;const nw=swapBlock(S.se,i);if(nw){save();render([i]);goTo(i);bubble(`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`)}else bubble("Je n'ai pas d'autre atelier de ce type pour cette catégorie.")})}
 const LET="ABCD";const TL=t=>({controle:"contrôle",motricite:"motricité"})[t]||t;
 function rotHTML(x,i,b,t0){const n=x.stations.length;const per=Math.ceil(b.eff/n);const r=x.m/n;const rr=Math.round(r*10)/10;
   const plan=`<table class="rp"><tr><th></th>${x.stations.map((_,k)=>`<th>Groupe ${k+1}</th>`).join("")}</tr>${x.stations.map((_,t)=>`<tr><th>Tour ${t+1}</th>${x.stations.map((_,g)=>`<td>${LET[(g+t)%n]}</td>`).join("")}</tr>`).join("")}</table>`;
-  const st=x.stations.map((id,j)=>{const L=libB(id);return `<div class="st" data-st="${i}-${j}" style="--c:${L.col}"><h3><span class="sl">${LET[j]}</span>${L.nom}</h3>${L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join("")}${L.html}<div data-an="${i}-${j}"></div><div class="alt"><button data-sws="${i}-${j}">⇄ Autre atelier</button></div></div>`}).join("");
+  const st=x.stations.map((id,j)=>{const L=getL(id);return `<div class="st" data-st="${i}-${j}" style="--c:${L.col}"><h3><span class="sl">${LET[j]}</span>${escH(L.nom)}</h3>${L.ia?`<span class="tag ia">✨ créé par l'IA</span>`:""}${L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join("")}${L.html}<div data-an="${i}-${j}"></div><div class="alt"><button data-sws="${i}-${j}">⇄ Autre atelier</button></div></div>`}).join("");
   return `<section id="b${i}" style="--c:#26C6DA"><div class="sh"><h2>Ateliers tournants</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>
   <p><b>${n} groupes</b> d'environ <b>${per} joueurs</b>, <b>${n} ateliers</b> (${x.stations.map((_,k)=>LET[k]).join(", ")}). On tourne toutes les <b>${rr} min</b> : le chrono bipe à chaque rotation.</p>${plan}
   <div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div><div class="tour" id="tr${i}"></div>${st}</section>`}
 function goTo(i){const el=$("b"+i);if(!el)return;const y=el.getBoundingClientRect().top+scrollY-12;scrollTo({top:Math.max(0,y),behavior:"smooth"})}
-const sig=x=>x?[x.k,x.id||"",x.role||"",x.m,(x.stations||[]).join(",")].join("|"):"";
+const sig=x=>x?JSON.stringify([x.k,x.id||"",x.role||"",x.m,x.stations||"",x.at?x.at.nom:""]):"";
 let BUSY=false;
 async function send(text){text=String(text||"").trim();if(!text||BUSY)return;BUSY=true;document.body.classList.add("busy");stopListen(true);
   ["q","q0"].forEach(id=>{$(id).value="";grow($(id))});document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
@@ -307,7 +346,11 @@ async function send(text){text=String(text||"").trim();if(!text||BUSY)return;BUS
   save();const now=S.se?S.se.blocks.map(sig):[];const changed=isNew?[]:now.map((s,i)=>s!==before[i]?i:-1).filter(i=>i>=0);
   render(changed);BUSY=false;document.body.classList.remove("busy");
   if(isNew||!changed.length)scrollTo({top:0,behavior:"smooth"});else goTo(changed[0]);
-  bubble(reply+(isNew&&S.se?`<br><small>Tu peux ensuite me dire : « change l'atelier 2 », « plus de frappe »…</small>`:""))}
+  let perio="";if(isNew&&S.se){const T=themePer(S.se.brief.cat);const asked=parseBrief(text).th;const forced=/theme (de la|du|de cette) (periode|moment|cycle)|theme actuel|theme en cours/.test(tn);
+    if(T&&asked.length&&!asked.some(t=>T.th.includes(t))&&!forced){perio=`<div class="perio">📅 En ${S.se.brief.cat}, la <b>période ${T.n}</b> travaille <b>« ${T.t} »</b> (${T.th.map(t=>THN[t]).join(", ")}). Ta séance est sur un autre thème.<button data-perio="${S.se.brief.cat}">Faire plutôt une séance sur ce thème</button></div>`}
+    else if(T&&(forced||!asked.length))perio=`<div class="perio ok">📅 Séance sur le thème de la période ${T.n} : <b>« ${T.t} »</b>.</div>`}
+  bubble(reply+perio+(isNew&&S.se&&!perio.includes("data-perio")?`<small>Tu peux ensuite me dire : « change l'atelier 2 », « en ateliers tournants »…</small>`:""),!!perio.includes("data-perio"));
+  const pb=document.querySelector("[data-perio]");if(pb)pb.onclick=()=>{const b=S.se.brief;send(`${b.cat}, ${b.dur} min, ${b.eff} joueurs, séance sur le thème de la période${b.rot?", en ateliers tournants":""}`)}}
 /* ===================== chrono de chaque bloc : bip + vibration à la fin, petit bip 30 s avant ===================== */
 let AC=null,TM=null,WL=null;
 function beep(n,len,f){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();for(let k=0;k<n;k++){const o=AC.createOscillator(),g=AC.createGain();o.type="square";o.frequency.value=f||880;o.connect(g);g.connect(AC.destination);const t=AC.currentTime+k*(len+.15);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.35,t+.02);g.gain.setValueAtTime(.35,t+len-.03);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.start(t);o.stop(t+len+.02)}}catch(e){}}
@@ -353,14 +396,17 @@ $("go").onclick=()=>send($("q").value);$("go0").onclick=()=>send($("q0").value);
 /* ===================== partage par lien ===================== */
 const b64e=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const b64d=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/"))));
-function shareLink(){const se=S.se;const z={v:1,b:se.brief,k:se.blocks.map(x=>[x.k,x.id||0,x.role||0,x.m,x.stations||0])};return location.origin+location.pathname+"#s="+b64e(JSON.stringify(z))}
+function shareLink(){const se=S.se;const z={v:1,b:se.brief,k:se.blocks.map(x=>[x.k,x.id||0,x.role||0,x.m,x.stations||0,x.at||0])};return location.origin+location.pathname+"#s="+b64e(JSON.stringify(z))}
 $("share").onclick=async()=>{if(!S.se)return;const url=shareLink();const tot=S.se.blocks.reduce((a,x)=>a+x.m,0);const title=`Séance ${S.se.brief.cat} · ${tot} min · ${(S.se.brief.th||[]).join(", ")}`;
   if(navigator.share){try{await navigator.share({title,text:title+" (Pau FC)",url});return}catch(e){if(e&&e.name==="AbortError")return}}
   try{await navigator.clipboard.writeText(url);bubble("🔗 <b>Lien copié !</b> Colle-le dans WhatsApp pour l'envoyer aux éducateurs.")}catch(e){bubble(`Copie ce lien pour partager la séance :<span class="lnk">${url}</span>`,true)}};
 $("neu").onclick=()=>{stopListen(true);hideBubble();S.se=null;save();render();scrollTo({top:0})};
-function loadShared(){const m=location.hash.match(/^#s=([A-Za-z0-9_-]+)/);if(!m)return false;try{const z=JSON.parse(b64d(m[1]));const blocks=z.k.map(a=>{const x={k:a[0],m:+a[3]};if(a[1])x.id=a[1];if(a[2])x.role=a[2];if(a[4])x.stations=a[4];return x});
-  if(!blocks.length||!blocks.every(x=>x.k==="lib"?!!libB(x.id):x.k==="rot"?Array.isArray(x.stations)&&x.stations.every(id=>!!libB(id)):!!FIX[x.k])||!blocks.every(x=>x.m>0&&x.m<200))throw 0;
+function loadShared(){const m=location.hash.match(/^#s=([A-Za-z0-9_-]+)/);if(!m)return false;try{const z=JSON.parse(b64d(m[1]));const blocks=z.k.map(a=>{const x={k:a[0],m:+a[3]};if(a[1])x.id=a[1];if(a[2])x.role=a[2];if(a[4])x.stations=a[4];if(a[5])x.at=a[5];return x});
+  if(!blocks.length||!blocks.every(x=>x.k==="lib"?!!libB(x.id):x.k==="new"?!!(x.at&&x.at.nom):x.k==="rot"?Array.isArray(x.stations)&&x.stations.every(v=>!!getL(v)):!!FIX[x.k])||!blocks.every(x=>x.m>0&&x.m<200))throw 0;
   S.se={brief:Object.assign({cat:"U7",dur:75,eff:8,th:[]},z.b||{}),blocks,titre:""};save();history.replaceState(null,"",location.pathname);return true}catch(e){history.replaceState(null,"",location.pathname);return "bad"}}
+function moment(){const P=periodeOf();const el=$("moment");el.innerHTML=`<div class="mh">📅 Thème du moment · période ${P.n}${P.vac?" (à la reprise)":""}</div>`+["U7","U8","U9"].map(c=>{const T=themePer(c);return T?`<button data-mo="${c}"><b>${c}</b><span>${T.t}</span></button>`:""}).join("")+`<div class="mn">Proposition faite au RTJ, bientôt validée.</div>`;
+  el.querySelectorAll("[data-mo]").forEach(b=>b.onclick=()=>send(`${b.dataset.mo}, 1 h 15, séance sur le thème de la période`))}
+moment();
 /* démarrage */
 const shared=loadShared();delete S.hist;save();render();
 if(shared===true)bubble("📥 <b>Séance reçue.</b> Tu peux la lancer telle quelle ou me demander des changements.");else if(shared==="bad")bubble("Ce lien de séance est incomplet. Demande à l'éducateur de te le renvoyer.");
