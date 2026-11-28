@@ -237,6 +237,8 @@ const FIX={accueil:{nom:"Accueil et rituel",col:"#8C9AB0",html:`<p>Chacun son ba
 const TH={conduite:["conduite","conduire","conduis"],dribble:["dribble","dribbl","feinte","crochet","eliminer","éliminer"],surfaces:["surface","interieur","intérieur","exterieur","extérieur","semelle","toutes les surfaces"],duel:["duel","1 contre 1","1c1","un contre un","defendre","défendre","defense","défense"],passe:["passe","partenaire","passer"],controle:["controle","contrôle","controler","contrôler","recevoir","reception","réception","amorti"],frappe:["frappe","tir","tirer","viser","marquer"],motricite:["motricite","motricité","courir","coordination"],finition:["finition","finir","2 contre 1","2c1","but"]};
 const nrm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 /* ===================== thèmes de la saison par catégorie et par période (proposition faite au RTJ le 28/11, à valider) ===================== */
+/* effectifs des catégories (listes de l'outil Progression, 28/11) : nombre seulement, aucun nom */
+const EFF={U7:7,U8:15,U9:17,U10:15,U11:20,U12:19,U13:19};
 const PERIODES=[["P1","2026-09-14","2026-10-17"],["P2","2026-11-02","2026-12-19"],["P3","2027-01-04","2027-02-13"],["P4","2027-03-01","2027-04-10"],["P5","2027-04-26","2027-06-19"]];
 const PTH_U89={P1:{t:"Conduite et dribble, agrandir l'espace",th:["conduite","surfaces","dribble"]},P2:{t:"Trouver son partenaire",th:["passe","controle"]},P3:{t:"Le duel : attaquer et défendre en 1 contre 1",th:["duel","dribble"]},P4:{t:"Construire depuis son but, défendre l'axe",th:["passe","controle"]},P5:{t:"Finir l'action : 2 contre 1",th:["finition","frappe","dribble"]}};
 const PTH={U7:{P1:{t:"Motricité et découverte du ballon",th:["conduite","motricite"]},P2:{t:"Garder son ballon face à un adversaire",th:["conduite","dribble","duel"]},P3:{t:"Viser et marquer",th:["frappe","finition"]},P4:{t:"Jouer avec un partenaire",th:["passe"]},P5:{t:"Défendre son but et jouer",th:["duel","finition"]}},U8:PTH_U89,U9:PTH_U89};
@@ -248,7 +250,7 @@ const THN={conduite:"conduite",dribble:"dribble",surfaces:"toutes surfaces",duel
 function parseBrief(t,prev){const s=nrm(t);const b=Object.assign({cat:"U7",dur:75,eff:8,th:[]},prev||{});
   const c=s.match(/\bu ?(7|8|9|10|11|12|13)\b/);if(c)b.cat="U"+c[1];
   let m=s.match(/(\d)\s*h\s*(\d{1,2})?/);if(m)b.dur=(+m[1])*60+(+(m[2]||0));else{m=s.match(/(\d{2,3})\s*(min|mn|minutes)/);if(m)b.dur=+m[1]}
-  m=s.match(/(\d{1,2})\s*(joueurs|enfants|gamins|joueuses)/);if(m)b.eff=+m[1];
+  m=s.match(/(\d{1,2})\s*(joueurs|enfants|gamins|joueuses)/);if(m)b.eff=+m[1];else if(!prev||prev.cat!==b.cat||!prev.eff)b.eff=EFF[b.cat]||b.eff;
   if(/a la suite|les uns apres les autres|pas tournant|sans rotation/.test(s))b.rot=false;else if(/tournant|rotation|station|circuit|qui tourne|tourner/.test(s))b.rot=true;
   if(/theme (de la|du|de cette) (periode|moment|cycle)|theme actuel|theme en cours/.test(s)){const T=themePer(b.cat);if(T)b.th=T.th.slice()}
   const th=Object.keys(TH).filter(k=>TH[k].some(w=>s.includes(nrm(w))));if(th.length)b.th=th;return b}
@@ -312,7 +314,9 @@ function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
 async function askClaude(text,isNew){
   const prev=S.se&&S.se.brief;let TP=null;const cat=parseBrief(text).cat!=="U7"||/\bu ?7\b/.test(nrm(text))?parseBrief(text).cat:(prev?prev.cat:"U7");
   const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th})).concat(CLUB.filter(c=>c.cats.includes(cat)).map(c=>({id:c.id,nom:c.at.nom,type:c.at.type==="mt"?"mt":"at",themes:c.at.th||[],source:"bibliothèque du club (à privilégier si le thème correspond)"})));TP=themePer(cat);
-  const message=(isNew&&prev&&!/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text))?`(Catégorie habituelle : ${prev.cat}, ${prev.eff} joueurs) `:"")+text;
+  const effH=/\d{1,2}\s*(joueurs|enfants|gamins|joueuses)/.test(nrm(text))?"":`effectif : ${prev&&prev.cat===cat?prev.eff:(EFF[cat]||8)} joueurs`;
+  const catH=isNew&&prev&&!/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text))?`catégorie : ${prev.cat}`:"";
+  const message=([catH,effH].filter(Boolean).length?`(${[catH,effH].filter(Boolean).join(", ")}) `:"")+text;
   const consigne="Tu es l'assistant séance du Pau FC (football, enfants de "+cat+"). "+
    (isNew?"C'est une NOUVELLE séance : ignore toute séance précédente et compose-la à partir de la demande. ":"L'éducateur modifie la séance actuelle : garde tout ce qu'il ne demande pas de changer. ")+
    (TP?"Thème de la période "+TP.p+" en "+cat+" (proposé au RTJ) : « "+TP.t+" » (thèmes "+TP.th.join(", ")+"). Si l'éducateur ne précise pas de thème, construis la séance sur ce thème ; s'il demande autre chose, respecte sa demande. ":"")+
@@ -329,7 +333,7 @@ async function askClaude(text,isNew){
     const okB=x=>x.k==="lib"?!!findId(x.id):x.k==="new"?!!(x.at&&x.at.nom):x.k==="rot"?Array.isArray(x.stations)&&x.stations.length>=2&&x.stations.length<=4&&x.stations.every(okS):!!FIX[x.k];
     if(!j.blocks.length||!j.blocks.every(x=>okB(x)&&+x.m>0))return {err:"séance incomplète"};
     j.blocks.forEach(x=>{x.m=Math.round(+x.m);if(x.k!=="lib")delete x.id;if(x.k!=="rot")delete x.stations;if(x.k!=="new")delete x.at});
-    S.se={brief:Object.assign({cat,dur:75,eff:prev?prev.eff:8,th:[]},j.brief||{}),blocks:j.blocks,titre:""};return {reply:j.reply||"Voilà ta séance."}}catch(e){return null}}
+    S.se={brief:Object.assign({cat,dur:75,eff:prev&&prev.cat===cat?prev.eff:(EFF[cat]||8),th:[]},j.brief||{}),blocks:j.blocks,titre:""};return {reply:j.reply||"Voilà ta séance."}}catch(e){return null}}
 /* ===================== affichage ===================== */
 const out=document.getElementById("out"),$=id=>document.getElementById(id);
 const libB=id=>findId(id);
