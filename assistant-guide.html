@@ -45,13 +45,25 @@ dialog{border:0;border-radius:16px;background:var(--card);color:#fff;max-width:4
 .perio{margin-top:8px;padding:9px 11px;border-radius:12px;background:#FFF4CC;font-size:14px;line-height:1.4}.perio.ok{background:#E3F2E6}.perio button{display:block;margin-top:8px;border:0;border-radius:10px;padding:9px 12px;font-weight:800;font-size:13.5px;background:#0E2440;color:#fff;cursor:pointer;font-family:inherit}
 .moment{margin:18px 0 4px;text-align:left;background:var(--card);border-radius:16px;padding:12px}.moment .mh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--y);margin-bottom:8px}
 .moment button{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:#fff;padding:10px 2px;font:inherit;font-size:14.5px;cursor:pointer}.moment button b{color:var(--y);min-width:30px}.moment .mn{font-size:11.5px;color:var(--mut);margin-top:6px}
+.tag.club{background:#80CBC4;color:#06302B}
+#libd{max-width:560px;width:calc(100% - 24px);max-height:calc(100dvh - 32px);overflow:auto;padding:16px}#libd::backdrop{background:rgba(0,0,0,.55)}
+.lh{display:flex;justify-content:space-between;align-items:center;font-size:17px}.lh button{width:34px;height:34px;border-radius:50%;border:0;background:var(--card2);color:#fff;font-weight:900;cursor:pointer}
+.lp{color:var(--mut);font-size:13.5px;line-height:1.45;margin:8px 0 10px}
+#libd input,#libd textarea{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:#fff;font:inherit;font-size:16px;margin:0 0 8px;resize:vertical}
+.lc{display:flex;gap:6px;margin:2px 0 10px}.lc button{border:1.5px solid var(--line);background:none;color:var(--mut);border-radius:999px;padding:7px 14px;font-weight:800;cursor:pointer;font-family:inherit}.lc button.on{background:var(--y);border-color:var(--y);color:#0E2440}
+.lgo{width:100%;border:0;border-radius:12px;padding:13px;font-weight:900;font-size:15px;background:var(--y);color:#0E2440;cursor:pointer;font-family:inherit}.lgo[disabled]{opacity:.5}
+.ls{font-size:14px;margin:10px 0;line-height:1.45;min-height:4px}.lt2{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--y);margin:16px 0 4px}
+.li{border-top:1px solid var(--line);padding:10px 0}.lr{display:flex;justify-content:space-between;gap:10px;align-items:center}.lr small{display:block;color:var(--mut);font-size:12px;margin-top:2px}.lr button{border:0;border-radius:10px;padding:8px 12px;font-weight:800;background:var(--card2);color:#fff;cursor:pointer;font-family:inherit}
+.lv{margin-top:8px;font-size:14px;color:#DCE5F1;line-height:1.45}.lv ul{padding-left:18px}.la{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}.la a{color:var(--y);font-size:13px}.la button{border:0;border-radius:10px;padding:8px 12px;font-weight:700;background:#5A1F24;color:#fff;cursor:pointer;font-family:inherit;font-size:13px}
+.pt{font-size:13.5px;font-weight:800;color:var(--y);margin:2px 0 6px}
+.fmt{display:flex;align-items:center;justify-content:center;gap:6px;margin:16px 0 0;font-size:13.5px;color:var(--mut)}.fmt span{margin-right:4px}.fmt button{border:1.5px solid var(--line);background:none;color:#DCE5F1;border-radius:999px;padding:8px 14px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit}.fmt button.on{background:var(--y);border-color:var(--y);color:#0E2440}
 /* ===== v2 : accueil épuré, dictée visible, réponse près de la barre, partage ===== */
 .w{padding-bottom:170px}
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .acts{display:flex;gap:6px;flex-wrap:nowrap;justify-content:flex-end;margin-top:2px}
 .acts button{border:0;border-radius:999px;padding:9px 13px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;background:var(--card2);color:#fff;white-space:nowrap}
 .acts #share{background:var(--y);color:#0E2440}
-body.empty .acts{display:none}
+body.empty #share,body.empty #neu{display:none}
 body:not(.empty) h1{font-size:18px}
 .hero{display:none;text-align:center;padding:4vh 0 10px}
 body.empty .hero{display:block}
@@ -90,11 +102,12 @@ body.empty .dock{background:none}
 @media (min-width:760px){.hero{padding-top:8vh}}
 @media (prefers-reduced-motion:reduce){.bigmic.rec,.listen .dot,.wave i,.bubble,.listen{animation:none}}
 </style></head><body class="empty"><div class="w">
-<header class="top"><div><div class="eb">Pau FC Académie · Préparer · séance</div><h1 id="ttl">Ta séance, en une phrase</h1></div><div class="acts"><button id="share">↗ Partager</button><button id="neu" aria-label="Nouvelle séance" title="Nouvelle séance">＋</button></div></header>
+<header class="top"><div><div class="eb">Pau FC Académie · séance</div><h1 id="ttl">Ta séance, en une phrase</h1></div><div class="acts"><button id="libb" aria-label="Bibliothèque d'ateliers" title="Bibliothèque d'ateliers">📚</button><button id="share">↗ Partager</button><button id="neu" aria-label="Nouvelle séance" title="Nouvelle séance">＋</button></div></header>
 <div class="hero" id="hero">
 <p class="lead">Dis-moi la catégorie, la durée, le nombre de joueurs et ce que tu veux travailler.</p>
 <button class="bigmic" id="mic0" aria-label="Parler">🎤</button><div class="micl">Touche et parle</div>
 <div class="hin"><textarea id="q0" rows="1" placeholder="Ou écris ta séance ici…"></textarea><button class="ib send" id="go0" aria-label="Envoyer">➤</button></div>
+<div class="fmt" id="fmt"><span>Ateliers</span><button data-f="suite">à la suite</button><button data-f="rot">tournants</button></div>
 <div class="moment" id="moment"></div>
 <div class="chips" id="chips0"></div>
 <div class="ai-badge">✨ Propulsé par l'IA Claude</div>
@@ -107,6 +120,13 @@ body.empty .dock{background:none}
 <div class="chips" id="chips"></div>
 <div class="row"><button class="ib" id="mic" aria-label="Parler">🎤</button><textarea id="q" rows="1" placeholder="Modifier la séance…"></textarea><button class="ib send" id="go" aria-label="Envoyer">➤</button></div>
 </div>
+<dialog id="libd"><div class="lh"><b>📚 Bibliothèque du club</b><button id="libx" aria-label="Fermer">✕</button></div>
+<p class="lp">Colle le lien d'un atelier vu sur le web : l'IA le transforme en atelier animé pour nos catégories, et l'assistant pourra le reprendre dans les séances.</p>
+<input id="libu" type="url" inputmode="url" placeholder="https://… (site, vidéo, post)" autocomplete="off">
+<textarea id="libt" rows="2" placeholder="Ou décris l'atelier (utile pour Instagram ou Facebook, souvent illisibles)"></textarea>
+<div class="lc" id="libc"><button data-c="U7" class="on">U7</button><button data-c="U8" class="on">U8</button><button data-c="U9" class="on">U9</button></div>
+<button id="libgo" class="lgo">Ajouter à la bibliothèque</button><div id="libs" class="ls"></div>
+<div id="libl"></div></dialog>
 <script>
 /* ===================== réglages ===================== */
 const API="https://script.google.com/macros/s/AKfycbw_lyvwhgyF-4i9jM-mNnHTCkdS-q0W92UeU7QGwgmaayAjGTtJCGB1n2K-VlgkKuEGEg/exec";
@@ -229,12 +249,13 @@ function parseBrief(t,prev){const s=nrm(t);const b=Object.assign({cat:"U7",dur:7
   const c=s.match(/\bu ?(7|8|9|10|11|12|13)\b/);if(c)b.cat="U"+c[1];
   let m=s.match(/(\d)\s*h\s*(\d{1,2})?/);if(m)b.dur=(+m[1])*60+(+(m[2]||0));else{m=s.match(/(\d{2,3})\s*(min|mn|minutes)/);if(m)b.dur=+m[1]}
   m=s.match(/(\d{1,2})\s*(joueurs|enfants|gamins|joueuses)/);if(m)b.eff=+m[1];
-  if(/tournant|rotation|station|circuit|qui tourne|tourner/.test(s))b.rot=true;
+  if(/a la suite|les uns apres les autres|pas tournant|sans rotation/.test(s))b.rot=false;else if(/tournant|rotation|station|circuit|qui tourne|tourner/.test(s))b.rot=true;
   if(/theme (de la|du|de cette) (periode|moment|cycle)|theme actuel|theme en cours/.test(s)){const T=themePer(b.cat);if(T)b.th=T.th.slice()}
   const th=Object.keys(TH).filter(k=>TH[k].some(w=>s.includes(nrm(w))));if(th.length)b.th=th;return b}
 const score=(x,th)=>th.reduce((a,t)=>a+(x.th.includes(t)?(x.th.indexOf(t)===0?3:2):0),0);
-function compose(b){const lib=LIB.filter(x=>x.cats.includes(b.cat));if(!b.th.length){const T=themePer(b.cat);b.th=T?T.th.slice():["conduite","duel"]}const th=b.th;const used=new Set(b.exclude||[]);
-  const pick=(type,n,avoid)=>lib.filter(x=>x.type===type&&!used.has(x.id)&&!(avoid||[]).includes(x.id)).sort((p,q)=>score(q,th)-score(p,th)).slice(0,n);
+function compose(b){const lib=LIB.filter(x=>x.cats.includes(b.cat));if(!b.th.length){const T=themePer(b.cat);b.th=T?T.th.slice():["conduite","duel"]}const th=b.th;
+  const rec=new Set(b.exclude||[]);const srt=a=>a.sort((p,q)=>score(q,th)-score(p,th));
+  const pick=(type,n,avoid)=>{const l=lib.filter(x=>x.type===type&&!(avoid||[]).includes(x.id));const fresh=srt(l.filter(x=>!rec.has(x.id)&&score(x,th)>0));return fresh.concat(srt(l.filter(x=>!fresh.includes(x)))).slice(0,n)};
   const mt=pick("mt",1)[0];const ats=pick("at",3);const nAt=b.dur>=70?3:b.dur>=55?2:1;
   let blocks=[{k:"accueil"},{k:"lib",id:mt.id,role:"Mise en train"}];
   if(b.rot){blocks.push({k:"rot",stations:ats.slice(0,b.eff>=9?3:2).map(x=>x.id)},{k:"pause"})}
@@ -268,16 +289,21 @@ function schemaAnim(F,sc){const w=clampN(sc.w,6,40,20),h=clampN(sc.h,6,40,15);co
     t+=d+.25});
   const actors=pl.map(o=>({kind:o.kind,path:o.path}));if(ball.length)actors.push({path:[[0,-9,-9],[t,-9,-9]],ball});
   return {vb:[-1.5,-1.5,w+3,h+3],T:t+.3,intro:"Schéma créé par l'IA. Touche ▶ pour le voir bouger.",actors,say}}
-const getL=x=>typeof x==="string"?LIB.find(y=>y.id===x):x&&x.k==="lib"?LIB.find(y=>y.id===x.id):x&&x.k==="new"?mkNew(x.at):x&&typeof x==="object"&&x.nom?mkNew(x):null;
+let CLUB=(()=>{try{return JSON.parse(localStorage.getItem("paufc-club-ateliers")||"[]")}catch(e){return []}})();
+function clubL(id){const c=CLUB.find(c=>c.id===id);return c?Object.assign(mkNew(c.at),{id:c.id,src:"club",ia:true,source:c.source}):null}
+const findId=id=>LIB.find(y=>y.id===id)||clubL(id);
+const tagIA=L=>L.src==="club"?`<span class="tag club">📚 bibliothèque du club</span>`:`<span class="tag ia">✨ créé par l'IA</span>`;
+const getL=x=>typeof x==="string"?findId(x):x&&x.k==="lib"?findId(x.id):x&&x.k==="new"?mkNew(x.at):x&&typeof x==="object"&&x.nom?mkNew(x):null;
 /* commandes de changement en mode simple */
 function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
   const libIdx=se.blocks.map((x,i)=>x.k==="lib"?i:-1).filter(i=>i>=0);
   let idx=-1;const n=s.match(/atelier\s*(\d)/);if(n){idx=se.blocks.findIndex(x=>x.role==="Atelier "+n[1])}
   if(/mise en train|echauffement/.test(s))idx=se.blocks.findIndex(x=>x.role==="Mise en train");if(/\bmatch\b/.test(s)&&idx<0)idx=se.blocks.findIndex(x=>x.role==="Match");
-  if(idx<0){const hit=libIdx.find(i=>{const x=LIB.find(y=>y.id===se.blocks[i].id);return s.includes(nrm(x.nom).replace(/^(les?|la) /,""))});if(hit!=null)idx=hit}
+  if(idx<0){const hit=libIdx.find(i=>{const x=getL(se.blocks[i]);return !!x&&s.includes(nrm(x.nom).replace(/^(les?|la) /,""))});if(hit!=null)idx=hit}
   const th=Object.keys(TH).filter(k=>TH[k].some(w=>s.includes(nrm(w))));
+  if(/a la suite|les uns apres les autres|pas tournant|sans rotation/.test(s)){se.brief.rot=false;if(th.length)se.brief.th=th;S.se=compose(se.brief);return `C'est noté : les ateliers s'enchaînent <b>à la suite</b>.`}
   if(/tournant|rotation|station|circuit|qui tourne/.test(s)){se.brief.rot=true;if(th.length)se.brief.th=th;S.se=compose(se.brief);return `C'est noté : les ateliers deviennent des <b>ateliers tournants</b>, chaque groupe passe sur chaque atelier.`}
-  if(/(change|remplace|autre|pas|enleve)/.test(s)&&idx>=0){const old=LIB.find(x=>x.id===se.blocks[idx].id).nom;const nw=swapBlock(se,idx,th);return nw?`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`:"Je n'ai pas d'autre atelier de ce type pour cette catégorie."}
+  if(/(change|remplace|autre|pas|enleve)/.test(s)&&idx>=0){if(!LIB.find(x=>x.id===se.blocks[idx].id))return null;const old=LIB.find(x=>x.id===se.blocks[idx].id).nom;const nw=swapBlock(se,idx,th);return nw?`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`:"Je n'ai pas d'autre atelier de ce type pour cette catégorie."}
   const d=parseBrief(t,{});if(/(\d)\s*h|\d{2,3}\s*min/.test(s)){S.se=compose(Object.assign({},se.brief,{dur:d.dur}));return `C'est noté : la séance dure maintenant <b>${S.se.brief.dur} min</b>.`}
   if(/joueurs|enfants/.test(s)){se.brief.eff=d.eff;return `C'est noté : <b>${d.eff} joueurs</b>. Le match et les groupes sont adaptés.`}
   if(th.length){se.brief.th=[...new Set(th.concat(se.brief.th||[]))];const keep=se.brief;S.se=compose(keep);return `C'est noté : j'ai mis plus de <b>${th.join(", ")}</b> dans la séance.`}
@@ -285,11 +311,13 @@ function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
 /* ===================== IA Claude (via le script Google du club, la clé reste côté serveur) ===================== */
 async function askClaude(text,isNew){
   const prev=S.se&&S.se.brief;let TP=null;const cat=parseBrief(text).cat!=="U7"||/\bu ?7\b/.test(nrm(text))?parseBrief(text).cat:(prev?prev.cat:"U7");
-  const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th}));TP=themePer(cat);
+  const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th})).concat(CLUB.filter(c=>c.cats.includes(cat)).map(c=>({id:c.id,nom:c.at.nom,type:c.at.type==="mt"?"mt":"at",themes:c.at.th||[],source:"bibliothèque du club (à privilégier si le thème correspond)"})));TP=themePer(cat);
   const message=(isNew&&prev&&!/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text))?`(Catégorie habituelle : ${prev.cat}, ${prev.eff} joueurs) `:"")+text;
   const consigne="Tu es l'assistant séance du Pau FC (football, enfants de "+cat+"). "+
    (isNew?"C'est une NOUVELLE séance : ignore toute séance précédente et compose-la à partir de la demande. ":"L'éducateur modifie la séance actuelle : garde tout ce qu'il ne demande pas de changer. ")+
    (TP?"Thème de la période "+TP.p+" en "+cat+" (proposé au RTJ) : « "+TP.t+" » (thèmes "+TP.th.join(", ")+"). Si l'éducateur ne précise pas de thème, construis la séance sur ce thème ; s'il demande autre chose, respecte sa demande. ":"")+
+   (isNew&&(S.recent||[]).length?"Ateliers déjà utilisés dans les dernières séances de l'éducateur, à NE PAS reprendre pour varier (sauf match) : "+S.recent.join(", ")+". S'il ne reste pas assez d'ateliers adaptés dans le catalogue, crée 1 ou 2 ateliers nouveaux (k:new). ":"")+
+   "Format : si l'éducateur demande des ateliers tournants, utilise un bloc rot ; s'il demande des ateliers à la suite (les uns après les autres), n'utilise PAS de bloc rot. "+
    "Choisis en priorité les ateliers du catalogue dont les thèmes correspondent à la demande (passe, controle, conduite, dribble, duel, frappe, finition, surfaces, motricite). "+
    "Si le catalogue n'a pas d'atelier adapté, ou si l'éducateur demande de créer un atelier, CRÉE-le (2 au maximum par séance) avec un bloc {\"k\":\"new\",\"role\":\"Atelier 1\",\"m\":12,\"at\":{\"nom\":\"…\",\"type\":\"at\",\"th\":[\"passe\"],\"orga\":\"organisation : espace en mètres, matériel, groupes\",\"consignes\":[\"règle 1\",\"règle 2\"],\"regarde\":\"critère de réussite\",\"variante\":\"…\",\"schema\":{\"w\":20,\"h\":15,\"plots\":[[x,y]],\"buts\":[[x,y]],\"bleus\":[[x,y]],\"rouges\":[[x,y]],\"ballon\":[[x,y]],\"fleches\":[[x1,y1,x2,y2,\"passe|conduite|course\",\"courte phrase\"]]}}} (coordonnées en mètres dans le terrain w × h, 2 à 6 flèches dans l'ordre de l'action ; une flèche course ou conduite part de la position d'un joueur). Dans un bloc rot, une station peut aussi être un objet atelier créé de la même forme que at. Adapte au niveau "+cat+" : ludique, beaucoup de ballons, peu d'attente. "+
    "Si l'éducateur parle d'ateliers tournants, de rotation ou de stations, mets UN bloc {\"k\":\"rot\",\"stations\":[id,id,id],\"m\":minutes} : les groupes tournent sur 2 ou 3 ateliers de type at (3 si 9 joueurs ou plus), m divisible par le nombre d'ateliers. "+
@@ -297,29 +325,29 @@ async function askClaude(text,isNew){
    "k vaut accueil, lib, rot, pause ou bilan ; role vaut Mise en train, Atelier 1, Atelier 2, Atelier 3 ou Match. Utilise seulement les id du catalogue, sans doublon. La somme des minutes = durée demandée. Si le catalogue n'a pas assez d'ateliers sur le thème, dis-le dans reply.";
   const body={ai:1,code:S.code||"",message,seance:isNew?null:(S.se||null),catalogue:lib,consigne};
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});const j=await r.json();if(!j||!j.blocks)return j&&j.error?{err:j.error}:null;
-    const okS=v=>typeof v==="string"?LIB.some(y=>y.id===v):!!(v&&typeof v==="object"&&v.nom);
-    const okB=x=>x.k==="lib"?LIB.some(y=>y.id===x.id):x.k==="new"?!!(x.at&&x.at.nom):x.k==="rot"?Array.isArray(x.stations)&&x.stations.length>=2&&x.stations.length<=4&&x.stations.every(okS):!!FIX[x.k];
+    const okS=v=>typeof v==="string"?!!findId(v):!!(v&&typeof v==="object"&&v.nom);
+    const okB=x=>x.k==="lib"?!!findId(x.id):x.k==="new"?!!(x.at&&x.at.nom):x.k==="rot"?Array.isArray(x.stations)&&x.stations.length>=2&&x.stations.length<=4&&x.stations.every(okS):!!FIX[x.k];
     if(!j.blocks.length||!j.blocks.every(x=>okB(x)&&+x.m>0))return {err:"séance incomplète"};
     j.blocks.forEach(x=>{x.m=Math.round(+x.m);if(x.k!=="lib")delete x.id;if(x.k!=="rot")delete x.stations;if(x.k!=="new")delete x.at});
     S.se={brief:Object.assign({cat,dur:75,eff:prev?prev.eff:8,th:[]},j.brief||{}),blocks:j.blocks,titre:""};return {reply:j.reply||"Voilà ta séance."}}catch(e){return null}}
 /* ===================== affichage ===================== */
 const out=document.getElementById("out"),$=id=>document.getElementById(id);
-const libB=id=>LIB.find(x=>x.id===id);
+const libB=id=>findId(id);
 /* bulle de réponse, juste au-dessus de la barre */
 let bubT=null;
 function bubble(html,keep){const b=$("bub");$("bubt").innerHTML=html;b.hidden=false;b.style.animation="none";void b.offsetWidth;b.style.animation="";clearTimeout(bubT);if(!keep)bubT=setTimeout(()=>{b.hidden=true},14000)}
 function hideBubble(){clearTimeout(bubT);$("bub").hidden=true}
 $("bubx").onclick=hideBubble;
-function chips(){const a=S.se?["Change l'atelier 2","En ateliers tournants","Plus de duel","Remplace la mise en train","1 heure seulement"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe et contrôle en ateliers tournants","U9, 1 h 30, dribble et frappe"];
+function chips(){const a=S.se?[S.se.blocks.some(x=>x.k==="rot")?"Ateliers à la suite":"En ateliers tournants","Change l'atelier 2","Plus de duel","Remplace la mise en train","1 heure seulement"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe et contrôle en ateliers tournants","U9, 1 h 30, dribble et frappe"];
   const c=$(S.se?"chips":"chips0");c.innerHTML=a.map(x=>`<button>${x}</button>`).join("");c.querySelectorAll("button").forEach(b=>b.onclick=()=>send(b.textContent));$(S.se?"chips0":"chips").innerHTML=""}
 function render(flash){if(TM)stopTimer(false);const se=S.se;flash=flash||[];document.body.classList.toggle("empty",!se);
   if(!se){out.innerHTML="";$("ttl").textContent="Ta séance, en une phrase";chips();return}
   const b=se.brief;const tot=se.blocks.reduce((a,x)=>a+x.m,0);const N=Math.max(2,Math.floor(b.eff/2));const sz=N<=3?[15,10]:N<=4?[20,15]:[25,18];
-  $("ttl").textContent=`Séance ${b.cat} · ${tot} min`;
+  $("ttl").textContent=`Séance ${b.cat} · ${tot} min`;const perL=b.per?`<div class="pt">📅 ${escH(b.per)}</div>`:"";
   const colOf=x=>x.k==="lib"||x.k==="new"?getL(x).col:x.k==="rot"?"#26C6DA":FIX[x.k].col;const nomOf=x=>x.k==="lib"||x.k==="new"?getL(x).nom:x.k==="rot"?"Ateliers tournants":FIX[x.k].nom;
-  let t0=0;out.innerHTML=`<div class="sum"><span>${b.cat}</span><span>${tot} min</span><span>${b.eff} joueurs</span><span>${(b.th||[]).join(" · ")||"thème libre"}</span></div><div class="tl">${se.blocks.map((x,i)=>`<a href="#b${i}" style="width:${x.m/tot*100}%;background:${colOf(x)}">${x.m>=10?x.m+"'":""}</a>`).join("")}</div>`+
+  let t0=0;out.innerHTML=perL+`<div class="sum"><span>${b.cat}</span><span>${tot} min</span><span>${b.eff} joueurs</span><span>${(b.th||[]).map(t=>THN[t]||t).join(" · ")||"thème libre"}</span><span>${se.blocks.some(x=>x.k==="rot")?"ateliers tournants":"ateliers à la suite"}</span></div><div class="tl">${se.blocks.map((x,i)=>`<a href="#b${i}" style="width:${x.m/tot*100}%;background:${colOf(x)}">${x.m>=10?x.m+"'":""}</a>`).join("")}</div>`+
    se.blocks.map((x,i)=>{if(x.k==="rot"){const s=rotHTML(x,i,b,t0);t0+=x.m;return s}const L=x.k==="lib"||x.k==="new"?getL(x):null;let h=L?L.html:FIX[x.k].html;if(L&&L.id==="match")h=h.replace(/\{N\}/g,N).replace("{L}",sz[0]).replace("{l}",sz[1]).replace("{REGLE}",(b.th||[]).includes("duel")||(b.th||[]).includes("conduite")?"<b>Règle du jour</b> : un but marqué en conduisant le ballon dans le but compte double.":"<b>Règle du jour</b> : un but après une passe compte double.");
-     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash.includes(i)?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L&&L.ia?`<span class="tag ia">✨ créé par l'IA</span>`:""}${L?L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt">${L.ia?`<button data-ask="Remplace l'atelier « ${escH(L.nom)} » par un autre">⇄ Autre atelier</button>`:`<button data-sw="${i}">⇄ Autre atelier</button>`}</div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
+     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash.includes(i)?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L&&L.ia?tagIA(L):""}${L?L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt">${L.ia?`<button data-ask="Remplace l'atelier « ${escH(L.nom)} » par un autre">⇄ Autre atelier</button>`:`<button data-sw="${i}">⇄ Autre atelier</button>`}</div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
   const mount=(box,L)=>{const tmp=document.createElement("div");const F=field(tmp,[0,0,1,1]);const A=L.an(F);F.s.setAttribute("viewBox",A.vb.join(" "));box.appendChild(F.s);anim(box,F,A)};
   se.blocks.forEach((x,i)=>{try{if(x.k==="lib"||x.k==="new")mount(out.querySelector(`[data-an="${i}"]`),getL(x));if(x.k==="rot")x.stations.forEach((v,j)=>mount(out.querySelector(`[data-an="${i}-${j}"]`),getL(v)))}catch(e){}});
   out.querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>send(b.dataset.ask));
@@ -329,26 +357,30 @@ function render(flash){if(TM)stopTimer(false);const se=S.se;flash=flash||[];docu
 const LET="ABCD";const TL=t=>({controle:"contrôle",motricite:"motricité"})[t]||t;
 function rotHTML(x,i,b,t0){const n=x.stations.length;const per=Math.ceil(b.eff/n);const r=x.m/n;const rr=Math.round(r*10)/10;
   const plan=`<table class="rp"><tr><th></th>${x.stations.map((_,k)=>`<th>Groupe ${k+1}</th>`).join("")}</tr>${x.stations.map((_,t)=>`<tr><th>Tour ${t+1}</th>${x.stations.map((_,g)=>`<td>${LET[(g+t)%n]}</td>`).join("")}</tr>`).join("")}</table>`;
-  const st=x.stations.map((id,j)=>{const L=getL(id);return `<div class="st" data-st="${i}-${j}" style="--c:${L.col}"><h3><span class="sl">${LET[j]}</span>${escH(L.nom)}</h3>${L.ia?`<span class="tag ia">✨ créé par l'IA</span>`:""}${L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join("")}${L.html}<div data-an="${i}-${j}"></div><div class="alt"><button data-sws="${i}-${j}">⇄ Autre atelier</button></div></div>`}).join("");
+  const st=x.stations.map((id,j)=>{const L=getL(id);return `<div class="st" data-st="${i}-${j}" style="--c:${L.col}"><h3><span class="sl">${LET[j]}</span>${escH(L.nom)}</h3>${L.ia?tagIA(L):""}${L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join("")}${L.html}<div data-an="${i}-${j}"></div><div class="alt"><button data-sws="${i}-${j}">⇄ Autre atelier</button></div></div>`}).join("");
   return `<section id="b${i}" style="--c:#26C6DA"><div class="sh"><h2>Ateliers tournants</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>
   <p><b>${n} groupes</b> d'environ <b>${per} joueurs</b>, <b>${n} ateliers</b> (${x.stations.map((_,k)=>LET[k]).join(", ")}). On tourne toutes les <b>${rr} min</b> : le chrono bipe à chaque rotation.</p>${plan}
   <div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div><div class="tour" id="tr${i}"></div>${st}</section>`}
 function goTo(i){const el=$("b"+i);if(!el)return;const y=el.getBoundingClientRect().top+scrollY-12;scrollTo({top:Math.max(0,y),behavior:"smooth"})}
 const sig=x=>x?JSON.stringify([x.k,x.id||"",x.role||"",x.m,x.stations||"",x.at?x.at.nom:""]):"";
 let BUSY=false;
+function remember(){if(!S.se)return;const u=usedIds(S.se).filter(x=>x!=="match");S.recent=[...new Set(u.concat(S.recent||[]))].slice(0,12);save()}
 async function send(text){text=String(text||"").trim();if(!text||BUSY)return;BUSY=true;document.body.classList.add("busy");stopListen(true);
   ["q","q0"].forEach(id=>{$(id).value="";grow($(id))});document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
   const tn=nrm(text);const isNew=!S.se||/\bu ?(7|8|9|10|11|12|13)\b/.test(tn)||(/(nouvelle|autre) seance|^(une |fais|fait|prepare|propose|cree|je veux une|je voudrais une)|seance (de|sur|pour|avec|passe|conduite|dribble|duel|frappe|controle)/.test(tn)&&!/(change|remplace|enleve|ajoute|retire|plus de|moins de|garde)/.test(tn));const before=S.se?S.se.blocks.map(sig):[];
+  if(isNew){remember();
+    if(!/tournant|rotation|station|circuit|a la suite|les uns apres les autres/.test(tn))text+=S.fmt==="rot"?", en ateliers tournants":", ateliers les uns après les autres"}
   bubble(`<span class="typing"><i></i><i></i><i></i></span> &nbsp;${isNew?"Je prépare ta séance…":"Je modifie ta séance…"}<br><small>« ${text.replace(/</g,"&lt;")} »</small>`,true);
   let reply=null;let ai=null;try{ai=await askClaude(text,isNew)}catch(e){}
-  if(ai&&ai.reply)reply=ai.reply;else{const e=S.se&&!isNew?localEdit(text):null;if(e)reply=e;else{const b=parseBrief(text,S.se?{cat:S.se.brief.cat,eff:S.se.brief.eff,dur:S.se.brief.dur}:null);if(!["U7","U8","U9"].includes(b.cat)){reply=`Pour l'instant, les ateliers animés existent pour les U7, U8 et U9. Les autres catégories arrivent ensuite.`}else{S.se=compose(b);reply=`Voilà ta séance <b>${S.se.brief.cat}</b> de <b>${S.se.brief.dur} min</b> pour <b>${S.se.brief.eff} joueurs</b>. Touche ▶ pour voir chaque atelier.`}}}
+  if(ai&&ai.reply)reply=ai.reply;else{const e=S.se&&!isNew?localEdit(text):null;if(e)reply=e;else{const b=parseBrief(text,S.se?{cat:S.se.brief.cat,eff:S.se.brief.eff,dur:S.se.brief.dur}:null);b.exclude=(S.recent||[]).slice();if(!["U7","U8","U9"].includes(b.cat)){reply=`Pour l'instant, les ateliers animés existent pour les U7, U8 et U9. Les autres catégories arrivent ensuite.`}else{S.se=compose(b);reply=`Voilà ta séance <b>${S.se.brief.cat}</b> de <b>${S.se.brief.dur} min</b> pour <b>${S.se.brief.eff} joueurs</b>. Touche ▶ pour voir chaque atelier.`}}}
   if(ai&&ai.err)reply=reply+`<br><small>(IA momentanément indisponible : ${ai.err}. Séance faite en mode simple.)</small>`;
   save();const now=S.se?S.se.blocks.map(sig):[];const changed=isNew?[]:now.map((s,i)=>s!==before[i]?i:-1).filter(i=>i>=0);
   render(changed);BUSY=false;document.body.classList.remove("busy");
   if(isNew||!changed.length)scrollTo({top:0,behavior:"smooth"});else goTo(changed[0]);
   let perio="";if(isNew&&S.se){const T=themePer(S.se.brief.cat);const asked=parseBrief(text).th;const forced=/theme (de la|du|de cette) (periode|moment|cycle)|theme actuel|theme en cours/.test(tn);
     if(T&&asked.length&&!asked.some(t=>T.th.includes(t))&&!forced){perio=`<div class="perio">📅 En ${S.se.brief.cat}, la <b>période ${T.n}</b> travaille <b>« ${T.t} »</b> (${T.th.map(t=>THN[t]).join(", ")}). Ta séance est sur un autre thème.<button data-perio="${S.se.brief.cat}">Faire plutôt une séance sur ce thème</button></div>`}
-    else if(T&&(forced||!asked.length))perio=`<div class="perio ok">📅 Séance sur le thème de la période ${T.n} : <b>« ${T.t} »</b>.</div>`}
+    else if(T&&(forced||!asked.length)){perio=`<div class="perio ok">📅 Séance sur le thème de la période ${T.n} : <b>« ${T.t} »</b>.</div>`;S.se.brief.per=`Période ${T.n} · ${T.t}`;save();render()}
+    else delete S.se.brief.per}
   bubble(reply+perio+(isNew&&S.se&&!perio.includes("data-perio")?`<small>Tu peux ensuite me dire : « change l'atelier 2 », « en ateliers tournants »…</small>`:""),!!perio.includes("data-perio"));
   const pb=document.querySelector("[data-perio]");if(pb)pb.onclick=()=>{const b=S.se.brief;send(`${b.cat}, ${b.dur} min, ${b.eff} joueurs, séance sur le thème de la période${b.rot?", en ateliers tournants":""}`)}}
 /* ===================== chrono de chaque bloc : bip + vibration à la fin, petit bip 30 s avant ===================== */
@@ -396,17 +428,40 @@ $("go").onclick=()=>send($("q").value);$("go0").onclick=()=>send($("q0").value);
 /* ===================== partage par lien ===================== */
 const b64e=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const b64d=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/"))));
-function shareLink(){const se=S.se;const z={v:1,b:se.brief,k:se.blocks.map(x=>[x.k,x.id||0,x.role||0,x.m,x.stations||0,x.at||0])};return location.origin+location.pathname+"#s="+b64e(JSON.stringify(z))}
+function shareLink(){const se=S.se;const z={v:1,b:se.brief,k:se.blocks.map(x=>{const c=x.k==="lib"&&CLUB.find(c=>c.id===x.id);if(c)return ["new",0,x.role||0,x.m,0,c.at];return [x.k,x.id||0,x.role||0,x.m,x.stations?x.stations.map(v=>{const d=typeof v==="string"&&CLUB.find(c=>c.id===v);return d?d.at:v}):0,x.at||0]})};return location.origin+location.pathname+"#s="+b64e(JSON.stringify(z))}
 $("share").onclick=async()=>{if(!S.se)return;const url=shareLink();const tot=S.se.blocks.reduce((a,x)=>a+x.m,0);const title=`Séance ${S.se.brief.cat} · ${tot} min · ${(S.se.brief.th||[]).join(", ")}`;
   if(navigator.share){try{await navigator.share({title,text:title+" (Pau FC)",url});return}catch(e){if(e&&e.name==="AbortError")return}}
   try{await navigator.clipboard.writeText(url);bubble("🔗 <b>Lien copié !</b> Colle-le dans WhatsApp pour l'envoyer aux éducateurs.")}catch(e){bubble(`Copie ce lien pour partager la séance :<span class="lnk">${url}</span>`,true)}};
-$("neu").onclick=()=>{stopListen(true);hideBubble();S.se=null;save();render();scrollTo({top:0})};
+$("neu").onclick=()=>{stopListen(true);hideBubble();remember();S.se=null;save();render();scrollTo({top:0})};
 function loadShared(){const m=location.hash.match(/^#s=([A-Za-z0-9_-]+)/);if(!m)return false;try{const z=JSON.parse(b64d(m[1]));const blocks=z.k.map(a=>{const x={k:a[0],m:+a[3]};if(a[1])x.id=a[1];if(a[2])x.role=a[2];if(a[4])x.stations=a[4];if(a[5])x.at=a[5];return x});
   if(!blocks.length||!blocks.every(x=>x.k==="lib"?!!libB(x.id):x.k==="new"?!!(x.at&&x.at.nom):x.k==="rot"?Array.isArray(x.stations)&&x.stations.every(v=>!!getL(v)):!!FIX[x.k])||!blocks.every(x=>x.m>0&&x.m<200))throw 0;
   S.se={brief:Object.assign({cat:"U7",dur:75,eff:8,th:[]},z.b||{}),blocks,titre:""};save();history.replaceState(null,"",location.pathname);return true}catch(e){history.replaceState(null,"",location.pathname);return "bad"}}
+function fmtUI(){$("fmt").querySelectorAll("button").forEach(b=>{b.classList.toggle("on",(S.fmt||"suite")===b.dataset.f);b.onclick=()=>{S.fmt=b.dataset.f;save();fmtUI()}})}fmtUI();
 function moment(){const P=periodeOf();const el=$("moment");el.innerHTML=`<div class="mh">📅 Thème du moment · période ${P.n}${P.vac?" (à la reprise)":""}</div>`+["U7","U8","U9"].map(c=>{const T=themePer(c);return T?`<button data-mo="${c}"><b>${c}</b><span>${T.t}</span></button>`:""}).join("")+`<div class="mn">Proposition faite au RTJ, bientôt validée.</div>`;
   el.querySelectorAll("[data-mo]").forEach(b=>b.onclick=()=>send(`${b.dataset.mo}, 1 h 15, séance sur le thème de la période`))}
 moment();
+/* ===================== bibliothèque d'ateliers du club ===================== */
+const saveClub=()=>{try{localStorage.setItem("paufc-club-ateliers",JSON.stringify(CLUB))}catch(e){}};
+async function clubLoad(){try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({ai:1,act:"list"})});const j=await r.json();if(j&&Array.isArray(j.ateliers)){CLUB=j.ateliers.filter(c=>c&&c.at&&c.at.nom);saveClub();if($("libd").open)libList()}}catch(e){}}
+const dom=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return ""}};
+function libList(open){const el=$("libl");if(!CLUB.length){el.innerHTML=`<p class="lp">Aucun atelier pour l'instant.</p>`;return}
+  el.innerHTML=`<div class="lt2">${CLUB.length} atelier${CLUB.length>1?"s":""}</div>`+CLUB.slice().reverse().map(c=>`<div class="li" data-li="${escH(c.id)}"><div class="lr"><div><b>${escH(c.at.nom)}</b><small>${escH((c.cats||[]).join(" · "))}${c.source?" · "+escH(dom(c.source)):""}</small></div><button data-lv="${escH(c.id)}">Voir</button></div><div class="lv" hidden></div></div>`).join("");
+  el.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>libShow(b.dataset.lv));if(open)libShow(open)}
+function libShow(id){const box=document.querySelector(`[data-li="${id}"] .lv`);if(!box)return;if(!box.hidden){box.hidden=true;return}const L=clubL(id);const c=CLUB.find(x=>x.id===id);
+  box.innerHTML=`${L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join("")}${L.html}<div class="lan"></div><div class="la">${c.source?`<a href="${escH(c.source)}" target="_blank" rel="noopener">Voir la source</a>`:""}<button data-ld="${escH(id)}">Retirer de la bibliothèque</button></div>`;box.hidden=false;
+  try{const tmp=document.createElement("div");const F=field(tmp,[0,0,1,1]);const A=L.an(F);F.s.setAttribute("viewBox",A.vb.join(" "));box.querySelector(".lan").appendChild(F.s);anim(box.querySelector(".lan"),F,A)}catch(e){}
+  const d=box.querySelector("[data-ld]");d.onclick=async()=>{if(d.dataset.sure!=="1"){d.dataset.sure="1";d.textContent="Sûr ? Touche encore pour retirer";return}CLUB=CLUB.filter(x=>x.id!==id);saveClub();libList();try{await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({ai:1,act:"del",id})})}catch(e){}}}
+$("libb").onclick=()=>{const c=S.se&&S.se.brief.cat;if(c&&["U7","U8","U9"].includes(c))$("libc").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.c===c));libList();$("libd").showModal();clubLoad()};
+$("libx").onclick=()=>$("libd").close();
+$("libc").querySelectorAll("button").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
+$("libgo").onclick=async()=>{const url=$("libu").value.trim(),texte=$("libt").value.trim();const cats=[...$("libc").querySelectorAll("button.on")].map(b=>b.dataset.c);const st=$("libs");
+  if(!url&&texte.length<20){st.textContent="Colle un lien ou décris l'atelier en quelques phrases.";return}if(!cats.length){st.textContent="Choisis au moins une catégorie.";return}
+  const go=$("libgo");go.disabled=true;st.innerHTML=`<span class="typing"><i></i><i></i><i></i></span> L'IA lit la page et prépare l'atelier… (15 à 30 s)`;
+  try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({ai:1,act:"import",url,texte,cats})});const j=await r.json();
+    if(j&&j.ok&&j.atelier){CLUB.push(j.atelier);saveClub();$("libu").value="";$("libt").value="";st.innerHTML=`✅ <b>${escH(j.atelier.at.nom)}</b> ajouté. L'assistant pourra le proposer dans les séances ${escH(cats.join(", "))}.`;libList(j.atelier.id)}
+    else st.textContent="❌ "+((j&&j.error)||"L'import n'a pas marché.")+(url&&!texte?" Tu peux décrire l'atelier dans la case texte.":"")}catch(e){st.textContent="❌ Pas de connexion avec le script du club."}
+  go.disabled=false};
+clubLoad();
 /* démarrage */
 const shared=loadShared();delete S.hist;save();render();
 if(shared===true)bubble("📥 <b>Séance reçue.</b> Tu peux la lancer telle quelle ou me demander des changements.");else if(shared==="bad")bubble("Ce lien de séance est incomplet. Demande à l'éducateur de te le renvoyer.");
