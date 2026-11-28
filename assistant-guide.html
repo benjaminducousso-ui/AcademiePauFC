@@ -38,6 +38,9 @@ svg.f{width:100%;height:auto;display:block;border-radius:12px;margin-top:8px;bac
 dialog{border:0;border-radius:16px;background:var(--card);color:#fff;max-width:420px;width:calc(100% - 32px)}dialog input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:16px;margin:8px 0}dialog button{border:0;border-radius:10px;padding:10px 14px;font-weight:800;background:var(--y);color:#0E2440}
 @media (prefers-reduced-motion:reduce){.ib.rec,section.new{animation:none}}
 
+.rp{width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:13px;text-align:center}.rp th,.rp td{border:1px solid var(--line);padding:6px 4px}.rp th{color:var(--mut);font-weight:700}.rp td{font-weight:900;color:var(--y);font-size:15px}
+.st{background:var(--card2);border-radius:14px;padding:12px;margin-top:12px;border-left:4px solid var(--c)}.st h3{margin:0 0 2px;font-size:15.5px;display:flex;align-items:center;gap:8px}.sl{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--y);color:#0E2440;font-weight:900;font-size:14px}
+.tour{font-size:14px;color:#DCE5F1;margin-top:6px;min-height:0}.tour b{color:var(--y)}.tour.go{animation:flash 1.2s}
 /* ===== v2 : accueil épuré, dictée visible, réponse près de la barre, partage ===== */
 .w{padding-bottom:170px}
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
@@ -170,7 +173,7 @@ const LIB=[
  an:F=>{F.el("line",{x1:0,y1:2,x2:16,y2:2,stroke:"#fff","stroke-width":.08,"stroke-dasharray":".4 .3"});F.el("line",{x1:0,y1:14,x2:16,y2:14,stroke:"#fff","stroke-width":.08,"stroke-dasharray":".4 .3"});const Q=[3,5,7,9,11,13].map(x=>F.cone(x,8,"#FFEB3B"));
   const a=[[0,5,16],[1.2,6.6,14.3],[1.6,6.8,14.1],[3,6.8,14.1]],ab=[[0,5.2,15.2],[1.2,6.8,13.6],[1.6,6.9,13.4],[2.4,7,8.1],[3,7.1,6]],b=[[0,11,0],[1.4,10,1.7],[1.8,9.8,1.9],[3,9.8,1.9]],bb=[[0,10.8,.8],[1.4,9.9,2.4],[1.8,9.8,2.6],[2.6,9.3,7.4],[3,9.2,9]];
   return {vb:[-1,-1,18,18],T:3.2,intro:"On conduit jusqu'à la ligne, puis on frappe.",actors:[{path:a,ball:ab},{kind:"def",path:b,ball:bb}],say:[[0,"Conduite jusqu'à la ligne"],[1.6,"Frappe !"],[2.4,"La quille tombe : 1 point"]],tick:t=>{Q.forEach((q,i)=>q.setAttribute("opacity",(i===2&&t>2.4)||(i===3&&t>2.65)?".25":"1"))}}}},
-{id:"passeportes",nom:"Trouver son partenaire",type:"at",cats:["U8","U9"],th:["passe","conduite"],col:"#64B5F6",
+{id:"passeportes",nom:"Trouver son partenaire",type:"at",cats:["U8","U9"],th:["passe","conduite","controle"],col:"#64B5F6",
  html:`<p>Carré de <b>20 × 20 m</b> avec <b>8 petites portes</b> de 1 m. Par deux, un ballon : on se fait des <b>passes à travers les portes</b>. Une porte réussie = 1 point. Interdit de passer deux fois de suite par la même porte.</p><p><b>On regarde</b> : s'appeler, se démarquer, passer de l'intérieur du pied.</p>`,
  an:F=>{F.rect(0,0,20,20);[[5,5],[10,4],[15,6],[4,11],[16,12],[6,16],[11,16],[15,15]].forEach(([x,y])=>{F.cone(x-.5,y,"#FFEB3B");F.cone(x+.5,y,"#FFEB3B")});
   const a=[[0,3,8],[1,4,7],[3,8,9],[4.5,9,13],[6,12,14]],b=[[0,13,9],[1,12,10],[2.5,12,9],[4,14,10],[6,14,12]],ball=[[0,3.6,8],[1,4.6,7],[1.8,10,4.7],[2.5,11.5,9],[3.2,11.6,9.3],[4.2,9.4,12.6],[6,12.4,13.6]];
@@ -180,6 +183,24 @@ const LIB=[
  an:F=>{F.rect(0,0,12,15);F.goal(6,0,3);const a=[[0,3,14],[1.4,4.2,9],[2,5,7],[3.2,5,7]],ab=[[0,3.4,13.3],[1.4,4.5,8.3],[2,5.2,6.4],[2.6,8.6,6],[3.2,8.6,6]],m=[[0,9,14],[1.4,8.6,9],[2.6,8.6,6.2],[3.4,7.8,3.6],[4,7,2]],mb=[[2.6,8.6,6],[3,8.6,6],[3.4,7.9,3.1],[4,6.5,.2]],d=[[0,6,3],[1.4,5.6,5],[2,5.2,6.2],[3,6.6,4.6],[4,6.8,3.4]];
   const ball=ab.concat(mb.slice(1));
   return {vb:[-1,-1.6,14,17.6],T:4.2,intro:"Deux attaquants contre un défenseur.",actors:[{path:a,label:"A"},{path:m,label:"B"},{kind:"def",path:d,label:"D"},{path:[[0,-9,-9],[4,-9,-9]],ball}],say:[[0,"A conduit vers le défenseur"],[2,"Le défenseur sort sur A"],[2.6,"Passe à B, libre"],[3.4,"B tire dans le but"]]}}},
+{id:"carre",nom:"Le carré des passes",type:"at",cats:["U7","U8","U9"],th:["passe","controle"],col:"#29B6F6",
+ html:`<p>Groupes de <b>4</b>, un carré de <b>6 × 6 m</b> (5 m en U7), un ballon. On passe au joueur suivant, qui fait un <b>contrôle orienté</b> pour se tourner vers le suivant, puis passe.</p><ul><li>Changer de sens toutes les minutes.</li><li>Variante : on <b>suit sa passe</b> (on prend la place du joueur servi), ou 2 ballons en même temps.</li></ul><p><b>On regarde</b> : passe de l'intérieur du pied, contrôle avec le pied le plus éloigné pour s'ouvrir.</p>`,
+ an:F=>{F.rect(1,1,6,6,"rgba(255,255,255,.06)");const C=[[1,1],[7,1],[7,7],[1,7]];C.forEach(([x,y])=>F.cone(x,y));
+  const P=C.map(([x,y])=>[x+(x<4?-.9:.9),y+(y<4?-.9:.9)]);const nx=i=>P[(i+1)%4];
+  const ball=[[0,P[0][0]+.5,P[0][1]+.2]];let t=.4;for(let i=0;i<5;i++){const a=P[i%4],b=nx(i),c=P[(i+2)%4];ball.push([t,a[0]+(b[0]-a[0])*.12,a[1]+(b[1]-a[1])*.12]);t+=.9;ball.push([t,b[0]-(b[0]-a[0])*.1,b[1]-(b[1]-a[1])*.1]);t+=.45;ball.push([t,b[0]+(c[0]-b[0])*.12,b[1]+(c[1]-b[1])*.12]);t+=.15}
+  const pl=(k)=>{const [x,y]=P[k];return {path:[[0,x,y],[6.5,x,y]],label:String(k+1),kind:k%2?"mate":undefined}};
+  return {vb:[-1.5,-1.5,11,11],T:6.6,intro:"Passe, contrôle orienté, passe au suivant.",actors:[0,1,2,3].map(pl).concat([{path:[[0,-9,-9],[6.6,-9,-9]],ball}]),say:[[0,"1 passe à 2, intérieur du pied"],[1.3,"2 contrôle en s'ouvrant vers 3"],[1.9,"…et passe tout de suite"],[3.4,"On enchaîne en 2 touches"]]}}},
+{id:"portesctrl",nom:"Le contrôle par la porte",type:"at",cats:["U7","U8","U9"],th:["controle","passe","conduite"],col:"#26A69A",
+ html:`<p>Par 2 : un <b>passeur</b> et un <b>receveur</b> à <b>8 m</b>. Derrière le receveur, une <b>porte jaune</b> à gauche et une <b>porte rouge</b> à droite. Le passeur annonce une couleur au moment de la passe : le receveur fait un <b>contrôle orienté</b> vers cette porte, la traverse en conduite, puis fait la passe retour. On change de rôle toutes les 5 passes.</p><p><b>On regarde</b> : regarder la porte avant que le ballon arrive, le 1er contact emmène le ballon.</p>`,
+ an:F=>{F.cone(11,1.6,"#FFEB3B");F.cone(11,3.4,"#FFEB3B");F.cone(11,6.6,"#E53935");F.cone(11,8.4,"#E53935");F.txt(11,.4,"jaune",{s:.5});F.txt(11,9.8,"rouge",{s:.5});
+  const B=[[0,8,5],[1.4,8,5],[2.6,10.6,2.6],[3,12,2.4],[4.8,12,2.4]],ball=[[0,1.7,5],[.5,1.7,5],[1.4,7.4,5],[1.6,8,4.4],[2.6,11,2.4],[3,12.6,2.3],[3.9,1.8,4.8],[4.8,1.8,4.8]];
+  return {vb:[-1,-.8,15,11.6],T:4.9,intro:"Le passeur annonce une couleur.",actors:[{path:[[0,1,5],[4.9,1,5]],label:"P"},{kind:"mate",path:B,label:"R"},{path:[[0,-9,-9],[4.9,-9,-9]],ball}],say:[[0,"P passe : « Jaune ! »"],[1.4,"Contrôle orienté vers la porte jaune"],[2.4,"R traverse la porte en conduite"],[3.1,"Passe retour"]]}}},
+{id:"relais",nom:"Passe et suis",type:"mt",cats:["U7","U8","U9"],th:["passe","controle","motricite"],col:"#90CAF9",
+ html:`<p>Deux colonnes face à face à <b>8 m</b> (6 m en U7), un ballon. Je passe au premier de l'autre colonne, puis je <b>cours derrière sa colonne</b>. Il contrôle, passe à la colonne d'en face et suit sa passe à son tour.</p><ul><li>Tour 1 : 2 touches (contrôle + passe) · tour 2 : contrôle du pied faible · tour 3 : 1 touche pour les plus à l'aise.</li></ul><p><b>On regarde</b> : passe appuyée au sol, contrôle sans que le ballon parte loin.</p>`,
+ an:F=>{F.cone(1,6);F.cone(9,6);
+  const A=[[0,1,4],[.5,1,4],[2.4,10.6,3.2],[4.2,11.2,3.2]],B=[[0,9,4],[1.7,9,4],[3.8,-.6,4.8],[4.2,-1,4.8]],C=[[0,-.6,4],[1.5,1,4],[4.2,1,4]],D=[[0,10.6,4],[2.4,10.6,4],[3.6,9,4],[4.2,9,4]];
+  const ball=[[0,1.6,4],[.4,1.6,4],[1.3,8.4,4],[1.6,8.5,4.1],[2.6,1.6,4],[3.1,1.6,4],[4.2,1.6,4]];
+  return {vb:[-2,1,14,6.5],T:4.3,intro:"Je passe, puis je cours derrière l'autre colonne.",actors:[{path:A,label:"1"},{kind:"mate",path:B,label:"2"},{path:C,label:"3"},{kind:"mate",path:D,label:"4"},{path:[[0,-9,-9],[4.3,-9,-9]],ball}],say:[[0,"1 passe à 2…"],[.6,"…et suit sa passe"],[1.4,"2 contrôle et passe à 3"],[2.6,"2 suit sa passe à son tour"]]}}},
 {id:"match",nom:"Match à effectif réduit",type:"jeu",cats:["U7","U8","U9"],th:["duel","finition","passe","conduite","dribble"],col:"#81C784",
  html:`<p><b>{N} contre {N}</b> sur un terrain de <b>{L} × {l} m</b>, 2 mini-buts par équipe, pas de gardien.</p><ul><li>{REGLE}</li><li>Rotation ou mi-temps toutes les 5 minutes, pause boisson au milieu.</li></ul>`,
  an:F=>{F.rect(0,0,15,10);F.goal(0,2.5,2,1);F.goal(0,7.5,2,1);F.goal(15,2.5,2,1);F.goal(15,7.5,2,1);const a1=[[0,4,5],[1.5,7,4.6],[2.6,9.5,3.6],[3.4,11.5,2.9],[4.4,14.3,2.6]],a1b=[[0,4.8,5],[1.5,7.8,4.4],[2.6,10.3,3.4],[3.4,12.3,2.8],[4.4,14.7,2.5]];
@@ -188,24 +209,31 @@ const LIB=[
 const FIX={accueil:{nom:"Accueil et rituel",col:"#8C9AB0",html:`<p>Chacun son ballon, cercle au rond central. Le mot du jour sur le thème de la séance, on montre le geste.</p>`},
  pause:{nom:"Pause boisson",col:"#8C9AB0",html:`<p>On boit, on rattache ses lacets.</p>`},
  bilan:{nom:"Retour au calme et bilan",col:"#8C9AB0",html:`<p>En cercle : une question sur le thème du jour, chacun montre ce qu'il a appris. On range ensemble.</p>`}};
-const TH={conduite:["conduite","conduire","conduis"],dribble:["dribble","dribbl","feinte","crochet","eliminer","éliminer"],surfaces:["surface","interieur","intérieur","exterieur","extérieur","semelle","toutes les surfaces"],duel:["duel","1 contre 1","1c1","un contre un","defendre","défendre","defense","défense"],passe:["passe","partenaire","passer"],frappe:["frappe","tir","tirer","viser","marquer"],motricite:["motricite","motricité","courir","coordination"],finition:["finition","finir","2 contre 1","2c1","but"]};
+const TH={conduite:["conduite","conduire","conduis"],dribble:["dribble","dribbl","feinte","crochet","eliminer","éliminer"],surfaces:["surface","interieur","intérieur","exterieur","extérieur","semelle","toutes les surfaces"],duel:["duel","1 contre 1","1c1","un contre un","defendre","défendre","defense","défense"],passe:["passe","partenaire","passer"],controle:["controle","contrôle","controler","contrôler","recevoir","reception","réception","amorti"],frappe:["frappe","tir","tirer","viser","marquer"],motricite:["motricite","motricité","courir","coordination"],finition:["finition","finir","2 contre 1","2c1","but"]};
 const nrm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 /* ===================== composer une séance (mode simple, sans IA) ===================== */
 function parseBrief(t,prev){const s=nrm(t);const b=Object.assign({cat:"U7",dur:75,eff:8,th:[]},prev||{});
   const c=s.match(/\bu ?(7|8|9|10|11|12|13)\b/);if(c)b.cat="U"+c[1];
   let m=s.match(/(\d)\s*h\s*(\d{1,2})?/);if(m)b.dur=(+m[1])*60+(+(m[2]||0));else{m=s.match(/(\d{2,3})\s*(min|mn|minutes)/);if(m)b.dur=+m[1]}
   m=s.match(/(\d{1,2})\s*(joueurs|enfants|gamins|joueuses)/);if(m)b.eff=+m[1];
+  if(/tournant|rotation|station|circuit|qui tourne|tourner/.test(s))b.rot=true;
   const th=Object.keys(TH).filter(k=>TH[k].some(w=>s.includes(nrm(w))));if(th.length)b.th=th;return b}
 const score=(x,th)=>th.reduce((a,t)=>a+(x.th.includes(t)?(x.th.indexOf(t)===0?3:2):0),0);
 function compose(b){const lib=LIB.filter(x=>x.cats.includes(b.cat));const th=b.th.length?b.th:["conduite","duel"];const used=new Set(b.exclude||[]);
   const pick=(type,n,avoid)=>lib.filter(x=>x.type===type&&!used.has(x.id)&&!(avoid||[]).includes(x.id)).sort((p,q)=>score(q,th)-score(p,th)).slice(0,n);
   const mt=pick("mt",1)[0];const ats=pick("at",3);const nAt=b.dur>=70?3:b.dur>=55?2:1;
-  const blocks=[{k:"accueil"},{k:"lib",id:mt.id,role:"Mise en train"}];ats.slice(0,nAt).forEach((x,i)=>{blocks.push({k:"lib",id:x.id,role:"Atelier "+(i+1)});if(i===0&&nAt>1)blocks.push({k:"pause"})});blocks.push({k:"lib",id:"match",role:"Match"},{k:"bilan"});
-  /* durées : fixes + le reste réparti */const fixed={accueil:5,pause:3,bilan:3};let rest=b.dur-blocks.reduce((a,x)=>a+(fixed[x.k]||0),0);const libB=blocks.filter(x=>x.k==="lib");const w=x=>x.role==="Mise en train"?.7:x.role==="Match"?.9:1;const W=libB.reduce((a,x)=>a+w(x),0);
-  libB.forEach(x=>{x.m=Math.max(5,Math.round(rest*w(x)/W))});blocks.forEach(x=>{if(fixed[x.k])x.m=fixed[x.k]});const diff=b.dur-blocks.reduce((a,x)=>a+x.m,0);libB[libB.length-1].m+=diff;
-  return {brief:b,blocks,titre:`${b.cat} · ${th.map(t=>({conduite:"conduite",dribble:"dribble",surfaces:"toutes surfaces",duel:"duel",passe:"passe",frappe:"frappe",motricite:"motricité",finition:"finition"})[t]).join(", ")}`}}
+  let blocks=[{k:"accueil"},{k:"lib",id:mt.id,role:"Mise en train"}];
+  if(b.rot){blocks.push({k:"rot",stations:ats.slice(0,b.eff>=9?3:2).map(x=>x.id)},{k:"pause"})}
+  else ats.slice(0,nAt).forEach((x,i)=>{blocks.push({k:"lib",id:x.id,role:"Atelier "+(i+1)});if(i===0&&nAt>1)blocks.push({k:"pause"})});
+  blocks.push({k:"lib",id:"match",role:"Match"},{k:"bilan"});
+  /* durées : fixes + le reste réparti */const fixed={accueil:5,pause:3,bilan:3};let rest=b.dur-blocks.reduce((a,x)=>a+(fixed[x.k]||0),0);const libB=blocks.filter(x=>x.k==="lib"||x.k==="rot");const w=x=>x.k==="rot"?x.stations.length:x.role==="Mise en train"?.7:x.role==="Match"?.9:1;const W=libB.reduce((a,x)=>a+w(x),0);
+  libB.forEach(x=>{x.m=Math.max(5,Math.round(rest*w(x)/W));if(x.k==="rot")x.m=Math.max(x.stations.length*5,Math.round(x.m/x.stations.length)*x.stations.length)});blocks.forEach(x=>{if(fixed[x.k])x.m=fixed[x.k]});const diff=b.dur-blocks.reduce((a,x)=>a+x.m,0);libB[libB.length-1].m+=diff;
+  return {brief:b,blocks,titre:`${b.cat} · ${th.map(t=>({conduite:"conduite",dribble:"dribble",surfaces:"toutes surfaces",duel:"duel",passe:"passe",controle:"contrôle",frappe:"frappe",motricite:"motricité",finition:"finition"})[t]).join(", ")}`}}
 function swapBlock(se,i,want){const b=se.blocks[i];if(!b||b.k!=="lib")return null;const cur=LIB.find(x=>x.id===b.id);const ids=se.blocks.filter(x=>x.k==="lib").map(x=>x.id);
   const th=want&&want.length?want:se.brief.th.length?se.brief.th:cur.th;const c=LIB.filter(x=>x.cats.includes(se.brief.cat)&&x.type===cur.type&&!ids.includes(x.id)).sort((p,q)=>score(q,th)-score(p,th));if(!c.length)return null;b.id=c[0].id;return c[0]}
+function usedIds(se){const u=[];se.blocks.forEach(x=>{if(x.k==="lib")u.push(x.id);if(x.k==="rot")u.push(...x.stations)});return u}
+function swapStation(se,i,j){const b=se.blocks[i];const cur=libB(b.stations[j]);const used=usedIds(se);const th=se.brief.th.length?se.brief.th:cur.th;
+  const c=LIB.filter(x=>x.cats.includes(se.brief.cat)&&x.type==="at"&&!used.includes(x.id)).sort((p,q)=>score(q,th)-score(p,th));if(!c.length)return null;b.stations[j]=c[0].id;return c[0]}
 /* commandes de changement en mode simple */
 function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
   const libIdx=se.blocks.map((x,i)=>x.k==="lib"?i:-1).filter(i=>i>=0);
@@ -213,17 +241,29 @@ function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
   if(/mise en train|echauffement/.test(s))idx=se.blocks.findIndex(x=>x.role==="Mise en train");if(/\bmatch\b/.test(s)&&idx<0)idx=se.blocks.findIndex(x=>x.role==="Match");
   if(idx<0){const hit=libIdx.find(i=>{const x=LIB.find(y=>y.id===se.blocks[i].id);return s.includes(nrm(x.nom).replace(/^(les?|la) /,""))});if(hit!=null)idx=hit}
   const th=Object.keys(TH).filter(k=>TH[k].some(w=>s.includes(nrm(w))));
+  if(/tournant|rotation|station|circuit|qui tourne/.test(s)){se.brief.rot=true;if(th.length)se.brief.th=th;S.se=compose(se.brief);return `C'est noté : les ateliers deviennent des <b>ateliers tournants</b>, chaque groupe passe sur chaque atelier.`}
   if(/(change|remplace|autre|pas|enleve)/.test(s)&&idx>=0){const old=LIB.find(x=>x.id===se.blocks[idx].id).nom;const nw=swapBlock(se,idx,th);return nw?`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`:"Je n'ai pas d'autre atelier de ce type pour cette catégorie."}
   const d=parseBrief(t,{});if(/(\d)\s*h|\d{2,3}\s*min/.test(s)){S.se=compose(Object.assign({},se.brief,{dur:d.dur}));return `C'est noté : la séance dure maintenant <b>${S.se.brief.dur} min</b>.`}
   if(/joueurs|enfants/.test(s)){se.brief.eff=d.eff;return `C'est noté : <b>${d.eff} joueurs</b>. Le match et les groupes sont adaptés.`}
   if(th.length){se.brief.th=[...new Set(th.concat(se.brief.th||[]))];const keep=se.brief;S.se=compose(keep);return `C'est noté : j'ai mis plus de <b>${th.join(", ")}</b> dans la séance.`}
   return null}
 /* ===================== IA Claude (via le script Google du club, la clé reste côté serveur) ===================== */
-async function askClaude(text){
-  const cat=(S.se&&S.se.brief.cat)||parseBrief(text).cat;const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th}));
-  const body={ai:1,code:S.code||"",message:text,seance:S.se||null,catalogue:lib,consigne:"Tu es l'assistant séance du Pau FC. Réponds UNIQUEMENT avec un objet JSON valide (guillemets doubles, sans texte autour, sans ```), au format : {\"reply\":\"phrase courte en français\",\"brief\":{\"cat\":\"U7\",\"dur\":75,\"eff\":8,\"th\":[\"conduite\"]},\"blocks\":[{\"k\":\"accueil\",\"m\":5},{\"k\":\"lib\",\"id\":\"id du catalogue\",\"role\":\"Mise en train\",\"m\":12}]}. k vaut accueil, lib, pause ou bilan ; role vaut Mise en train, Atelier 1, Atelier 2, Atelier 3 ou Match. Utilise seulement les id du catalogue. La somme des minutes = durée demandée. Sois bref."};
+async function askClaude(text,isNew){
+  const prev=S.se&&S.se.brief;const cat=parseBrief(text).cat!=="U7"||/\bu ?7\b/.test(nrm(text))?parseBrief(text).cat:(prev?prev.cat:"U7");
+  const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th}));
+  const message=(isNew&&prev&&!/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text))?`(Catégorie habituelle : ${prev.cat}, ${prev.eff} joueurs) `:"")+text;
+  const consigne="Tu es l'assistant séance du Pau FC (football, enfants de "+cat+"). "+
+   (isNew?"C'est une NOUVELLE séance : ignore toute séance précédente et compose-la à partir de la demande. ":"L'éducateur modifie la séance actuelle : garde tout ce qu'il ne demande pas de changer. ")+
+   "Choisis en priorité les ateliers du catalogue dont les thèmes correspondent à la demande (passe, controle, conduite, dribble, duel, frappe, finition, surfaces, motricite). "+
+   "Si l'éducateur parle d'ateliers tournants, de rotation ou de stations, mets UN bloc {\"k\":\"rot\",\"stations\":[id,id,id],\"m\":minutes} : les groupes tournent sur 2 ou 3 ateliers de type at (3 si 9 joueurs ou plus), m divisible par le nombre d'ateliers. "+
+   "Réponds UNIQUEMENT avec un objet JSON valide (guillemets doubles, aucun texte autour), au format : {\"reply\":\"1 ou 2 phrases en français qui disent ce que tu as fait\",\"brief\":{\"cat\":\""+cat+"\",\"dur\":75,\"eff\":8,\"th\":[\"passe\",\"controle\"]},\"blocks\":[{\"k\":\"accueil\",\"m\":5},{\"k\":\"lib\",\"id\":\"id du catalogue\",\"role\":\"Mise en train\",\"m\":12},{\"k\":\"rot\",\"stations\":[\"id\",\"id\",\"id\"],\"m\":36},{\"k\":\"pause\",\"m\":3},{\"k\":\"lib\",\"id\":\"match\",\"role\":\"Match\",\"m\":15},{\"k\":\"bilan\",\"m\":3}]}. "+
+   "k vaut accueil, lib, rot, pause ou bilan ; role vaut Mise en train, Atelier 1, Atelier 2, Atelier 3 ou Match. Utilise seulement les id du catalogue, sans doublon. La somme des minutes = durée demandée. Si le catalogue n'a pas assez d'ateliers sur le thème, dis-le dans reply.";
+  const body={ai:1,code:S.code||"",message,seance:isNew?null:(S.se||null),catalogue:lib,consigne};
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});const j=await r.json();if(!j||!j.blocks)return j&&j.error?{err:j.error}:null;
-    const ok=j.blocks.every(x=>x.k!=="lib"||LIB.some(y=>y.id===x.id));if(!ok)return null;S.se={brief:Object.assign({cat,dur:75,eff:8,th:[]},j.brief||{}),blocks:j.blocks,titre:S.se?S.se.titre:cat};return {reply:j.reply||"Voilà ta séance."}}catch(e){return null}}
+    const okB=x=>x.k==="lib"?LIB.some(y=>y.id===x.id):x.k==="rot"?Array.isArray(x.stations)&&x.stations.length>=2&&x.stations.every(id=>LIB.some(y=>y.id===id)):!!FIX[x.k];
+    if(!j.blocks.length||!j.blocks.every(x=>okB(x)&&+x.m>0))return {err:"séance incomplète"};
+    j.blocks.forEach(x=>{x.m=Math.round(+x.m);if(x.k!=="lib")delete x.id;if(x.k!=="rot")delete x.stations});
+    S.se={brief:Object.assign({cat,dur:75,eff:prev?prev.eff:8,th:[]},j.brief||{}),blocks:j.blocks,titre:""};return {reply:j.reply||"Voilà ta séance."}}catch(e){return null}}
 /* ===================== affichage ===================== */
 const out=document.getElementById("out"),$=id=>document.getElementById(id);
 const libB=id=>LIB.find(x=>x.id===id);
@@ -232,28 +272,37 @@ let bubT=null;
 function bubble(html,keep){const b=$("bub");$("bubt").innerHTML=html;b.hidden=false;b.style.animation="none";void b.offsetWidth;b.style.animation="";clearTimeout(bubT);if(!keep)bubT=setTimeout(()=>{b.hidden=true},14000)}
 function hideBubble(){clearTimeout(bubT);$("bub").hidden=true}
 $("bubx").onclick=hideBubble;
-function chips(){const a=S.se?["Change l'atelier 2","Plus de duel","Remplace la mise en train","1 heure seulement","10 joueurs"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe","U9, 1 h 30, dribble et frappe"];
+function chips(){const a=S.se?["Change l'atelier 2","En ateliers tournants","Plus de duel","Remplace la mise en train","1 heure seulement"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe et contrôle en ateliers tournants","U9, 1 h 30, dribble et frappe"];
   const c=$(S.se?"chips":"chips0");c.innerHTML=a.map(x=>`<button>${x}</button>`).join("");c.querySelectorAll("button").forEach(b=>b.onclick=()=>send(b.textContent));$(S.se?"chips0":"chips").innerHTML=""}
 function render(flash){if(TM)stopTimer(false);const se=S.se;flash=flash||[];document.body.classList.toggle("empty",!se);
   if(!se){out.innerHTML="";$("ttl").textContent="Ta séance, en une phrase";chips();return}
   const b=se.brief;const tot=se.blocks.reduce((a,x)=>a+x.m,0);const N=Math.max(2,Math.floor(b.eff/2));const sz=N<=3?[15,10]:N<=4?[20,15]:[25,18];
   $("ttl").textContent=`Séance ${b.cat} · ${tot} min`;
-  const colOf=x=>x.k==="lib"?libB(x.id).col:FIX[x.k].col;const nomOf=x=>x.k==="lib"?libB(x.id).nom:FIX[x.k].nom;
+  const colOf=x=>x.k==="lib"?libB(x.id).col:x.k==="rot"?"#26C6DA":FIX[x.k].col;const nomOf=x=>x.k==="lib"?libB(x.id).nom:x.k==="rot"?"Ateliers tournants":FIX[x.k].nom;
   let t0=0;out.innerHTML=`<div class="sum"><span>${b.cat}</span><span>${tot} min</span><span>${b.eff} joueurs</span><span>${(b.th||[]).join(" · ")||"thème libre"}</span></div><div class="tl">${se.blocks.map((x,i)=>`<a href="#b${i}" style="width:${x.m/tot*100}%;background:${colOf(x)}">${x.m>=10?x.m+"'":""}</a>`).join("")}</div>`+
-   se.blocks.map((x,i)=>{const L=x.k==="lib"?libB(x.id):null;let h=L?L.html:FIX[x.k].html;if(L&&L.id==="match")h=h.replace(/\{N\}/g,N).replace("{L}",sz[0]).replace("{l}",sz[1]).replace("{REGLE}",(b.th||[]).includes("duel")||(b.th||[]).includes("conduite")?"<b>Règle du jour</b> : un but marqué en conduisant le ballon dans le but compte double.":"<b>Règle du jour</b> : un but après une passe compte double.");
-     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash.includes(i)?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L?L.th.map(t=>`<span class="tag">${t}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt"><button data-sw="${i}">⇄ Autre atelier</button></div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
-  se.blocks.forEach((x,i)=>{if(x.k!=="lib")return;const box=out.querySelector(`[data-an="${i}"]`);const L=libB(x.id);const tmp=document.createElement("div");const F=field(tmp,[0,0,1,1]);const A=L.an(F);F.s.setAttribute("viewBox",A.vb.join(" "));box.appendChild(F.s);anim(box,F,A)});
+   se.blocks.map((x,i)=>{if(x.k==="rot"){const s=rotHTML(x,i,b,t0);t0+=x.m;return s}const L=x.k==="lib"?libB(x.id):null;let h=L?L.html:FIX[x.k].html;if(L&&L.id==="match")h=h.replace(/\{N\}/g,N).replace("{L}",sz[0]).replace("{l}",sz[1]).replace("{REGLE}",(b.th||[]).includes("duel")||(b.th||[]).includes("conduite")?"<b>Règle du jour</b> : un but marqué en conduisant le ballon dans le but compte double.":"<b>Règle du jour</b> : un but après une passe compte double.");
+     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash.includes(i)?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L?L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt"><button data-sw="${i}">⇄ Autre atelier</button></div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
+  const mount=(box,L)=>{const tmp=document.createElement("div");const F=field(tmp,[0,0,1,1]);const A=L.an(F);F.s.setAttribute("viewBox",A.vb.join(" "));box.appendChild(F.s);anim(box,F,A)};
+  se.blocks.forEach((x,i)=>{if(x.k==="lib")mount(out.querySelector(`[data-an="${i}"]`),libB(x.id));if(x.k==="rot")x.stations.forEach((id,j)=>mount(out.querySelector(`[data-an="${i}-${j}"]`),libB(id)))});
   bindTimers();chips();
+  out.querySelectorAll("[data-sws]").forEach(btn=>btn.onclick=()=>{const [i,j]=btn.dataset.sws.split("-").map(Number);const old=libB(S.se.blocks[i].stations[j]).nom;const nw=swapStation(S.se,i,j);if(nw){save();render([i]);const el=out.querySelector(`[data-st="${i}-${j}"]`);if(el){const y=el.getBoundingClientRect().top+scrollY-12;scrollTo({top:y,behavior:"smooth"})}bubble(`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b> dans les ateliers tournants.`)}else bubble("Je n'ai pas d'autre atelier disponible pour cette catégorie.")});
   out.querySelectorAll("[data-sw]").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.sw;const old=libB(S.se.blocks[i].id).nom;const nw=swapBlock(S.se,i);if(nw){save();render([i]);goTo(i);bubble(`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`)}else bubble("Je n'ai pas d'autre atelier de ce type pour cette catégorie.")})}
+const LET="ABCD";const TL=t=>({controle:"contrôle",motricite:"motricité"})[t]||t;
+function rotHTML(x,i,b,t0){const n=x.stations.length;const per=Math.ceil(b.eff/n);const r=x.m/n;const rr=Math.round(r*10)/10;
+  const plan=`<table class="rp"><tr><th></th>${x.stations.map((_,k)=>`<th>Groupe ${k+1}</th>`).join("")}</tr>${x.stations.map((_,t)=>`<tr><th>Tour ${t+1}</th>${x.stations.map((_,g)=>`<td>${LET[(g+t)%n]}</td>`).join("")}</tr>`).join("")}</table>`;
+  const st=x.stations.map((id,j)=>{const L=libB(id);return `<div class="st" data-st="${i}-${j}" style="--c:${L.col}"><h3><span class="sl">${LET[j]}</span>${L.nom}</h3>${L.th.map(t=>`<span class="tag">${TL(t)}</span>`).join("")}${L.html}<div data-an="${i}-${j}"></div><div class="alt"><button data-sws="${i}-${j}">⇄ Autre atelier</button></div></div>`}).join("");
+  return `<section id="b${i}" style="--c:#26C6DA"><div class="sh"><h2>Ateliers tournants</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>
+  <p><b>${n} groupes</b> d'environ <b>${per} joueurs</b>, <b>${n} ateliers</b> (${x.stations.map((_,k)=>LET[k]).join(", ")}). On tourne toutes les <b>${rr} min</b> : le chrono bipe à chaque rotation.</p>${plan}
+  <div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div><div class="tour" id="tr${i}"></div>${st}</section>`}
 function goTo(i){const el=$("b"+i);if(!el)return;const y=el.getBoundingClientRect().top+scrollY-12;scrollTo({top:Math.max(0,y),behavior:"smooth"})}
-const sig=x=>x?[x.k,x.id||"",x.role||"",x.m].join("|"):"";
+const sig=x=>x?[x.k,x.id||"",x.role||"",x.m,(x.stations||[]).join(",")].join("|"):"";
 let BUSY=false;
 async function send(text){text=String(text||"").trim();if(!text||BUSY)return;BUSY=true;document.body.classList.add("busy");stopListen(true);
   ["q","q0"].forEach(id=>{$(id).value="";grow($(id))});document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
-  const isNew=!S.se||/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text));const before=S.se?S.se.blocks.map(sig):[];
+  const tn=nrm(text);const isNew=!S.se||/\bu ?(7|8|9|10|11|12|13)\b/.test(tn)||(/(nouvelle|autre) seance|^(une |fais|fait|prepare|propose|cree|je veux une|je voudrais une)|seance (de|sur|pour|avec|passe|conduite|dribble|duel|frappe|controle)/.test(tn)&&!/(change|remplace|enleve|ajoute|retire|plus de|moins de|garde)/.test(tn));const before=S.se?S.se.blocks.map(sig):[];
   bubble(`<span class="typing"><i></i><i></i><i></i></span> &nbsp;${isNew?"Je prépare ta séance…":"Je modifie ta séance…"}<br><small>« ${text.replace(/</g,"&lt;")} »</small>`,true);
-  let reply=null;let ai=null;try{ai=await askClaude(text)}catch(e){}
-  if(ai&&ai.reply)reply=ai.reply;else{const e=S.se&&!isNew?localEdit(text):null;if(e)reply=e;else{const b=parseBrief(text,S.se?S.se.brief:null);if(!["U7","U8","U9"].includes(b.cat)){reply=`Pour l'instant, les ateliers animés existent pour les U7, U8 et U9. Les autres catégories arrivent ensuite.`}else{S.se=compose(b);reply=`Voilà ta séance <b>${S.se.brief.cat}</b> de <b>${S.se.brief.dur} min</b> pour <b>${S.se.brief.eff} joueurs</b>. Touche ▶ pour voir chaque atelier.`}}}
+  let reply=null;let ai=null;try{ai=await askClaude(text,isNew)}catch(e){}
+  if(ai&&ai.reply)reply=ai.reply;else{const e=S.se&&!isNew?localEdit(text):null;if(e)reply=e;else{const b=parseBrief(text,S.se?{cat:S.se.brief.cat,eff:S.se.brief.eff,dur:S.se.brief.dur}:null);if(!["U7","U8","U9"].includes(b.cat)){reply=`Pour l'instant, les ateliers animés existent pour les U7, U8 et U9. Les autres catégories arrivent ensuite.`}else{S.se=compose(b);reply=`Voilà ta séance <b>${S.se.brief.cat}</b> de <b>${S.se.brief.dur} min</b> pour <b>${S.se.brief.eff} joueurs</b>. Touche ▶ pour voir chaque atelier.`}}}
   if(ai&&ai.err)reply=reply+`<br><small>(IA momentanément indisponible : ${ai.err}. Séance faite en mode simple.)</small>`;
   save();const now=S.se?S.se.blocks.map(sig):[];const changed=isNew?[]:now.map((s,i)=>s!==before[i]?i:-1).filter(i=>i>=0);
   render(changed);BUSY=false;document.body.classList.remove("busy");
@@ -271,7 +320,10 @@ function bindTimers(){out.querySelectorAll("[data-tm]").forEach(btn=>btn.onclick
     if(TM&&TM.i===i){stopTimer(true);return}stopTimer(false);
     const blk=S.se.blocks[i];const left=el.dataset.left!=null&&el.dataset.left!==""?+el.dataset.left:blk.m*60;if(left<=0)return;const end=Date.now()+left*1000;let warned=left<=30;
     const sec=document.getElementById("b"+i);sec.classList.remove("end");sec.classList.add("now");btn.classList.add("on");btn.textContent="⏸ Pause";wake(true);
+    const isRot=blk.k==="rot";const nS=isRot?blk.stations.length:1;const rotS=blk.m*60/nS;const trEl=document.getElementById("tr"+i);
+    const showTour=r=>{if(!isRot||!trEl)return;const t=Math.min(nS-1,Math.floor((blk.m*60-r)/rotS));trEl.innerHTML=`<b>Tour ${t+1}/${nS}</b> · `+blk.stations.map((_,g)=>`G${g+1} → ${LET[(g+t)%nS]}`).join(" · ");return t};let lastTour=showTour(left);
     TM={i,h:setInterval(()=>{const r=Math.max(0,Math.round((end-Date.now())/1000));el.dataset.left=r;el.textContent=fmt(r);
+      if(isRot&&r>0){const t=showTour(r);if(t>lastTour){lastTour=t;beep(2,.3,740);vib([300,150,300]);trEl.classList.remove("go");void trEl.offsetWidth;trEl.classList.add("go")}}
       if(!warned&&r<=30){warned=true;beep(1,.18,660);vib(150)}
       if(r<=0){clearInterval(TM.h);TM=null;wake(false);btn.classList.remove("on");btn.textContent="✓ Terminé";sec.classList.remove("now");sec.classList.add("end");beep(3,.45,880);vib([400,200,400,200,400]);
         const nx=document.getElementById("b"+(i+1));if(nx)setTimeout(()=>nx.scrollIntoView({behavior:"smooth",block:"start"}),1200)}},250)}});
@@ -301,13 +353,13 @@ $("go").onclick=()=>send($("q").value);$("go0").onclick=()=>send($("q0").value);
 /* ===================== partage par lien ===================== */
 const b64e=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const b64d=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/"))));
-function shareLink(){const se=S.se;const z={v:1,b:se.brief,k:se.blocks.map(x=>[x.k,x.id||0,x.role||0,x.m])};return location.origin+location.pathname+"#s="+b64e(JSON.stringify(z))}
+function shareLink(){const se=S.se;const z={v:1,b:se.brief,k:se.blocks.map(x=>[x.k,x.id||0,x.role||0,x.m,x.stations||0])};return location.origin+location.pathname+"#s="+b64e(JSON.stringify(z))}
 $("share").onclick=async()=>{if(!S.se)return;const url=shareLink();const tot=S.se.blocks.reduce((a,x)=>a+x.m,0);const title=`Séance ${S.se.brief.cat} · ${tot} min · ${(S.se.brief.th||[]).join(", ")}`;
   if(navigator.share){try{await navigator.share({title,text:title+" (Pau FC)",url});return}catch(e){if(e&&e.name==="AbortError")return}}
   try{await navigator.clipboard.writeText(url);bubble("🔗 <b>Lien copié !</b> Colle-le dans WhatsApp pour l'envoyer aux éducateurs.")}catch(e){bubble(`Copie ce lien pour partager la séance :<span class="lnk">${url}</span>`,true)}};
 $("neu").onclick=()=>{stopListen(true);hideBubble();S.se=null;save();render();scrollTo({top:0})};
-function loadShared(){const m=location.hash.match(/^#s=([A-Za-z0-9_-]+)/);if(!m)return false;try{const z=JSON.parse(b64d(m[1]));const blocks=z.k.map(a=>{const x={k:a[0],m:+a[3]};if(a[1])x.id=a[1];if(a[2])x.role=a[2];return x});
-  if(!blocks.length||!blocks.every(x=>x.k==="lib"?!!libB(x.id):!!FIX[x.k])||!blocks.every(x=>x.m>0&&x.m<200))throw 0;
+function loadShared(){const m=location.hash.match(/^#s=([A-Za-z0-9_-]+)/);if(!m)return false;try{const z=JSON.parse(b64d(m[1]));const blocks=z.k.map(a=>{const x={k:a[0],m:+a[3]};if(a[1])x.id=a[1];if(a[2])x.role=a[2];if(a[4])x.stations=a[4];return x});
+  if(!blocks.length||!blocks.every(x=>x.k==="lib"?!!libB(x.id):x.k==="rot"?Array.isArray(x.stations)&&x.stations.every(id=>!!libB(id)):!!FIX[x.k])||!blocks.every(x=>x.m>0&&x.m<200))throw 0;
   S.se={brief:Object.assign({cat:"U7",dur:75,eff:8,th:[]},z.b||{}),blocks,titre:""};save();history.replaceState(null,"",location.pathname);return true}catch(e){history.replaceState(null,"",location.pathname);return "bad"}}
 /* démarrage */
 const shared=loadShared();delete S.hist;save();render();
