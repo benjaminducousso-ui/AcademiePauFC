@@ -1,0 +1,224 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex">
+<title>Assistant séance guidé</title>
+<style>
+:root{color-scheme:dark;--bg:#0E2440;--card:#17304F;--card2:#1D3A5E;--mut:#AFC0D6;--y:#F2C200;--line:#2A4A70;--ink:#fff}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.w{max-width:700px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 150px max(16px,env(safe-area-inset-left,0px))}
+.eb{font-size:11px;letter-spacing:.14em;font-weight:800;color:var(--y);text-transform:uppercase}
+h1{font-size:21px;margin:4px 0 6px;text-transform:uppercase}
+.chat{display:flex;flex-direction:column;gap:8px;margin:10px 0 14px}
+.msg{max-width:88%;padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.42}
+.msg.me{align-self:flex-end;background:var(--y);color:#0E2440;border-bottom-right-radius:4px;font-weight:600}
+.msg.ai{align-self:flex-start;background:var(--card);border-bottom-left-radius:4px}
+.msg.ai b{color:var(--y)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}.chips button{background:var(--card2);color:#DCE5F1;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.bar{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(14,36,64,0),var(--bg) 22%);padding:18px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:20}
+.bar .in{max-width:700px;margin:0 auto;display:flex;gap:8px;align-items:flex-end}
+.bar textarea{flex:1;min-height:48px;max-height:120px;resize:none;border-radius:16px;border:1.5px solid var(--line);background:var(--card);color:#fff;padding:13px 14px;font:inherit;font-size:16px}
+.bar textarea:focus{outline:none;border-color:var(--y)}
+.ib{width:48px;height:48px;border-radius:50%;border:0;display:grid;place-items:center;font-size:20px;cursor:pointer;background:var(--card2);color:#fff;flex:0 0 auto}
+.ib.send{background:var(--y);color:#0E2440;font-weight:900}.ib.rec{background:#E53935;animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(229,57,53,.25)}}
+.mode{font-size:11.5px;color:var(--mut);text-align:center;margin-top:6px}
+.sum{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}.sum span{background:var(--card);border-radius:999px;padding:6px 11px;font-size:13px;font-weight:700}
+.tl{display:flex;height:30px;border-radius:9px;overflow:hidden;margin:0 0 12px}.tl a{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0E2440;text-decoration:none;white-space:nowrap;overflow:hidden;border-right:2px solid var(--bg)}
+section{background:var(--card);border-radius:16px;padding:13px;margin-bottom:12px;border-left:5px solid var(--c,#22426A);scroll-margin-top:10px}
+section.new{animation:flash 1.2s}@keyframes flash{0%{box-shadow:0 0 0 3px var(--y)}100%{box-shadow:none}}
+.sh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.sh h2{margin:0;font-size:16.5px}.min{color:var(--y);font-weight:800;font-size:13.5px;white-space:nowrap}
+.num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--y);color:#0E2440;font-size:12px;font-weight:900;margin-right:6px}
+.tag{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;background:#22426A;color:var(--mut);margin:5px 4px 0 0}
+section p,section li{color:#DCE5F1;font-size:14px;line-height:1.45}section p{margin:6px 0}section ul{margin:4px 0;padding-left:18px}section b{color:#fff}
+svg.f{width:100%;height:auto;display:block;border-radius:12px;margin-top:8px;background:#2E7D4F}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.ctl button{border:0;border-radius:12px;padding:9px 13px;font-weight:800;font-size:13.5px;cursor:pointer;background:#22426A;color:#fff;font-family:inherit}.ctl .play{background:var(--y);color:#0E2440}
+.say{min-height:20px;font-size:13.5px;font-weight:700;color:var(--y);margin-top:6px}
+.alt{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.alt button{background:var(--card2);border:1px solid var(--line);color:#fff;border-radius:10px;padding:8px 10px;font-size:13px;cursor:pointer;font-family:inherit}
+.tim{display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.tim b{font-family:ui-monospace,Menlo,monospace;font-size:24px;min-width:72px}.tim button{border:0;border-radius:12px;padding:9px 13px;font-weight:800;font-size:13.5px;cursor:pointer;background:#22426A;color:#fff;font-family:inherit}.tim button.on{background:var(--y);color:#0E2440}section.now{box-shadow:0 0 0 3px var(--y)}section.end{box-shadow:0 0 0 3px #E53935}
+.empty{background:var(--card);border-radius:16px;padding:16px;color:#DCE5F1;font-size:14px;line-height:1.5}
+.typing{display:inline-flex;gap:4px}.typing i{width:6px;height:6px;border-radius:50%;background:var(--mut);animation:b 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes b{50%{opacity:.2}}
+dialog{border:0;border-radius:16px;background:var(--card);color:#fff;max-width:420px;width:calc(100% - 32px)}dialog input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:16px;margin:8px 0}dialog button{border:0;border-radius:10px;padding:10px 14px;font-weight:800;background:var(--y);color:#0E2440}
+@media (prefers-reduced-motion:reduce){.ib.rec,section.new{animation:none}}
+</style></head><body><div class="w">
+<div class="eb">Pau FC Académie · Préparer · séance</div>
+<h1>Ta séance, en une phrase</h1>
+<div class="chat" id="chat"></div>
+<div class="chips" id="chips"></div>
+<div id="out"></div>
+</div>
+<div class="bar"><div class="in"><button class="ib" id="mic" title="Parler" aria-label="Dicter">🎤</button><textarea id="q" rows="1" placeholder="Ex. : U7, 1 h 15, 8 joueurs, conduite et duel"></textarea><button class="ib send" id="go" aria-label="Envoyer">➤</button></div><div class="mode" id="mode"></div></div>
+<dialog id="dlg"><b>Code de l'assistant</b><p style="color:var(--mut);font-size:13.5px">Pour utiliser l'IA Claude, entre le code donné par le club. Sans code, l'assistant fonctionne en mode simple.</p><input id="dlgc" type="password" autocomplete="off"><div style="display:flex;gap:8px;justify-content:flex-end"><button id="dlgno" style="background:#22426A;color:#fff">Plus tard</button><button id="dlgok">Valider</button></div></dialog>
+<script>
+/* ===================== réglages ===================== */
+const API="https://script.google.com/macros/s/AKfycbw_lyvwhgyF-4i9jM-mNnHTCkdS-q0W92UeU7QGwgmaayAjGTtJCGB1n2K-VlgkKuEGEg/exec";
+const LS="paufc-assist-guide-v1";
+const S=(()=>{try{return JSON.parse(localStorage.getItem(LS)||"{}")}catch(e){return {}}})();
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
+const NS="http://www.w3.org/2000/svg";
+/* ===================== moteur d'animation (même principe que les défis techniques) ===================== */
+function field(box,vb){const s=document.createElementNS(NS,"svg");s.setAttribute("viewBox",vb.join(" "));s.setAttribute("class","f");box.appendChild(s);
+  const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||s).appendChild(e);return e};
+  return {s,el,rect:(x,y,w,h,c)=>el("rect",{x,y,width:w,height:h,fill:c||"none",stroke:"rgba(255,255,255,.8)","stroke-width":.12}),
+    zone:(x,y,w,h,c)=>el("rect",{x,y,width:w,height:h,fill:c||"rgba(255,255,255,.12)",stroke:"rgba(255,255,255,.5)","stroke-width":.08,"stroke-dasharray":".4 .3"}),
+    cone:(x,y,c)=>el("polygon",{points:`${x-.32},${y+.28} ${x+.32},${y+.28} ${x},${y-.38}`,fill:c||"#FF9100"}),
+    goal:(x,y,w,vert)=>vert?el("rect",{x:x-.2,y:y-w/2,width:.4,height:w,fill:"#fff"}):el("rect",{x:x-w/2,y:y-.2,width:w,height:.4,fill:"#fff"}),
+    ballS:(x,y)=>el("circle",{cx:x,cy:y,r:.3,fill:"#fff",stroke:"#14213A","stroke-width":.07}),
+    txt:(x,y,t,o)=>{o=o||{};const e=el("text",{x,y,"text-anchor":o.a||"middle","font-size":o.s||.6,fill:o.c||"rgba(255,255,255,.92)","font-weight":700,"font-family":"Inter,Arial"});e.textContent=t;return e}}}
+const lerp=(a,b,u)=>a+(b-a)*u;
+function at(p,t){if(t<=p[0][0])return [p[0][1],p[0][2]];for(let i=1;i<p.length;i++)if(t<=p[i][0]){const a=p[i-1],b=p[i],u=(t-a[0])/((b[0]-a[0])||1);return [lerp(a[1],b[1],u),lerp(a[2],b[2],u)]}const z=p[p.length-1];return [z[1],z[2]]}
+function lead(p,d){return p.map((q,i)=>{const n=p[Math.min(i+1,p.length-1)],r=p[Math.max(i-1,0)];let dx=n[1]-r[1],dy=n[2]-r[2];const L=Math.hypot(dx,dy)||1;return [q[0],q[1]+dx/L*(d||.8),q[2]+dy/L*(d||.8)]})}
+function anim(box,F,A){const ctl=document.createElement("div");ctl.className="ctl";const play=document.createElement("button");play.className="play";play.textContent="▶ Voir l'atelier";ctl.appendChild(play);const say=document.createElement("div");say.className="say";box.appendChild(ctl);box.appendChild(say);
+  const R=A.actors.map(a=>{const g=F.el("g",{});const c=a.kind==="def"?"#E53935":a.kind==="mate"?"#7E57C2":"#1E56C9";F.el("circle",{r:.55,fill:c,stroke:"#fff","stroke-width":.12},g);if(a.label){const l=F.el("text",{"text-anchor":"middle","font-size":.55,fill:"#fff","font-weight":800,"font-family":"Inter,Arial",dy:".2"},g);l.textContent=a.label}
+    const ball=a.ball?F.el("circle",{r:.3,fill:"#fff",stroke:"#14213A","stroke-width":.07}):null;return {a,g,ball}});
+  let raf=0,st=null,run=false;const draw=t=>{R.forEach(o=>{const [x,y]=at(o.a.path,t);o.g.setAttribute("transform",`translate(${x},${y})`);if(o.ball){const [bx,by]=at(o.a.ball,t);o.ball.setAttribute("cx",bx);o.ball.setAttribute("cy",by)}});let s="";(A.say||[]).forEach(([tt,x])=>{if(t>=tt)s=x});say.textContent=s;if(A.tick)A.tick(t)};
+  play.onclick=()=>{if(run){cancelAnimationFrame(raf);run=false;play.textContent="▶ Revoir";return}run=true;play.textContent="⏸ Pause";st=null;const fr=ts=>{if(st==null)st=ts;const t=(ts-st)/1000;draw(Math.min(t,A.T));if(t<A.T+.4)raf=requestAnimationFrame(fr);else{run=false;play.textContent="▶ Revoir"}};raf=requestAnimationFrame(fr)};
+  draw(0);say.textContent=A.intro||""}
+/* ===================== la bibliothèque animée U7-U9 =====================
+   type : mt = mise en train · at = atelier · jeu = match · th = thèmes (conduite, dribble, surfaces, duel, passe, frappe, motricite, defense, finition) */
+const LIB=[
+{id:"feux",nom:"Les feux de la ville",type:"mt",cats:["U7","U8","U9"],th:["conduite","surfaces","motricite"],col:"#4FC3F7",
+ html:`<p>Carré de <b>15 × 15 m</b>, chacun son ballon. L'éducateur annonce une couleur :</p><ul><li><b>Vert</b> : intérieur du pied · <b>orange</b> : extérieur · <b>rouge</b> : stop, semelle.</li><li><b>Tunnel</b> : passer entre deux plots et repartir.</li></ul><p><b>On regarde</b> : petites touches, tête levée.</p>`,
+ an:F=>{F.rect(0,0,15,15);[[0,0],[15,0],[0,15],[15,15]].forEach(([x,y])=>F.cone(x,y));F.cone(6.5,7.5,"#FFEB3B");F.cone(8.5,7.5,"#FFEB3B");const L=F.el("circle",{cx:17.2,cy:1.2,r:.9,fill:"#4CAF50",stroke:"#fff","stroke-width":.1});
+  const p1=[[0,2,2],[2,6,3],[4,12,2.5],[6,12,7],[7.5,12,7],[9,9.5,7.6],[10,7.5,7.6],[11.5,5,6],[13,3,11],[15,7,13]],p2=[[0,13,13],[2,9,12],[4,3,13],[6,2.5,8],[7.5,2.5,8],[9,4,4],[11,8,2],[13,12,4],[15,13,9]],p3=[[0,7,4],[2,10,10],[4,5,10],[6,7,12],[7.5,7,12],[9,7.5,7.6],[10,7.5,7.6],[11,7.5,5],[13,10,6],[15,4,7]];
+  return {vb:[-2,-2,21,19],T:15,intro:"Chacun conduit son ballon. Le feu change de couleur.",actors:[{path:p1,ball:lead(p1)},{path:p2,ball:lead(p2)},{path:p3,ball:lead(p3)}],say:[[0,"🟢 Vert : intérieur du pied"],[4,"🟠 Orange : extérieur"],[6,"🔴 Rouge : semelle, stop"],[7.5,"🟡 Tunnel entre les plots jaunes"],[11,"🟢 On repart, tête levée"]],tick:t=>L.setAttribute("fill",t<4?"#4CAF50":t<6?"#FF9800":t<7.5?"#E53935":t<11?"#FFEB3B":"#4CAF50")}}},
+{id:"demenageurs",nom:"Les déménageurs",type:"mt",cats:["U7","U8"],th:["conduite","motricite"],col:"#4DB6AC",
+ html:`<p>Une réserve de ballons au centre, <b>4 maisons</b> (carrés de plots) dans les coins. Au signal, chacun va chercher <b>un ballon</b> et le ramène <b>en conduite</b> dans sa maison. On ne vole pas les maisons des autres… sauf au 2e tour !</p><p><b>On regarde</b> : le ballon reste près du pied, on s'arrête à la semelle dans la maison.</p>`,
+ an:F=>{F.rect(0,0,16,14);[[0,0],[12,0],[0,10],[12,10]].forEach(([x,y])=>F.zone(x,y,4,4));F.zone(6.5,5.5,3,3,"rgba(255,255,255,.2)");F.txt(8,4.9,"réserve",{s:.5});
+  const k1=[[0,2,2],[1.5,7,6],[3.5,2,2],[4.5,2,2]],k2=[[0,14,12],[1.5,9,8],[3.5,14,12],[4.5,14,12]],k3=[[0,2,12],[1.6,7.2,8],[3.6,2,12],[4.5,2,12]];
+  const b1=[[0,7.3,6.3],[1.5,7.3,6.3],[3.5,2.4,2.4],[4.5,2.4,2.4]],b2=[[0,8.7,7.7],[1.5,8.7,7.7],[3.5,13.6,11.6],[4.5,13.6,11.6]],b3=[[0,7.3,7.7],[1.6,7.3,7.7],[3.6,2.4,11.6],[4.5,2.4,11.6]];
+  return {vb:[-1,-1.5,18,17],T:4.8,intro:"Au signal, on va chercher un ballon à la réserve.",actors:[{path:k1,ball:b1},{path:k2,ball:b2},{path:k3,ball:b3}],say:[[0,"Top : on court à la réserve"],[1.6,"On ramène le ballon en conduite"],[3.6,"Semelle : le ballon est rangé dans la maison"]]}}},
+{id:"soleil",nom:"1, 2, 3… soleil en conduite",type:"mt",cats:["U7","U8","U9"],th:["conduite","surfaces"],col:"#FFD54F",
+ html:`<p>Les enfants sur une ligne, chacun son ballon. L'éducateur, à <b>15 m</b>, dos tourné, dit « 1, 2, 3… soleil ! » et se retourne : tout le monde doit être <b>arrêté, semelle sur le ballon</b>. Celui qui bouge recule de 3 pas.</p><p><b>Variante</b> : avancer seulement avec l'extérieur du pied.</p>`,
+ an:F=>{F.el("line",{x1:0,y1:12,x2:14,y2:12,stroke:"#fff","stroke-width":.1});F.txt(7,13.3,"départ",{s:.5});const ed=F.el("circle",{cx:7,cy:0,r:.6,fill:"#F2C200",stroke:"#fff","stroke-width":.1});F.txt(7,-1.2,"éducateur",{s:.5,c:"#F2C200"});
+  const mk=x=>[[0,x,12],[1.6,x,8.5],[2.6,x,8.5],[4,x,5],[4.8,x,5]];const ks=[3,7,11].map(mk);
+  return {vb:[-1,-2.2,16,16.4],T:4.9,intro:"Dos tourné : on avance en conduite.",actors:ks.map(p=>({path:p,ball:p.map((q,i)=>[q[0],q[1],q[2]-(i===1||i===2||i===4?.7:1)])})),say:[[0,"« 1, 2, 3… » : on avance en conduite"],[1.6,"« Soleil ! » : semelle, on ne bouge plus"],[2.6,"Il se retourne : on repart"]],tick:t=>ed.setAttribute("fill",(t>1.6&&t<2.6)||t>4?"#E53935":"#F2C200")}}},
+{id:"parcours",nom:"Le parcours des 4 surfaces",type:"at",cats:["U7","U8","U9"],th:["conduite","dribble","surfaces"],col:"#FFB74D",
+ html:`<p><b>2 colonnes</b>, 5 plots tous les <b>2 m</b>, porte d'arrivée 4 m plus loin.</p><ul><li>Passage 1 : <b>intérieur</b> · 2 : <b>extérieur</b> · 3 : <b>semelle</b> à chaque plot · 4 : slalom libre puis <b>accélération</b>.</li><li>Relais entre les deux colonnes à partir du 3e passage.</li></ul><p><b>On regarde</b> : les deux pieds, le ballon à un pas.</p>`,
+ an:F=>{for(let i=0;i<5;i++){F.cone(2+2*i,1.5);F.cone(2+2*i,5)}[.5,2.5,4,6].forEach(y=>F.cone(14,y,"#fff"));F.txt(14,7.3,"arrivée",{s:.55});
+  const zig=(y,t0,s)=>{const p=[[t0,0,y]];let t=t0;for(let i=0;i<5;i++){t+=s;p.push([t,2+2*i-1,y+(i%2?.8:-.8)]);t+=s;p.push([t,2+2*i+1,y+(i%2?-.8:.8)])}t+=1.2;p.push([t,14,y]);t+=.6;p.push([t,15.5,y]);return p};const a=zig(1.5,0,.55),b=zig(5,.3,.6);
+  return {vb:[-3,-1,20,9.5],T:7.5,intro:"Le slalom, puis l'accélération jusqu'à la porte.",actors:[{path:a,ball:lead(a,.75),label:"A"},{path:b,ball:lead(b,.75),label:"B"}],say:[[0,"Passage 1 : intérieur du pied"],[2,"Passage 2 : extérieur"],[4,"Passage 3 : semelle à chaque plot"],[5.8,"Passage 4 : on accélère"]]}}},
+{id:"queue",nom:"La queue du diable en conduite",type:"at",cats:["U7","U8","U9"],th:["conduite","duel","motricite"],col:"#A1887F",
+ html:`<p>Carré de <b>15 × 15 m</b>. Chacun a une <b>chasuble dans le short</b> (la queue) et son ballon. En conduisant, il faut <b>attraper des queues</b> sans perdre son ballon et en protégeant la sienne.</p><ul><li>Une queue attrapée = 1 point, on la rend et on continue.</li><li>Manches de 1 minute.</li></ul><p><b>On regarde</b> : protéger son ballon avec le corps, changer de direction.</p>`,
+ an:F=>{F.rect(0,0,15,15);const p1=[[0,3,3],[1.5,6,5],[3,9.2,7.5],[4.5,12,10],[5.5,12.5,12]],p2=[[0,7,8],[1.5,8.3,7],[3,10,7.8],[4.5,12.5,9],[5.5,13,11.5]],p3=[[0,12,3],[2,8,3],[4,4,6],[5.5,3,10]];
+  return {vb:[-1,-1,17,17],T:5.6,intro:"Chacun garde sa queue et son ballon.",actors:[{path:p1,ball:lead(p1),label:"A"},{kind:"def",path:p2,ball:lead(p2),label:"B"},{path:p3,ball:lead(p3)}],say:[[0,"A conduit vers B"],[3,"A attrape la queue de B en gardant son ballon"],[4.5,"B change de direction pour protéger son ballon"]]}}},
+{id:"requins",nom:"Les requins",type:"at",cats:["U7","U8","U9"],th:["duel","dribble","conduite"],col:"#E57373",
+ html:`<p>Couloir <b>12 × 15 m</b>, les poissons avec ballon d'un côté, <b>1 requin</b> au milieu. « La mer est calme ! » : on traverse en conduite, le requin essaie de sortir un ballon. Un poisson touché devient requin.</p><p><b>Consignes</b> : changer de direction ou protéger avec le corps ; le requin joue le ballon.</p>`,
+ an:F=>{F.rect(0,0,15,12);const k1=[[0,.8,3],[1,3,3.2],[2.4,6.5,3.4],[3.2,7.5,1.8],[4.5,11,1.6],[6,14.2,2]],k2=[[0,.8,6],[1,3,6],[2,5.5,6],[2.6,6.6,6.4],[3.1,7.2,6.6],[6,7.6,6.6]],k2b=[[0,1.6,6],[1,3.8,6],[2,6.3,6],[2.6,7.1,6.3],[3.1,7.6,7.1],[3.6,7.9,9.5],[4.4,8.1,12.6],[6,8.1,12.6]],k3=[[0,.8,9],[1.4,3.5,9.2],[2.8,6,9.8],[3.6,7,10.6],[4.6,9.5,10.4],[6,14.2,9.6]],sh=[[0,7.5,6],[1.2,7.3,6],[2.2,7,6.2],[3.1,7.4,6.9],[3.8,7.9,8.5],[6,8,8.5]];
+  return {vb:[-2,-2,19,16],T:6.2,intro:"« La mer est calme » : on traverse.",actors:[{path:k1,ball:lead(k1)},{path:k2,ball:k2b},{path:k3,ball:lead(k3)},{kind:"def",path:sh,label:"R"}],say:[[0,"On traverse en conduisant"],[2.2,"Le requin attaque un ballon"],[3.1,"Touché : le ballon sort"],[4.4,"Les autres changent de direction et passent"]]}}},
+{id:"crocodiles",nom:"La rivière aux crocodiles",type:"at",cats:["U8","U9"],th:["dribble","duel"],col:"#66BB6A",
+ html:`<p>Terrain <b>15 × 20 m</b> avec une <b>rivière</b> de 4 m au milieu : <b>2 crocodiles</b> y restent. Les joueurs traversent en dribble pour marquer un point dans la zone opposée. Ballon perdu : on devient crocodile.</p><p><b>On regarde</b> : accélérer après avoir passé le crocodile.</p>`,
+ an:F=>{F.rect(0,0,20,15);F.zone(8,0,4,15,"rgba(30,136,229,.35)");F.txt(10,-.6,"rivière",{s:.55});const a=[[0,1,4],[1.5,6.5,4.5],[2.3,8.4,3.2],[3,11.8,3],[4.5,18,3.5]],b=[[0,1,10],[1.5,6.5,10],[2.4,8.6,11.4],[3.2,12,11.6],[4.5,18.5,11]],c1=[[0,10,5],[1.5,10,4.6],[2.3,9.6,4.2],[4.5,10,5]],c2=[[0,10,10],[1.6,9.8,10.4],[2.4,9.6,10.6],[4.5,10,10]];
+  return {vb:[-1,-1.6,22,17.2],T:4.7,intro:"Il faut traverser la rivière sans se faire manger.",actors:[{path:a,ball:lead(a)},{path:b,ball:lead(b)},{kind:"def",path:c1,label:"C"},{kind:"def",path:c2,label:"C"}],say:[[0,"On arrive vers la rivière"],[2.3,"Crochet devant le crocodile"],[3,"On accélère pour sortir"]]}}},
+{id:"duel2portes",nom:"1 contre 1, deux portes",type:"at",cats:["U7","U8","U9"],th:["duel","dribble","finition"],col:"#BA68C8",
+ html:`<p>Terrain <b>10 × 12 m</b>, 2 portes au fond. L'attaquant conduit vers les portes, le défenseur entre par le côté au même moment. But = ballon <b>arrêté sous la semelle</b> dans une porte. Si le défenseur prend le ballon, il contre-attaque. On change de rôle à chaque passage.</p><p><b>On regarde</b> : aller vers la porte libre, feinter.</p>`,
+ an:F=>{F.rect(0,0,10,12);F.goal(2.5,0,2.4);F.goal(7.5,0,2.4);F.txt(2.5,-.8,"porte 1",{s:.5});F.txt(7.5,-.8,"porte 2",{s:.5});
+  const a=[[0,5,12],[1,5,9],[1.8,4.4,6.8],[2.3,3.7,5.6],[2.8,4.6,4.4],[3.4,6.5,2.6],[4,7.5,.4]],ab=[[0,5,11.2],[1,5,8.2],[1.8,4.2,6],[2.3,3.4,4.9],[2.8,5.1,3.8],[3.4,7,1.9],[4,7.5,.2]],d=[[0,11.6,7],[1,9,6.2],[1.8,6.5,5.2],[2.3,4.6,4.4],[2.8,4,4],[3.4,4.6,3.4],[4.4,5.2,3]];
+  return {vb:[-3,-1.8,17,15.4],T:4.6,intro:"Départ ensemble : attaquant et défenseur.",actors:[{path:a,ball:ab,label:"A"},{kind:"def",path:d,label:"D"}],say:[[0,"Top départ"],[1.8,"Le défenseur ferme la porte 1"],[2.3,"Feinte…"],[2.8,"…crochet vers la porte 2"],[4,"Semelle dans la porte : 1 point"]]}}},
+{id:"quilles",nom:"Le tir aux quilles",type:"at",cats:["U7","U8","U9"],th:["frappe","conduite","finition"],col:"#F06292",
+ html:`<p>Une ligne de <b>6 plots-quilles</b> au milieu, deux équipes face à face derrière une ligne à <b>6 m</b>. On conduit jusqu'à la ligne, puis on <b>frappe</b> pour faire tomber une quille. Plus de quilles debout côté adverse = victoire.</p><p><b>On regarde</b> : poser le pied d'appui à côté du ballon, frapper du lacet ou de l'intérieur.</p>`,
+ an:F=>{F.el("line",{x1:0,y1:2,x2:16,y2:2,stroke:"#fff","stroke-width":.08,"stroke-dasharray":".4 .3"});F.el("line",{x1:0,y1:14,x2:16,y2:14,stroke:"#fff","stroke-width":.08,"stroke-dasharray":".4 .3"});const Q=[3,5,7,9,11,13].map(x=>F.cone(x,8,"#FFEB3B"));
+  const a=[[0,5,16],[1.2,6.6,14.3],[1.6,6.8,14.1],[3,6.8,14.1]],ab=[[0,5.2,15.2],[1.2,6.8,13.6],[1.6,6.9,13.4],[2.4,7,8.1],[3,7.1,6]],b=[[0,11,0],[1.4,10,1.7],[1.8,9.8,1.9],[3,9.8,1.9]],bb=[[0,10.8,.8],[1.4,9.9,2.4],[1.8,9.8,2.6],[2.6,9.3,7.4],[3,9.2,9]];
+  return {vb:[-1,-1,18,18],T:3.2,intro:"On conduit jusqu'à la ligne, puis on frappe.",actors:[{path:a,ball:ab},{kind:"def",path:b,ball:bb}],say:[[0,"Conduite jusqu'à la ligne"],[1.6,"Frappe !"],[2.4,"La quille tombe : 1 point"]],tick:t=>{Q.forEach((q,i)=>q.setAttribute("opacity",(i===2&&t>2.4)||(i===3&&t>2.65)?".25":"1"))}}}},
+{id:"passeportes",nom:"Trouver son partenaire",type:"at",cats:["U8","U9"],th:["passe","conduite"],col:"#64B5F6",
+ html:`<p>Carré de <b>20 × 20 m</b> avec <b>8 petites portes</b> de 1 m. Par deux, un ballon : on se fait des <b>passes à travers les portes</b>. Une porte réussie = 1 point. Interdit de passer deux fois de suite par la même porte.</p><p><b>On regarde</b> : s'appeler, se démarquer, passer de l'intérieur du pied.</p>`,
+ an:F=>{F.rect(0,0,20,20);[[5,5],[10,4],[15,6],[4,11],[16,12],[6,16],[11,16],[15,15]].forEach(([x,y])=>{F.cone(x-.5,y,"#FFEB3B");F.cone(x+.5,y,"#FFEB3B")});
+  const a=[[0,3,8],[1,4,7],[3,8,9],[4.5,9,13],[6,12,14]],b=[[0,13,9],[1,12,10],[2.5,12,9],[4,14,10],[6,14,12]],ball=[[0,3.6,8],[1,4.6,7],[1.8,10,4.7],[2.5,11.5,9],[3.2,11.6,9.3],[4.2,9.4,12.6],[6,12.4,13.6]];
+  return {vb:[-1,-1,22,22],T:6,intro:"Par deux : des passes à travers les portes.",actors:[{path:a,label:"1"},{kind:"mate",path:b,label:"2"},{path:[[0,-9,-9],[6,-9,-9]],ball}],say:[[0,"1 regarde son partenaire"],[1,"Passe à travers la porte : 1 point"],[2.5,"2 contrôle et rejoue par une autre porte"]]}}},
+{id:"deuxcontreun",nom:"2 contre 1 vers le but",type:"at",cats:["U8","U9"],th:["finition","passe","dribble"],col:"#FF8A65",
+ html:`<p>Terrain <b>15 × 12 m</b>, un mini-but. Deux attaquants partent ensemble contre <b>1 défenseur</b>. Si le défenseur vient sur le porteur : passe au partenaire libre. S'il reste au milieu : on dribble. Tir dans le but.</p><p><b>On regarde</b> : fixer le défenseur avant de passer.</p>`,
+ an:F=>{F.rect(0,0,12,15);F.goal(6,0,3);const a=[[0,3,14],[1.4,4.2,9],[2,5,7],[3.2,5,7]],ab=[[0,3.4,13.3],[1.4,4.5,8.3],[2,5.2,6.4],[2.6,8.6,6],[3.2,8.6,6]],m=[[0,9,14],[1.4,8.6,9],[2.6,8.6,6.2],[3.4,7.8,3.6],[4,7,2]],mb=[[2.6,8.6,6],[3,8.6,6],[3.4,7.9,3.1],[4,6.5,.2]],d=[[0,6,3],[1.4,5.6,5],[2,5.2,6.2],[3,6.6,4.6],[4,6.8,3.4]];
+  const ball=ab.concat(mb.slice(1));
+  return {vb:[-1,-1.6,14,17.6],T:4.2,intro:"Deux attaquants contre un défenseur.",actors:[{path:a,label:"A"},{path:m,label:"B"},{kind:"def",path:d,label:"D"},{path:[[0,-9,-9],[4,-9,-9]],ball}],say:[[0,"A conduit vers le défenseur"],[2,"Le défenseur sort sur A"],[2.6,"Passe à B, libre"],[3.4,"B tire dans le but"]]}}},
+{id:"match",nom:"Match à effectif réduit",type:"jeu",cats:["U7","U8","U9"],th:["duel","finition","passe","conduite","dribble"],col:"#81C784",
+ html:`<p><b>{N} contre {N}</b> sur un terrain de <b>{L} × {l} m</b>, 2 mini-buts par équipe, pas de gardien.</p><ul><li>{REGLE}</li><li>Rotation ou mi-temps toutes les 5 minutes, pause boisson au milieu.</li></ul>`,
+ an:F=>{F.rect(0,0,15,10);F.goal(0,2.5,2,1);F.goal(0,7.5,2,1);F.goal(15,2.5,2,1);F.goal(15,7.5,2,1);const a1=[[0,4,5],[1.5,7,4.6],[2.6,9.5,3.6],[3.4,11.5,2.9],[4.4,14.3,2.6]],a1b=[[0,4.8,5],[1.5,7.8,4.4],[2.6,10.3,3.4],[3.4,12.3,2.8],[4.4,14.7,2.5]];
+  return {vb:[-2,-1.5,19,13],T:4.8,intro:"On joue !",actors:[{path:a1,ball:a1b},{path:[[0,4,8],[4.8,9,8]]},{path:[[0,6,2],[4.8,10,1.5]]},{kind:"def",path:[[0,10,5],[1.5,9.6,4.8],[2.6,9.6,4.2],[4.8,10.5,3.8]]},{kind:"def",path:[[0,11,8],[4.8,12,7]]},{kind:"def",path:[[0,12,3],[4.8,12.4,5]]}],say:[[0,"L'équipe bleue attaque"],[2.4,"Dribble pour passer le défenseur"],[4.3,"But !"]]}}}
+];
+const FIX={accueil:{nom:"Accueil et rituel",col:"#8C9AB0",html:`<p>Chacun son ballon, cercle au rond central. Le mot du jour sur le thème de la séance, on montre le geste.</p>`},
+ pause:{nom:"Pause boisson",col:"#8C9AB0",html:`<p>On boit, on rattache ses lacets.</p>`},
+ bilan:{nom:"Retour au calme et bilan",col:"#8C9AB0",html:`<p>En cercle : une question sur le thème du jour, chacun montre ce qu'il a appris. On range ensemble.</p>`}};
+const TH={conduite:["conduite","conduire","conduis"],dribble:["dribble","dribbl","feinte","crochet","eliminer","éliminer"],surfaces:["surface","interieur","intérieur","exterieur","extérieur","semelle","toutes les surfaces"],duel:["duel","1 contre 1","1c1","un contre un","defendre","défendre","defense","défense"],passe:["passe","partenaire","passer"],frappe:["frappe","tir","tirer","viser","marquer"],motricite:["motricite","motricité","courir","coordination"],finition:["finition","finir","2 contre 1","2c1","but"]};
+const nrm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+/* ===================== composer une séance (mode simple, sans IA) ===================== */
+function parseBrief(t,prev){const s=nrm(t);const b=Object.assign({cat:"U7",dur:75,eff:8,th:[]},prev||{});
+  const c=s.match(/\bu ?(7|8|9|10|11|12|13)\b/);if(c)b.cat="U"+c[1];
+  let m=s.match(/(\d)\s*h\s*(\d{1,2})?/);if(m)b.dur=(+m[1])*60+(+(m[2]||0));else{m=s.match(/(\d{2,3})\s*(min|mn|minutes)/);if(m)b.dur=+m[1]}
+  m=s.match(/(\d{1,2})\s*(joueurs|enfants|gamins|joueuses)/);if(m)b.eff=+m[1];
+  const th=Object.keys(TH).filter(k=>TH[k].some(w=>s.includes(nrm(w))));if(th.length)b.th=th;return b}
+const score=(x,th)=>th.reduce((a,t)=>a+(x.th.includes(t)?(x.th.indexOf(t)===0?3:2):0),0);
+function compose(b){const lib=LIB.filter(x=>x.cats.includes(b.cat));const th=b.th.length?b.th:["conduite","duel"];const used=new Set(b.exclude||[]);
+  const pick=(type,n,avoid)=>lib.filter(x=>x.type===type&&!used.has(x.id)&&!(avoid||[]).includes(x.id)).sort((p,q)=>score(q,th)-score(p,th)).slice(0,n);
+  const mt=pick("mt",1)[0];const ats=pick("at",3);const nAt=b.dur>=70?3:b.dur>=55?2:1;
+  const blocks=[{k:"accueil"},{k:"lib",id:mt.id,role:"Mise en train"}];ats.slice(0,nAt).forEach((x,i)=>{blocks.push({k:"lib",id:x.id,role:"Atelier "+(i+1)});if(i===0&&nAt>1)blocks.push({k:"pause"})});blocks.push({k:"lib",id:"match",role:"Match"},{k:"bilan"});
+  /* durées : fixes + le reste réparti */const fixed={accueil:5,pause:3,bilan:3};let rest=b.dur-blocks.reduce((a,x)=>a+(fixed[x.k]||0),0);const libB=blocks.filter(x=>x.k==="lib");const w=x=>x.role==="Mise en train"?.7:x.role==="Match"?.9:1;const W=libB.reduce((a,x)=>a+w(x),0);
+  libB.forEach(x=>{x.m=Math.max(5,Math.round(rest*w(x)/W))});blocks.forEach(x=>{if(fixed[x.k])x.m=fixed[x.k]});const diff=b.dur-blocks.reduce((a,x)=>a+x.m,0);libB[libB.length-1].m+=diff;
+  return {brief:b,blocks,titre:`${b.cat} · ${th.map(t=>({conduite:"conduite",dribble:"dribble",surfaces:"toutes surfaces",duel:"duel",passe:"passe",frappe:"frappe",motricite:"motricité",finition:"finition"})[t]).join(", ")}`}}
+function swapBlock(se,i,want){const b=se.blocks[i];if(!b||b.k!=="lib")return null;const cur=LIB.find(x=>x.id===b.id);const ids=se.blocks.filter(x=>x.k==="lib").map(x=>x.id);
+  const th=want&&want.length?want:se.brief.th.length?se.brief.th:cur.th;const c=LIB.filter(x=>x.cats.includes(se.brief.cat)&&x.type===cur.type&&!ids.includes(x.id)).sort((p,q)=>score(q,th)-score(p,th));if(!c.length)return null;b.id=c[0].id;return c[0]}
+/* commandes de changement en mode simple */
+function localEdit(t){const s=nrm(t);const se=S.se;if(!se)return null;
+  const libIdx=se.blocks.map((x,i)=>x.k==="lib"?i:-1).filter(i=>i>=0);
+  let idx=-1;const n=s.match(/atelier\s*(\d)/);if(n){idx=se.blocks.findIndex(x=>x.role==="Atelier "+n[1])}
+  if(/mise en train|echauffement/.test(s))idx=se.blocks.findIndex(x=>x.role==="Mise en train");if(/\bmatch\b/.test(s)&&idx<0)idx=se.blocks.findIndex(x=>x.role==="Match");
+  if(idx<0){const hit=libIdx.find(i=>{const x=LIB.find(y=>y.id===se.blocks[i].id);return s.includes(nrm(x.nom).replace(/^(les?|la) /,""))});if(hit!=null)idx=hit}
+  const th=Object.keys(TH).filter(k=>TH[k].some(w=>s.includes(nrm(w))));
+  if(/(change|remplace|autre|pas|enleve)/.test(s)&&idx>=0){const old=LIB.find(x=>x.id===se.blocks[idx].id).nom;const nw=swapBlock(se,idx,th);return nw?`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`:"Je n'ai pas d'autre atelier de ce type pour cette catégorie."}
+  const d=parseBrief(t,{});if(/(\d)\s*h|\d{2,3}\s*min/.test(s)){S.se=compose(Object.assign({},se.brief,{dur:d.dur}));return `C'est noté : la séance dure maintenant <b>${S.se.brief.dur} min</b>.`}
+  if(/joueurs|enfants/.test(s)){se.brief.eff=d.eff;return `C'est noté : <b>${d.eff} joueurs</b>. Le match et les groupes sont adaptés.`}
+  if(th.length){se.brief.th=[...new Set(th.concat(se.brief.th||[]))];const keep=se.brief;S.se=compose(keep);return `C'est noté : j'ai mis plus de <b>${th.join(", ")}</b> dans la séance.`}
+  return null}
+/* ===================== IA Claude (via le script Google du club, la clé reste côté serveur) ===================== */
+async function askClaude(text){if(!S.code)return null;
+  const cat=(S.se&&S.se.brief.cat)||parseBrief(text).cat;const lib=LIB.filter(x=>x.cats.includes(cat)).map(x=>({id:x.id,nom:x.nom,type:x.type,themes:x.th}));
+  const body={ai:1,code:S.code,message:text,seance:S.se||null,catalogue:lib,consigne:"Tu es l'assistant séance du Pau FC. Réponds en JSON : {reply:'phrase courte en français', brief:{cat,dur,eff,th:[]}, blocks:[{k:'accueil'|'lib'|'pause'|'bilan', id?:'id du catalogue', role?:'Mise en train'|'Atelier 1'|'Atelier 2'|'Atelier 3'|'Match', m:minutes}]}. Utilise seulement les id du catalogue. La somme des minutes = durée demandée."};
+  try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});const j=await r.json();if(!j||!j.blocks)return j&&j.error?{err:j.error}:null;
+    const ok=j.blocks.every(x=>x.k!=="lib"||LIB.some(y=>y.id===x.id));if(!ok)return null;S.se={brief:Object.assign({cat,dur:75,eff:8,th:[]},j.brief||{}),blocks:j.blocks,titre:S.se?S.se.titre:cat};return {reply:j.reply||"Voilà ta séance."}}catch(e){return null}}
+/* ===================== affichage ===================== */
+const chat=document.getElementById("chat"),out=document.getElementById("out");
+function msg(html,who){const d=document.createElement("div");d.className="msg "+(who||"ai");d.innerHTML=html;chat.appendChild(d);(S.hist=S.hist||[]).push([who||"ai",html]);S.hist=S.hist.slice(-20);save();return d}
+function chips(list){const c=document.getElementById("chips");c.innerHTML=list.map(x=>`<button>${x}</button>`).join("");c.querySelectorAll("button").forEach(b=>b.onclick=()=>send(b.textContent))}
+function render(flash){if(TM)stopTimer(false);const se=S.se;if(!se){out.innerHTML=`<div class="empty"><b>Comment ça marche</b><br>Écris ou dis ta séance : la catégorie, la durée, l'effectif et ce que tu veux travailler. L'assistant te propose une séance complète avec des ateliers animés. Ensuite, tu peux tout changer en une phrase : « change l'atelier 2 », « plus de duel », « 1 heure seulement ».</div>`;return}
+  const b=se.brief;const tot=se.blocks.reduce((a,x)=>a+x.m,0);const N=Math.max(2,Math.floor(b.eff/2));const sz=N<=3?[15,10]:N<=4?[20,15]:[25,18];
+  const libB=id=>LIB.find(x=>x.id===id);const colOf=x=>x.k==="lib"?libB(x.id).col:FIX[x.k].col;const nomOf=x=>x.k==="lib"?libB(x.id).nom:FIX[x.k].nom;
+  let t0=0;out.innerHTML=`<div class="sum"><span>${b.cat}</span><span>${tot} min</span><span>${b.eff} joueurs</span><span>${(b.th||[]).join(" · ")||"thème libre"}</span></div><div class="tl">${se.blocks.map((x,i)=>`<a href="#b${i}" style="width:${x.m/tot*100}%;background:${colOf(x)}">${x.m>=10?x.m+"'":""}</a>`).join("")}</div>`+
+   se.blocks.map((x,i)=>{const L=x.k==="lib"?libB(x.id):null;let h=L?L.html:FIX[x.k].html;if(L&&L.id==="match")h=h.replace(/\{N\}/g,N).replace("{L}",sz[0]).replace("{l}",sz[1]).replace("{REGLE}",(b.th||[]).includes("duel")||(b.th||[]).includes("conduite")?"<b>Règle du jour</b> : un but marqué en conduisant le ballon dans le but compte double.":"<b>Règle du jour</b> : un but après une passe compte double.");
+     const s=`<section id="b${i}" style="--c:${colOf(x)}" class="${flash===i?"new":""}"><div class="sh"><h2>${x.role?x.role+" · ":""}${nomOf(x)}</h2><span class="min">${x.m} min · ${t0}'→${t0+x.m}'</span></div>${L?L.th.map(t=>`<span class="tag">${t}</span>`).join(""):""}${h}${L?`<div data-an="${i}"></div><div class="alt"><button data-sw="${i}">⇄ Autre atelier</button></div>`:""}<div class="tim"><button data-tm="${i}">⏱ Lancer ${x.m} min</button><b id="tm${i}">${x.m}:00</b><button data-tr="${i}" title="Remettre à zéro">↺</button></div></section>`;t0+=x.m;return s}).join("");
+  se.blocks.forEach((x,i)=>{if(x.k!=="lib")return;const box=out.querySelector(`[data-an="${i}"]`);const L=libB(x.id);const tmp=document.createElement("div");const F=field(tmp,[0,0,1,1]);const A=L.an(F);F.s.setAttribute("viewBox",A.vb.join(" "));box.appendChild(F.s);anim(box,F,A)});
+  bindTimers();
+  out.querySelectorAll("[data-sw]").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.sw;const old=libB(S.se.blocks[i].id).nom;const nw=swapBlock(S.se,i);if(nw){msg(`J'ai remplacé « ${old} » par <b>« ${nw.nom} »</b>.`);save();render(i);document.getElementById("b"+i).scrollIntoView({behavior:"smooth",block:"start"})}else msg("Je n'ai pas d'autre atelier de ce type pour cette catégorie.")})}
+async function send(text){text=String(text||"").trim();if(!text)return;msg(text.replace(/</g,"&lt;"),"me");document.getElementById("q").value="";
+  const wait=msg(`<span class="typing"><i></i><i></i><i></i></span>`);
+  let reply=null,flash=null;const ai=await askClaude(text);
+  const isNew=/\bu ?(7|8|9|10|11|12|13)\b/.test(nrm(text));
+  if(ai&&ai.reply)reply=ai.reply;else{const e=S.se&&!isNew?localEdit(text):null;if(e)reply=e;else{const b=parseBrief(text,S.se?S.se.brief:null);if(!["U7","U8","U9"].includes(b.cat)){reply=`Pour l'instant, les ateliers animés existent pour les U7, U8 et U9. Les autres catégories arrivent ensuite.`}else{S.se=compose(b);reply=`Voilà une séance <b>${S.se.brief.cat}</b> de <b>${S.se.brief.dur} min</b> pour <b>${S.se.brief.eff} joueurs</b>. Touche ▶ pour voir chaque atelier. Tu peux me dire par exemple « change l'atelier 2 » ou « plus de frappe ».`}}}
+  if(ai&&ai.err)reply=`<small style="color:var(--mut)">IA Claude : ${ai.err}. Je réponds en mode simple.</small><br>`+reply;
+  wait.remove();S.hist.pop();msg(reply);save();render(flash);chips(S.se?["Change l'atelier 2","Plus de duel","Remplace la mise en train","1 heure seulement","10 joueurs"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe","U9, 1 h 30, dribble et frappe"])}
+/* ===================== chrono de chaque bloc : bip + vibration à la fin, petit bip 30 s avant ===================== */
+let AC=null,TM=null,WL=null;
+function beep(n,len,f){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();for(let k=0;k<n;k++){const o=AC.createOscillator(),g=AC.createGain();o.type="square";o.frequency.value=f||880;o.connect(g);g.connect(AC.destination);const t=AC.currentTime+k*(len+.15);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.35,t+.02);g.gain.setValueAtTime(.35,t+len-.03);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.start(t);o.stop(t+len+.02)}}catch(e){}}
+const vib=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
+async function wake(on){try{if(on&&!WL&&navigator.wakeLock)WL=await navigator.wakeLock.request("screen");if(!on&&WL){WL.release();WL=null}}catch(e){}}
+const fmt=r=>`${Math.floor(r/60)}:${String(r%60).padStart(2,"0")}`;
+function stopTimer(keep){if(!TM)return;clearInterval(TM.h);const b=out.querySelector(`[data-tm="${TM.i}"]`);if(b){b.classList.remove("on");b.textContent=keep?"⏱ Reprendre":"⏱ Relancer"}const sec=document.getElementById("b"+TM.i);if(sec)sec.classList.remove("now");TM=null;wake(false)}
+function bindTimers(){out.querySelectorAll("[data-tm]").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.tm;const el=document.getElementById("tm"+i);
+    beep(1,.01);/* débloque le son sur iPhone : il faut un premier son pendant le toucher */
+    if(TM&&TM.i===i){stopTimer(true);return}stopTimer(false);
+    const blk=S.se.blocks[i];const left=el.dataset.left!=null&&el.dataset.left!==""?+el.dataset.left:blk.m*60;if(left<=0)return;const end=Date.now()+left*1000;let warned=left<=30;
+    const sec=document.getElementById("b"+i);sec.classList.remove("end");sec.classList.add("now");btn.classList.add("on");btn.textContent="⏸ Pause";wake(true);
+    TM={i,h:setInterval(()=>{const r=Math.max(0,Math.round((end-Date.now())/1000));el.dataset.left=r;el.textContent=fmt(r);
+      if(!warned&&r<=30){warned=true;beep(1,.18,660);vib(150)}
+      if(r<=0){clearInterval(TM.h);TM=null;wake(false);btn.classList.remove("on");btn.textContent="✓ Terminé";sec.classList.remove("now");sec.classList.add("end");beep(3,.45,880);vib([400,200,400,200,400]);
+        const nx=document.getElementById("b"+(i+1));if(nx)setTimeout(()=>nx.scrollIntoView({behavior:"smooth",block:"start"}),1200)}},250)}});
+  out.querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>{const i=+b.dataset.tr;if(TM&&TM.i===i)stopTimer(false);const el=document.getElementById("tm"+i);el.dataset.left="";el.textContent=fmt(S.se.blocks[i].m*60);const t=out.querySelector(`[data-tm="${i}"]`);t.textContent=`⏱ Lancer ${S.se.blocks[i].m} min`;document.getElementById("b"+i).classList.remove("end")})}
+/* ===================== voix : dictée du téléphone ===================== */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const mic=document.getElementById("mic");let rec=null;
+mic.onclick=()=>{if(!SR){msg("La dictée directe n'est pas disponible dans ce navigateur. Utilise le micro de ton clavier (🎤 à côté de la barre d'espace) dans la zone de texte.");document.getElementById("q").focus();return}
+  if(rec){rec.stop();return}rec=new SR();rec.lang="fr-FR";rec.interimResults=true;rec.maxAlternatives=1;let fin="";mic.classList.add("rec");
+  rec.onresult=e=>{let t="";for(const r of e.results)t+=r[0].transcript;document.getElementById("q").value=t;fin=t};rec.onerror=()=>{};rec.onend=()=>{mic.classList.remove("rec");rec=null;if(fin.trim())send(fin)};try{rec.start()}catch(e){mic.classList.remove("rec");rec=null}};
+document.getElementById("go").onclick=()=>send(document.getElementById("q").value);
+document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send(e.target.value)}});
+/* code IA */
+const dlg=document.getElementById("dlg");const md=document.getElementById("mode");const setMode=()=>{md.innerHTML=S.code?"IA Claude activée · <a href='#' id='off' style='color:var(--mut)'>désactiver</a>":"Mode simple (sans IA) · <a href='#' id='on' style='color:var(--y)'>activer l'IA Claude</a>";const a=document.getElementById(S.code?"off":"on");a.onclick=e=>{e.preventDefault();if(S.code){S.code="";save();setMode()}else dlg.showModal()}};
+document.getElementById("dlgok").onclick=()=>{S.code=document.getElementById("dlgc").value.trim();save();dlg.close();setMode()};document.getElementById("dlgno").onclick=()=>dlg.close();setMode();
+/* démarrage */
+if(S.hist&&S.hist.length){S.hist.slice(-6).forEach(([w,h])=>{const d=document.createElement("div");d.className="msg "+w;d.innerHTML=h;chat.appendChild(d)})}else msg("Bonjour ! Dis-moi ta séance : la <b>catégorie</b>, la <b>durée</b>, le <b>nombre de joueurs</b> et ce que tu veux <b>travailler</b>. Tu peux écrire ou toucher 🎤 pour parler.");
+render();chips(S.se?["Change l'atelier 2","Plus de duel","Remplace la mise en train","1 heure seulement"]:["U7, 1 h 15, 8 joueurs, conduite et duel","U8, 1 h, 12 joueurs, passe","U9, 1 h 30, dribble et frappe"]);
+</script></body></html>
