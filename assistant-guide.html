@@ -369,12 +369,28 @@ function goTo(i){const el=$("b"+i);if(!el)return;const y=el.getBoundingClientRec
 const sig=x=>x?JSON.stringify([x.k,x.id||"",x.role||"",x.m,x.stations||"",x.at?x.at.nom:""]):"";
 let BUSY=false;
 function remember(){if(!S.se)return;const u=usedIds(S.se).filter(x=>x!=="match");S.recent=[...new Set(u.concat(S.recent||[]))].slice(0,12);save()}
-async function send(text){text=String(text||"").trim();if(!text||BUSY)return;BUSY=true;document.body.classList.add("busy");stopListen(true);
+/* la dictée écrit souvent « U huit », « 12 jours », « une heure quinze » : on remet au propre avant de comprendre */
+const NB={un:1,deux:2,trois:3,quatre:4,cinq:5,six:6,sept:7,huit:8,neuf:9,dix:10,onze:11,douze:12,treize:13,quatorze:14,quinze:15,seize:16,"dix-sept":17,"dix sept":17,"dix-huit":18,"dix huit":18,"dix-neuf":19,"dix neuf":19,vingt:20};
+function spoken(t){const w=Object.keys(NB).sort((a,b)=>b.length-a.length).join("|");
+  t=t.replace(new RegExp("\\b(?:u|you|hu|eu|ü|les u)\\s*-?\\s*("+w+"|\\d{1,2})\\b","gi"),(m,n)=>"U"+(NB[n.toLowerCase()]||n));
+  t=t.replace(/\bmoins de (\d{1,2}|huit|neuf|sept) ans\b/gi,(m,n)=>"U"+(NB[n.toLowerCase()]||n));
+  t=t.replace(new RegExp("\\b("+w+")\\s+(joueurs?|joueuses?|enfants|jours)\\b","gi"),(m,n)=>NB[n.toLowerCase()]+" joueurs");
+  t=t.replace(/\b(\d{1,2})\s*jours?\b/gi,"$1 joueurs");
+  t=t.replace(/\b(une|1)\s*heure\s*(et\s*)?(quart|quinze)\b/gi,"1 h 15").replace(/\b(une|1)\s*heure\s*(et\s*)?(demie|trente)\b/gi,"1 h 30").replace(/\b(une|1)\s*heure\s*(quarante[- ]cinq)\b/gi,"1 h 45").replace(/\b(une|1)\s*heure\b/gi,"1 h").replace(/\b(\d)\s*heures?\b/gi,"$1 h");
+  return t}
+async function send(text){text=spoken(String(text||"").trim());if(!text||BUSY)return;BUSY=true;document.body.classList.add("busy");stopListen(true);
   ["q","q0"].forEach(id=>{$(id).value="";grow($(id))});document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
-  const tn=nrm(text);const isNew=!S.se||/\bu ?(7|8|9|10|11|12|13)\b/.test(tn)||(/(nouvelle|autre) seance|^(une |fais|fait|prepare|propose|cree|je veux une|je voudrais une)|seance (de|sur|pour|avec|passe|conduite|dribble|duel|frappe|controle)/.test(tn)&&!/(change|remplace|enleve|ajoute|retire|plus de|moins de|garde)/.test(tn));const before=S.se?S.se.blocks.map(sig):[];
+  const tn=nrm(text);
+  /* nouvelle séance par défaut ; modification seulement si la phrase le dit clairement */
+  const words=tn.split(/\s+/).length;
+  const editRe=/(change|changer|remplace|enleve|enlever|retire|rajoute|ajoute|plus de |moins de |garde|raccourci|allonge|seulement|autre atelier|atelier ?\d|\d(er|e|eme) atelier|la mise en train|le match|a la suite|les uns apres les autres|tournant|rotation|stations?|mets |met )/;
+  const shortEdit=words<=4&&/(joueurs|\bmin\b|\d ?h\b)/.test(tn);
+  const newRe=/\bu ?(7|8|9|10|11|12|13)\b|theme (de la|du|de cette) (periode|moment|cycle)|theme actuel|(nouvelle|autre) seance|^(une |fais|fait|prepare|propose|cree|je veux|je voudrais|donne)/;
+  const isNew=!S.se||newRe.test(tn)||!(editRe.test(tn)||shortEdit);const before=S.se?S.se.blocks.map(sig):[];
   if(isNew){remember();
     if(!/tournant|rotation|station|circuit|a la suite|les uns apres les autres/.test(tn))text+=S.fmt==="rot"?", en ateliers tournants":", ateliers les uns après les autres"}
-  bubble(`<span class="typing"><i></i><i></i><i></i></span> &nbsp;${isNew?"Je prépare ta séance…":"Je modifie ta séance…"}<br><small>« ${text.replace(/</g,"&lt;")} »</small>`,true);
+  const ub=parseBrief(text,isNew?(S.se?{cat:S.se.brief.cat,eff:S.se.brief.eff,dur:S.se.brief.dur}:null):S.se.brief);const ut=ub.th.length?ub.th.map(t=>THN[t]).join(", "):(isNew?"thème de la période":"");
+  bubble(`<span class="typing"><i></i><i></i><i></i></span> &nbsp;${isNew?"Je prépare une <b>nouvelle séance</b>…":"Je <b>modifie</b> ta séance…"}<br><small>${isNew?`Compris : ${ub.cat} · ${ub.dur} min · ${ub.eff} joueurs${ut?" · "+ut:""}${ub.rot?" · ateliers tournants":""}`:"« "+escH(text)+" »"}</small>`,true);
   let reply=null;let ai=null;try{ai=await askClaude(text,isNew)}catch(e){}
   if(ai&&ai.reply)reply=ai.reply;else{const e=S.se&&!isNew?localEdit(text):null;if(e)reply=e;else{const b=parseBrief(text,S.se?{cat:S.se.brief.cat,eff:S.se.brief.eff,dur:S.se.brief.dur}:null);b.exclude=(S.recent||[]).slice();if(!["U7","U8","U9"].includes(b.cat)){reply=`Pour l'instant, les ateliers animés existent pour les U7, U8 et U9. Les autres catégories arrivent ensuite.`}else{S.se=compose(b);reply=`Voilà ta séance <b>${S.se.brief.cat}</b> de <b>${S.se.brief.dur} min</b> pour <b>${S.se.brief.eff} joueurs</b>. Touche ▶ pour voir chaque atelier.`}}}
   if(ai&&ai.err)reply=reply+`<br><small>(IA momentanément indisponible : ${ai.err}. Séance faite en mode simple.)</small>`;
